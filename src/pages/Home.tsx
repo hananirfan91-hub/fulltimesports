@@ -21,10 +21,18 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
   const [rankings, setRankings] = useState<RankingItem[]>([]);
 
   useEffect(() => {
-    // Increment view counts simulation or simple pull of sorted articles
-    setPosts(DB.getPosts());
-    setFixtures(DB.getFixtures());
-    setRankings(DB.getRankings());
+    const loadData = () => {
+      setPosts(DB.getPosts());
+      setFixtures(DB.getFixtures());
+      setRankings(DB.getRankings());
+    };
+    
+    loadData();
+    
+    window.addEventListener('fts_db_sync', loadData);
+    return () => {
+      window.removeEventListener('fts_db_sync', loadData);
+    };
   }, [activeGeo]);
 
   // Section divisions

@@ -1,4 +1,5 @@
 import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem } from '../types';
+import { supabase } from './supabase';
 
 const STORAGE_KEYS = {
   POSTS: 'fts_posts',
@@ -24,8 +25,6 @@ const SEED_CATEGORIES: Category[] = [
 
 // Seed Admin Users
 const SEED_ADMINS: AdminUser[] = [
-  { id: 'admin-1', name: 'James Carter', email: 'james.carter@fulltimesports.com', role: 'Editor-in-Chief', password: 'writer123' },
-  { id: 'admin-2', name: 'Sarah Patel', email: 'sarah.patel@fulltimesports.com', role: 'Senior Sports Analyst', password: 'writer123' },
   { id: 'admin-3', name: 'Hanan Irfan', email: 'hananirfan91@gmail.com', role: 'Super Admin', password: 'hanan@2007.' },
 ];
 
@@ -417,6 +416,84 @@ const SEED_FIXTURES: FixtureItem[] = [
 ];
 
 export class DB {
+  static async syncFromSupabase() {
+    try {
+      // 1. Sync Categories
+      const { data: categories, error: catError } = await supabase.from('fts_categories').select('*');
+      if (!catError && categories) {
+        if (categories.length > 0) {
+          localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+        } else {
+          // Empty, seed Supabase
+          const localCats = this.getCategories();
+          await supabase.from('fts_categories').insert(localCats);
+        }
+      }
+
+      // 2. Sync Posts
+      const { data: posts, error: postError } = await supabase.from('fts_posts').select('*');
+      if (!postError && posts) {
+        if (posts.length > 0) {
+          const parsedPosts = posts.map(p => ({
+            ...p,
+            tags: Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? JSON.parse(p.tags) : [])
+          }));
+          localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(parsedPosts));
+        } else {
+          // Empty, seed Supabase
+          const localPosts = this.getAdminAllPosts();
+          // Convert tags to JSON arrays for Supabase
+          const dbPosts = localPosts.map(p => ({
+            ...p,
+            tags: JSON.stringify(p.tags) as any
+          }));
+          await supabase.from('fts_posts').insert(dbPosts);
+        }
+      }
+
+      // 3. Sync Rankings
+      const { data: rankings, error: rankError } = await supabase.from('fts_rankings').select('*');
+      if (!rankError && rankings) {
+        if (rankings.length > 0) {
+          localStorage.setItem(STORAGE_KEYS.RANKINGS, JSON.stringify(rankings));
+        } else {
+          // Empty, seed Supabase
+          const localRankings = this.getRankings();
+          await supabase.from('fts_rankings').insert(localRankings);
+        }
+      }
+
+      // 4. Sync Fixtures
+      const { data: fixtures, error: fixError } = await supabase.from('fts_fixtures').select('*');
+      if (!fixError && fixtures) {
+        if (fixtures.length > 0) {
+          localStorage.setItem(STORAGE_KEYS.FIXTURES, JSON.stringify(fixtures));
+        } else {
+          // Empty, seed Supabase
+          const localFixtures = this.getFixtures();
+          await supabase.from('fts_fixtures').insert(localFixtures);
+        }
+      }
+
+      // 5. Sync Media
+      const { data: media, error: mediaError } = await supabase.from('fts_media').select('*');
+      if (!mediaError && media) {
+        if (media.length > 0) {
+          localStorage.setItem(STORAGE_KEYS.MEDIA, JSON.stringify(media));
+        } else {
+          // Empty, seed Supabase
+          const localMedia = this.getMedia();
+          await supabase.from('fts_media').insert(localMedia);
+        }
+      }
+
+      // Broadcast update across listening views
+      window.dispatchEvent(new CustomEvent('fts_db_sync'));
+    } catch (e) {
+      console.warn("Supabase Sync Incomplete or SQL Setup Missing, using robust Local Cache:", e);
+    }
+  }
+
   static init() {
     if (!localStorage.getItem(STORAGE_KEYS.POSTS)) {
       localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(SEED_POSTS));
@@ -436,15 +513,13 @@ export class DB {
     if (!localStorage.getItem(STORAGE_KEYS.FIXTURES)) {
       localStorage.setItem(STORAGE_KEYS.FIXTURES, JSON.stringify(SEED_FIXTURES));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.CURRENT_ADMIN)) {
-      // Default live session superadmin
-      localStorage.setItem(STORAGE_KEYS.CURRENT_ADMIN, JSON.stringify(SEED_ADMINS[2])); 
-    }
+    
+    // Start background sync from Supabase database
+    this.syncFromSupabase();
   }
 
   // POSTS
   static getPosts(): Post[] {
-    this.init();
     const data = localStorage.getItem(STORAGE_KEYS.POSTS);
     const posts = data ? JSON.parse(data) : [];
     // Filter out posts scheduled for the future
@@ -459,7 +534,6 @@ export class DB {
 
   static getAdminAllPosts(): Post[] {
     // Admins can see all posts, even future scheduled ones
-    this.init();
     const data = localStorage.getItem(STORAGE_KEYS.POSTS);
     const posts = data ? JSON.parse(data) : [];
     return posts.sort((a: Post, b: Post) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -479,6 +553,15 @@ export class DB {
     };
     posts.unshift(newPost);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+
+    // Async sync with Supabase
+    supabase.from('fts_posts').insert([{
+      ...newPost,
+      tags: JSON.stringify(newPost.tags) as any
+    }]).then(({ error }) => {
+      if (error) console.warn("Supabase insert fts_posts error:", error);
+    });
+
     return newPost;
   }
 
@@ -488,6 +571,16 @@ export class DB {
     if (index === -1) throw new Error('Post not found');
     posts[index] = { ...posts[index], ...updatedFields };
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+
+    // Async sync with Supabase
+    const dbUpdateFields = { ...updatedFields };
+    if (updatedFields.tags) {
+      dbUpdateFields.tags = JSON.stringify(updatedFields.tags) as any;
+    }
+    supabase.from('fts_posts').update(dbUpdateFields).eq('id', id).then(({ error }) => {
+      if (error) console.warn("Supabase update fts_posts error:", error);
+    });
+
     return posts[index];
   }
 
@@ -495,6 +588,11 @@ export class DB {
     const posts = this.getAdminAllPosts();
     const filtered = posts.filter(p => p.id !== id);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
+
+    // Async sync with Supabase
+    supabase.from('fts_posts').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn("Supabase delete fts_posts error:", error);
+    });
   }
 
   static incrementViews(id: string) {
@@ -502,8 +600,14 @@ export class DB {
       const posts = this.getAdminAllPosts();
       const index = posts.findIndex(p => p.id === id);
       if (index !== -1) {
-        posts[index].views = (posts[index].views || 0) + 1;
+        const nextViews = (posts[index].views || 0) + 1;
+        posts[index].views = nextViews;
         localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+
+        // Async sync stats
+        supabase.from('fts_posts').update({ views: nextViews }).eq('id', id).then(({ error }) => {
+          if (error) console.warn("Supabase views update error", error);
+        });
       }
     } catch (e) {
       console.warn("Could not increment views", e);
@@ -512,7 +616,6 @@ export class DB {
 
   // CATEGORIES
   static getCategories(): Category[] {
-    this.init();
     const data = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
     return data ? JSON.parse(data) : [];
   }
@@ -521,6 +624,11 @@ export class DB {
     const list = this.getCategories();
     list.push(category);
     localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(list));
+
+    // Sync
+    supabase.from('fts_categories').insert([category]).then(({ error }) => {
+      if (error) console.warn("Supabase insert fts_categories error:", error);
+    });
   }
 
   static updateCategory(id: string, name: string, description: string) {
@@ -530,6 +638,11 @@ export class DB {
       list[index].name = name;
       list[index].description = description;
       localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(list));
+
+      // Sync
+      supabase.from('fts_categories').update({ name, description }).eq('id', id).then(({ error }) => {
+        if (error) console.warn("Supabase update fts_categories error:", error);
+      });
     }
   }
 
@@ -537,11 +650,15 @@ export class DB {
     const list = this.getCategories();
     const filtered = list.filter(c => c.id !== id);
     localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(filtered));
+
+    // Sync
+    supabase.from('fts_categories').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn("Supabase delete fts_categories error:", error);
+    });
   }
 
   // RANKINGS
   static getRankings(): RankingItem[] {
-    this.init();
     const data = localStorage.getItem(STORAGE_KEYS.RANKINGS);
     return data ? JSON.parse(data) : [];
   }
@@ -553,6 +670,12 @@ export class DB {
       if (idx !== -1) {
         items[idx] = { ...items[idx], ...item } as RankingItem;
         localStorage.setItem(STORAGE_KEYS.RANKINGS, JSON.stringify(items));
+
+        // Sync
+        supabase.from('fts_rankings').update(item).eq('id', item.id).then(({ error }) => {
+          if (error) console.warn("Supabase update fts_rankings error:", error);
+        });
+
         return items[idx];
       }
     }
@@ -562,6 +685,12 @@ export class DB {
     } as RankingItem;
     items.push(newItem);
     localStorage.setItem(STORAGE_KEYS.RANKINGS, JSON.stringify(items));
+
+    // Sync
+    supabase.from('fts_rankings').insert([newItem]).then(({ error }) => {
+      if (error) console.warn("Supabase insert fts_rankings error:", error);
+    });
+
     return newItem;
   }
 
@@ -569,11 +698,15 @@ export class DB {
     const list = this.getRankings();
     const filtered = list.filter(r => r.id !== id);
     localStorage.setItem(STORAGE_KEYS.RANKINGS, JSON.stringify(filtered));
+
+    // Sync
+    supabase.from('fts_rankings').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn("Supabase delete fts_rankings error:", error);
+    });
   }
 
   // FIXTURES
   static getFixtures(): FixtureItem[] {
-    this.init();
     const data = localStorage.getItem(STORAGE_KEYS.FIXTURES);
     return data ? JSON.parse(data) : [];
   }
@@ -585,6 +718,12 @@ export class DB {
       if (idx !== -1) {
         items[idx] = { ...items[idx], ...item } as FixtureItem;
         localStorage.setItem(STORAGE_KEYS.FIXTURES, JSON.stringify(items));
+
+        // Sync
+        supabase.from('fts_fixtures').update(item).eq('id', item.id).then(({ error }) => {
+          if (error) console.warn("Supabase update fts_fixtures error:", error);
+        });
+
         return items[idx];
       }
     }
@@ -594,6 +733,12 @@ export class DB {
     } as FixtureItem;
     items.push(newItem);
     localStorage.setItem(STORAGE_KEYS.FIXTURES, JSON.stringify(items));
+
+    // Sync
+    supabase.from('fts_fixtures').insert([newItem]).then(({ error }) => {
+      if (error) console.warn("Supabase insert fts_fixtures error:", error);
+    });
+
     return newItem;
   }
 
@@ -601,11 +746,15 @@ export class DB {
     const list = this.getFixtures();
     const filtered = list.filter(f => f.id !== id);
     localStorage.setItem(STORAGE_KEYS.FIXTURES, JSON.stringify(filtered));
+
+    // Sync
+    supabase.from('fts_fixtures').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn("Supabase delete fts_fixtures error:", error);
+    });
   }
 
   // ADMINS
   static getAdmins(): AdminUser[] {
-    this.init();
     const data = localStorage.getItem(STORAGE_KEYS.ADMINS);
     return data ? JSON.parse(data) : [];
   }
@@ -617,7 +766,6 @@ export class DB {
   }
 
   static getCurrentAdmin(): AdminUser | null {
-    this.init();
     const data = localStorage.getItem(STORAGE_KEYS.CURRENT_ADMIN);
     return data ? JSON.parse(data) : null;
   }
@@ -632,7 +780,6 @@ export class DB {
 
   // MEDIA LIBRARY
   static getMedia(): MediaItem[] {
-    this.init();
     const data = localStorage.getItem(STORAGE_KEYS.MEDIA);
     return data ? JSON.parse(data) : [];
   }
@@ -645,6 +792,12 @@ export class DB {
     };
     list.unshift(newItem);
     localStorage.setItem(STORAGE_KEYS.MEDIA, JSON.stringify(list));
+
+    // Sync
+    supabase.from('fts_media').insert([newItem]).then(({ error }) => {
+      if (error) console.warn("Supabase insert fts_media error:", error);
+    });
+
     return newItem;
   }
 
@@ -652,5 +805,11 @@ export class DB {
     const list = this.getMedia();
     const filtered = list.filter(m => m.id !== id);
     localStorage.setItem(STORAGE_KEYS.MEDIA, JSON.stringify(filtered));
+
+    // Sync
+    supabase.from('fts_media').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn("Supabase delete fts_media error:", error);
+    });
   }
 }
+

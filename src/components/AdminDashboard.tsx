@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser } from '../types';
 import { DB } from '../lib/db';
+import { supabase } from '../lib/supabase';
 
 interface AdminDashboardProps {
   onNavigate: (path: string) => void;
@@ -80,154 +81,190 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setMedia(DB.getMedia());
   };
 
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
   // Auth Handling
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const emailLower = loginEmail.trim().toLowerCase();
-    const availableAdmins = DB.getAdmins();
-
-    // Force validation for Super Administrator hananirfan91@gmail.com
-    if (emailLower === 'hananirfan91@gmail.com') {
-      if (loginPassword !== 'hanan@2007.') {
-        setLoginError('Invalid password for Super Admin. Please use hanan@2007.');
-        return;
-      }
-      
-      // Upsert Hanan's Super Admin node
-      let matched = availableAdmins.find(a => a.email.toLowerCase() === 'hananirfan91@gmail.com');
-      if (!matched) {
-        matched = {
-          id: 'admin-3',
-          name: 'Hanan Irfan',
-          email: 'hananirfan91@gmail.com',
-          role: 'Super Admin',
-          password: 'hanan@2007.'
-        };
-        DB.registerAdmin(matched);
-      } else if (matched.password !== 'hanan@2007.' || matched.role !== 'Super Admin') {
-        matched.password = 'hanan@2007.';
-        matched.role = 'Super Admin';
-        const updated = availableAdmins.map(a => a.email.toLowerCase() === 'hananirfan91@gmail.com' ? matched! : a);
-        localStorage.setItem('fts_admins', JSON.stringify(updated));
-      }
-
-      DB.setCurrentAdmin(matched);
-      setCurrentAdmin(matched);
-      setLoginError('');
-      setLoginPassword('');
-      setTimeout(() => {
-        refreshData();
-      }, 100);
+    
+    if (!emailLower || !loginPassword) {
+      setLoginError('Please enter both email and password.');
       return;
     }
 
-    const matched = availableAdmins.find(a => a.email.toLowerCase() === emailLower);
-    
-    if (matched) {
-      if (matched.password && matched.password !== loginPassword) {
-        setLoginError('Invalid password. Please try again.');
+    setIsSigningIn(true);
+    setLoginError('');
+
+    try {
+      // 1. Force check for Hanan Irfan's default credentials
+      if (emailLower === 'hananirfan91@gmail.com' && loginPassword === 'hanan@2007.') {
+        const adminUser: AdminUser = {
+          id: 'admin-3',
+          name: 'Hanan Irfan',
+          email: 'hananirfan91@gmail.com',
+          role: 'Super Admin'
+        };
+
+        // Try dynamically registering profile and signing up in the background
+        try {
+          await supabase.from('fts_profiles').upsert([
+            { id: adminUser.id, name: adminUser.name, email: adminUser.email, role: adminUser.role, password: loginPassword }
+          ]);
+          await supabase.auth.signUp({
+            email: emailLower,
+            password: loginPassword,
+            options: { data: { name: adminUser.name, role: adminUser.role } }
+          });
+        } catch (e) {
+          console.warn("Background register error (non-blocking):", e);
+        }
+
+        DB.setCurrentAdmin(adminUser);
+        setCurrentAdmin(adminUser);
+        setLoginPassword('');
+        setTimeout(() => refreshData(), 100);
+        setIsSigningIn(false);
         return;
       }
-      DB.setCurrentAdmin(matched);
-      setCurrentAdmin(matched);
-      setLoginError('');
-      setLoginPassword('');
-      setTimeout(() => {
-        refreshData();
-      }, 100);
-    } else {
-      setLoginError('This email is not registered. Please create an account below.');
+
+      // 2. Real auth flow via Supabase Login
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: emailLower,
+        password: loginPassword
+      });
+
+      if (!authError && authData?.user) {
+        const meta = authData.user.user_metadata || {};
+        const adminUser: AdminUser = {
+          id: authData.user.id,
+          name: meta.name || authData.user.email?.split('@')[0] || 'Contributor',
+          email: authData.user.email || emailLower,
+          role: meta.role || 'Contributor'
+        };
+
+        DB.setCurrentAdmin(adminUser);
+        setCurrentAdmin(adminUser);
+        setLoginPassword('');
+        setTimeout(() => refreshData(), 100);
+        setIsSigningIn(false);
+        return;
+      }
+
+      // 3. Fallback: Lookup in fts_profiles table
+      const { data: profileList, error: profError } = await supabase
+        .from('fts_profiles')
+        .select('*')
+        .eq('email', emailLower)
+        .eq('password', loginPassword);
+
+      if (!profError && profileList && profileList.length > 0) {
+        const found = profileList[0];
+        const adminUser: AdminUser = {
+          id: found.id || `user-${Date.now()}`,
+          name: found.name,
+          email: found.email,
+          role: found.role
+        };
+
+        DB.setCurrentAdmin(adminUser);
+        setCurrentAdmin(adminUser);
+        setLoginPassword('');
+        setTimeout(() => refreshData(), 100);
+        setIsSigningIn(false);
+        return;
+      }
+
+      setLoginError(authError?.message || 'Invalid email or password. Please try again.');
+    } catch (err: any) {
+      setLoginError(err?.message || 'An error occurred during authentication.');
+    } finally {
+      setIsSigningIn(false);
     }
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    const emailLower = signupEmail.trim().toLowerCase();
+
     if (!signupName.trim() || !signupEmail.trim() || !signupPassword.trim()) {
       setLoginError('Please fill out all fields.');
       return;
     }
 
-    const emailLower = signupEmail.trim().toLowerCase();
+    setIsSigningIn(true);
+    setLoginError('');
 
-    // Handle Super Admin registration
-    if (emailLower === 'hananirfan91@gmail.com') {
-      if (signupPassword !== 'hanan@2007.') {
+    try {
+      if (emailLower === 'hananirfan91@gmail.com' && signupPassword !== 'hanan@2007.') {
         setLoginError('Email hananirfan91@gmail.com is reserved. Please use the password hanan@2007.');
+        setIsSigningIn(false);
         return;
       }
 
-      const availableAdmins = DB.getAdmins();
-      let matched = availableAdmins.find(a => a.email.toLowerCase() === 'hananirfan91@gmail.com');
-      if (!matched) {
-        matched = {
-          id: 'admin-3',
-          name: signupName.trim() || 'Hanan Irfan',
-          email: 'hananirfan91@gmail.com',
-          role: 'Super Admin',
-          password: 'hanan@2007.'
-        };
-        DB.registerAdmin(matched);
-      } else {
-        matched.name = signupName.trim() || matched.name;
-        matched.password = 'hanan@2007.';
-        matched.role = 'Super Admin';
-        const updated = availableAdmins.map(a => a.email.toLowerCase() === 'hananirfan91@gmail.com' ? matched! : a);
-        localStorage.setItem('fts_admins', JSON.stringify(updated));
+      const roleSelected = emailLower === 'hananirfan91@gmail.com' ? 'Super Admin' : signupRole;
+      const newUserId = `user-${Date.now()}`;
+
+      // 1. Try writing profile to public profiles table first
+      const { error: profError } = await supabase.from('fts_profiles').insert([{
+        id: newUserId,
+        name: signupName.trim(),
+        email: emailLower,
+        role: roleSelected,
+        password: signupPassword
+      }]);
+
+      if (profError) {
+        console.warn("Supabase profiles insert warn:", profError);
       }
 
-      setAdmins(DB.getAdmins());
-      DB.setCurrentAdmin(matched);
-      setCurrentAdmin(matched);
-      setLoginError('');
+      // 2. Try registering on Supabase Auth
+      try {
+        const { error: authError } = await supabase.auth.signUp({
+          email: emailLower,
+          password: signupPassword,
+          options: {
+            data: {
+              name: signupName.trim(),
+              role: roleSelected
+            }
+          }
+        });
+        if (authError) console.warn("Supabase auth signUp warn:", authError);
+      } catch (authErr) {
+        console.warn("Non-blocking auth signup error:", authErr);
+      }
+
+      // 3. Log them in automatically
+      const newlyRegisteredData: AdminUser = {
+        id: newUserId,
+        name: signupName.trim(),
+        email: emailLower,
+        role: roleSelected
+      };
+
+      DB.setCurrentAdmin(newlyRegisteredData);
+      setCurrentAdmin(newlyRegisteredData);
+
       setSignupName('');
       setSignupEmail('');
       setSignupPassword('');
       setIsRegisterMode(false);
-      
-      setTimeout(() => {
-        refreshData();
-      }, 100);
-      return;
+
+      setTimeout(() => refreshData(), 100);
+    } catch (err: any) {
+      setLoginError(err?.message || 'Error occurred during registration.');
+    } finally {
+      setIsSigningIn(false);
     }
-
-    const availableAdmins = DB.getAdmins();
-    const exists = availableAdmins.some(a => a.email.toLowerCase() === emailLower);
-    if (exists) {
-      setLoginError('This email is already registered. Please login instead.');
-      return;
-    }
-
-    const newContributor: AdminUser = {
-      id: `user-${Date.now()}`,
-      name: signupName.trim(),
-      email: emailLower,
-      role: signupRole.trim() || 'Contributor',
-      password: signupPassword,
-    };
-
-    // Save contributor and log them in
-    DB.registerAdmin(newContributor);
-    setAdmins(DB.getAdmins());
-    
-    DB.setCurrentAdmin(newContributor);
-    setCurrentAdmin(newContributor);
-    
-    // Clear registration fields
-    setLoginError('');
-    setSignupName('');
-    setSignupEmail('');
-    setSignupPassword('');
-    setIsRegisterMode(false);
-    
-    setTimeout(() => {
-      refreshData();
-    }, 100);
   };
 
   const handleLogout = () => {
+    supabase.auth.signOut();
     DB.setCurrentAdmin(null);
     setCurrentAdmin(null);
   };
+
 
   // POST CRUD
   const openNewPost = () => {
@@ -434,167 +471,205 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   // LOGIN RENDER
   if (!currentAdmin) {
     return (
-      <div className="max-w-md mx-auto my-16 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden" id="admin-login-sec">
-        {/* Visual Header with Real Tabs inside the Auth System */}
-        <div className="bg-[#022c22] p-8 text-center text-white relative">
-          <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:16px_16px]"></div>
-          <div className="bg-[#01140f] border border-emerald-950 text-[#22c55e] w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 relative z-10 shadow-lg">
-            <ShieldCheck className="h-7 w-7" />
-          </div>
-          <h2 className="font-display font-black text-2xl tracking-tight relative z-10 uppercase">FTS CMS WORKSPACE</h2>
-          <p className="text-xs text-slate-300 mt-1 uppercase font-mono font-bold tracking-widest relative z-10">
-            Secure Editorial Gateway
-          </p>
-
-          {/* Segmented Tab Bar inside Auth Header */}
-          <div className="flex bg-[#01140f]/80 p-1 rounded-xl mt-6 relative z-10 border border-emerald-955/50">
-            <button
-              type="button"
-              onClick={() => { setIsRegisterMode(false); setLoginError(''); }}
-              className={`flex-1 py-2 text-xs font-mono font-bold uppercase rounded-lg transition-all duration-200 ${
-                !isRegisterMode
-                  ? 'bg-[#22c55e] text-[#022c22] shadow-md'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => { setIsRegisterMode(true); setLoginError(''); }}
-              className={`flex-1 py-2 text-xs font-mono font-bold uppercase rounded-lg transition-all duration-200 ${
-                isRegisterMode
-                  ? 'bg-[#22c55e] text-[#022c22] shadow-md'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Create Account
-            </button>
-          </div>
-        </div>
-
-        <div className="p-8">
-          {loginError && (
-            <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3.5 rounded-xl text-xs font-semibold mb-6 flex items-start space-x-2.5 shadow-sm animate-pulse">
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-              <span>{loginError}</span>
+      <div className="min-h-[85vh] flex items-center justify-center p-4 bg-slate-50 relative rounded-3xl overflow-hidden mt-6" id="admin-login-sec">
+        <div className="absolute inset-0 bg-cover bg-center opacity-5 filter grayscale contrast-125" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80')" }}></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-950/20 via-slate-900/5 to-[#22c55e]/10"></div>
+        
+        <div className="w-full max-w-5xl bg-white/95 backdrop-blur-md border border-slate-200 rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-12 relative z-10 my-8">
+          {/* Brand Left Column - Hidden on mobile */}
+          <div className="hidden md:flex md:col-span-5 bg-gradient-to-b from-[#024030] to-[#01140f] text-white p-10 flex-col justify-between relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:20px_20px]"></div>
+            <div className="absolute -top-12 -left-12 w-48 h-48 bg-[#22c55e]/10 rounded-full blur-3xl"></div>
+            
+            <div className="relative z-10">
+              <button 
+                onClick={() => onNavigate('/')}
+                className="inline-flex items-center space-x-1.5 text-xs text-[#22c55e] hover:text-[#4ade80] font-mono font-bold uppercase transition bg-[#01140f]/50 px-3 py-1.5 rounded-lg border border-emerald-950"
+              >
+                <span>← BACK TO WEBSITE</span>
+              </button>
             </div>
-          )}
 
-          {isRegisterMode ? (
-            /* ================= CONTRIBUTOR SIGNUP FORM ================= */
-            <form onSubmit={handleSignup} className="space-y-4">
-              <div>
-                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Author Full Name</label>
-                <input
-                  type="text"
-                  required
-                  value={signupName}
-                  onChange={(e) => setSignupName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
-                  placeholder="e.g. Liam Sterling"
-                />
+            <div className="relative z-10 my-auto py-8">
+              <div className="bg-[#01140f] border border-emerald-900 text-[#22c55e] w-12 h-12 rounded-2xl flex items-center justify-center mb-6 shadow-md shadow-emerald-950/50">
+                <ShieldCheck className="h-6 w-6" />
               </div>
+              <h1 className="font-display font-black text-3xl leading-none tracking-tight uppercase">
+                FTS EDITORIAL <br />
+                <span className="text-[#22c55e]">STUDIO</span>
+              </h1>
+              <p className="text-xs text-slate-300 mt-4 leading-relaxed font-sans">
+                Access the primary publishing gateway for Full Time Sports. Register to start drafting live football coverage, cricket statistics, formulas, and real-time commentaries.
+              </p>
+            </div>
 
-              <div>
-                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Professional Email Address</label>
-                <input
-                  type="email"
-                  required
-                  value={signupEmail}
-                  onChange={(e) => setSignupEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
-                  placeholder="e.g. liam@sportsmail.com"
-                />
-              </div>
+            <div className="relative z-10 border-t border-emerald-900/50 pt-4 flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span>CMS GATEWAY SECURE v1.4</span>
+              <span>© {new Date().getFullYear()} FTS</span>
+            </div>
+          </div>
 
-              <div>
-                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Analyst Classification Role</label>
-                <select
-                  value={signupRole}
-                  onChange={(e) => setSignupRole(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
-                >
-                  <option value="Football Columnist">Football Columnist</option>
-                  <option value="Cricket Commentator">Cricket Commentator</option>
-                  <option value="Formula 1 Strategist">Formula 1 Strategist</option>
-                  <option value="Esports Chief Editor">Esports Chief Editor</option>
-                  <option value="Senior Sports Analyst">Senior Sports Analyst</option>
-                  <option value="Sports Writer">Sports Writer</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Secret Password</label>
-                <input
-                  type="password"
-                  required
-                  value={signupPassword}
-                  onChange={(e) => setSignupPassword(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl text-xs leading-relaxed text-slate-600">
-                <span className="font-bold block text-[#022c22] uppercase font-mono text-[9px] tracking-wider mb-1">Registration Rules</span>
-                <p className="font-mono text-[10px]">
-                  Creating an account authorizes you to draft columns and log statistical standings on the active FTS database node. Signing up as <strong className="text-slate-800">hananirfan91@gmail.com</strong> with password <strong className="text-[#022c22]">hanan@2007.</strong> unlocks Super Admin permissions.
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full mt-2 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold tracking-wider uppercase py-3 rounded-xl border border-emerald-950 transition-all duration-200 flex items-center justify-center space-x-2 shadow-md cursor-pointer"
+          {/* Form Right Column */}
+          <div className="col-span-12 md:col-span-7 p-8 md:p-12 flex flex-col justify-center">
+            {/* Mobile Header */}
+            <div className="md:hidden text-center mb-6">
+              <h2 className="font-display font-black text-2xl text-[#022c22] uppercase tracking-tight">FTS CMS WORKSPACE</h2>
+              <p className="text-xs text-slate-500 mt-1 uppercase font-mono tracking-widest">Secure Entry Node</p>
+              <button 
+                onClick={() => onNavigate('/')}
+                className="mt-3 inline-flex items-center space-x-1 text-[10px] text-[#022c22] bg-emerald-50 px-3 py-1 rounded font-mono font-bold"
               >
-                <PlusCircle className="h-4 w-4" />
-                <span>Register Workspace Node</span>
+                <span>← GO HOME</span>
               </button>
-            </form>
-          ) : (
-            /* ================= AUTHOR / ADMIN LOGIN FORM ================= */
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Registered Email Address</label>
-                <input
-                  type="email"
-                  required
-                  value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]"
-                  placeholder="e.g. hananirfan91@gmail.com"
-                />
-              </div>
+            </div>
 
-              <div>
-                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Account Password</label>
-                <input
-                  type="password"
-                  required
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <div className="bg-slate-50 border border-slate-150 p-4 rounded-xl text-xs leading-relaxed text-slate-550 mb-2">
-                <span className="font-bold block text-slate-700 uppercase font-mono text-[9px] tracking-wider mb-2">Workspace Guidelines</span>
-                <ul className="list-disc pl-4 space-y-1.5 font-mono text-[10px]">
-                  <li>Super Administrator: <strong className="text-slate-800">hananirfan91@gmail.com</strong> (Password: <strong className="text-emerald-700">hanan@2007.</strong>)</li>
-                  <li>Other Writers: Register a new profile to access your unique workspace for composing analysis.</li>
-                </ul>
-              </div>
-
+            {/* Segmented Controls for Mode switcher */}
+            <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200/60 max-w-sm mx-auto mb-8 w-full">
               <button
-                type="submit"
-                className="w-full bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold tracking-wider uppercase py-3 rounded-xl border border-emerald-950 transition-all duration-200 flex items-center justify-center space-x-2 shadow-md cursor-pointer"
+                type="button"
+                onClick={() => { setIsRegisterMode(false); setLoginError(''); }}
+                className={`flex-1 py-2.5 text-xs font-mono font-bold uppercase rounded-xl transition-all duration-200 ${
+                  !isRegisterMode
+                    ? 'bg-[#022c22] text-[#22c55e] shadow-md animate-none'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
               >
-                <Key className="h-4 w-4 text-[#22c55e]" />
-                <span>Authenticate Session</span>
+                Sign In
               </button>
-            </form>
-          )}
+              <button
+                type="button"
+                onClick={() => { setIsRegisterMode(true); setLoginError(''); }}
+                className={`flex-1 py-2.5 text-xs font-mono font-bold uppercase rounded-xl transition-all duration-200 ${
+                  isRegisterMode
+                    ? 'bg-[#022c22] text-[#22c55e] shadow-md animate-none'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Create Account
+              </button>
+            </div>
+
+            {loginError && (
+              <div className="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl text-xs font-semibold mb-6 flex items-start space-x-2.5 shadow-sm max-w-md mx-auto w-full">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                <span>{loginError}</span>
+              </div>
+            )}
+
+            <div className="max-w-md mx-auto w-full">
+              {isRegisterMode ? (
+                /* ================= CONTRIBUTOR SIGNUP FORM ================= */
+                <form onSubmit={handleSignup} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">Author Full Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={signupName}
+                      onChange={(e) => setSignupName(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition"
+                      placeholder="e.g. Liam Sterling"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">Professional Email Address</label>
+                    <input
+                      type="email"
+                      required
+                      value={signupEmail}
+                      onChange={(e) => setSignupEmail(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition"
+                      placeholder="e.g. liam@sportsmail.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">Analyst Classification Role</label>
+                    <select
+                      value={signupRole}
+                      onChange={(e) => setSignupRole(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition text-slate-700"
+                    >
+                      <option value="Football Columnist">Football Columnist</option>
+                      <option value="Cricket Commentator">Cricket Commentator</option>
+                      <option value="Formula 1 Strategist">Formula 1 Strategist</option>
+                      <option value="Esports Chief Editor">Esports Chief Editor</option>
+                      <option value="Senior Sports Analyst">Senior Sports Analyst</option>
+                      <option value="Sports Writer">Sports Writer</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">Secret Password</label>
+                    <input
+                      type="password"
+                      required
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition"
+                      placeholder="••••••••"
+                    />
+                  </div>
+
+                  <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl text-xs leading-relaxed text-slate-600 font-mono text-[10px]">
+                    <span className="font-bold block text-[#022c22] uppercase tracking-wider mb-1 font-sans">REGISTRATION INFORMATION</span>
+                    Once validated, you can immediately start writing, editing and adding blogs and articles on the sports workspace platform.
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSigningIn}
+                    className="w-full mt-2 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold tracking-wider uppercase py-3 rounded-xl border border-emerald-950 transition-all duration-200 flex items-center justify-center space-x-2 shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    <span>{isSigningIn ? 'Creating Account...' : 'Create Account'}</span>
+                  </button>
+                </form>
+              ) : (
+                /* ================= AUTHOR / ADMIN LOGIN FORM ================= */
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">Registered Email Address</label>
+                    <input
+                      type="email"
+                      required
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-3 text-sm focus:outline-none transition font-sans"
+                      placeholder="e.g. author@fulltimesports.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1.5">Account Password</label>
+                    <input
+                      type="password"
+                      required
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-3 text-sm focus:outline-none transition"
+                      placeholder="••••••••"
+                    />
+                  </div>
+
+                  <div className="bg-slate-50 border border-slate-150 p-4 rounded-xl text-xs leading-relaxed text-slate-550 mb-2 font-mono text-[10px]">
+                    <span className="font-bold block text-slate-750 uppercase tracking-wider mb-1 font-sans">WORKSPACE AUTHENTICATION</span>
+                    Welcome to the Full Time Sports gateway. Please use your authorized email and password credentials to gain verified access.
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSigningIn}
+                    className="w-full bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold tracking-wider uppercase py-3 rounded-xl border border-emerald-950 transition-all duration-200 flex items-center justify-center space-x-2 shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    <Key className="h-4 w-4 text-[#22c55e]" />
+                    <span>{isSigningIn ? 'Authenticating...' : 'Authenticate Workspace Session'}</span>
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -788,7 +863,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 2. CATEGORIES COLUMN */}
-      {activeTab === 'categories' && (
+      {activeTab === 'categories' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-display font-extrabold text-lg text-slate-900">MANAGE SPORTS CATEGORIES</h3>
@@ -832,7 +907,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 3. RANKINGS PANEL */}
-      {activeTab === 'rankings' && (
+      {activeTab === 'rankings' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <div>
@@ -885,7 +960,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 4. FIXTURES PANEL */}
-      {activeTab === 'fixtures' && (
+      {activeTab === 'fixtures' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <div>
@@ -951,7 +1026,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 5. MEDIA LIBRARY PANEL */}
-      {activeTab === 'media' && (
+      {activeTab === 'media' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <h3 className="font-display font-extrabold text-lg text-slate-900 mb-2">MEDIA DIGITAL STORAGE</h3>
           <p className="text-xs text-slate-500 mb-6">
@@ -1008,7 +1083,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 6. HOMEPAGE PORTAL MANAGER COLUMN */}
-      {activeTab === 'homepage' && (
+      {activeTab === 'homepage' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <h3 className="font-display font-extrabold text-lg text-slate-900 mb-2">HOMEPAGE GRID CONTROL</h3>
           <p className="text-xs text-slate-500 mb-6">Assign editorial priority rankings to dictate cards stacking in the 3D Hero layout immediately.</p>
