@@ -83,8 +83,45 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   // Auth Handling
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    const emailLower = loginEmail.trim().toLowerCase();
     const availableAdmins = DB.getAdmins();
-    const matched = availableAdmins.find(a => a.email.toLowerCase() === loginEmail.trim().toLowerCase());
+
+    // Force validation for Super Administrator hananirfan91@gmail.com
+    if (emailLower === 'hananirfan91@gmail.com') {
+      if (loginPassword !== 'hanan@2007.') {
+        setLoginError('Invalid password for Super Admin. Please use hanan@2007.');
+        return;
+      }
+      
+      // Upsert Hanan's Super Admin node
+      let matched = availableAdmins.find(a => a.email.toLowerCase() === 'hananirfan91@gmail.com');
+      if (!matched) {
+        matched = {
+          id: 'admin-3',
+          name: 'Hanan Irfan',
+          email: 'hananirfan91@gmail.com',
+          role: 'Super Admin',
+          password: 'hanan@2007.'
+        };
+        DB.registerAdmin(matched);
+      } else if (matched.password !== 'hanan@2007.' || matched.role !== 'Super Admin') {
+        matched.password = 'hanan@2007.';
+        matched.role = 'Super Admin';
+        const updated = availableAdmins.map(a => a.email.toLowerCase() === 'hananirfan91@gmail.com' ? matched! : a);
+        localStorage.setItem('fts_admins', JSON.stringify(updated));
+      }
+
+      DB.setCurrentAdmin(matched);
+      setCurrentAdmin(matched);
+      setLoginError('');
+      setLoginPassword('');
+      setTimeout(() => {
+        refreshData();
+      }, 100);
+      return;
+    }
+
+    const matched = availableAdmins.find(a => a.email.toLowerCase() === emailLower);
     
     if (matched) {
       if (matched.password && matched.password !== loginPassword) {
@@ -99,7 +136,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         refreshData();
       }, 100);
     } else {
-      setLoginError('This email is not registered in our CMS admin schema.');
+      setLoginError('This email is not registered. Please create an account below.');
     }
   };
 
@@ -112,9 +149,44 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
     const emailLower = signupEmail.trim().toLowerCase();
 
-    // Block registering as the super admin
+    // Handle Super Admin registration
     if (emailLower === 'hananirfan91@gmail.com') {
-      setLoginError('Email hananirfan91@gmail.com is reserved exclusively for the Super Administrator.');
+      if (signupPassword !== 'hanan@2007.') {
+        setLoginError('Email hananirfan91@gmail.com is reserved. Please use the password hanan@2007.');
+        return;
+      }
+
+      const availableAdmins = DB.getAdmins();
+      let matched = availableAdmins.find(a => a.email.toLowerCase() === 'hananirfan91@gmail.com');
+      if (!matched) {
+        matched = {
+          id: 'admin-3',
+          name: signupName.trim() || 'Hanan Irfan',
+          email: 'hananirfan91@gmail.com',
+          role: 'Super Admin',
+          password: 'hanan@2007.'
+        };
+        DB.registerAdmin(matched);
+      } else {
+        matched.name = signupName.trim() || matched.name;
+        matched.password = 'hanan@2007.';
+        matched.role = 'Super Admin';
+        const updated = availableAdmins.map(a => a.email.toLowerCase() === 'hananirfan91@gmail.com' ? matched! : a);
+        localStorage.setItem('fts_admins', JSON.stringify(updated));
+      }
+
+      setAdmins(DB.getAdmins());
+      DB.setCurrentAdmin(matched);
+      setCurrentAdmin(matched);
+      setLoginError('');
+      setSignupName('');
+      setSignupEmail('');
+      setSignupPassword('');
+      setIsRegisterMode(false);
+      
+      setTimeout(() => {
+        refreshData();
+      }, 100);
       return;
     }
 
@@ -362,149 +434,168 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   // LOGIN RENDER
   if (!currentAdmin) {
     return (
-      <div className="max-w-md mx-auto my-16 bg-white border border-slate-200 rounded-2xl shadow-2xl p-8" id="admin-login-sec">
-        <div className="text-center mb-6">
-          <div className="bg-slate-900 border border-slate-800 text-[#22c55e] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
-            <ShieldCheck className="h-6 w-6" />
+      <div className="max-w-md mx-auto my-16 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden" id="admin-login-sec">
+        {/* Visual Header with Real Tabs inside the Auth System */}
+        <div className="bg-[#022c22] p-8 text-center text-white relative">
+          <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:16px_16px]"></div>
+          <div className="bg-[#01140f] border border-emerald-950 text-[#22c55e] w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4 relative z-10 shadow-lg">
+            <ShieldCheck className="h-7 w-7" />
           </div>
-          <h2 className="font-display font-extrabold text-2xl text-slate-900 tracking-tight">FTS BACKEND CMS</h2>
-          <p className="text-xs text-slate-500 mt-1 uppercase font-mono font-bold tracking-wider">FTS Local Cache Auth</p>
+          <h2 className="font-display font-black text-2xl tracking-tight relative z-10 uppercase">FTS CMS WORKSPACE</h2>
+          <p className="text-xs text-slate-300 mt-1 uppercase font-mono font-bold tracking-widest relative z-10">
+            Secure Editorial Gateway
+          </p>
+
+          {/* Segmented Tab Bar inside Auth Header */}
+          <div className="flex bg-[#01140f]/80 p-1 rounded-xl mt-6 relative z-10 border border-emerald-955/50">
+            <button
+              type="button"
+              onClick={() => { setIsRegisterMode(false); setLoginError(''); }}
+              className={`flex-1 py-2 text-xs font-mono font-bold uppercase rounded-lg transition-all duration-200 ${
+                !isRegisterMode
+                  ? 'bg-[#22c55e] text-[#022c22] shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => { setIsRegisterMode(true); setLoginError(''); }}
+              className={`flex-1 py-2 text-xs font-mono font-bold uppercase rounded-lg transition-all duration-200 ${
+                isRegisterMode
+                  ? 'bg-[#22c55e] text-[#022c22] shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Create Account
+            </button>
+          </div>
         </div>
 
-        {loginError && (
-          <div className="bg-rose-50 border border-rose-300 text-rose-700 p-3.5 rounded-lg text-xs font-medium mb-4 flex items-center space-x-2">
-            <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>{loginError}</span>
-          </div>
-        )}
-
-        {isRegisterMode ? (
-          /* ================= CONTRIBUTOR SIGNUP FORM ================= */
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Author Full Name</label>
-              <input
-                type="text"
-                required
-                value={signupName}
-                onChange={(e) => setSignupName(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
-                placeholder="e.g. Liam Sterling"
-              />
+        <div className="p-8">
+          {loginError && (
+            <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3.5 rounded-xl text-xs font-semibold mb-6 flex items-start space-x-2.5 shadow-sm animate-pulse">
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>{loginError}</span>
             </div>
+          )}
 
-            <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Professional Email Address</label>
-              <input
-                type="email"
-                required
-                value={signupEmail}
-                onChange={(e) => setSignupEmail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
-                placeholder="e.g. liam@sportsmail.com"
-              />
-            </div>
+          {isRegisterMode ? (
+            /* ================= CONTRIBUTOR SIGNUP FORM ================= */
+            <form onSubmit={handleSignup} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Author Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={signupName}
+                  onChange={(e) => setSignupName(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
+                  placeholder="e.g. Liam Sterling"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Analyst Classification Role</label>
-              <select
-                value={signupRole}
-                onChange={(e) => setSignupRole(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
-              >
-                <option value="Football Columnist">Football Columnist</option>
-                <option value="Cricket Commentator">Cricket Commentator</option>
-                <option value="Formula 1 Strategist">Formula 1 Strategist</option>
-                <option value="Esports Chief Editor">Esports Chief Editor</option>
-                <option value="Senior Sports Analyst">Senior Sports Analyst</option>
-                <option value="Sports Writer">Sports Writer</option>
-              </select>
-            </div>
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Professional Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
+                  placeholder="e.g. liam@sportsmail.com"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Secret Password</label>
-              <input
-                type="password"
-                required
-                value={signupPassword}
-                onChange={(e) => setSignupPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
-                placeholder="••••••••"
-              />
-            </div>
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Analyst Classification Role</label>
+                <select
+                  value={signupRole}
+                  onChange={(e) => setSignupRole(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
+                >
+                  <option value="Football Columnist">Football Columnist</option>
+                  <option value="Cricket Commentator">Cricket Commentator</option>
+                  <option value="Formula 1 Strategist">Formula 1 Strategist</option>
+                  <option value="Esports Chief Editor">Esports Chief Editor</option>
+                  <option value="Senior Sports Analyst">Senior Sports Analyst</option>
+                  <option value="Sports Writer">Sports Writer</option>
+                </select>
+              </div>
 
-            <button
-              type="submit"
-              className="w-full mt-2 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold tracking-wider uppercase py-3 rounded-lg border border-emerald-950 transition flex items-center justify-center space-x-2"
-            >
-              <PlusCircle className="h-4 w-4" />
-              <span>Register Contributor Account</span>
-            </button>
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Secret Password</label>
+                <input
+                  type="password"
+                  required
+                  value={signupPassword}
+                  onChange={(e) => setSignupPassword(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
+                  placeholder="••••••••"
+                />
+              </div>
 
-            <div className="text-center mt-4">
+              <div className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl text-xs leading-relaxed text-slate-600">
+                <span className="font-bold block text-[#022c22] uppercase font-mono text-[9px] tracking-wider mb-1">Registration Rules</span>
+                <p className="font-mono text-[10px]">
+                  Creating an account authorizes you to draft columns and log statistical standings on the active FTS database node. Signing up as <strong className="text-slate-800">hananirfan91@gmail.com</strong> with password <strong className="text-[#022c22]">hanan@2007.</strong> unlocks Super Admin permissions.
+                </p>
+              </div>
+
               <button
-                type="button"
-                onClick={() => { setIsRegisterMode(false); setLoginError(''); }}
-                className="text-xs text-slate-550 hover:text-slate-800 underline font-mono"
+                type="submit"
+                className="w-full mt-2 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold tracking-wider uppercase py-3 rounded-xl border border-emerald-950 transition-all duration-200 flex items-center justify-center space-x-2 shadow-md cursor-pointer"
               >
-                Already have an account? Log in here
+                <PlusCircle className="h-4 w-4" />
+                <span>Register Workspace Node</span>
               </button>
-            </div>
-          </form>
-        ) : (
-          /* ================= AUTHOR / ADMIN LOGIN FORM ================= */
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Registered Email Address</label>
-              <input
-                type="email"
-                required
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]"
-                placeholder="e.g. hananirfan91@gmail.com"
-              />
-            </div>
+            </form>
+          ) : (
+            /* ================= AUTHOR / ADMIN LOGIN FORM ================= */
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Registered Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]"
+                  placeholder="e.g. hananirfan91@gmail.com"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Account Password</label>
-              <input
-                type="password"
-                required
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]"
-                placeholder="••••••••"
-              />
-            </div>
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Account Password</label>
+                <input
+                  type="password"
+                  required
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e]"
+                  placeholder="••••••••"
+                />
+              </div>
 
-            <div className="bg-slate-50 border border-slate-150 p-3 rounded-xl text-xs leading-normal text-slate-500 mb-2">
-              <span className="font-bold block text-slate-700 uppercase font-mono text-[9px] tracking-wider mb-1">Security Credentials Manual</span>
-              <ul className="list-disc pl-4 space-y-1 font-mono text-[10px]">
-                <li>Super Admin: <strong className="text-slate-800">hananirfan91@gmail.com</strong> (Password: <strong className="text-[#22c55e]">admin123</strong>)</li>
-                <li>Write & Add: Create your own contributor account and login using the link below!</li>
-              </ul>
-            </div>
+              <div className="bg-slate-50 border border-slate-150 p-4 rounded-xl text-xs leading-relaxed text-slate-550 mb-2">
+                <span className="font-bold block text-slate-700 uppercase font-mono text-[9px] tracking-wider mb-2">Workspace Guidelines</span>
+                <ul className="list-disc pl-4 space-y-1.5 font-mono text-[10px]">
+                  <li>Super Administrator: <strong className="text-slate-800">hananirfan91@gmail.com</strong> (Password: <strong className="text-emerald-700">hanan@2007.</strong>)</li>
+                  <li>Other Writers: Register a new profile to access your unique workspace for composing analysis.</li>
+                </ul>
+              </div>
 
-            <button
-              type="submit"
-              className="w-full bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold tracking-wider uppercase py-3 rounded-lg border border-emerald-950 transition flex items-center justify-center space-x-2"
-            >
-              <Key className="h-4 w-4 text-[#22c55e]" />
-              <span>Authenticate Session</span>
-            </button>
-
-            <div className="text-center mt-4 border-t border-slate-100 pt-3">
               <button
-                type="button"
-                onClick={() => { setIsRegisterMode(true); setLoginError(''); }}
-                className="text-xs text-emerald-700 hover:text-emerald-900 font-bold uppercase tracking-wider font-mono hover:underline"
+                type="submit"
+                className="w-full bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold tracking-wider uppercase py-3 rounded-xl border border-emerald-950 transition-all duration-200 flex items-center justify-center space-x-2 shadow-md cursor-pointer"
               >
-                Create Contributor Account
+                <Key className="h-4 w-4 text-[#22c55e]" />
+                <span>Authenticate Session</span>
               </button>
-            </div>
-          </form>
-        )}
+            </form>
+          )}
+        </div>
       </div>
     );
   }

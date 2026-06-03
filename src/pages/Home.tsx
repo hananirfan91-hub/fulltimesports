@@ -140,6 +140,22 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
           </div>
         </div>
 
+        {/* Editorial Standards & Handcrafted Digital Journalism Callout */}
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 my-8" id="editorial-callout-banner">
+          <div className="space-y-1">
+            <h3 className="font-display font-black text-slate-900 uppercase text-xs tracking-wider">Original Sports Journalism & Media Publishing</h3>
+            <p className="text-[11px] text-slate-500 max-w-2xl leading-relaxed">
+              Full Time Sports (FTS) is built entirely on human-authored tactical analysis without automated scrapers. Discover who we are, our professional journalism frameworks, and read about our chief strategists on the <button onClick={() => onNavigate('/about-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">About Us</button> page, or get in touch through our <button onClick={() => onNavigate('/contact-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">Contact Us</button> channel.
+            </p>
+          </div>
+          <button 
+            onClick={() => onNavigate('/about-us')} 
+            className="shrink-0 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white font-mono font-bold text-[10px] py-2.5 px-5 rounded-lg uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm"
+          >
+            Learn About FTS
+          </button>
+        </div>
+
         {/* SECTION 2: TRENDING SPORTS NEWS GRID */}
         <section className="border-t-4 border-[#022c22] pt-6" id="trending-news-grid">
           <div className="flex justify-between items-center mb-6">

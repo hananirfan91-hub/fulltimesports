@@ -26,7 +26,7 @@ const SEED_CATEGORIES: Category[] = [
 const SEED_ADMINS: AdminUser[] = [
   { id: 'admin-1', name: 'James Carter', email: 'james.carter@fulltimesports.com', role: 'Editor-in-Chief', password: 'writer123' },
   { id: 'admin-2', name: 'Sarah Patel', email: 'sarah.patel@fulltimesports.com', role: 'Senior Sports Analyst', password: 'writer123' },
-  { id: 'admin-3', name: 'Hanan Irfan', email: 'hananirfan91@gmail.com', role: 'Super Admin', password: 'admin123' },
+  { id: 'admin-3', name: 'Hanan Irfan', email: 'hananirfan91@gmail.com', role: 'Super Admin', password: 'hanan@2007.' },
 ];
 
 const SEED_MEDIA: MediaItem[] = [
