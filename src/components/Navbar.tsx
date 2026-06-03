@@ -116,7 +116,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             </button>
             <button onClick={() => onNavigate('/admin')} className="flex items-center space-x-1 text-slate-950 hover:bg-[#34d399] transition font-bold bg-[#22c55e] px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider">
               <User className="h-3 w-3" />
-              <span>CMS Admin</span>
+              <span>Create Account</span>
             </button>
           </div>
         </div>
@@ -394,7 +394,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                   }}
                   className="w-full text-center py-2.5 bg-[#22c55e] text-slate-950 hover:bg-[#34d399] rounded font-extrabold tracking-wider transition uppercase"
                 >
-                  🔒 GO TO CMS ADMIN PANEL
+                  🔒 CREATE ACCOUNT
                 </button>
               </div>
             </div>

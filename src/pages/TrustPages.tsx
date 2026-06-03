@@ -58,7 +58,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
     },
     {
       q: "Does Full Time Sports (FTS) compile scores and news using automated web scrapers?",
-      a: "No. Unlike generic digital sites that scrape public content using low-quality automated scripts, FTS relies entirely on manual updates managed directly by our physical editorial board (including james.carter and sarah.patel) within our local state engines. This guarantees 100% data accuracy and fulfills AdSense high-quality editorial parameters."
+      a: "No. Unlike generic digital sites that scrape public content using low-quality automated scripts, FTS relies entirely on manual updates managed directly by our physical editorial board (including james.carter and sarah.patel) within our local state engines. This guarantees 100% data accuracy and fulfills high-quality editorial parameters."
     },
     {
       q: "What scientific principles govern your sports analysis modules?",
@@ -137,14 +137,14 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
           {/* ANSWERING CARD TO COMPLY WITH "EACH PAGE TELLS AN ANSWER TO SOMETHING" */}
           <div className="bg-[#f0fdf4] border-l-4 border-[#22c55e] p-6 rounded-2xl text-slate-800 shadow-xs">
             <span className="bg-[#022c22] text-[#22c55e] font-mono text-[9px] font-bold uppercase tracking-wider py-1 px-3 rounded-md">
-              Regulatory Compliance & AdSense Resolution
+              Regulatory Compliance & Editorial Resolution
             </span>
             <div className="mt-3 space-y-2">
               <h4 className="font-display font-black text-sm uppercase text-slate-950 tracking-tight">
-                Q: What rules govern our sports reporting and AdSense legitimacy?
+                Q: What rules govern our sports reporting and platform legitimacy?
               </h4>
               <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                <strong>A:</strong> Full Time Sports (FTS) operates under a rigorous code of manual editorial excellence to maintain high quality index metrics. By completely excluding automated bulk web scrapers, programmatic spinners, and synthetic placeholder widgets, we construct real-world value for sports technology readers. This guarantees full compliance with global Google AdSense high-quality policy frameworks.
+                <strong>A:</strong> Full Time Sports (FTS) operates under a rigorous code of manual editorial excellence to maintain high quality index metrics. By completely excluding automated bulk web scrapers, programmatic spinners, and synthetic placeholder widgets, we construct real-world value for sports technology readers. This guarantees full compliance with global high-quality policy frameworks.
               </p>
             </div>
           </div>
@@ -465,7 +465,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                         >
                           <option value="Editorial correction">Editorial correction / Stat update</option>
                           <option value="Press office pitches">Media pitches & press releases</option>
-                          <option value="AdSense sponsorships">AdSense & monetization inquiries</option>
+                          <option value="AdSense sponsorships">Sponsorships & advertising inquiries</option>
                           <option value="General feedback">General user helpdesk tickets</option>
                         </select>
                       </div>
@@ -578,7 +578,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                   For brands seeking high-visibility sponsorship slots, FTS offers unique opportunities. Our core reader demographic consists of data-literate sports fans, developers, systems engineers, and athletic analysts who appreciate clean, high-contrast, uncluttered interfaces. We strictly avoid ugly, flashing, intrusive popups that block reading panels and cause high bounce metrics.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                  All partnerships must match our high-standard visual guidelines. FTS supports native, custom-integrated AdSense blocks and direct sponsorships that fit our emerald-and-charcoal visual palette. If your organization is interested in sponsor positions, submit a ticket under 'AdSense & monetization inquiries' to initiate discussions with the HI Digital Group.
+                  All partnerships must match our high-standard visual guidelines. FTS supports native, custom-integrated editorial blocks and direct sponsorships that fit our emerald-and-charcoal visual palette. If your organization is interested in sponsor positions, submit a ticket under 'Sponsorships & advertising inquiries' to initiate discussions with the HI Digital Group.
                 </p>
               </div>
 
@@ -626,13 +626,13 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
               {/* ================= CONTACT HEADING 8 ================= */}
               <div className="space-y-3">
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
-                  8. Google AdSense & Direct Monetization Inquiries
+                  8. Sponsorships, Advertising & Direct Partnerships
                 </h3>
                 <p className="text-xs text-slate-650 leading-relaxed font-sans">
-                  In order to sustain our skilled human resource operations and technical analytical work, Full Time Sports runs Google AdSense programmatic ad displays. Our ad zones comply strictly with the Better Ads Standards and are configured to load asynchronously, so they never impact the load speeds of our reading layout.
+                  In order to sustain our skilled human resource operations and technical analytical work, Full Time Sports runs native advertising and direct brand sponsorship campaigns. Our ad zones comply strictly with clean reading standards and are configured to load asynchronously, so they never impact the load speeds of our layout.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                  If there are inquiries regarding our ads.txt validation, programmatic bid optimization, or if you represent a physical ad network seeking an exclusive direct bidding connection, please initiate a ticket. We provide prompt compliance feedback to all verified buyers.
+                  If there are inquiries regarding our direct bid opportunities, custom brand integrations, or if you seek a dedicated digital advertising slot, please initiate a ticket. We provide prompt compliance feedback to all interest requests.
                 </p>
               </div>
 
@@ -673,7 +673,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
               <div className="flex items-center space-x-2 text-[#22c55e]">
                 <ShieldCheck className="h-6 w-6 text-[#22c55e]" />
                 <h1 className="font-display font-black text-2.5xl tracking-tight uppercase text-slate-900">
-                  AdSense Privacy & Cookie Policy
+                  Privacy & Cookie Policy
                 </h1>
               </div>
 
@@ -682,9 +682,9 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                   At Full Time Sports (FTS), accessible from our preview nodes, customer data and regulatory shields remain our absolute priority. This document defines what types of registries we store and track.
                 </p>
 
-                <h3 className="text-slate-950 font-display text-sm font-black uppercase mt-4 mb-2">AdSense and Cookie Consent Frameworks</h3>
+                <h3 className="text-slate-950 font-display text-sm font-black uppercase mt-4 mb-2">Cookie Consent Frameworks</h3>
                 <p>
-                  FTS operates standard Google AdSense ad slots to sponsor our editorial human resources. Google, as a third-party vendor, uses cookies to serve ads on our site based on prior clicks or physical visits.
+                  FTS operates standard security guidelines and cookie consent protocols to ensure user-data protection. Third-party vendor platforms may use cookies to understand navigation patterns on our site.
                 </p>
                 <p>
                   We utilize standard DoubleClick web cookie algorithms to serve targeted, safe, non-intrusive campaigns. You can opt out of personalized marketing by visiting Google Ads settings.

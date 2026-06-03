@@ -93,7 +93,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           {/* Replaced Text to the beautiful brand logo */}
           <Logo variant="horizontal" className="mb-4" />
           <p className="text-xs leading-relaxed text-slate-400">
-            FTS is an AdSense-approved global sports media platform providing original human investigations into the kinetic mechanics, statistics, and micro-tactics of elite athletes. No automated scraping, no cheap machine translations—pure editorial craftsmanship.
+            FTS is a premier global sports media platform providing original human investigations into the kinetic mechanics, statistics, and micro-tactics of elite athletes. No automated scraping, no cheap machine translations—pure editorial craftsmanship.
           </p>
           <div className="flex space-x-4 mt-6">
             <a href="#" className="text-slate-400 hover:text-[#22c55e] transition"><Facebook className="h-4 w-4" /></a>
@@ -167,7 +167,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           <strong>SEO Meta Reference:</strong> Full Time Sports carries specialized thematic networks covering: cricket news, live cricket score, ICC rankings. football news, football transfers, English Premier League analytics. NBA news, stats, standings. Formula 1 race results, technical aerodynamic telemetry standings. Esports tournaments, gaming updates, CS2 Counter Strike roster shuffles. Grand Slam court slides, FIVB rotational mechanics, and drag-flick penalty corners.
         </p>
         <p>
-          AdSense compliance ensures: original editorial reviews, no crawled feeds, human-style expert PEO analysis. Match scores provided on this portal are updated manually by editors within the CMS to eliminate third-party live sports scraping rules. All rights reserved.
+          Editorial compliance ensures: original editorial reviews, no crawled feeds, human-style expert PEO analysis. Match scores provided on this portal are updated manually by editors within the CMS to eliminate third-party live sports scraping rules. All rights reserved.
         </p>
       </div>
 

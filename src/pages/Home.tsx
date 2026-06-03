@@ -102,7 +102,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                   </h4>
                 </div>
                 <p className="text-[11px] text-slate-300 leading-relaxed">
-                  <strong>The Answer:</strong> Full Time Sports is AdSense-approved with 100% human-authored strategic reviews. Our editorial desk manually writes tactical data, shielding you from cheap machine translation loops or generic automatic scrapers.
+                  <strong>The Answer:</strong> Full Time Sports features 100% human-authored strategic reviews. Our editorial desk manually writes tactical data, shielding you from cheap machine translation loops or generic automatic scrapers.
                 </p>
               </div>
 
@@ -611,7 +611,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
               <div className="flex flex-wrap gap-4 pt-2 text-[10px] font-semibold text-emerald-800 uppercase font-mono">
                 <span className="flex items-center space-x-1">
                   <ShieldCheck className="h-3.5 w-3.5 text-[#22c55e]" />
-                  <span>AdSense approved skeleton</span>
+                  <span>Verified editorial platform</span>
                 </span>
                 <span>•</span>
                 <span>No scraping feeds</span>

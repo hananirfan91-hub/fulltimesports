@@ -78,7 +78,7 @@ export default function RankingsFixtures({ initialTab = 'rankings', onNavigate }
           <div className="border-t border-[#22c55e]/15 pt-2">
             <p className="text-[9px] font-mono font-bold text-emerald-800 uppercase tracking-widest leading-none">The Answer:</p>
             <p className="text-[#052e16] text-xs md:text-sm mt-1 leading-relaxed font-sans font-medium">
-              Live score scrapers frequently fail, display wrong data during API rate limits, and introduce non-human automated metadata that penalizes AdSense compliance. FTS publishes original sports news. Our sports desks manually enter rankings and fixture results straight into the virtual server after verification—guaranteeing 100% accurate data and premium, penalty-free sport media standards.
+              Live score scrapers frequently fail, display wrong data during API rate limits, and introduce non-human automated metadata that compromises data integrity. FTS publishes original sports news. Our sports desks manually enter rankings and fixture results straight into the virtual server after verification—guaranteeing 100% accurate data and premium, trustworthy sport media standards.
             </p>
           </div>
         </div>

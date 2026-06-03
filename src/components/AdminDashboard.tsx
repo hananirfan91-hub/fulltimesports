@@ -14,7 +14,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile'>('posts');
   
   // States
   const [posts, setPosts] = useState<Post[]>([]);
@@ -43,7 +43,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [dragOver, setDragOver] = useState(false);
 
   // Login credentials state
-  const [loginEmail, setLoginEmail] = useState('hananirfan91@gmail.com');
+  const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
@@ -54,12 +54,26 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [signupRole, setSignupRole] = useState('Sports Analyst');
   const [signupPassword, setSignupPassword] = useState('');
 
+  // Profile update state fields
+  const [profileName, setProfileName] = useState('');
+  const [profileRole, setProfileRole] = useState('');
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [profileUpdateMsg, setProfileUpdateMsg] = useState('');
+  const [profileUpdateError, setProfileUpdateError] = useState('');
+
   // Load database content on mount
   useEffect(() => {
     setCurrentAdmin(DB.getCurrentAdmin());
     setAdmins(DB.getAdmins());
     refreshData();
   }, []);
+
+  useEffect(() => {
+    if (currentAdmin) {
+      setProfileName(currentAdmin.name);
+      setProfileRole(currentAdmin.role);
+    }
+  }, [currentAdmin]);
 
   const refreshData = () => {
     const allPosts = DB.getAdminAllPosts();
@@ -197,7 +211,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
     try {
       if (emailLower === 'hananirfan91@gmail.com' && signupPassword !== 'hanan@2007.') {
-        setLoginError('Email hananirfan91@gmail.com is reserved. Please use the password hanan@2007.');
+        setLoginError('The administration email address is reserved. Security clearance required to register this account.');
         setIsSigningIn(false);
         return;
       }
@@ -263,6 +277,53 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     supabase.auth.signOut();
     DB.setCurrentAdmin(null);
     setCurrentAdmin(null);
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentAdmin) return;
+    if (!profileName.trim()) {
+      setProfileUpdateError('Display name cannot be empty.');
+      return;
+    }
+
+    setIsUpdatingProfile(true);
+    setProfileUpdateMsg('');
+    setProfileUpdateError('');
+
+    try {
+      const updatedUser: AdminUser = {
+        ...currentAdmin,
+        name: profileName.trim(),
+        role: profileRole
+      };
+
+      // 1. Sync locally
+      DB.setCurrentAdmin(updatedUser);
+      setCurrentAdmin(updatedUser);
+
+      // 2. Sync to Supabase
+      const { error: syncError } = await supabase
+        .from('fts_profiles')
+        .upsert([
+          { 
+            id: currentAdmin.id, 
+            name: profileName.trim(), 
+            email: currentAdmin.email, 
+            role: profileRole 
+          }
+        ], { onConflict: 'email' });
+
+      if (syncError) {
+        console.warn("Supabase profiles sync warning:", syncError);
+      }
+
+      setProfileUpdateMsg('Your profile has been successfully updated and synced across our local and cloud database nodes.');
+    } catch (err: any) {
+      setProfileUpdateError(err?.message || 'An error occurred while updating your profile.');
+    } finally {
+      setIsUpdatingProfile(false);
+    }
   };
 
 
@@ -760,6 +821,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             </button>
           </>
         )}
+
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'profile' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <Users className="h-4 w-4" />
+          <span>My Profile Portal</span>
+        </button>
       </div>
 
       {/* TAB CONTENT PANELS */}
@@ -1141,6 +1210,162 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {activeTab === 'profile' && currentAdmin && (
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-fade-in" id="admin-profile-portal-pane">
+          <div className="flex border-b pb-4 mb-6 justify-between items-center flex-wrap gap-2">
+            <div>
+              <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase">MY PROFILE GATEWAY</h3>
+              <p className="text-xs text-slate-500">Manage and view your credentials and contributor stats</p>
+            </div>
+            <span className="bg-emerald-100 text-[#022c22] border border-emerald-200 font-mono font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider">
+              {currentAdmin.role}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Visual Card Column */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="bg-gradient-to-br from-[#022c22] to-slate-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden">
+                <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                
+                <div className="flex flex-col items-center text-center space-y-4 relative z-10">
+                  <div className="w-20 h-20 bg-[#22c55e] text-[#022c22] flex items-center justify-center rounded-2xl text-3xl font-black shadow-lg">
+                    {currentAdmin.name.substring(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <h4 className="font-display font-black text-xl tracking-tight uppercase">{currentAdmin.name}</h4>
+                    <p className="text-xs text-slate-300 font-mono">{currentAdmin.role}</p>
+                  </div>
+                  <div className="bg-[#01140f] border border-emerald-800/40 w-full rounded-xl p-3 text-center">
+                    <span className="text-[10px] text-slate-400 block uppercase font-mono mb-1">TOTAL ARTICLES CONTRIBUTED</span>
+                    <span className="text-2xl font-black font-display text-[#22c55e]">{posts.length}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+                <h4 className="font-mono text-xs font-bold text-slate-700 uppercase">Verification Framework</h4>
+                <div className="space-y-2 text-[11px] font-mono">
+                  <div className="flex justify-between items-center py-1.5 border-b border-slate-200/55">
+                    <span className="text-slate-500">DATABASE ENGINE</span>
+                    <span className="text-slate-800 font-bold">Supabase DB</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1.5 border-b border-slate-200/55">
+                    <span className="text-slate-500">AUTHENTICATOR</span>
+                    <span className="text-emerald-600 font-bold flex items-center gap-1">
+                      <ShieldCheck className="h-3.5 w-3.5 inline" /> ACTIVE
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1.5">
+                    <span className="text-slate-500">INTERFACE NODES</span>
+                    <span className="text-slate-800 font-bold">SSL Secured</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Editing / Metadata Column */}
+            <div className="lg:col-span-8 space-y-6">
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                <h4 className="font-display font-extrabold text-sm text-slate-900 uppercase mb-4 border-b pb-2">Profile Credentials & Attributes</h4>
+                
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-slate-500 uppercase block mb-1">Display Name</span>
+                      <div className="bg-white border rounded-xl px-4 py-2.5 text-slate-800 text-sm font-semibold select-all border-slate-200">
+                        {currentAdmin.name}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-slate-500 uppercase block mb-1">Registered Email</span>
+                      <div className="bg-white border rounded-xl px-4 py-2.5 text-slate-800 text-sm font-semibold select-all border-slate-200 font-sans">
+                        {currentAdmin.email}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-slate-500 uppercase block mb-1">Analytical Role Badge</span>
+                      <div className="bg-white border rounded-xl px-4 py-2.5 text-slate-800 text-sm font-semibold border-slate-200">
+                        {currentAdmin.role}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono font-bold text-slate-500 uppercase block mb-1">Global Node ID</span>
+                      <div className="bg-white border rounded-xl px-4 py-2.5 text-slate-750 text-xs font-mono select-all truncate border-slate-200">
+                        {currentAdmin.id}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Edit Display Name Interactive Form */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h4 className="font-display font-extrabold text-sm text-slate-900 uppercase mb-4 border-b pb-2">Update Account Profile</h4>
+                
+                <form onSubmit={handleUpdateProfile} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1.5">Edit Display Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={profileName}
+                      onChange={(e) => setProfileName(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition font-sans"
+                      placeholder="e.g. John Doe"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1.5">Assigned Editorial Role</label>
+                    <select
+                      value={profileRole}
+                      onChange={(e) => setProfileRole(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition text-slate-850"
+                    >
+                      <option value="Sports Analyst">Sports Analyst</option>
+                      <option value="Lead Columnist">Lead Columnist</option>
+                      <option value="Senior Football Critic">Senior Football Critic</option>
+                      <option value="Motorsport Telemetrist">Motorsport Telemetrist</option>
+                      <option value="Contributor">Contributor</option>
+                      {currentAdmin.role === 'Super Admin' && (
+                        <option value="Super Admin">Super Admin</option>
+                      )}
+                    </select>
+                  </div>
+
+                  {profileUpdateMsg && (
+                    <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-slate-705 leading-normal flex items-start space-x-2 font-medium">
+                      <CheckCircle className="h-4 w-4 text-[#22c55e] shrink-0 mt-0.5" />
+                      <span>{profileUpdateMsg}</span>
+                    </div>
+                  )}
+
+                  {profileUpdateError && (
+                    <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl text-xs text-rose-700 leading-normal flex items-start space-x-2 font-medium">
+                      <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                      <span>{profileUpdateError}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isUpdatingProfile}
+                    className="bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold tracking-wider uppercase px-5 py-3 rounded-xl border border-emerald-950 transition-all duration-200 disabled:opacity-50 flex items-center justify-center space-x-2 shadow-sm cursor-pointer"
+                  >
+                    <span>{isUpdatingProfile ? 'Saving Details...' : 'Save Changes'}</span>
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
         </div>

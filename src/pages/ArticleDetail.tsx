@@ -501,7 +501,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
           {/* Quick legal checklist */}
           <div className="bg-[#022c22] text-slate-300 p-5 rounded-2xl border border-emerald-950 text-[10px] leading-relaxed">
-            <span className="font-bold text-[#22c55e] block uppercase mb-1">AdSense & Copyright Declaration:</span>
+            <span className="font-bold text-[#22c55e] block uppercase mb-1">Copyright & Editorial Standards:</span>
             This sports article constitutes original, manual investigative journalism by our human expert panel. Standard citation rules apply. No automated scraper tools or unauthorized copyrighted imagery used. FTS respects full regulatory policies.
           </div>
 
