@@ -1,0 +1,104 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Custom Professional Editorial Palette - REFACTORED TO ATHLETIC GREEN */
+  --color-accent-red: #22c55e; /* Fallback for existing accent-red usage - mapping to light green */
+  --color-brand-light: #22c55e; /* Vibrantly bright light green */
+  --color-brand-dark: #052e16;  /* Elegant shield dark green */
+  --color-navy-dark: #022c22;   /* Deepest dark athletic green background */
+  --color-slate-light: #f0fdf4;  /* Crisp light mint slate background */
+}
+
+/* Custom Styles for ticker animation and typography standardizations */
+@keyframes ticker-slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-animate {
+  display: flex;
+  width: max-content;
+  animation: ticker-slide 30s linear infinite;
+}
+
+.ticker-animate:hover {
+  animation-play-state: paused;
+}
+
+/* Render markdown matching professional sports standards */
+.markdown-body h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-navy-dark);
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.025em;
+}
+
+.markdown-body h4 {
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-navy-dark);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body p {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #334155;
+  margin-bottom: 1.25rem;
+}
+
+.markdown-body p strong {
+  font-weight: 600;
+  color: var(--color-navy-dark);
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+
+.markdown-body th, .markdown-body td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.markdown-body th {
+  background-color: var(--color-slate-light);
+  font-weight: 600;
+  color: var(--color-navy-dark);
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid var(--color-accent-red);
+  padding-left: 1rem;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: #475569;
+  margin: 1.5rem 0;
+}
+
+/* Layout Utilities */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
