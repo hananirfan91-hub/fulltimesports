@@ -521,14 +521,14 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
               EXCLUSIVE VIDEO INTERVIEWS & BREAKDOWNS
             </h2>
             <p className="text-slate-300 text-xs mt-2">
-              Manually logged YouTube broadcasts capturing telemetry reviews and strategic formulations.
+              Manually logged YouTube broadcasts capturing telemetry reviews and strategic formulations.Here is the answer for why we use YouTube Embeded Videos.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
             <div className="lg:col-span-2 aspect-video bg-[#01140f] border border-emerald-850 rounded-2xl overflow-hidden relative shadow-2xl">
               <iframe 
-                src="https://www.youtube.com/embed/YBzE8S5S9_U?mute=1&controls=1&modestbranding=1"
+                src="https://youtu.be/VGXo407dyYU?si=t-LA3-Ia4xVL3uGl"
                 title="Exclusive Telemetry Analysis"
                 className="w-full h-full object-cover"
                 allowFullScreen
