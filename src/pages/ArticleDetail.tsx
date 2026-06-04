@@ -400,24 +400,24 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
           {/* Social share widget row */}
           <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
-            <span className="text-xs font-bold text-slate-700">PROMOTE INDEPENDENT CODES EDITORIAL:</span>
+            <span className="text-xs font-bold text-slate-700">VISIT EDITORIAL FB & TWITTER CHANNELS:</span>
             
             <div className="flex items-center space-x-2">
               <a 
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                href="https://facebook.com/fulltimesportspakistan"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-[#1877F2]/10 hover:bg-[#1877F2] hover:text-white text-[#1877F2] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 
-                title="Share on Facebook"
+                title="Visit our Facebook Page"
               >
                 <Facebook className="h-4 w-4" />
               </a>
               <a 
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`}
+                href="https://x.com/hananirfan91"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-[#1DA1F2]/10 hover:bg-[#1DA1F2] hover:text-white text-[#1DA1F2] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 
-                title="Tweet Card"
+                title="Visit our Twitter/X Page"
               >
                 <Twitter className="h-4 w-4" />
               </a>

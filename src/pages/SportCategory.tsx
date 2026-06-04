@@ -413,24 +413,24 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
 
           {/* Social Desk widget */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center space-y-3 shadow-xs">
-            <h4 className="font-display text-xs font-bold text-slate-900 uppercase">Share Editorial Desk</h4>
-            <p className="text-[10px] text-slate-500">Help promote expert human sports coverage by sharing this category network node.</p>
+            <h4 className="font-display text-xs font-bold text-slate-900 uppercase">Connect on Social Desk</h4>
+            <p className="text-[10px] text-slate-500">Stay updated on expert human sports coverage by following our official handles.</p>
             <div className="flex justify-center space-x-2">
               <a 
-                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                href="https://facebook.com/fulltimesportspakistan"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-505 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
-                title="Facebook Share"
+                title="Visit our Facebook Page"
               >
                 <Facebook className="h-4 w-4" />
               </a>
               <a 
-                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(`Check out the expert analytical ${category.name} manual and coverage on Full Time Sports Pakistan!`)}`}
+                href="https://x.com/hananirfan91"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-505 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
-                title="Twitter Cards"
+                title="Visit our Twitter/X Page"
               >
                 <Twitter className="h-4 w-4" />
               </a>

@@ -98,7 +98,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           </p>
           <div className="flex space-x-4 mt-6">
             <a href="https://facebook.com/fulltimesportspakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Facebook Page"><Facebook className="h-4 w-4" /></a>
-            <a href="https://twitter.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Twitter/X Page"><Twitter className="h-4 w-4" /></a>
+            <a href="https://x.com/hananirfan91" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Twitter/X Page"><Twitter className="h-4 w-4" /></a>
             <a href="https://instagram.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Instagram Feed"><Instagram className="h-4 w-4" /></a>
             <a href="https://youtube.com/@fulltimesportspakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan YouTube Channel"><Youtube className="h-4 w-4" /></a>
           </div>
