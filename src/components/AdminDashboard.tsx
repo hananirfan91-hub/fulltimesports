@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { 
   Users, LayoutGrid, FileText, FolderPlus, Trophy, Calendar, Image as ImageIcon, 
   Trash2, Edit3, Plus, Key, LogOut, CheckCircle, AlertTriangle, ShieldCheck, 
-  Tag, Upload, CalendarClock, Globe, PlusCircle, ArrowUpRight
+  Tag, Upload, CalendarClock, Globe, PlusCircle, ArrowUpRight, MessageSquare, Mail
 } from 'lucide-react';
-import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser } from '../types';
+import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, Subscriber } from '../types';
 import { DB } from '../lib/db';
 import { supabase } from '../lib/supabase';
 
@@ -14,7 +14,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'subscribers'>('posts');
   
   // States
   const [posts, setPosts] = useState<Post[]>([]);
@@ -23,6 +23,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [fixtures, setFixtures] = useState<FixtureItem[]>([]);
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [tickets, setTickets] = useState<TicketMessage[]>([]);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
 
   // Editing Forms States
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -93,6 +95,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setRankings(DB.getRankings());
     setFixtures(DB.getFixtures());
     setMedia(DB.getMedia());
+    setTickets(DB.getTickets());
+    setSubscribers(DB.getSubscribers());
   };
 
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -819,6 +823,20 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               <LayoutGrid className="h-4 w-4" />
               <span>Hero Control</span>
             </button>
+            <button
+              onClick={() => setActiveTab('tickets')}
+              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'tickets' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+            >
+              <MessageSquare className="h-4 w-4" />
+              <span>Inbound Tickets ({tickets.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('subscribers')}
+              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'subscribers' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+            >
+              <Mail className="h-4 w-4" />
+              <span>Subscribers ({subscribers.length})</span>
+            </button>
           </>
         )}
 
@@ -1368,6 +1386,129 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 7. TICKETS PANEL */}
+      {activeTab === 'tickets' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-fade-in" id="admin-tickets-panel">
+          <div className="flex border-b pb-4 mb-6 justify-between items-center flex-wrap gap-2">
+            <div>
+              <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase">Inbound Contact Messages</h3>
+              <p className="text-xs text-slate-500">View and manage messages sent from the Contact Us page form</p>
+            </div>
+            <span className="bg-emerald-100 text-[#022c22] border border-emerald-200 font-mono font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider">
+              Total Messages: {tickets.length}
+            </span>
+          </div>
+
+          {tickets.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 border border-dashed rounded-2xl">
+              <MessageSquare className="h-10 w-10 text-slate-400 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-slate-700">No inbound messages received yet.</p>
+              <p className="text-xs text-slate-450 mt-1">When visitors submit the contact form, their queries will appear here.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {tickets.map((tkt) => (
+                <div key={tkt.id} className="border border-slate-200 hover:border-emerald-550 rounded-2xl p-5 bg-slate-50 hover:bg-white transition duration-200 shadow-xs relative group">
+                  <button
+                    onClick={() => {
+                      if (confirm("Are you sure you want to delete this message ticket?")) {
+                        DB.deleteTicket(tkt.id);
+                        refreshData();
+                      }
+                    }}
+                    className="absolute top-4 right-4 p-1.5 border border-slate-255 hover:border-red-600 rounded-lg text-slate-450 hover:text-red-600 transition bg-white"
+                    title="Delete Message"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-150/50 pb-3 mb-3">
+                    <div>
+                      <span className="text-[10px] bg-slate-200 text-slate-800 font-mono font-bold px-2 py-0.5 rounded uppercase mr-2">
+                        Ticket
+                      </span>
+                      <span className="font-bold text-slate-900 text-sm">{tkt.name}</span>
+                      <span className="text-xs text-slate-450 font-mono ml-2">({tkt.email})</span>
+                    </div>
+                    <span className="text-xs text-slate-400 font-mono">
+                      {new Date(tkt.created_at).toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold text-slate-800 text-sm mb-1 uppercase font-display tracking-tight">
+                      Subject: {tkt.subject}
+                    </h4>
+                    <p className="text-xs text-slate-600 bg-white border border-slate-150/30 p-3 rounded-xl italic leading-relaxed whitespace-pre-wrap">
+                      "{tkt.message}"
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 8. SUBSCRIBERS PANEL */}
+      {activeTab === 'subscribers' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-fade-in" id="admin-subscribers-panel">
+          <div className="flex border-b pb-4 mb-6 justify-between items-center flex-wrap gap-2">
+            <div>
+              <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase">Newsletter Subscribers</h3>
+              <p className="text-xs text-slate-500">Manage emails registered from newsletter subscription widgets</p>
+            </div>
+            <span className="bg-emerald-100 text-[#022c22] border border-emerald-200 font-mono font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider">
+              Total Subscribers: {subscribers.length}
+            </span>
+          </div>
+
+          {subscribers.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 border border-dashed rounded-2xl">
+              <Mail className="h-10 w-10 text-slate-400 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-slate-700">No email subscribers registered yet.</p>
+              <p className="text-xs text-slate-450 mt-1">When users type their email to subscribe, they will be registered here.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-slate-600 text-sm">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-550 border-b border-slate-200 font-mono text-[11px] uppercase text-left">
+                    <th className="py-3 px-4">Registration Email</th>
+                    <th className="py-3 px-4">Subscription Date & Time</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {subscribers.map((sub) => (
+                    <tr key={sub.id} className="hover:bg-slate-50 transition">
+                      <td className="py-3 px-4 font-semibold text-slate-900 font-sans">{sub.email}</td>
+                      <td className="py-3 px-4 text-slate-500 font-mono text-xs">
+                        {new Date(sub.created_at).toLocaleString()}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => {
+                            if (confirm("Are you sure you want to remove this subscriber?")) {
+                              DB.deleteSubscriber(sub.id);
+                              refreshData();
+                            }
+                          }}
+                          className="p-1 px-2.5 border border-slate-200 hover:border-red-655 rounded text-slate-600 hover:text-red-155 transition bg-white"
+                          title="Delete Subscriber"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 shrink-0" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 

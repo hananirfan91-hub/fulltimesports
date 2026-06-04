@@ -19,12 +19,19 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [fixtures, setFixtures] = useState<FixtureItem[]>([]);
   const [rankings, setRankings] = useState<RankingItem[]>([]);
+  const [selectedVideoId, setSelectedVideoId] = useState<string>('YBzE8S5S9_U');
 
   useEffect(() => {
     const loadData = () => {
-      setPosts(DB.getPosts());
+      const allPosts = DB.getPosts();
+      setPosts(allPosts);
       setFixtures(DB.getFixtures());
       setRankings(DB.getRankings());
+      
+      const firstWithVideo = allPosts.find(p => !!p.video_url);
+      if (firstWithVideo?.video_url) {
+        setSelectedVideoId(firstWithVideo.video_url);
+      }
     };
     
     loadData();
@@ -512,48 +519,81 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
         {/* ========================================================================= */}
         {/* SECTION 8: LARGE INTERACTIVE VIDEO HIGHLIGHTS CAROUSEL */}
         {/* ========================================================================= */}
-        <section className="mt-12 bg-[#022c22] text-white rounded-3xl p-6 md:p-8" id="video-highlights-showcase">
+        <section className="mt-12 bg-[#022c22] border border-emerald-950 text-white rounded-3xl p-6 md:p-8" id="video-highlights-showcase">
           <div className="max-w-3xl mb-6">
-            <span className="text-[#22c55e] font-mono text-xs font-bold tracking-widest uppercase">
+            <span className="text-[#22c55e] font-mono text-xs font-bold tracking-widest uppercase flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22c55e]"></span>
+              </span>
               FTS BROADCAST NETWORK
             </span>
             <h2 className="font-display font-black text-2xl lg:text-3xl text-white tracking-tight mt-1 uppercase">
               EXCLUSIVE VIDEO INTERVIEWS & BREAKDOWNS
             </h2>
-            <p className="text-slate-300 text-xs mt-2">
-              Manually logged YouTube broadcasts capturing telemetry reviews and strategic formulations.
+            <p className="text-slate-350 text-xs mt-2">
+              Click any related broadcast log on the right to dynamically stream our telemetry reviews and physical strategies.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             <div className="lg:col-span-2 aspect-video bg-[#01140f] border border-emerald-850 rounded-2xl overflow-hidden relative shadow-2xl">
               <iframe 
-                src="https://www.youtube.com/embed/YBzE8S5S9_U?mute=1&controls=1&modestbranding=1"
+                src={`https://www.youtube.com/embed/${selectedVideoId}?autoplay=1&mute=1&playlist=${selectedVideoId}&loop=1&controls=1&modestbranding=1`}
                 title="Exclusive Telemetry Analysis"
                 className="w-full h-full object-cover"
+                allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
               />
             </div>
             
-            <div className="space-y-4">
-              <p className="font-mono text-xs text-[#22c55e] font-bold uppercase tracking-wider">Related broadcast logs</p>
+            <div className="space-y-3 flex flex-col justify-start">
+              <p className="font-mono text-xs text-[#22c55e] font-bold uppercase tracking-wider pb-1 border-b border-emerald-950/60">
+                Select Broadcast Log
+              </p>
               
-              {videoArticles.map((post) => (
-                <div 
-                  key={post.id} 
-                  onClick={() => onNavigate(`/blog/${post.slug}`)}
-                  className="flex items-center space-x-3 p-2 hover:bg-[#01140f] rounded-lg cursor-pointer border border-transparent hover:border-emerald-900 transition"
-                >
-                  <div className="w-16 h-12 bg-slate-900 rounded overflow-hidden relative shrink-0 border border-emerald-950">
-                    <img referrerPolicy="no-referrer" src={post.featured_image || ''} alt="" className="w-full h-full object-cover opacity-60" />
-                    <Play className="absolute h-4 w-4 text-[#22c55e] inset-0 m-auto fill-current animate-pulse" />
-                  </div>
-                  <div>
-                    <span className="text-[8px] font-mono font-bold text-slate-500 uppercase">{post.category} broadcast</span>
-                    <h4 className="text-xs font-bold text-slate-200 line-clamp-1 uppercase leading-none mt-1">{post.title}</h4>
-                  </div>
-                </div>
-              ))}
+              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+                {videoArticles.map((post) => {
+                  const isActive = selectedVideoId === post.video_url;
+                  return (
+                    <div 
+                      key={post.id} 
+                      onClick={() => {
+                        if (post.video_url) {
+                          setSelectedVideoId(post.video_url);
+                        }
+                      }}
+                      className={`flex items-center space-x-3 p-3 rounded-xl cursor-pointer border transition duration-200 group ${
+                        isActive 
+                          ? 'bg-[#01140f]/90 border-[#22c55e] shadow-md shadow-[#22c55e]/10' 
+                          : 'border-emerald-950/40 hover:border-emerald-700 bg-emerald-950/10 hover:bg-[#01140f]/50'
+                      }`}
+                    >
+                      <div className="w-16 h-12 bg-slate-900 rounded-lg overflow-hidden relative shrink-0 border border-emerald-950">
+                        <img referrerPolicy="no-referrer" src={post.featured_image || ''} alt="" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition" />
+                        <Play className={`absolute h-4 w-4 inset-0 m-auto fill-current transition ${isActive ? 'text-[#22c55e] scale-110' : 'text-slate-450 group-hover:text-white'}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[8px] font-mono font-bold text-[#22c55e] uppercase tracking-wider block">
+                          {post.category} Segment
+                        </span>
+                        <h4 className={`text-xs font-bold line-clamp-1 uppercase leading-snug mt-0.5 ${isActive ? 'text-[#22c55e]' : 'text-slate-200 group-hover:text-white'}`}>
+                          {post.title}
+                        </h4>
+                        <span 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onNavigate(`/blog/${post.slug}`);
+                          }}
+                          className="text-[9px] text-emerald-400 hover:text-[#22c55e] hover:underline font-mono uppercase font-bold mt-1 inline-block"
+                        >
+                          Read Editorial Breakdown →
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>

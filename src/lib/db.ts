@@ -1,4 +1,4 @@
-import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem } from '../types';
+import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber } from '../types';
 import { supabase } from './supabase';
 
 const STORAGE_KEYS = {
@@ -9,6 +9,8 @@ const STORAGE_KEYS = {
   RANKINGS: 'fts_rankings',
   FIXTURES: 'fts_fixtures',
   CURRENT_ADMIN: 'fts_current_admin',
+  TICKETS: 'fts_tickets',
+  SUBSCRIBERS: 'fts_subscribers',
 };
 
 // Seed Categories
@@ -72,7 +74,7 @@ When combined with the disguised "googly"—released from the back of the hand w
     tags: ['cricket news', 'wrist spin tactics', 'T20 powerplay', 'ICC rankings', 'bowling mechanics', 'Rashid Khan analysis', 'spinning masterclass'],
     featured_image: 'https://images.unsplash.com/photo-1531415080290-b9b6e27967b8?w=1200&auto=format&fit=crop&q=80',
     video_url: 'H9T9e03d_jE',
-    author: 'Sarah Patel',
+    author: 'Hanan Irfan',
     created_at: '2026-06-03T09:12:00Z',
     is_featured: true, // Left panel
     is_trending: true,
@@ -119,7 +121,7 @@ They must possess elite scanning frequency (checking over the shoulder 3-4 times
     tags: ['football news', 'tactical breakdown', 'inverted fullback', 'Premier league tactics', 'Pep Guardiola', 'football analytics', 'modern formations'],
     featured_image: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&auto=format&fit=crop&q=80',
     video_url: '6p8bV_G7u20',
-    author: 'James Carter',
+    author: 'Hanan Irfan',
     created_at: '2026-06-03T08:30:00Z',
     is_featured: false,
     is_trending: true,
@@ -159,7 +161,7 @@ As defenders scramble to recover across massive distances, offenses generate hig
     tags: ['NBA news', 'basketball analytics', 'three point revolution', 'mid range jumper', 'expected points shot', 'NBA stats', 'court efficiency'],
     featured_image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1200&auto=format&fit=crop&q=80',
     video_url: 'q7Myr7Gsk-g',
-    author: 'James Carter',
+    author: 'Hanan Irfan',
     created_at: '2026-06-03T07:45:00Z',
     is_featured: false, // Stack Right Carousel 1
     is_trending: true,
@@ -199,7 +201,7 @@ Combined with sophisticated mechanical damper systems that control roll, pitch, 
     tags: ['F1 news', 'Formula 1 aerodynamics', 'ground effect Venturi', 'Grand prix engineering', 'F1 technical updates', 'chassis design'],
     featured_image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&auto=format&fit=crop&q=80',
     video_url: 'YBzE8S5S9_U',
-    author: 'Sarah Patel',
+    author: 'Hanan Irfan',
     created_at: '2026-06-02T16:20:00Z',
     is_featured: false, // Stack Right Carousel 2
     is_trending: true,
@@ -234,7 +236,7 @@ When a fan purchases a digital skin to support their favorite squad, up to 50% o
     tags: ['esports tournaments', 'esports economics', 'gaming franchise', 'Riot games league', 'gaming industry valuation', 'streamer revenue'],
     featured_image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&auto=format&fit=crop&q=80',
     video_url: 'YBzE8S5S9_U', // Shared or YouTube ID
-    author: 'James Carter',
+    author: 'Hanan Irfan',
     created_at: '2026-06-02T10:05:00Z',
     is_featured: false,
     is_trending: false,
@@ -266,7 +268,7 @@ Sliding on clay requires extreme flexibility and explosive plyometric stability.
     category: 'tennis',
     tags: ['tennis news', 'clay court sliding', 'court biomechanics', 'ATP tour analysis', 'Roland Garros physics', 'footwork masterclass'],
     featured_image: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?w=1200&auto=format&fit=crop&q=80',
-    author: 'Sarah Patel',
+    author: 'Hanan Irfan',
     created_at: '2026-06-01T14:15:00Z',
     is_featured: false,
     is_trending: false,
@@ -308,7 +310,7 @@ This runner has less than 0.6 seconds to cover 10 meters, positioning themselves
     category: 'hockey',
     tags: ['hockey news', 'field hockey tactics', 'penalty corner drag flick', 'FIH tournament strategy', 'olympic hockey coaching', 'dragflick biomechanics'],
     featured_image: 'https://images.unsplash.com/photo-1580748141549-71748d60bdc5?w=1200&auto=format&fit=crop&q=80',
-    author: 'James Carter',
+    author: 'Hanan Irfan',
     created_at: '2026-05-31T11:40:00Z',
     is_featured: false,
     is_trending: false,
@@ -346,7 +348,7 @@ This topspin creates a standard **Magnus Force** where the boundary layer of air
     category: 'volleyball',
     tags: ['volleyball news', 'volleyball server mechanics', 'fluid dynamics ball sports', 'scientific serve tutorials', 'FIVB world tour tactics', 'Magnus effect'],
     featured_image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=1200&auto=format&fit=crop&q=80',
-    author: 'Sarah Patel',
+    author: 'Hanan Irfan',
     created_at: '2026-05-30T10:15:00Z',
     is_featured: false,
     is_trending: false,
@@ -512,6 +514,12 @@ export class DB {
     }
     if (!localStorage.getItem(STORAGE_KEYS.FIXTURES)) {
       localStorage.setItem(STORAGE_KEYS.FIXTURES, JSON.stringify(SEED_FIXTURES));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.TICKETS)) {
+      localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.SUBSCRIBERS)) {
+      localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify([]));
     }
     
     // Start background sync from Supabase database
@@ -809,6 +817,78 @@ export class DB {
     // Sync
     supabase.from('fts_media').delete().eq('id', id).then(({ error }) => {
       if (error) console.warn("Supabase delete fts_media error:", error);
+    });
+  }
+
+  static getTickets(): TicketMessage[] {
+    const data = localStorage.getItem(STORAGE_KEYS.TICKETS);
+    return data ? JSON.parse(data) : [];
+  }
+
+  static insertTicket(ticket: Omit<TicketMessage, 'id' | 'created_at'>): TicketMessage {
+    const list = this.getTickets();
+    const newTicket: TicketMessage = {
+      ...ticket,
+      id: `tkt-${Date.now()}`,
+      created_at: new Date().toISOString()
+    };
+    list.unshift(newTicket);
+    localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(list));
+
+    // Attempt to sync with Supabase
+    supabase.from('fts_tickets').insert([newTicket]).then(({ error }) => {
+      if (error) console.warn("Supabase insert fts_tickets notice:", error.message);
+    });
+
+    return newTicket;
+  }
+
+  static getSubscribers(): Subscriber[] {
+    const data = localStorage.getItem(STORAGE_KEYS.SUBSCRIBERS);
+    return data ? JSON.parse(data) : [];
+  }
+
+  static insertSubscriber(email: string): Subscriber {
+    const list = this.getSubscribers();
+    const emailNorm = email.trim();
+    const existing = list.find(s => s.email.toLowerCase() === emailNorm.toLowerCase());
+    if (existing) return existing;
+
+    const newSub: Subscriber = {
+      id: `sub-${Date.now()}`,
+      email: emailNorm,
+      created_at: new Date().toISOString()
+    };
+    list.unshift(newSub);
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(list));
+
+    // Attempt to sync with Supabase
+    supabase.from('fts_subscribers').insert([newSub]).then(({ error }) => {
+      if (error) console.warn("Supabase insert fts_subscribers notice:", error.message);
+    });
+
+    return newSub;
+  }
+
+  static deleteTicket(id: string) {
+    const list = this.getTickets();
+    const filtered = list.filter(t => t.id !== id);
+    localStorage.setItem(STORAGE_KEYS.TICKETS, JSON.stringify(filtered));
+
+    // Async
+    supabase.from('fts_tickets').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn("Supabase delete fts_tickets error:", error);
+    });
+  }
+
+  static deleteSubscriber(id: string) {
+    const list = this.getSubscribers();
+    const filtered = list.filter(s => s.id !== id);
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(filtered));
+
+    // Async
+    supabase.from('fts_subscribers').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn("Supabase delete fts_subscribers error:", error);
     });
   }
 }

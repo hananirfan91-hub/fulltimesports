@@ -6,6 +6,7 @@ import {
   Briefcase, Lock, FileText, ChevronDown, ChevronUp, MessageSquare
 } from 'lucide-react';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
+import { DB } from '../lib/db';
 
 interface TrustPageProps {
   page: 'about-us' | 'contact-us' | 'privacy-policy' | 'terms' | 'disclaimer';
@@ -30,6 +31,12 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (contactName.trim() && contactEmail.trim() && contactMessage.trim()) {
+      DB.insertTicket({
+        name: contactName.trim(),
+        email: contactEmail.trim(),
+        subject: contactSubject,
+        message: contactMessage.trim()
+      });
       setTicketPosted(true);
       setContactName('');
       setContactEmail('');
@@ -58,7 +65,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
     },
     {
       q: "Does Full Time Sports (FTS) compile scores and news using automated web scrapers?",
-      a: "No. Unlike generic digital sites that scrape public content using low-quality automated scripts, FTS relies entirely on manual updates managed directly by our physical editorial board (including james.carter and sarah.patel) within our local state engines. This guarantees 100% data accuracy and fulfills high-quality editorial parameters."
+      a: "No. Unlike generic digital sites that scrape public content using low-quality automated scripts, FTS relies entirely on manual updates managed directly by our physical editorial board (under Super Admin guidance) within our local state engines. This guarantees 100% data accuracy and fulfills high-quality editorial parameters."
     },
     {
       q: "What scientific principles govern your sports analysis modules?",
@@ -296,7 +303,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                   5. Our Hands-On Editorial Code of Conduct
                 </h3>
                 <p className="text-xs text-slate-650 leading-relaxed font-sans">
-                  Integrity is the most valuable currency in sports reporting. The editorial board of Full Time Sports—governed by Hanan Irfan as Super Admin and assisted by senior sports writers James Carter and Sarah Patel—operates under a strict code of human authorship. We are firmly opposed to 'content spinning,' where algorithms summarize work done by competitors without adding value.
+                  Integrity is the most valuable currency in sports reporting. The editorial board of Full Time Sports—governed by Hanan Irfan as Super Admin and assisted by our senior sports writers—operates under a strict code of human authorship. We are firmly opposed to 'content spinning,' where algorithms summarize work done by competitors without adding value.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
                   Every sports column undergoes a double-pass review process: first, the assigned writer drafts the technical coordinates and athletic background; second, the senior editorial desk verifies the mathematical calculations, physical assertions, and structural spelling within our internal editing interface. We do not copy, translate, or adapt scraped text. This commitment keeps our bounce rates low, reader retention active, and guarantees that our pages provide unique value to search engine queries.
@@ -309,7 +316,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                   6. Aerodynamic Calculus & Sports Physics Science
                 </h3>
                 <p className="text-xs text-slate-650 leading-relaxed font-sans">
-                  At FTS, sports journalism transcends basic reporting of final scorelines. We examine the mathematical and physics-driven mechanics that dictate athletic performance. In F1 analysis, our strategist Sarah Patel breaks down the ground-effect venturi channels on car floors, evaluating how pitch-sensitivity affects ride high-velocity cornering force. In cricket, we mathematically analyze the horizontal drift frequency of leg-spin bowling under humid conditions vs dry, high-elevation stadiums.
+                  At FTS, sports journalism transcends basic reporting of final scorelines. We examine the mathematical and physics-driven mechanics that dictate athletic performance. In F1 analysis, our strategists break down the ground-effect venturi channels on car floors, evaluating how pitch-sensitivity affects ride high-velocity cornering force. In cricket, we mathematically analyze the horizontal drift frequency of leg-spin bowling under humid conditions vs dry, high-elevation stadiums.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
                   Our basketball analysts map the statistical death of the mid-range jumper, computing standard deviation maps of corner-three shots vs drives in transition. Our volleyball columns delve into fluid aerodynamics to illustrate why dynamic hybrid floats generate unstable vortex paths. By examining sports through the lenses of physics, mathematics, and tactical mechanics, we provide an unparalleled depth of insight that elevates FTS far above standard clickbait content.
@@ -361,7 +368,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                   10. Reader Engagement and Institutional Accountability
                 </h3>
                 <p className="text-xs text-slate-650 leading-relaxed font-sans">
-                  We maintain a deep commitment to our readers. If you detect an error in our match database, a typo in a player roster, or a discrepancy in an aerodynamic drag calculation, we want to hear from you. We do not hide behind automated support loops or generic unresponsive emails. Let us know what you think through our ticket systems, where James Carter or Sarah Patel will reply to your registered email addressing your query directly.
+                  We maintain a deep commitment to our readers. If you detect an error in our match database, a typo in a player roster, or a discrepancy in an aerodynamic drag calculation, we want to hear from you. We do not hide behind automated support loops or generic unresponsive emails. Let us know what you think through our ticket systems, where Hanan Irfan or our support staff will reply to your registered email addressing your query directly.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
                   Thank you for supporting Full Time Sports. Whether you are an F1 enthusiast, a cricket fan, a football tactician, or an esports fan tracking global championship brackets, we are committed to providing the most elegant, responsive, and human-crafted digital sports media experience possible.
@@ -416,7 +423,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 {/* Form column */}
                 <div className="lg:col-span-7 space-y-4">
                   <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                    Need to submit an editorial pitch, report score discrepancies, or inquire about AdSense sponsorship packages? Contact James Carter or Sarah Patel directly using the ticketing form below.
+                    Need to submit an editorial pitch, report score discrepancies, or inquire about sports partnerships? Contact Hanan Irfan or our development desk directly using the ticketing form below.
                   </p>
 
                   {ticketPosted ? (
@@ -425,7 +432,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                       <div>
                         <h4 className="font-bold text-xs uppercase font-display tracking-tight text-emerald-950">Ticket Submitted Successfully!</h4>
                         <p className="text-xs text-slate-505 mt-2 leading-relaxed">
-                          Our active sports journalism board has recorded your inquiry under administrative ticket reference: <strong className="font-mono text-[#22c55e]">TKT-{Date.now().toString().slice(-6)}</strong>. Sarah Patel or James Carter will reply to your registered email address within 24 hours.
+                          Our active sports journalism board has recorded your inquiry under administrative ticket reference: <strong className="font-mono text-[#22c55e]">TKT-{Date.now().toString().slice(-6)}</strong>. Our support staff will reply to your registered email address within 24 hours.
                         </p>
                       </div>
                     </div>
@@ -510,22 +517,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                         <p className="text-[10px] font-mono text-[#22c55e] mt-0.5">hananirfan91@gmail.com</p>
                       </div>
                     </div>
-                    <div className="flex items-start space-x-2">
-                      <User className="h-4 w-4 text-emerald-700 mt-0.5 shrink-0" />
-                      <div>
-                        <p className="font-bold text-slate-800 leading-none">Sarah Patel</p>
-                        <p className="text-[10px] text-slate-500">Cricket & F1 Strategy Chief</p>
-                        <p className="text-[10px] font-mono text-slate-600 mt-0.5">sarah.patel@fulltimesports.com</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <User className="h-4 w-4 text-emerald-700 mt-0.5 shrink-0" />
-                      <div>
-                        <p className="font-bold text-slate-800 leading-none">James Carter</p>
-                        <p className="text-[10px] text-slate-500">Football & Esports Writer</p>
-                        <p className="text-[10px] font-mono text-slate-600 mt-0.5">james.carter@fulltimesports.com</p>
-                      </div>
-                    </div>
+                    {/* Managed purely by Hanan Irfan */}
                   </div>
                 </div>
               </div>
@@ -617,7 +609,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                   Once an inquiry is logged in our local storage queue, it gains a unique ticket ID. FTS operates three escalation levels to ensure all submissions receive high-quality assessment:
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-600 leading-relaxed font-sans">
-                  <li><strong>Tier 1 (Editorial Review):</strong> Routine text corrections and scoreline updates are verified and updated by James Carter or Sarah Patel within 8 hours.</li>
+                  <li><strong>Tier 1 (Editorial Review):</strong> Routine text corrections and scoreline updates are verified and updated by our editorial team within 8 hours.</li>
                   <li><strong>Tier 2 (Commercial Management):</strong> Direct sponsorship queries, press media credentials, and AdSense partnership pitches are routed to HI Digital Group business managers for pricing proposals.</li>
                   <li><strong>Tier 3 (Technical Oversight):</strong> Critical server reports, database performance issues, and UI engine regressions are escalated to Hanan Irfan for rapid code patches and re-deployment.</li>
                 </ul>

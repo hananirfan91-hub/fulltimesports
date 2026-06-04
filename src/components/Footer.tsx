@@ -15,6 +15,7 @@ export default function Footer({ onNavigate }: FooterProps) {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim().length > 3) {
+      DB.insertSubscriber(email);
       setSubscribed(true);
       setEmail('');
       setTimeout(() => setSubscribed(false), 5000);

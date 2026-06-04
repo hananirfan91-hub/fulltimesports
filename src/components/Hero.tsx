@@ -72,22 +72,20 @@ export default function Hero({ onNavigate }: HeroProps) {
       <div className="font-mono text-[10px] md:text-xs font-bold text-[#22c55e] uppercase tracking-widest flex items-center mb-4 space-x-1">
         <TrendingUp className="h-4 w-4 animate-bounce" />
         <span>3D Layered Editorial Board • Live Coverage</span>
-      </div>
-
-      {/* Grid Layout conforming to Left panel, Right panel, Floating video block */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative min-h-[500px]">
+      </div>      {/* Grid Layout conforming to Left panel, Right panel, Floating video block */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 relative min-h-[480px]">
         
         {/* ================= LEFT PANEL =================
             PRIMARY FEATURE: HIGHEST Z-LAYER (Z-20) */}
         <motion.div 
           onClick={() => onNavigate(`/blog/${featuredNews.slug}`)}
-          className="lg:col-span-7 bg-[#022c22] border border-emerald-950 rounded-2xl overflow-hidden relative group cursor-pointer shadow-xl z-20"
+          className="lg:col-span-6 md:col-span-2 bg-[#022c22] border border-emerald-950 rounded-2xl overflow-hidden relative group cursor-pointer shadow-xl z-20 min-h-[380px] flex flex-col justify-end"
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
           whileHover={{ y: -5, shadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}
           style={{
-            transform: `perspective(1000px) rotateY(${mousePos.x * 3}deg) rotateX(${mousePos.y * -3}deg)`
+            transform: `perspective(1000px) rotateY(${mousePos.x * 2}deg) rotateX(${mousePos.y * -2}deg)`
           }}
         >
           {/* Cover image with zoom */}
@@ -96,7 +94,7 @@ export default function Hero({ onNavigate }: HeroProps) {
             referrerPolicy="no-referrer"
             src={featuredNews.featured_image} 
             alt={featuredNews.title} 
-            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
+            className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700"
           />
 
           {/* Article detail overlay */}
@@ -105,10 +103,10 @@ export default function Hero({ onNavigate }: HeroProps) {
               <Award className="h-3 w-3" />
               <span>{featuredNews.category} BREAKING</span>
             </span>
-            <h2 className="font-display text-2xl md:text-3.5xl font-extrabold text-white tracking-tight leading-tight uppercase group-hover:text-[#22c55e] transition line-clamp-3">
+            <h2 className="font-display text-xl md:text-2xl font-extrabold text-white tracking-tight leading-tight uppercase group-hover:text-[#22c55e] transition line-clamp-3">
               {featuredNews.title}
             </h2>
-            <p className="text-slate-200 text-xs md:text-sm mt-3 line-clamp-2 leading-relaxed">
+            <p className="text-slate-200 text-xs mt-3 line-clamp-2 leading-relaxed">
               {featuredNews.meta_description || featuredNews.content.slice(0, 150) + "..."}
             </p>
             
@@ -124,18 +122,56 @@ export default function Hero({ onNavigate }: HeroProps) {
         </motion.div>
 
 
+        {/* ================= MIDDLE COLUMN: LIVE STREAM (Z-20) ================= */}
+        <motion.div 
+          className="lg:col-span-3 bg-[#01140f] border border-emerald-900 rounded-2xl p-4 flex flex-col justify-between shadow-xl z-20"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          whileHover={{ y: -5 }}
+        >
+          <div className="flex flex-col h-full justify-between">
+            <div>
+              <span className="bg-slate-950 font-mono text-[9px] font-black tracking-widest text-[#22c55e] px-2.5 py-1.5 rounded w-fit mb-3 block border border-emerald-950 uppercase">
+                FTS TV • Video Preview
+              </span>
+              <div className="aspect-video bg-black rounded-xl overflow-hidden relative border border-emerald-950/40">
+                <iframe 
+                  src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&mute=1&playlist=${activeVideoId}&loop=1&controls=0&modestbranding=1`}
+                  title="FTS Live Video Feed"
+                  className="w-full h-full object-cover pointer-events-none opacity-90"
+                  allow="autoplay; encrypted-media"
+                />
+              </div>
+              <h3 className="text-white font-display font-black text-xs uppercase tracking-tight mt-4">
+                Strategy & Live Telemetry
+              </h3>
+              <p className="text-slate-300 text-[10px] leading-relaxed mt-1.5">
+                Monitoring ball speeds, strategic formulas, and professional coaching adjustments instantly.
+              </p>
+            </div>
+            <button 
+              onClick={() => onNavigate(`/blog/${featuredNews.slug}`)}
+              className="w-full mt-4 py-2.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] border border-emerald-950 text-white font-mono font-bold text-[9px] uppercase rounded-lg text-center transition tracking-widest cursor-pointer"
+            >
+              Read Full Breakdown
+            </button>
+          </div>
+        </motion.div>
+
+
         {/* ================= RIGHT PANEL =================
             STACKED CAROUSEL: SMOOTH ANIMATED FLOW (Z-10) */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-4 z-15">
+        <div className="lg:col-span-3 flex flex-col justify-between space-y-4">
           <div className="flex justify-between items-center px-1 font-mono text-[10px] text-slate-500 font-bold uppercase">
             <span>Trending Feed</span>
-            <span>Carousel Rotation</span>
+            <span>Carousel Rotate</span>
           </div>
 
           <AnimatePresence mode="wait">
             <motion.div 
               key={carouselIndex}
-              className="flex flex-col space-y-4"
+              className="flex flex-col space-y-3"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
@@ -147,11 +183,11 @@ export default function Hero({ onNavigate }: HeroProps) {
                   <motion.div
                     key={item.id}
                     onClick={() => onNavigate(`/blog/${item.slug}`)}
-                    className="bg-white border border-slate-200 hover:border-[#22c55e] p-4 rounded-xl flex items-center space-x-4 cursor-pointer shadow-sm group hover:shadow-md transition"
-                    whileHover={{ scale: 1.02, x: 5 }}
+                    className="bg-white border border-slate-200 hover:border-[#22c55e] p-3 rounded-xl flex items-center space-x-3 cursor-pointer shadow-sm group hover:shadow-md transition"
+                    whileHover={{ scale: 1.02, x: 3 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   >
-                    <div className="w-20 h-20 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative border border-slate-100">
+                    <div className="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative border border-slate-100">
                       <img 
                         referrerPolicy="no-referrer"
                         src={item.featured_image} 
@@ -159,17 +195,16 @@ export default function Hero({ onNavigate }: HeroProps) {
                         className="w-full h-full object-cover group-hover:scale-105 transition"
                       />
                     </div>
-                    <div className="flex-1">
-                      <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase tracking-widest">{item.category}</span>
-                      <h3 className="font-display text-sm font-bold text-slate-900 leading-snug line-clamp-2 uppercase mt-0.5 group-hover:text-[#22c55e] transition">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[8px] font-mono font-bold text-[#22c55e] uppercase tracking-widest">{item.category}</span>
+                      <h3 className="font-display text-xs font-bold text-slate-900 leading-snug line-clamp-2 uppercase mt-0.5 group-hover:text-[#22c55e] transition">
                         {item.title}
                       </h3>
-                      <div className="flex items-center space-x-4 mt-2 text-[10px] text-slate-400 font-mono">
-                        <span>{item.author}</span>
-                        <span>{item.views} VIEWS</span>
+                      <div className="flex items-center space-x-2 mt-1.5 text-[9px] text-slate-400 font-mono">
+                        <span className="truncate">{item.author}</span>
                       </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-slate-400 group-hover:text-[#22c55e] transition" />
+                    <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-[#22c55e] transition shrink-0" />
                   </motion.div>
                 );
               })}
@@ -177,46 +212,9 @@ export default function Hero({ onNavigate }: HeroProps) {
           </AnimatePresence>
         </div>
 
-
-        {/* ================= FLOATING VIDEO BLOCK =================
-            CENTER OVERLAY CARD WITH PARALLAX Z-AXIS LIFT (Z-30) */}
-        <motion.div 
-          className="absolute hidden md:block w-72 lg:w-80 h-44 bg-[#01140f] rounded-2xl border-2 border-[#22c55e] shadow-2xl z-30 overflow-hidden"
-          style={{
-            top: '42%',
-            left: '52%',
-            transform: `translate(-50%, -50%) perspective(1000px) rotateY(${mousePos.x * 12}deg) rotateX(${mousePos.y * -12}deg) translateZ(40px)`
-          }}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
-        >
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10 cursor-pointer group">
-            <div className="bg-[#22c55e] text-slate-950 p-3.5 rounded-full shadow-lg group-hover:scale-110 group-hover:bg-[#f0fdf4] transition">
-              <Play className="h-6 w-6 fill-current ml-0.5 text-slate-950" />
-            </div>
-            <div className="absolute bottom-2 left-3 right-3 text-left">
-              <span className="bg-slate-950/80 text-[8px] font-mono font-bold px-2 py-0.5 rounded text-[#22c55e] tracking-widest uppercase">
-                Floating Editorial Feature
-              </span>
-              <p className="text-[10px] text-white font-sans font-bold line-clamp-1 mt-1">
-                FTS TV • Video Highlight
-              </p>
-            </div>
-          </div>
-          <iframe 
-            src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&mute=1&playlist=${activeVideoId}&loop=1&controls=0&modestbranding=1`}
-            title="Sports Video Stream"
-            className="w-full h-full object-cover pointer-events-none opacity-80"
-            allow="autoplay; encrypted-media"
-          />
-        </motion.div>
-
       </div>
 
-
-      {/* ================= BOTTOM STRIP (BLOGS) =================
-          HORIZONTAL SLIDING CAROUSEL / CONTINUOUS TICKER (Z-10) */}
+      {/* ================= BOTTOM STRIP (BLOGS) ================= */}
       <div className="mt-8 pt-4 border-t border-slate-200" id="editorial-columns-strip">
         <div className="flex justify-between items-center mb-3 px-1 font-mono text-[10px] text-slate-500 font-bold uppercase">
           <span className="flex items-center space-x-1">
