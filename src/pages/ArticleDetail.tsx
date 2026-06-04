@@ -404,7 +404,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
             
             <div className="flex items-center space-x-2">
               <a 
-                href="https://facebook.com/fulltimesportspakistan"
+                href="https://www.facebook.com/HananIrfan001"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-[#1877F2]/10 hover:bg-[#1877F2] hover:text-white text-[#1877F2] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 

@@ -417,7 +417,7 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
             <p className="text-[10px] text-slate-500">Stay updated on expert human sports coverage by following our official handles.</p>
             <div className="flex justify-center space-x-2">
               <a 
-                href="https://facebook.com/fulltimesportspakistan"
+                href="https://www.facebook.com/HananIrfan001"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-505 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 

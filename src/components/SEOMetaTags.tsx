@@ -136,7 +136,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         "url": origin,
         "logo": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=200",
         "sameAs": [
-          "https://facebook.com/fulltimesportspak",
+          "https://www.facebook.com/HananIrfan001",
           "https://twitter.com/fts_pakistan"
         ],
         "address": {
