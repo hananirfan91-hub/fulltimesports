@@ -6,6 +6,7 @@ import {
 import { Post, Category, RankingItem, FixtureItem } from '../types';
 import { DB } from '../lib/db';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
+import { SPORT_TACTICAL_MANUALS } from '../data/sportManuals';
 
 interface SportCategoryProps {
   categorySlug: string;
@@ -419,6 +420,77 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
         </div>
 
       </div>
+
+      {/* C. MASSIVE ATHLETIC BIOMECHANICS ATLAS & TACTICAL DEEP DIVE MANUAL */}
+      {SPORT_TACTICAL_MANUALS[categorySlug] && (
+        <div className="bg-slate-900 border border-slate-800 text-slate-105 rounded-3xl p-6 md:p-10 shadow-2xl space-y-8 mt-12" id="fts-sports-science-atlas">
+          <div className="border-b border-emerald-950 pb-6">
+            <div className="inline-flex items-center space-x-2 font-mono text-[9px] font-black text-[#22c55e] bg-[#01140f] px-2.5 py-1.5 rounded tracking-wide border border-emerald-950 uppercase mb-3">
+              <Sparkles className="h-3 w-3 mr-1" />
+              <span>Academic Reference Vault</span>
+            </div>
+            <h2 className="font-display font-black text-2xl md:text-4xl uppercase tracking-tight text-white leading-none">
+              ATHLETIC SCIENCE & TACTICAL MANUAL: <span className="text-[#22c55e]">{category.name.toUpperCase()} DESK</span>
+            </h2>
+            <p className="text-xs text-slate-400 mt-2 max-w-3xl leading-relaxed">
+              {SPORT_TACTICAL_MANUALS[categorySlug].introduction}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-8 space-y-6">
+              {SPORT_TACTICAL_MANUALS[categorySlug].chapters.map((ch, idx) => (
+                <div key={idx} className="bg-[#0c1915]/50 border border-emerald-950/40 p-5 rounded-2xl space-y-2.5">
+                  <h3 className="font-display font-black text-sm md:text-base text-white tracking-tight uppercase border-b border-emerald-950/20 pb-2 flex items-center space-x-2">
+                    <span className="text-[#22c55e] font-mono text-xs">0{idx + 1}.</span>
+                    <span>{ch.title}</span>
+                  </h3>
+                  <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
+                    {ch.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="lg:col-span-4 space-y-6">
+              {/* Pakistan Geographic Association */}
+              <div className="p-5 bg-gradient-to-b from-[#023326] to-[#011c15] border border-[#22c55e]/20 rounded-2xl space-y-3">
+                <span className="text-[9px] font-mono font-bold text-[#22c55e] bg-[#01140f] px-2 py-0.5 rounded uppercase">
+                  GEO-ANALYSIS DIRECTORY
+                </span>
+                <h4 className="font-display font-black text-xs text-white uppercase tracking-wider">
+                  pakistan domestic integration
+                </h4>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  {SPORT_TACTICAL_MANUALS[categorySlug].pakistanPerspective}
+                </p>
+              </div>
+
+              {/* Formula & Biomechanical Metrics */}
+              {SPORT_TACTICAL_MANUALS[categorySlug].biochemicalFormulas && (
+                <div className="p-5 bg-[#0d151d] border border-slate-800 rounded-2xl space-y-3">
+                  <span className="text-[9px] font-mono font-bold text-sky-400 bg-sky-950/20 px-2 py-0.5 rounded uppercase">
+                    Calculated Biomechanics Models
+                  </span>
+                  <h4 className="font-display font-black text-xs text-slate-300 uppercase tracking-wider">
+                    Core Physics Blueprints
+                  </h4>
+                  <div className="space-y-2">
+                    {SPORT_TACTICAL_MANUALS[categorySlug].biochemicalFormulas.map((f, i) => (
+                      <div key={i} className="bg-slate-950 p-2.5 rounded border border-slate-900 font-mono text-[10px] text-sky-400">
+                        {f}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[9px] text-slate-500 italic leading-snug">
+                    Telemetry values are computed in real-time tracking from high-speed digital footage.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

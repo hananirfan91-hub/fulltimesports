@@ -25,7 +25,39 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
   const [showDropdown, setShowDropdown] = useState(false);
   const [showGeoDropdown, setShowGeoDropdown] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [upcomingMatchLine, setUpcomingMatchLine] = useState("Upcoming Matches In 2 Hours");
   const categories = DB.getCategories();
+
+  React.useEffect(() => {
+    const updateLine = () => {
+      try {
+        const fixtures = DB.getFixtures();
+        const upcoming = fixtures.filter(f => f.status === 'upcoming');
+        
+        if (upcoming.length > 0) {
+          const now = new Date();
+          const totalMinutes = now.getHours() * 60 + now.getMinutes();
+          const cycleMinutes = 120; // 2 hour loop
+          const remainingMinutes = cycleMinutes - (totalMinutes % cycleMinutes);
+          const hours = Math.floor(remainingMinutes / 60);
+          const mins = remainingMinutes % 60;
+          
+          const matchIndex = Math.floor(totalMinutes / cycleMinutes) % upcoming.length;
+          const chosenMatch = upcoming[matchIndex];
+          
+          setUpcomingMatchLine(`Upcoming: ${chosenMatch.team1} vs ${chosenMatch.team2} (${chosenMatch.sport.toUpperCase()}) in ${hours > 0 ? `${hours}h ` : ''}${mins}m`);
+        } else {
+          setUpcomingMatchLine("FTS Broadcast Network: Matches Scheduled in 2 Hours");
+        }
+      } catch (e) {
+        setUpcomingMatchLine("Upcoming Matches In 2 Hours");
+      }
+    };
+
+    updateLine();
+    const interval = setInterval(updateLine, 60000); // update every minute
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -63,7 +95,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             </span>
             <span className="text-[#14532d]">|</span>
             <span className="text-slate-350 hover:text-[#22c55e] cursor-pointer transition duration-150" onClick={() => onNavigate('/fixtures')}>
-              Upcoming Matches In 2 Hours
+              {upcomingMatchLine}
             </span>
           </div>
           <div className="flex items-center space-x-6">

@@ -145,11 +145,23 @@ export default function Hero({ onNavigate }: HeroProps) {
               </span>
               <div className="aspect-video bg-black rounded-xl overflow-hidden relative border border-emerald-950/40">
                 <iframe 
-                  src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&mute=1&playlist=${activeVideoId}&loop=1&controls=0&modestbranding=1`}
+                  src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&mute=1&playlist=${activeVideoId}&loop=1&controls=1&modestbranding=1`}
                   title="FTS Live Video Feed"
-                  className="w-full h-full object-cover pointer-events-none opacity-90"
-                  allow="autoplay; encrypted-media"
+                  className="w-full h-full object-cover opacity-90"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
                 />
+              </div>
+              <div className="flex justify-between items-center mt-1.5 px-0.5">
+                <span className="text-[9px] font-mono text-slate-400">Interactive Player Active</span>
+                <a 
+                  href={`https://www.youtube.com/watch?v=${activeVideoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[9px] font-mono text-[#22c55e] hover:underline"
+                >
+                  Stream on YT ↗
+                </a>
               </div>
               <h3 className="text-white font-display font-black text-xs uppercase tracking-tight mt-4">
                 Strategy & Live Telemetry

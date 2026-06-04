@@ -8,6 +8,7 @@ import RankingsFixtures from './pages/RankingsFixtures';
 import TrustPages from './pages/TrustPages';
 import AdminDashboard from './components/AdminDashboard';
 import Glossary from './pages/Glossary';
+import SEOMetaTags from './components/SEOMetaTags';
 import { DB } from './lib/db';
 
 export default function App() {
@@ -125,6 +126,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col justify-between" id="applet-frame">
+      {/* Automated dynamic meta and JSON-LD seo generator */}
+      <SEOMetaTags currentPath={currentPath} />
+
       {/* Dynamic Navbar */}
       <Navbar 
         currentPath={currentPath} 
