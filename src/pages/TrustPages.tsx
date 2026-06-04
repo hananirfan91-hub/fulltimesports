@@ -193,10 +193,21 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                   </a>
                 </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start border-t border-emerald-900/60 pt-6">
-  
-  {/* Profile Image Card */}
- <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start border-t border-emerald-900/60 pt-6"> {/* Decorative Profile Pic Placeholder Visual */} <div className="md:col-span-4 bg-[#01140f] p-4 rounded-xl border border-emerald-900 flex flex-col items-center justify-center text-center space-y-3"> <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#22c55e] to-white flex items-center justify-center text-slate-950 font-display font-black text-xl shadow-md border-2 border-emerald-900"> HI </div> <div> <h4 className="text-xs font-bold text-white uppercase font-mono">Hanan Irfan</h4> <p className="text-[10px] text-[#22c55e] font-mono mt-0.5">HI Digital Group</p> </div> <div className="bg-slate-950/50 p-2.5 rounded-lg border border-emerald-950 text-left w-full"> <span className="text-[8px] font-mono font-bold text-slate-400 block uppercase mb-1">Stack Index</span> <p className="text-[9px] font-mono text-slate-300 leading-tight">React, Node.js, Next.js, Cloud Run, Local Database Engine</p> </div> </div>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start border-t border-emerald-900/60 pt-6">
+                  {/* Decorative Profile Pic Placeholder Visual */}
+                  <div className="md:col-span-4 bg-[#01140f] p-4 rounded-xl border border-emerald-900 flex flex-col items-center justify-center text-center space-y-3">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#22c55e] to-white flex items-center justify-center text-slate-950 font-display font-black text-xl shadow-md border-2 border-emerald-900">
+                      HI
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase font-mono">Hanan Irfan</h4>
+                      <p className="text-[10px] text-[#22c55e] font-mono mt-0.5">HI Digital Group</p>
+                    </div>
+                    <div className="bg-slate-950/50 p-2.5 rounded-lg border border-emerald-950 text-left w-full">
+                      <span className="text-[8px] font-mono font-bold text-slate-400 block uppercase mb-1">Stack Index</span>
+                      <p className="text-[9px] font-mono text-slate-300 leading-tight">React, Node.js, Next.js, Cloud Run, Local Database Engine</p>
+                    </div>
+                  </div>
 
                   <div className="md:col-span-8 text-xs leading-relaxed text-slate-200 list-inside space-y-4 font-sans">
                     <p className="font-bold underline text-[#22c55e]">

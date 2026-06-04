@@ -74,6 +74,21 @@ export interface Comment {
   created_at: string;
 }
 
+export interface TicketMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  created_at: string;
+}
+
+export interface Subscriber {
+  id: string;
+  email: string;
+  created_at: string;
+}
+
 export interface SearchFilter {
   query: string;
   category: string;
