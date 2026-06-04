@@ -54,12 +54,20 @@ export default function Hero({ onNavigate }: HeroProps) {
   // Safe checks
   if (!featuredNews) return <div className="h-44 bg-slate-100 animate-pulse"></div>;
 
+  // Helper to extract clean 11-char YouTube ID from any full link or raw ID
+  const getYouTubeId = (urlOrId: string): string => {
+    if (!urlOrId) return 'YBzE8S5S9_U';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = urlOrId.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : urlOrId;
+  };
+
   // Active items in the carousel (2 at a time)
   const carouselItem1 = carouselPool[carouselIndex % carouselPool.length];
   const carouselItem2 = carouselPool[(carouselIndex + 1) % carouselPool.length];
 
   // Video embed (YouTube highlight from primary featured card or stable fallback)
-  const activeVideoId = featuredNews.video_url || 'H9T9e03d_jE';
+  const activeVideoId = getYouTubeId(featuredNews.video_url || 'H9T9e03d_jE');
 
   return (
     <section 
@@ -88,14 +96,14 @@ export default function Hero({ onNavigate }: HeroProps) {
             transform: `perspective(1000px) rotateY(${mousePos.x * 2}deg) rotateX(${mousePos.y * -2}deg)`
           }}
         >
-          {/* Cover image with zoom */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-[#022c22]/70 to-transparent z-10"></div>
+          {/* Cover image with zoom and proper gradient overlay layering */}
           <img 
             referrerPolicy="no-referrer"
             src={featuredNews.featured_image} 
             alt={featuredNews.title} 
-            className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700"
+            className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700 z-0"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-[#01140f]/80 to-transparent z-10"></div>
 
           {/* Article detail overlay */}
           <div className="absolute bottom-0 inset-x-0 p-6 md:p-8 z-20 flex flex-col justify-end h-full">

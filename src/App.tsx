@@ -7,6 +7,7 @@ import ArticleDetail from './pages/ArticleDetail';
 import RankingsFixtures from './pages/RankingsFixtures';
 import TrustPages from './pages/TrustPages';
 import AdminDashboard from './components/AdminDashboard';
+import Glossary from './pages/Glossary';
 import { DB } from './lib/db';
 
 export default function App() {
@@ -80,7 +81,12 @@ export default function App() {
       return <ArticleDetail slug={slug} onNavigate={handleNavigate} />;
     }
 
-    // 7. Trust compliance pages
+    // 7. Sports Science Atlas & Glossary index
+    if (currentPath === '/sports-atlas' || currentPath === '/glossary') {
+      return <Glossary onNavigate={handleNavigate} />;
+    }
+
+    // 8. Trust compliance pages
     if (currentPath === '/about-us') {
       return <TrustPages page="about-us" onNavigate={handleNavigate} />;
     }

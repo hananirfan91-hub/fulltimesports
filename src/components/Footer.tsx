@@ -139,6 +139,12 @@ export default function Footer({ onNavigate }: FooterProps) {
               </button>
             </li>
             <li>
+              <button onClick={() => onNavigate('/sports-atlas')} className="text-slate-400 hover:text-[#22c55e] transition flex items-center space-x-1">
+                <Compass className="h-3 w-3 text-[#22c55e]" />
+                <span className="font-semibold text-emerald-400">Sports Science Glossary &amp; Atlas (100+ Term Index)</span>
+              </button>
+            </li>
+            <li>
               <button onClick={() => onNavigate('/about-us')} className="text-slate-400 hover:text-[#22c55e] transition">
                 Original Human Opinion Columnists
               </button>
@@ -177,6 +183,7 @@ export default function Footer({ onNavigate }: FooterProps) {
         <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center text-slate-500">
           <p>© 2026 Full Time Sports Network LLC. All editorial opinions are fully licensed.</p>
           <div className="flex flex-wrap gap-4 mt-4 md:mt-0 font-medium text-slate-400">
+            <button onClick={() => onNavigate('/sports-atlas')} className="hover:text-[#22c55e] text-[#22c55e] transition font-bold">Sports Science Atlas</button>
             <button onClick={() => onNavigate('/about-us')} className="hover:text-[#22c55e] transition">About Us</button>
             <button onClick={() => onNavigate('/contact-us')} className="hover:text-[#22c55e] transition">Contact Us</button>
             <button onClick={() => onNavigate('/privacy-policy')} className="hover:text-[#22c55e] transition">Privacy Policy</button>
