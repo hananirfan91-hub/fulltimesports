@@ -97,10 +97,10 @@ export default function Footer({ onNavigate }: FooterProps) {
             FTS is a premier global sports media platform providing original human investigations into the kinetic mechanics, statistics, and micro-tactics of elite athletes. No automated scraping, no cheap machine translations—pure editorial craftsmanship.
           </p>
           <div className="flex space-x-4 mt-6">
-            <a href="#" className="text-slate-400 hover:text-[#22c55e] transition"><Facebook className="h-4 w-4" /></a>
-            <a href="#" className="text-slate-400 hover:text-[#22c55e] transition"><Twitter className="h-4 w-4" /></a>
-            <a href="#" className="text-slate-400 hover:text-[#22c55e] transition"><Instagram className="h-4 w-4" /></a>
-            <a href="#" className="text-slate-400 hover:text-[#22c55e] transition"><Youtube className="h-4 w-4" /></a>
+            <a href="https://facebook.com/fulltimesportspakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Facebook Page"><Facebook className="h-4 w-4" /></a>
+            <a href="https://twitter.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Twitter/X Page"><Twitter className="h-4 w-4" /></a>
+            <a href="https://instagram.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Instagram Feed"><Instagram className="h-4 w-4" /></a>
+            <a href="https://youtube.com/@fulltimesportspakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan YouTube Channel"><Youtube className="h-4 w-4" /></a>
           </div>
         </div>
 

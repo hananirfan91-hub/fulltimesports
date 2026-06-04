@@ -48,6 +48,14 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
     const activePost = DB.getPostBySlug(slug);
     if (activePost) {
       setPost(activePost);
+      
+      // Update browser/tab document title and meta properties for SEO
+      document.title = `${activePost.title} | Full Time Sports Pakistan`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', activePost.meta_description || `Detail analysis on ${activePost.title}. Dissecting raw sports biometrics, physical speed, tactical mechanics, and strategies.`);
+      }
+
       // Increment views
       DB.incrementViews(activePost.id);
 
@@ -395,12 +403,24 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
             <span className="text-xs font-bold text-slate-700">PROMOTE INDEPENDENT CODES EDITORIAL:</span>
             
             <div className="flex items-center space-x-2">
-              <button className="bg-[#1877F2]/10 hover:bg-[#1877F2] hover:text-white text-[#1877F2] p-2 rounded transition" title="Share on Facebook">
+              <a 
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#1877F2]/10 hover:bg-[#1877F2] hover:text-white text-[#1877F2] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 
+                title="Share on Facebook"
+              >
                 <Facebook className="h-4 w-4" />
-              </button>
-              <button className="bg-[#1DA1F2]/10 hover:bg-[#1DA1F2] hover:text-white text-[#1DA1F2] p-2 rounded transition" title="Tweet Card">
+              </a>
+              <a 
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#1DA1F2]/10 hover:bg-[#1DA1F2] hover:text-white text-[#1DA1F2] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 
+                title="Tweet Card"
+              >
                 <Twitter className="h-4 w-4" />
-              </button>
+              </a>
               
               <button 
                 onClick={handleCopyLink}

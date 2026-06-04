@@ -65,6 +65,14 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
     const matched = cats.find(c => c.slug === categorySlug);
     setCategory(matched || null);
 
+    if (matched) {
+      document.title = `${matched.name} Tactical Analysis & Stats | Full Time Sports Pakistan`;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        metaDesc.setAttribute('content', `Premium physical investigations, biomechanics telemetry, match strategies, and fixtures for ${matched.name} in Pakistan.`);
+      }
+    }
+
     // Fetch related items filtered by sport
     const allPosts = DB.getPosts().filter(p => p.category === categorySlug);
     setPosts(allPosts);
@@ -408,12 +416,24 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
             <h4 className="font-display text-xs font-bold text-slate-900 uppercase">Share Editorial Desk</h4>
             <p className="text-[10px] text-slate-500">Help promote expert human sports coverage by sharing this category network node.</p>
             <div className="flex justify-center space-x-2">
-              <button className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-505 hover:text-[#22c55e] transition" title="Facebook Share">
+              <a 
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-505 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
+                title="Facebook Share"
+              >
                 <Facebook className="h-4 w-4" />
-              </button>
-              <button className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-505 hover:text-[#22c55e] transition" title="Twitter Cards">
+              </a>
+              <a 
+                href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(`Check out the expert analytical ${category.name} manual and coverage on Full Time Sports Pakistan!`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-505 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
+                title="Twitter Cards"
+              >
                 <Twitter className="h-4 w-4" />
-              </button>
+              </a>
             </div>
           </div>
 

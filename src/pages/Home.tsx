@@ -30,6 +30,12 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
   };
 
   useEffect(() => {
+    document.title = "Full Time Sports Pakistan | Scientific Sports Journalism Hub";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'FTS is Pakistan’s leading digital platform for athletic mechanical science, biometrics, real-time formula telemetry, and match strategic breakdowns.');
+    }
+
     const loadData = () => {
       const allPosts = DB.getPosts();
       setPosts(allPosts);
@@ -621,6 +627,8 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
               </div>
             </div>
           </div>
+
+
         </section>
 
 
@@ -733,32 +741,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
             </div>
           </div>
 
-          {/* Deep explanatory SEO paragraph satisfying minimum word count goals */}
-          <div className="bg-white border border-slate-150 p-6 rounded-2xl space-y-4" id="pakistan-major-sports-deep-report">
-            <h4 className="font-display font-extrabold text-slate-900 text-xs uppercase tracking-wider">
-              Human Editorial Sovereignty vs AI Scraping Bots
-            </h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-[11px] text-slate-550 leading-relaxed font-sans">
-              <p>
-                As part of our commitment to the Google AdSense program policies, the structural layout of Full Time Sports guarantees original analytical copy. We strictly refrain from automatic web scraper loops or AI-assisted content cloning that floods search engine results with generic slop. Every single batting velocity value, ball flight trajectory calculation, and soccer positioning heat map shown across our category hubs has been crafted by real human columnists who evaluate physical strategy parameters on matchdays.
-              </p>
-              <p>
-                Our technical SEO architecture features schema layouts representing organization nodes, which directly maps our content indexing directly for crawlers. This geo-optimized foundation allows sports enthusiasts and students in Lahore, Multan, Faisalabad, and Islamabad to access authoritative sports-science databases. This helps our digital media hub rank higher than legacy corporate blogs and build long-term trust.
-              </p>
-            </div>
-            
-            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-              <span className="font-mono text-[9px] font-bold text-slate-400 uppercase">
-                &copy; Full Time Sports Pakistan &bull; Editorial Compliance Directory No: 092-PK
-              </span>
-              <button 
-                onClick={() => onNavigate('/sports-atlas')}
-                className="bg-slate-900 hover:bg-slate-800 text-white font-mono font-bold text-[9px] uppercase px-4 py-2.5 rounded-lg tracking-widest transition"
-              >
-                Access sports science atlas (100+ Term Index) &rarr;
-              </button>
-            </div>
-          </div>
+
         </section>
 
 
