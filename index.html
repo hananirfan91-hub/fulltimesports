@@ -3,60 +3,60 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Custom Branded FTS Icon Favicon -->
-    <link rel="icon" type="image/png" href="/logo-preview.png" />
-    <link rel="apple-touch-icon" href="/logo-preview.png" />
-    
-    <!-- Self-Healing Safeguard for Sandboxed fetch Override Errors -->
-    <script>
-      try {
-        const originalFetch = window.fetch;
-        let activeFetch = originalFetch;
-        Object.defineProperty(window, 'fetch', {
-          get: function() {
-            return activeFetch;
-          },
-          set: function(val) {
-            console.log("FTS Shield: Window fetch setter intercepted assignment safely.");
-            activeFetch = val;
-          },
-          configurable: true,
-          enumerable: true
-        });
-      } catch (e) {
-        console.warn("FTS Shield: Unable to override fetch property descriptor.", e);
-      }
-    </script>
 
-    <!-- General SEO Metadata -->
-    <title>Full Time Sports (FTS) | Live Editorial Dashboard & Analytics</title>
-    <meta name="description" content="Full Time Sports (FTS) is an independent, non-scraped digital media platform presenting masterfully handcrafted sports analysis across Cricket, Football, Formula 1, NBA, Tennis, and Esports." />
-    <meta name="keywords" content="FTS, Full Time Sports, Hanan Irfan, HI Digital Group, sports analytics, live cricket commentary, football tactical analysis, F1 telemetry, NBA database, esports columns, sports technology Pakistan, Rahim Yar Khan tech" />
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/logo-preview.png" />
+
+    <!-- SEO Title -->
+    <title>Full Time Sports (FTS) | Sports Analytics & Editorial Insights</title>
+
+    <!-- Primary SEO Meta -->
+    <meta name="description" content="Full Time Sports (FTS) is an independent sports analytics platform delivering expert insights across Cricket, Football, Formula 1, NBA, Tennis, and Esports." />
     <meta name="author" content="Hanan Irfan" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#022c22" />
+
+    <!-- Keywords (optional, minor SEO value) -->
+    <meta name="keywords" content="Full Time Sports, FTS, sports analytics, cricket analysis, football analysis, Formula 1 telemetry, NBA stats, tennis analysis, esports analysis, sports journalism, live sports commentary, tactical analysis, Pakistan sports platform" />
+
+    <!-- Canonical URL -->
     <link rel="canonical" href="https://fulltimesports.vercel.app/" />
-    
-    <!-- Open Graph (OG) / Facebook Metadata -->
+
+    <!-- Open Graph (Facebook / WhatsApp / LinkedIn) -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Full Time Sports (FTS) | Authentic Human-Crafted Sports Analysis" />
-    <meta property="og:description" content="Explore masterfully composed analysis of Aerodynamic Formula 57 ground effect layers, NBA metrics, cricket powerplay drift variables, and esports registries. 100% human written, 0% automated scraping." />
+    <meta property="og:title" content="Full Time Sports (FTS) | Sports Analytics & Insights" />
+    <meta property="og:description" content="Independent sports analytics platform covering Cricket, Football, Formula 1, NBA, Tennis, and Esports with expert insights." />
     <meta property="og:url" content="https://fulltimesports.vercel.app/" />
-    <meta property="og:site_name" content="Full Time Sports" />
-    <meta property="og:image" content="/logo-preview.png" />
+    <meta property="og:site_name" content="Full Time Sports (FTS)" />
+    <meta property="og:image" content="https://fulltimesports.vercel.app/logo-preview.png" />
     <meta property="og:locale" content="en_US" />
 
-    <!-- Twitter Card Metadata -->
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Full Time Sports (FTS) | Live Editorial Dashboard & Analytics" />
-    <meta name="twitter:description" content="Get professional human analysis on Formula 1, Football, cricket, and Esports. Managed by Hanan Irfan, dynamic tech innovator." />
-    <meta name="twitter:image" content="/logo-preview.png" />
+    <meta name="twitter:title" content="Full Time Sports (FTS) | Sports Analytics & Insights" />
+    <meta name="twitter:description" content="Expert sports analysis across Cricket, Football, F1, NBA, Tennis, and Esports." />
+    <meta name="twitter:image" content="https://fulltimesports.vercel.app/logo-preview.png" />
     <meta name="twitter:creator" content="@hananirfan91" />
     <meta name="twitter:site" content="@hananirfan91" />
 
-    <!-- Meta Robots and Indexing Guidelines -->
-    <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#022c22" />
+    <!-- Structured Data (SEO BOOST 🚀) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Full Time Sports (FTS)",
+      "url": "https://fulltimesports.vercel.app/",
+      "author": {
+        "@type": "Person",
+        "name": "Hanan Irfan"
+      },
+      "description": "Independent sports analytics platform delivering expert insights across global sports."
+    }
+    </script>
+
   </head>
+
   <body class="bg-slate-50 antialiased selection:bg-[#22c55e] selection:text-[#022c22]">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
