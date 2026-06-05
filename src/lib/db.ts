@@ -438,6 +438,7 @@ export class DB {
         if (posts.length > 0) {
           const parsedPosts = posts.map(p => ({
             ...p,
+            is_draft: p.is_draft || p.scheduled_for === 'draft',
             tags: Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? JSON.parse(p.tags) : [])
           }));
           localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(parsedPosts));
@@ -445,10 +446,16 @@ export class DB {
           // Empty, seed Supabase
           const localPosts = this.getAdminAllPosts();
           // Convert tags to JSON arrays for Supabase
-          const dbPosts = localPosts.map(p => ({
-            ...p,
-            tags: JSON.stringify(p.tags) as any
-          }));
+          const dbPosts = localPosts.map(p => {
+            const { is_draft, ...cleanPost } = p;
+            if (is_draft && !cleanPost.scheduled_for) {
+              cleanPost.scheduled_for = 'draft';
+            }
+            return {
+              ...cleanPost,
+              tags: JSON.stringify(cleanPost.tags) as any
+            };
+          });
           await supabase.from('fts_posts').insert(dbPosts);
         }
       }
@@ -530,9 +537,11 @@ export class DB {
   static getPosts(): Post[] {
     const data = localStorage.getItem(STORAGE_KEYS.POSTS);
     const posts = data ? JSON.parse(data) : [];
-    // Filter out posts scheduled for the future
     const now = new Date().getTime();
     return posts.filter((p: Post) => {
+      if (p.is_draft || p.scheduled_for === 'draft') {
+        return false;
+      }
       if (p.scheduled_for) {
         return new Date(p.scheduled_for).getTime() <= now;
       }
@@ -562,10 +571,14 @@ export class DB {
     posts.unshift(newPost);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
 
-    // Async sync with Supabase
+    // Async sync with Supabase (strip is_draft and write draft to scheduled_for)
+    const { is_draft, ...supabasePost } = newPost;
+    if (is_draft && !supabasePost.scheduled_for) {
+      supabasePost.scheduled_for = 'draft';
+    }
     supabase.from('fts_posts').insert([{
-      ...newPost,
-      tags: JSON.stringify(newPost.tags) as any
+      ...supabasePost,
+      tags: JSON.stringify(supabasePost.tags) as any
     }]).then(({ error }) => {
       if (error) console.warn("Supabase insert fts_posts error:", error);
     });
@@ -577,15 +590,25 @@ export class DB {
     const posts = this.getAdminAllPosts();
     const index = posts.findIndex(p => p.id === id);
     if (index === -1) throw new Error('Post not found');
-    posts[index] = { ...posts[index], ...updatedFields };
+    
+    // Ensure is_draft status update maps correctly
+    const nextFields = { ...updatedFields };
+    if (nextFields.is_draft) {
+      nextFields.scheduled_for = 'draft';
+    } else if (nextFields.is_draft === false && nextFields.scheduled_for === 'draft') {
+      nextFields.scheduled_for = '';
+    }
+
+    posts[index] = { ...posts[index], ...nextFields };
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
 
     // Async sync with Supabase
-    const dbUpdateFields = { ...updatedFields };
-    if (updatedFields.tags) {
-      dbUpdateFields.tags = JSON.stringify(updatedFields.tags) as any;
+    const { is_draft, ...supabaseFields } = nextFields;
+    if (supabaseFields.tags) {
+      supabaseFields.tags = JSON.stringify(supabaseFields.tags) as any;
     }
-    supabase.from('fts_posts').update(dbUpdateFields).eq('id', id).then(({ error }) => {
+
+    supabase.from('fts_posts').update(supabaseFields).eq('id', id).then(({ error }) => {
       if (error) console.warn("Supabase update fts_posts error:", error);
     });
 

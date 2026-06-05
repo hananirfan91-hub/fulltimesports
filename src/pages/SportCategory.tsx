@@ -310,7 +310,7 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
                       {post.title}
                     </h2>
                     <p className="text-xs text-slate-655 leading-relaxed line-clamp-2">
-                      {post.meta_description || post.content.replace(/[#*`]/g, '').slice(0, 150) + '...'}
+                      {post.meta_description || post.content.replace(/<[^>]*>/g, '').replace(/[#*`]/g, '').slice(0, 150) + '...'}
                     </p>
                     <div className="flex justify-between items-center text-[10px] font-mono text-slate-450 pt-2 border-t border-slate-100">
                       <span className="flex items-center space-x-1">

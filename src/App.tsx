@@ -88,6 +88,9 @@ export default function App() {
     }
 
     // 8. Trust compliance pages
+    if (currentPath === '/google-policies' || currentPath === '/editorial-standards') {
+      return <TrustPages page="google-policies" onNavigate={handleNavigate} />;
+    }
     if (currentPath === '/about-us') {
       return <TrustPages page="about-us" onNavigate={handleNavigate} />;
     }

@@ -9,7 +9,7 @@ import AdSensePlaceholder from '../components/AdSensePlaceholder';
 import { DB } from '../lib/db';
 
 interface TrustPageProps {
-  page: 'about-us' | 'contact-us' | 'privacy-policy' | 'terms' | 'disclaimer';
+  page: 'about-us' | 'contact-us' | 'privacy-policy' | 'terms' | 'disclaimer' | 'google-policies';
   onNavigate: (path: string) => void;
 }
 
@@ -51,6 +51,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
     { id: 'privacy-policy', name: 'Privacy & Cookie Policy' },
     { id: 'terms', name: 'Terms of Use' },
     { id: 'disclaimer', name: 'Financial & Odds Disclaimer' },
+    { id: 'google-policies', name: 'Google Publisher & SEO Standards' },
   ];
 
   const handleMenuClick = (id: string) => {
@@ -736,6 +737,164 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 </p>
                 <p>
                   <strong>No Scraped Accuracy Assurances:</strong> Because our scorelines and standings are updated and reviewed manually by our physical editor desk rather than live-scraped via external feeds, slight latencies might exist across active match grids. All data is provided "as is" with zero financial or regulatory liabilities.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* =========================================================================
+              F. GOOGLE PUBLISHER & SEO STANDARDS COMPLIANCE PAGE
+              ========================================================================= */}
+          {page === 'google-policies' && (
+            <div className="space-y-8 animate-fade-in text-slate-700" id="google-policies-content">
+              <div className="flex items-center space-x-3 text-[#22c55e] border-b pb-4 border-slate-100">
+                <ShieldCheck className="h-7 w-7 text-[#22c55e]" />
+                <h1 className="font-display font-black text-2.5xl md:text-3xl tracking-tight uppercase text-slate-900 leading-none">
+                  Google Publisher &amp; SEO Standards Compliance Manual
+                </h1>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl text-xs space-y-3">
+                <span className="bg-[#022c22] text-[#22c55e] font-mono text-[9px] font-bold uppercase tracking-wider py-1 px-3 rounded-md">
+                  Active Trust Statement
+                </span>
+                <p className="leading-relaxed font-sans">
+                  Full Time Sports (FTS) is committed to building a highly authoritative, reliable, and user-centric sports intelligence web platform. All publishers and editorial staff on our system must strictly adhere to the <strong>Google Publisher Policies</strong>, the <strong>AdSense Program Policies</strong>, and the <strong>Google Search Essentials (SEO Guide)</strong>. This compliance manual outlines the rigorous technical, visual, and editorial standards implemented across our platform to maintain standard compliance and ensure the highest quality index variables.
+                </p>
+                <p className="leading-relaxed font-mono text-emerald-800 text-[10px]">
+                  Supervised and Audited by Hanan Irfan, Lead Tech Innovator &amp; Super Admin
+                </p>
+              </div>
+
+              {/* SECTION 1 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  1. AdSense Invalid Clicks and Impressions Prohibition
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  In absolute accordance with Google AdSense Policies, FTS enforces zero tolerance toward artificial metrics inflation. We recognize that invalid traffic damages the advertising ecosystem and exploits trust. 
+                </p>
+                <ul className="list-disc pl-5 space-y-1.5 text-xs font-sans leading-relaxed">
+                  <li><strong>Zero Self-Interaction:</strong> Page authors, site contributors, and administrative monitors are strictly prohibited from manually clicking live ads displayed on FTS or utilizing automated refreshing mechanisms to trigger impressions.</li>
+                  <li><strong>Manual Scoring Sandboxing:</strong> Our sports scoring lists are updated manually within the state systems. We do not run erratic automated web scrapers that cause page flickering, layout shifting, or artificial script reloading, thereby protecting active ad zones from telemetry triggers.</li>
+                  <li><strong>IP Filtering Diagnostics:</strong> Our backends review analytical traffic patterns to identify abnormal request densities, ensuring click legitimacy through standard security diagnostics.</li>
+                </ul>
+              </div>
+
+              {/* SECTION 2 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  2. Encouraging Clicks and Deceptive Elements Mitigation
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  FTS is engineered with architectural honesty. We do not use deceptive prompts or coercive phrasing to manipulate user attention.
+                </p>
+                <ul className="list-disc pl-5 space-y-1.5 text-xs font-sans leading-relaxed">
+                  <li><strong>Non-Rewarded Transparency:</strong> FTS operates as a purely analytical, non-rewarded information directory. We never promise financial compensation, points, sports-quiz awards, or cash-out structures to encourage ad interaction.</li>
+                  <li><strong>Unambiguous Ad Demarcation:</strong> All ad placements (including our standard <code>AdSensePlaceholder</code> components) are clearly separated from main navigation lines, interactive cricket fixtures tables, and sports glossary term buttons to prevent accidental user clicks.</li>
+                  <li><strong>Clean Graphic Proxmity:</strong> We do not align misleading images or custom vectors next to displayed ads to guide attention. The visual container around every ad maintains clean negative space margins.</li>
+                </ul>
+              </div>
+
+              {/* SECTION 3 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  3. Compliant Traffic Sources & Landing Page Quality
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  Google AdSense requires sites to maintain legitimate, user-initiated traffic sources. FTS rejects predatory traffic acquisition patterns entirely.
+                </p>
+                <p className="text-xs leading-relaxed font-sans">
+                  Our readers discover FTS through organic search directories, direct typing, word of mouth, and community forum citations (such as cricket and F1 discuss groups). We strictly ban participation in Paid-To-Click (PTC) networks, click-exchanges, auto-surf scripts, or automated redirects. By complying with the Google Landing Page Quality Guidelines, all internal URLs on FTS output highly readable, safe, and lightning-fast layouts that answer user search queries elegantly.
+                </p>
+              </div>
+
+              {/* SECTION 4 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  4. Non-Deceptive Navigation and UX Integrity
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  The visual layout of FTS ensures seamless, non-misleading navigation. We believe in providing transparent digital directions.
+                </p>
+                <ul className="list-disc pl-5 space-y-1.5 text-xs font-sans leading-relaxed">
+                  <li><strong>Absolutely No Fake Streaming or Downloads:</strong> As a text-and-graphic analytical portal, FTS never places fake "Play Match", "Watch Live Stream", or "Download Scorecard PDF" buttons designed to redirect readers to unrelated marketing networks. Link text always matches destinations perfectly.</li>
+                  <li><strong>No Captive Redirects:</strong> The page navigation strictly utilizes in-memory react state coordinates rather than browser window redirects, preventing users from becoming trapped on unwanted commercial screens.</li>
+                  <li><strong>Strict Absence of Malware:</strong> All modules are written compiled in sandbox environments. We are completely free of malicious tracking programs, adware loops, background miner scripts, or intrusive popups.</li>
+                </ul>
+              </div>
+
+              {/* SECTION 5 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  5. WebView API for In-App Ad Serving Compliance
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  When FTS is integrated or embedded inside native mobile apps, we strictly mandate compliant system viewing standards in accordance with Google's mobile frameworks.
+                </p>
+                <p className="text-xs leading-relaxed font-sans">
+                  Developers looking to serve Google AdSense or Ad Manager banners on FTS content within an Android or iOS application wrapper are required to integrate Google Mobile Ads WebView API. Standard Android WebViews must use the <code>WebView API for Ads</code> to register WebView instances, and iOS apps must utilize <code>WKWebView</code> properly calibrated to allow safe and policy-compliant programmatic advertising. FTS supports native, unhindered Chrome Custom Tabs (Android) and SFSafariViewController integration templates to provide authentic security.
+                </p>
+              </div>
+
+              {/* SECTION 6 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  6. Sensitive Events Management Policy
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  During "Sensitive Events"—which refer to unforeseen global crises, natural disasters, national emergencies, public health crises, or tragic events—FTS implements a strict sensitive events protocol. We do not monetize tragedies, nor do we host insensitive, sensationalized, or exploitative sports editorial spin-offs that take advantage of active crises. Our editorial board immediately halts monetization on any sports coverage involving tragic player passings, stadium emergency incidents, or geopolitical events to preserve respect and high regulatory standards.
+                </p>
+              </div>
+
+              {/* SECTION 7 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  7. Google Search Essentials: Creating Original, People-First Content
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  FTS matches the core values of Google Search Essentials by ensuring that our content is uniquely interesting, authoritative, and helpful to the end-reader.
+                </p>
+                <ul className="list-disc pl-5 space-y-1.5 text-xs font-sans leading-relaxed">
+                  <li><strong>Exclusion of Rollover Scraping:</strong> We maintain complete editorial sovereignty. Our match fixtures, player profile summaries, and athletic analytics are manually designed by certified contributors, ensuring FTS avoids duplicate content flags.</li>
+                  <li><strong>High-Contrast Readability & Accessibility:</strong> Our typography focuses on Inter for UI layouts paired with JetBrains Mono for athletic statistics, outputting optimal light/dark contrast layers to make text exceptionally legible for screen readers.</li>
+                  <li><strong>Continuous Content Freshness and Consistent Posting:</strong> We ensure we publish sports stories under a consistent, reliable schedule. Active sports categories are refreshed regularly by our editors to capture current cricket, F1, and football progressions.</li>
+                </ul>
+              </div>
+
+              {/* SECTION 8 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  8. Rich Formats Diversity: Article, Image, & Video Coordination
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  To secure high reader engagement and follow modern, wealthy content parameters, FTS serves sports details across a rich variety of coordinates:
+                </p>
+                <p className="text-xs leading-relaxed font-sans">
+                  Every analytical column is presented as a rich hybrid document featuring detailed text paragraphs broken by semantic headings, accompanied by high-quality sport-specific imagery containing descriptive alt-text attributes, and paired with clean interactive widgets (such as our customized volleyball drift animation canvas, Formula aerodynamics sliders, and dynamic cricket batting average graphs). This format diversity provides users with deep contextual understanding of sports physics.
+                </p>
+              </div>
+
+              {/* SECTION 9 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  9. Canonical URL Architecture & Directory Categorization
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  To avoid duplicate indexing wastage and align with search crawler guidelines, FTS utilizes an optimized, predictable URL and category structure.
+                </p>
+                <p className="text-xs leading-relaxed font-sans">
+                  All sports are cleanly partitioned in topically similar sub-folders (such as <code>/sport/cricket</code>, <code>/sport/f1</code>). Our articles utilize descriptive, human-readable url segments reflecting keywords and context rather than random, unintelligible database strings. FTS injects dynamic standard metadata, breadcrumb tags, and Schema.org structured JSON-LD (e.g. <code>NewsArticle</code>, <code>SportsEvent</code>) on every layout to help search crawlers understand site hierarchies.
+                </p>
+              </div>
+
+              {/* SECTION 10 */}
+              <div className="space-y-3">
+                <h3 className="font-display font-extrabold text-slate-900 text-md uppercase border-b pb-1">
+                  10. Commitment to Long-Term Site Integrity
+                </h3>
+                <p className="text-xs leading-relaxed font-sans">
+                  Maintaining SEO presence and publisher integrity requires ongoing care. Our lead architect, Hanan Irfan, conducts weekly audits on FTS to verify technical readiness, fix broken linkages, review user contact helpdesk tickets, and ensure all ad units adhere to the updated Google Publisher Restrictions. By prioritizing performance, user experience, and genuine human writing, Full Time Sports stands as a shining, compliant hub of sports media innovation.
                 </p>
               </div>
             </div>

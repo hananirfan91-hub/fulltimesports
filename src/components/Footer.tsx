@@ -186,6 +186,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             <button onClick={() => onNavigate('/sports-atlas')} className="hover:text-[#22c55e] text-[#22c55e] transition font-bold">Sports Science Atlas</button>
             <button onClick={() => onNavigate('/about-us')} className="hover:text-[#22c55e] transition">About Us</button>
             <button onClick={() => onNavigate('/contact-us')} className="hover:text-[#22c55e] transition">Contact Us</button>
+            <button onClick={() => onNavigate('/google-policies')} className="hover:text-[#22c55e] text-[#22c55e] transition font-bold">Google Policies &amp; SEO</button>
             <button onClick={() => onNavigate('/privacy-policy')} className="hover:text-[#22c55e] transition">Privacy Policy</button>
             <button onClick={() => onNavigate('/terms')} className="hover:text-[#22c55e] transition">Terms of Service</button>
             <button onClick={() => onNavigate('/disclaimer')} className="hover:text-[#22c55e] transition">Disclaimer</button>

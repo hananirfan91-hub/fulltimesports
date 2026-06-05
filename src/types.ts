@@ -13,9 +13,11 @@ export interface Post {
   is_featured: boolean;
   is_trending: boolean;
   type: 'news' | 'blog'; // To distinguish for Hero or styling
-  scheduled_for?: string; // ISO String
+  scheduled_for?: string; // ISO String or 'draft'
   meta_description?: string;
   views: number;
+  is_draft?: boolean;
+  seo_payload?: any;
 }
 
 export interface Category {

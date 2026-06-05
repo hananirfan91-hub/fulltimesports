@@ -280,7 +280,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                       {post.title}
                     </h3>
                     <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                      {post.meta_description || post.content.replace(/[#*`]/g, '').slice(0, 140) + '...'}
+                      {post.meta_description || post.content.replace(/<[^>]*>/g, '').replace(/[#*`]/g, '').slice(0, 140) + '...'}
                     </p>
                     <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-1">
                       <span>Analysis By: <strong className="text-[#022c22] font-semibold">{post.author}</strong></span>

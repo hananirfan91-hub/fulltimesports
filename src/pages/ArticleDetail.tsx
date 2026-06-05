@@ -361,7 +361,11 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
           {/* Custom rendered body */}
           <div className="markdown-body prose max-w-none pb-6 space-y-4">
-            {renderMarkdown(post.content)}
+            {post.content.trim().startsWith('<') ? (
+              <div dangerouslySetInnerHTML={{ __html: post.content }} className="space-y-4 text-slate-700 text-sm md:text-[15px] leading-relaxed" />
+            ) : (
+              renderMarkdown(post.content)
+            )}
           </div>
 
           {/* IN-ARTICLE VIDEO INTEGRATION (YouTube highlights inline matching video_url) */}
@@ -481,6 +485,151 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
               </button>
             </form>
           </section>
+
+          {/* Dynamic SEO Payload Desk Panel if available */}
+          {post.seo_payload && (
+            <div className="bg-slate-900 text-slate-100 rounded-3xl p-6 md:p-8 mt-12 border border-slate-800 relative overflow-hidden" id="seo-editorial-workspace">
+              <div className="absolute right-0 top-0 opacity-10 pointer-events-none p-4 font-mono text-[100px] font-black leading-none text-teal-400 select-none">
+                SEO
+              </div>
+              
+              <div className="flex items-center space-x-2.5 mb-6">
+                <div className="h-2 w-2 rounded-full bg-teal-400 animate-pulse" />
+                <span className="p-0.5 px-2 bg-teal-500/10 text-teal-400 font-mono text-[9px] font-bold uppercase tracking-wider rounded border border-teal-500/20">
+                  CMS Editor Desk
+                </span>
+                <h3 className="font-display font-black text-sm uppercase text-white tracking-widest">
+                  SEO Audit & Publishing Helper
+                </h3>
+              </div>
+
+              <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+                This draft article was composed with high search intent optimization. As a CMS editor, you can check keywords, copy metadata, verify schemas, and review draft layout notes before publishing.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-slate-800">
+                {/* Keywords cluster */}
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-teal-400 uppercase tracking-wider block mb-1">Focus Keyword</span>
+                    <div className="bg-slate-950 p-2.5 rounded-lg font-mono text-xs text-white border border-slate-800 flex justify-between items-center group">
+                      <span>{post.seo_payload.focus_keyword || post.category}</span>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(post.seo_payload.focus_keyword || post.category);
+                          alert("Focus keyword copied!");
+                        }}
+                        className="text-[9px] text-teal-400 hover:text-white uppercase font-bold py-1 px-2 bg-teal-500/10 hover:bg-teal-500/20 rounded border border-teal-500/20 cursor-pointer"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-1">Secondary Targets</span>
+                    <div className="flex flex-wrap gap-1.55">
+                      {(post.seo_payload.secondary_keywords || []).map((word: string, i: number) => (
+                        <span key={i} className="bg-slate-950 border border-slate-800 text-slate-200 text-[10px] font-mono font-semibold px-2.5 py-1 rounded">
+                          {word}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-1">CTR Meta Description</span>
+                    <p className="text-xs bg-slate-950 p-3 rounded-lg border border-slate-800 text-slate-300 leading-relaxed font-mono">
+                      {post.seo_payload.meta_description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Linking and Notes */}
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-teal-400 uppercase tracking-wider block mb-1">Internal links (10 Suggestions)</span>
+                    <div className="max-h-40 overflow-y-auto bg-slate-950 rounded-lg p-2.5 border border-slate-800 space-y-2">
+                      {(post.seo_payload.internal_link_recommendations || []).map((link: any, i: number) => (
+                        <div key={i} className="text-[10px] text-slate-300 border-b border-slate-800/50 pb-2 last:border-0 last:pb-0">
+                          <span className="font-bold text-white block">Link to: {link.article_title}</span>
+                          <span className="text-slate-500 block">Anchor: "<span className="text-teal-400 italic font-mono">{link.anchor_text}</span>"</span>
+                          <span className="text-[9px] text-slate-450 block mt-0.5">{link.reason_for_linking}</span>
+                        </div>
+                      ))}
+                      {(!post.seo_payload.internal_link_recommendations || post.seo_payload.internal_link_recommendations.length === 0) && (
+                        <div className="text-[10px] text-slate-500 italic p-2 text-center">
+                          Auto contextual link generation standby
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-1">Media Placeholders Included</span>
+                    <div className="flex flex-wrap gap-1 bg-slate-950 p-2 rounded-lg border border-slate-800">
+                      {["[FEATURED_IMAGE_PLACEHOLDER]", "[MATCH_IMAGE_PLACEHOLDER]", "[PLAYER_IMAGE_PLACEHOLDER]", "[VIDEO_EMBED_PLACEHOLDER]"].map((ph, i) => (
+                        <span key={i} className="text-[9px] bg-slate-900 border border-slate-800 text-slate-400 px-1.5 py-0.5 rounded font-mono">
+                          {ph}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Collapsible structured structured schemas list */}
+              <div className="pt-6 space-y-4">
+                <span className="text-[10px] font-mono font-bold text-teal-400 uppercase tracking-wider block">
+                  JSON-LD Structural Business Schemas (Google Grounding Ready)
+                </span>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {["Article", "NewsArticle", "FAQPage", "Breadcrumb"].map((schemaType) => {
+                    const payloadKey = schemaType === "Article" ? "article_schema" :
+                                       schemaType === "NewsArticle" ? "news_article_schema" :
+                                       schemaType === "FAQPage" ? "faq_schema" : "breadcrumb_schema";
+                    const schemaObject = post.seo_payload[payloadKey] || {
+                      "@context": "https://schema.org",
+                      "@type": schemaType,
+                      "headline": post.title
+                    };
+
+                    return (
+                      <button
+                        key={schemaType}
+                        onClick={() => {
+                          const codeText = JSON.stringify(schemaObject, null, 2);
+                          navigator.clipboard.writeText(codeText);
+                          alert(`${schemaType} schema copied to clipboard!`);
+                        }}
+                        className="bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white p-3 py-2.5 rounded-lg border border-slate-800 text-[10px] font-mono text-center flex flex-col justify-center items-center gap-1 transition cursor-pointer"
+                      >
+                        <span className="font-bold text-white block">{schemaType}</span>
+                        <span className="text-[8px] text-teal-400 uppercase tracking-widest font-bold">Copy Markup</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 mt-4">
+                  <span className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-wider block mb-2">Editorial Validation Controls</span>
+                  <div className="space-y-1.5">
+                    {(post.seo_payload.editor_notes || [
+                      "Please edit raw placeholders with fitting graphics or direct YouTube embed keys before publishing.",
+                      "Ensure to verify current standings data if match schedules have concluded.",
+                      "Re-verify context formatting aligns with the standard SEO slugs."
+                    ]).map((note: string, idx: number) => (
+                      <div key={idx} className="flex items-start space-x-2 text-[11px] text-slate-350">
+                        <span className="text-amber-500 font-bold font-mono mt-0.5">•</span>
+                        <span>{note}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
         </article>
 

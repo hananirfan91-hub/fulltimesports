@@ -111,8 +111,28 @@ interface SEOMetaTagsProps {
 
 export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
   useEffect(() => {
-    const origin = window.location.origin || 'https://fulltimesportspakistan.com';
-    const canonicalUrl = `${origin}${currentPath}`;
+    // Determine the primary canonical origin for the site to prevent duplicate indexation across preview or dev sandboxes.
+    let origin = 'https://fulltimesports.vercel.app';
+    if (typeof window !== 'undefined' && window.location) {
+      const hostname = window.location.hostname;
+      if (
+        hostname &&
+        !hostname.includes('localhost') &&
+        !hostname.includes('127.0.0.1') &&
+        !hostname.includes('0.0.0.0') &&
+        !hostname.includes('run.app') &&
+        !hostname.includes('aistudio') &&
+        !hostname.includes('webcontainer') &&
+        !hostname.includes('gitpod') &&
+        !hostname.includes('codesandbox')
+      ) {
+        origin = window.location.origin;
+      }
+    }
+
+    // Ensure relative path holds exact leading slash consistency and avoids trailing duplicates
+    const cleanPath = currentPath.startsWith('/') ? currentPath : `/${currentPath}`;
+    const canonicalUrl = `${origin}${cleanPath === '/' ? '' : cleanPath}`;
     
     let title = "Full Time Sports Pakistan - Live Coverage of All Major Sports, Telemetry & Tactical Reviews";
     let description = "Full Time Sports Pakistan (FTS) is the leading digital reporting network for professional athletic telemetry, football tactical breakdowns, cricket biomechanics, and PSL/international match schedule boards.";

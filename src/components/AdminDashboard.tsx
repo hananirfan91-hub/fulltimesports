@@ -830,13 +830,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               <MessageSquare className="h-4 w-4" />
               <span>Inbound Tickets ({tickets.length})</span>
             </button>
-            <button
+             <button
               onClick={() => setActiveTab('subscribers')}
               className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'subscribers' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
             >
               <Mail className="h-4 w-4" />
               <span>Subscribers ({subscribers.length})</span>
             </button>
+
           </>
         )}
 
@@ -895,7 +896,12 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       </td>
                       <td className="py-3.5 px-4 font-semibold text-slate-800 uppercase text-xs">{post.category}</td>
                       <td className="py-3.5 px-4 text-xs font-mono">
-                        {isScheduled ? (
+                        {post.is_draft ? (
+                          <span className="text-slate-655 bg-slate-50 border border-slate-300 px-2 py-0.5 rounded flex items-center space-x-1.5 w-fit font-bold">
+                            <span className="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                            <span>Draft Article</span>
+                          </span>
+                        ) : isScheduled ? (
                           <span className="text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded flex items-center space-x-1 w-fit">
                             <CalendarClock className="h-3 w-3 shrink-0" />
                             <span>Schedule: {new Date(post.scheduled_for!).toLocaleDateString()}</span>
@@ -924,6 +930,20 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       </td>
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end space-x-2">
+                          {post.is_draft && (
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Are you sure you want to publish "${post.title}" live now?`)) {
+                                  DB.updatePost(post.id, { is_draft: false, scheduled_for: '' });
+                                  refreshData();
+                                }
+                              }}
+                              className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#f0fdf4] border border-[#22c55e]/30 text-emerald-700 hover:bg-[#22c55e] hover:text-[#022c22] rounded transition"
+                              title="Publish Live Now"
+                            >
+                              Publish Live
+                            </button>
+                          )}
                           <button 
                             onClick={() => openEditPost(post)}
                             className="p-1 px-2 border border-slate-200 hover:border-[#22c55e] rounded text-slate-600 hover:text-[#22c55e] transition bg-white" 
@@ -948,6 +968,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </div>
         </div>
       )}
+
+
 
       {/* 2. CATEGORIES COLUMN */}
       {activeTab === 'categories' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
@@ -1655,10 +1677,33 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                   </label>
                   <input
                     type="datetime-local"
-                    value={editingPost.scheduled_for || ''}
+                    value={editingPost.scheduled_for && editingPost.scheduled_for !== 'draft' ? editingPost.scheduled_for : ''}
                     onChange={(e) => setEditingPost({ ...editingPost, scheduled_for: e.target.value })}
                     className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-slate-700 focus:outline-none text-xs"
                   />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200/60 p-3 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="is_draft_toggle"
+                  checked={!!(editingPost.is_draft || editingPost.scheduled_for === 'draft')}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setEditingPost({
+                      ...editingPost,
+                      is_draft: checked,
+                      scheduled_for: checked ? 'draft' : ''
+                    });
+                  }}
+                  className="rounded border-slate-300 text-emerald-655 focus:ring-emerald-555 h-4 w-4"
+                />
+                <div>
+                  <label htmlFor="is_draft_toggle" className="block text-xs font-mono font-bold text-slate-705 uppercase cursor-pointer select-none">
+                    Save as Draft Article
+                  </label>
+                  <p className="text-[10px] text-slate-405 leading-tight">Drafts are securely stored in Supabase cloud but 100% hidden from the public feed until manually published live.</p>
                 </div>
               </div>
 
