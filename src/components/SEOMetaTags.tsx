@@ -118,7 +118,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     let description = "Full Time Sports Pakistan (FTS) is the leading digital reporting network for professional athletic telemetry, football tactical breakdowns, cricket biomechanics, and PSL/international match schedule boards.";
     let keywords = GLOBAL_SEO_KEYWORDS.slice(0, 30).join(", ");
     let pageType = "website";
-    let ogImage = "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=1200";
+    let ogImage = `${origin}/logo-preview.png`;
     let ldJsonData: any = null;
 
     // A. Detect Routing Contexts
@@ -134,7 +134,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         "alternateName": "FTS Broadcast Network",
         "description": "Full-scale coverage of all major sports in Pakistan focusing on tactical analytics, biomechanical telemetry reviews, and match calendars.",
         "url": origin,
-        "logo": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=200",
+        "logo": `${origin}/logo-preview.png`,
         "sameAs": [
           "https://www.facebook.com/HananIrfan001",
           "https://twitter.com/fts_pakistan"
@@ -219,7 +219,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
             "name": "Full Time Sports Pakistan",
             "logo": {
               "@type": "ImageObject",
-              "url": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=200"
+              "url": `${origin}/logo-preview.png`
             }
           },
           "description": description,
