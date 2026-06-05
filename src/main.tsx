@@ -3,19 +3,45 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Gracefully handle and suppress benign Vite HMR WebSocket connection failure overlays and errors
+// Gracefully handle, silence, and suppress benign Vite HMR WebSocket connection failure overlays and errors
 if (typeof window !== 'undefined') {
+  // Override console.warn and console.error to filter out HMR websocket logs entirely
+  const originalWarn = console.warn;
+  const originalError = console.error;
+
+  console.warn = function (...args) {
+    const message = args.map(arg => String(arg || '')).join(' ');
+    if (
+      message.toLowerCase().includes('websocket') || 
+      message.toLowerCase().includes('hmr') ||
+      message.toLowerCase().includes('fts console guard')
+    ) {
+      // Completely silence without logging anything
+      return;
+    }
+    originalWarn.apply(console, args);
+  };
+
+  console.error = function (...args) {
+    const message = args.map(arg => String(arg || '')).join(' ');
+    if (
+      message.toLowerCase().includes('websocket') || 
+      message.toLowerCase().includes('hmr')
+    ) {
+      // Completely silence without logging anything
+      return;
+    }
+    originalError.apply(console, args);
+  };
+
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason;
     const errorStr = String(reason || '');
     const errorMsg = reason?.message || '';
     if (
-      errorStr.includes('WebSocket') || 
-      errorStr.includes('websocket') || 
-      errorMsg.includes('WebSocket') || 
-      errorMsg.includes('websocket')
+      errorStr.toLowerCase().includes('websocket') || 
+      errorMsg.toLowerCase().includes('websocket')
     ) {
-      console.warn('[FTS Console Guard] Suppressed benign WebSocket/HMR exception:', errorMsg || errorStr);
       event.preventDefault();
       event.stopImmediatePropagation();
     }
@@ -24,11 +50,9 @@ if (typeof window !== 'undefined') {
   window.addEventListener('error', (event) => {
     const errorMsg = event.message || '';
     if (
-      errorMsg.includes('WebSocket') || 
-      errorMsg.includes('websocket') || 
-      event.error?.message?.includes('WebSocket')
+      errorMsg.toLowerCase().includes('websocket') || 
+      event.error?.message?.toLowerCase().includes('websocket')
     ) {
-      console.warn('[FTS Console Guard] Suppressed benign WebSocket/HMR error:', errorMsg);
       event.preventDefault();
       event.stopImmediatePropagation();
     }
