@@ -148,25 +148,54 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       title = "The Sports Room | Live Cricket News Today, Football Analysis Blog, FIFA World Cup 2026 Sports Lounge, F1 & Volleyball News & Sports News blog website";
       description = "Welcome to The Sports Room. Stream dynamic athletic telemetry, cricket spinning trajectory reviews, football passing networks, and national athletic science data.";
       keywords = GLOBAL_SEO_KEYWORDS.join(", ");
-      ldJsonData = {
-        "@context": "https://schema.org",
-        "@type": "SportsActivityLocation",
-        "name": "The Sports Room",
-        "alternateName": "TSR Broadcast Network",
-        "description": "Full-scale coverage of all major sports in The Sports Room focusing on tactical analytics, biomechanical telemetry reviews, and match calendars.",
-        "url": origin,
-        "logo": `${origin}/logo-preview.png`,
-        "sameAs": [
-          "https://www.facebook.com/HananIrfan001",
-          "https://twitter.com/thesportsroom"
-        ],
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Lahore",
-          "addressRegion": "Punjab",
-          "addressCountry": "PK"
+      
+      // Multi-schema: Website + SportsActivityLocation with topical about entries
+      ldJsonData = [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "@id": `${origin}/#website`,
+          "name": "The Sports Room",
+          "alternateName": "TSR Sports Lounge",
+          "url": origin,
+          "description": "Full-scale human-written sports news, F1 telemetry, football passing networks and cricket biomechanics analysis.",
+          "publisher": {
+            "@type": "Organization",
+            "name": "The Sports Room",
+            "logo": {
+              "@type": "ImageObject",
+              "url": `${origin}/logo-preview.png`
+            }
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": `${origin}/glossary?q={search_term_string}`
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "SportsActivityLocation",
+          "@id": `${origin}/#lounge`,
+          "name": "The Sports Room Sports Lounge",
+          "description": "The dedicated human-written analytical lounge for physical biomechanics, F1 thermodynamics and football statistics reviews.",
+          "url": origin,
+          "logo": `${origin}/logo-preview.png`,
+          "sameAs": [
+            "https://www.facebook.com/HananIrfan001",
+            "https://twitter.com/thesportsroom"
+          ],
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Lahore",
+            "addressRegion": "Punjab",
+            "addressCountry": "PK"
+          }
         }
-      };
+      ];
     } else if (currentPath.startsWith('/sport/')) {
       // Category index
       const categorySlug = currentPath.replace('/sport/', '');
@@ -174,8 +203,8 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       const matchedCat = categories.find(c => c.slug === categorySlug);
       
       if (matchedCat) {
-        title = `${matchedCat.name} Tactical Telemetry & Coverage - The Sports Room`;
-        description = `Discover detailed ${matchedCat.name} reports inside The Sports Room, with scientific biomechanical analysis, standings tables, live schedule updates, and tactical blueprints.`;
+        title = `${matchedCat.name} Tactical Telemetry, Match Reports & Live Standings - The Sports Room`;
+        description = `Discover detailed ${matchedCat.name} articles, expert coverage, and live standings inside The Sports Room, with scientific biomechanical analysis, standings tables, live schedule updates, and tactical blueprints.`;
         
         // Filter keywords specific to this category helper
         const categoryKeywords = GLOBAL_SEO_KEYWORDS.filter(k => 
@@ -185,14 +214,99 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         keywords = [...categoryKeywords, ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
         pageType = "series";
         
-        ldJsonData = {
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          "name": `${matchedCat.name} Journal Index`,
-          "description": matchedCat.description,
-          "url": canonicalUrl,
-          "breadcrumb": {
+        // Get posts inside this category to do full child-listing topical mapping!
+        const posts = DB.getPosts().filter(p => p.category === categorySlug);
+        const itemListElements = posts.map((p, idx) => ({
+          "@type": "ListItem",
+          "position": idx + 1,
+          "name": p.title,
+          "url": `${origin}/blog/${p.slug}`
+        }));
+
+        ldJsonData = [
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "@id": `${canonicalUrl}#collection`,
+            "name": `${matchedCat.name} News, Analysis & Reports`,
+            "description": matchedCat.description,
+            "url": canonicalUrl,
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": origin
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": matchedCat.name,
+                  "item": canonicalUrl
+                }
+              ]
+            }
+          }
+        ];
+
+        if (itemListElements.length > 0) {
+          ldJsonData.push({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "@id": `${canonicalUrl}#itemlist`,
+            "name": `Latest ${matchedCat.name} sports editorial reports`,
+            "numberOfItems": itemListElements.length,
+            "itemListElement": itemListElements
+          });
+        }
+      }
+    } else if (currentPath.startsWith('/blog/')) {
+      // Detailed article page
+      const articleSlug = currentPath.replace('/blog/', '');
+      const posts = DB.getPosts();
+      const matchedPost = posts.find(p => p.slug === articleSlug);
+      
+      if (matchedPost) {
+        title = `${matchedPost.title} | ${matchedPost.category.toUpperCase()} News - The Sports Room`;
+        description = matchedPost.meta_description || matchedPost.content.replace(/[#*`]/g, '').slice(0, 160) + "...";
+        keywords = [...matchedPost.tags, ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
+        pageType = "article";
+        ogImage = matchedPost.featured_image;
+
+        ldJsonData = [
+          {
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            "@id": `${canonicalUrl}#article`,
+            "headline": matchedPost.title,
+            "image": [matchedPost.featured_image],
+            "datePublished": matchedPost.created_at,
+            "dateModified": matchedPost.created_at,
+            "author": [{
+              "@type": "Person",
+              "name": matchedPost.author,
+              "jobTitle": "Sports Journalism Specialist TSR"
+            }],
+            "publisher": {
+              "@type": "Organization",
+              "name": "The Sports Room",
+              "logo": {
+                "@type": "ImageObject",
+                "url": `${origin}/logo-preview.png`
+              }
+            },
+            "description": description,
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": canonicalUrl
+            }
+          },
+          {
+            "@context": "https://schema.org",
             "@type": "BreadcrumbList",
+            "@id": `${canonicalUrl}#breadcrumbs`,
             "itemListElement": [
               {
                 "@type": "ListItem",
@@ -203,52 +317,18 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
               {
                 "@type": "ListItem",
                 "position": 2,
-                "name": matchedCat.name,
+                "name": matchedPost.category,
+                "item": `${origin}/sport/${matchedPost.category}`
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": matchedPost.title,
                 "item": canonicalUrl
               }
             ]
           }
-        };
-      }
-    } else if (currentPath.startsWith('/blog/')) {
-      // Detailed article page
-      const articleSlug = currentPath.replace('/blog/', '');
-      const posts = DB.getPosts();
-      const matchedPost = posts.find(p => p.slug === articleSlug);
-      
-      if (matchedPost) {
-        title = `${matchedPost.title} - The Sports Room`;
-        description = matchedPost.meta_description || matchedPost.content.replace(/[#*`]/g, '').slice(0, 160) + "...";
-        keywords = [...matchedPost.tags, ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
-        pageType = "article";
-        ogImage = matchedPost.featured_image;
-
-        ldJsonData = {
-          "@context": "https://schema.org",
-          "@type": "NewsArticle",
-          "headline": matchedPost.title,
-          "image": [matchedPost.featured_image],
-          "datePublished": matchedPost.created_at,
-          "dateModified": matchedPost.created_at,
-          "author": [{
-            "@type": "Person",
-            "name": matchedPost.author,
-            "jobTitle": "Chief Tactical Strategist TSR"
-          }],
-          "publisher": {
-            "@type": "Organization",
-            "name": "The Sports Room",
-            "logo": {
-              "@type": "ImageObject",
-              "url": `${origin}/logo-preview.png`
-            }
-          },
-          "description": description,
-          "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": canonicalUrl
-          }
-        };
+        ];
       }
     } else if (currentPath === '/sports-atlas' || currentPath === '/glossary') {
       title = "Sports Science Glossary & Atlas - The Sports Room";
@@ -258,6 +338,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       ldJsonData = {
         "@context": "https://schema.org",
         "@type": "DefinedTermSet",
+        "@id": `${canonicalUrl}#definedtermset`,
         "name": "Sports Science Telemetry Glossary & Atlas",
         "description": "Comprehensive reference dataset mapping biomechanics, kinetic drag physics, and sporting tactics.",
         "url": canonicalUrl
@@ -266,10 +347,93 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       title = "Match Standings & Team Rankings - The Sports Room";
       description = "Real-time sporting metrics, tournament points systems, and physical team classifications representing domestic and global leagues - only in The Sports Room.";
       keywords = ["Standings", "sports tables", "TSR rankings board", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
+      
+      ldJsonData = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        "name": "Sports League Rankings & Leaderboards",
+        "description": description,
+        "url": canonicalUrl,
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": origin
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Rankings",
+              "item": canonicalUrl
+            }
+          ]
+        }
+      };
     } else if (currentPath === '/fixtures') {
       title = "Tournament Calendars & Local Match Schedules - The Sports Room";
       description = "Direct time schedules, upcoming match lines, live scores, and stadiums telemetry for cricket, football, hockey, and volleyball - only in The Sports Room.";
       keywords = ["fixtures list", "match times Pakistan", "TSR fixtures", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
+      
+      ldJsonData = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        "name": "Sports Matches Schedules & Fixtures Boards",
+        "description": description,
+        "url": canonicalUrl,
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": origin
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Schedules & Fixtures",
+              "item": canonicalUrl
+            }
+          ]
+        }
+      };
+    } else {
+      // Default fallback web page schema for about, contact, policy pages
+      const pageTitleCapitalized = currentPath.replace('/', '').replace(/-/g, ' ').toUpperCase();
+      title = `${pageTitleCapitalized || 'TSR Portal'} | The Sports Room Sports Lounge`;
+      description = `Read our official documentation, details and user information guidelines for The Sports Room digital media ecosystem.`;
+      
+      ldJsonData = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        "name": `${pageTitleCapitalized || 'Sports Lounge Info'}`,
+        "description": description,
+        "url": canonicalUrl,
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": origin
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": pageTitleCapitalized || "Portal Page",
+              "item": canonicalUrl
+            }
+          ]
+        }
+      };
     }
 
     // B. Inject & Sync with document Head

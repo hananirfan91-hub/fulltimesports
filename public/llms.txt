@@ -1,0 +1,34 @@
+# The Sports Room
+
+> The Sports Room (TSR) is an elite, digital sports journalism platform and digital sports lounge offering 100% human-authored athletic coverage, mechanical telemetry, tactical reviews, and schedules.
+
+---
+
+## Navigation & Core Resources
+
+- [Home](/) - The master portal for today's top sports stories, cricket/football news, real-time metrics, and the TSR Sports Lounge contributions feed.
+- [Sports Science Atlas](/sports-atlas) - An extensive database indexing biomechanics in cricket, Formula 1 thermodynamics, football sprinting kinematics, and athletic recovery models.
+- [Rankings](/rankings) - Official team standings and points classifications across the PSL, ICC standings, Champions League, and national leagues.
+- [Fixtures](/fixtures) - High-resolution match scheduling boards, stadium telemetry, and upcoming game dates.
+- [About Us](/about-us) - The story of our human-written journalism mission, editorial standards, and meet our team of global analysts.
+- [Contact Us](/contact-us) - Report factual errors, submit news tips, or pitch press releases.
+
+---
+
+## Sport-Specific Silos (Topical Semantic Mapping)
+
+- [/sport/cricket](/sport/cricket) - Pakistan cricket news, rawalpindi pitch telemetry, PSL results, Babar Azam batting technique, Shaheen Afridi seam angles, and ICC rankings 2026.
+- [/sport/football](/sport/football) - Tactics news today, UEFA Nations League reviews, Premier League today, and complete FIFA World Cup 2026 schedules and venues.
+- [/sport/tennis](/sport/tennis) - Daily match writeups for Roland Garros 2026, WTA/ATP rankings, Maja Chwalinska qualifier updates, and clay court sliding tactics.
+- [/sport/f1](/sport/f1) - Race results 2026, Charles Leclerc contract news, underbody ground-effect aerodynamics, and pit stop tire strategies.
+- [/sport/basketball](/sport/basketball) - NBA news today, standings 2026, draft prospects, and pick-and-roll tactical guides.
+- [/sport/esports](/sport/esports) - League of Legends worlds 2026, LPL standings, Economy calculations in the CS2 Major, and Valorant VCT tour results.
+- [/sport/volleyball](/sport/volleyball) - Volleyball Nations League (VNL 2026) results, schedules, and FIVB volleyball world rankings.
+- [/sport/hockey](/sport/hockey) - Regional PHF field hockey scorecards, dragflick wrist biomechanics, and Pakistan squash tournament news.
+
+---
+
+## Editorial Framework & Compliance
+
+- [Privacy Policy](/privacy-policy) - Cookie tracking parameters, analytical storage terms, and user data rights.
+- [Terms & Contributor Conditions](/terms) - Licensing guidelines for user-authored columns, copyright guidelines, and plagiarism rules.
