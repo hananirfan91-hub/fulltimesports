@@ -136,7 +136,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     const canonicalUrl = `${origin}${cleanPath === '/' ? '' : cleanPath}`;
     
     let title = "The Sports Room | Live Cricket News Today, Football Analysis Blog, FIFA World Cup 2026 Sports Lounge, F1 & Volleyball News & Sports News blog website";
-    let description = "The Sports Room (TSR) is the leading digital reporting network for professional athletic telemetry, football tactical breakdowns, cricket biomechanics, and tournament match schedule boards.";
+    let description = "The Sports Room (TSR) is the leading digital sports platform presenting original cricket news today, football tactics, F1 telemetry, and local sports science.";
     let keywords = GLOBAL_SEO_KEYWORDS.slice(0, 30).join(", ");
     let pageType = "website";
     let ogImage = `${origin}/logo-preview.png`;
@@ -146,7 +146,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     if (currentPath === '/' || currentPath === '') {
       // Home context
       title = "The Sports Room | Live Cricket News Today, Football Analysis Blog, FIFA World Cup 2026 Sports Lounge, F1 & Volleyball News & Sports News blog website";
-      description = "Welcome to The Sports Room. Stream dynamic athletic telemetry, cricket spinning trajectory reviews, football passing networks, and national athletic science data.";
+      description = "Welcome to The Sports Room. Stream live cricket news today, football analysis, Grand Prix F1 telemetry, and Pakistan sports science telemetry data.";
       keywords = GLOBAL_SEO_KEYWORDS.join(", ");
       
       // Multi-schema: Website + SportsActivityLocation with topical about entries
@@ -204,7 +204,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       
       if (matchedCat) {
         title = `${matchedCat.name} Tactical Telemetry, Match Reports & Live Standings - The Sports Room`;
-        description = `Discover detailed ${matchedCat.name} articles, expert coverage, and live standings inside The Sports Room, with scientific biomechanical analysis, standings tables, live schedule updates, and tactical blueprints.`;
+        description = `Read expert ${matchedCat.name} match reports, live standings tables, tactical biomechanics analysis, and upcoming tournament schedules inside The Sports Room.`;
         
         // Filter keywords specific to this category helper
         const categoryKeywords = GLOBAL_SEO_KEYWORDS.filter(k => 

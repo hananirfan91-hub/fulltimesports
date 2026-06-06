@@ -96,6 +96,11 @@ export default function Footer({ onNavigate }: FooterProps) {
           <p className="text-xs leading-relaxed text-slate-400">
             The Sports Room is a premier global sports media platform providing original human investigations into the kinetic mechanics, statistics, and micro-tactics of elite athletes. No automated scraping, no cheap machine translations—pure editorial craftsmanship.
           </p>
+          <p className="text-xs leading-relaxed text-slate-400 mt-4 border-t border-emerald-900/60 pt-3">
+            <strong>HQ Address:</strong> Phase 5, DHA, Lahore, Punjab, Pakistan<br />
+            <strong>Official Phone:</strong> +92 (42) 3571-0010<br />
+            <strong>Editorial:</strong> editor@thesportsroom.com
+          </p>
           <div className="flex space-x-4 mt-6">
             <a href="https://www.facebook.com/HananIrfan001" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Facebook Page"><Facebook className="h-4 w-4" /></a>
             <a href="https://x.com/hananirfan91" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Twitter/X Page"><Twitter className="h-4 w-4" /></a>

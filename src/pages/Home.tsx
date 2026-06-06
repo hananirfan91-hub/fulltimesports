@@ -364,7 +364,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                     <img 
                       referrerPolicy="no-referrer"
                       src={post.featured_image} 
-                      alt="" 
+                      alt={post.title} 
                       className="w-full h-full object-cover group-hover:scale-103 transition duration-500" 
                     />
                   </div>
@@ -486,7 +486,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                     onClick={() => onNavigate(`/blog/${post.slug}`)}
                     className="bg-white border border-slate-200 rounded-xl overflow-hidden cursor-pointer group hover:border-[#22c55e] transition shadow-xs"
                   >
-                    <img referrerPolicy="no-referrer" src={post.featured_image} alt="" className="w-full h-44 object-cover" />
+                    <img referrerPolicy="no-referrer" src={post.featured_image} alt={post.title} className="w-full h-44 object-cover" />
                     <div className="p-4">
                       <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase tracking-widest">{post.category}</span>
                       <h3 className="font-display text-sm font-bold text-slate-900 uppercase leading-snug line-clamp-2 mt-1 group-hover:text-[#22c55e] transition">
@@ -585,7 +585,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                     onClick={() => onNavigate(`/blog/${post.slug}`)}
                     className="bg-white border border-slate-200 rounded-xl overflow-hidden cursor-pointer group hover:border-[#22c55e] transition shadow-xs"
                   >
-                    <img referrerPolicy="no-referrer" src={post.featured_image} alt="" className="w-full h-44 object-cover" />
+                    <img referrerPolicy="no-referrer" src={post.featured_image} alt={post.title} className="w-full h-44 object-cover" />
                     <div className="p-4">
                       <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase tracking-widest">{post.category}</span>
                       <h3 className="font-display text-sm font-bold text-slate-900 uppercase leading-snug line-clamp-2 mt-1 group-hover:text-[#22c55e] transition">
@@ -714,7 +714,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                       }`}
                     >
                       <div className="w-16 h-12 bg-slate-900 rounded-lg overflow-hidden relative shrink-0 border border-emerald-950">
-                        <img referrerPolicy="no-referrer" src={post.featured_image || ''} alt="" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition" />
+                        <img referrerPolicy="no-referrer" src={post.featured_image || ''} alt={post.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition" />
                         <Play className={`absolute h-4 w-4 inset-0 m-auto fill-current transition ${isActive ? 'text-[#22c55e] scale-110' : 'text-slate-450 group-hover:text-white'}`} />
                       </div>
                       <div className="flex-1 min-w-0">

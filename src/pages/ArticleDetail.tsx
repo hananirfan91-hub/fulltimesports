@@ -839,7 +839,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                   onClick={() => onNavigate(`/blog/${item.slug}`)}
                   className="cursor-pointer group flex items-start space-x-3 pb-3 border-b border-slate-200/60 last:border-0"
                 >
-                  <img referrerPolicy="no-referrer" src={item.featured_image || ''} alt="" className="w-14 h-14 object-cover rounded-lg shrink-0 bg-slate-150" />
+                  <img referrerPolicy="no-referrer" src={item.featured_image || ''} alt={item.title} className="w-14 h-14 object-cover rounded-lg shrink-0 bg-slate-150" />
                   <div className="overflow-hidden">
                     <span className="text-[8px] font-mono font-bold text-[#22c55e] uppercase tracking-wider block">
                       {item.category} • {item.author}

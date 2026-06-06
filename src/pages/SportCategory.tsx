@@ -294,7 +294,7 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
                   className="bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-5 flex flex-col sm:flex-row gap-5 cursor-pointer group shadow-xs hover:shadow transition duration-200"
                 >
                   <div className="w-full sm:w-52 h-36 bg-slate-100 rounded-xl overflow-hidden shrink-0 relative">
-                    <img referrerPolicy="no-referrer" src={post.featured_image} alt="" className="w-full h-full object-cover group-hover:scale-103 transition duration-500" />
+                    <img referrerPolicy="no-referrer" src={post.featured_image} alt={post.title} className="w-full h-full object-cover group-hover:scale-103 transition duration-500" />
                     {post.type === 'blog' && (
                       <span className="absolute top-2 left-2 bg-[#022c22] text-[#22c55e] text-[8px] font-mono font-bold uppercase px-2 py-0.5 rounded border border-emerald-850">
                         OPINION COLUMN
