@@ -135,7 +135,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     const cleanPath = currentPath.startsWith('/') ? currentPath : `/${currentPath}`;
     const canonicalUrl = `${origin}${cleanPath === '/' ? '' : cleanPath}`;
     
-    let title = "The Sports Room - Live Coverage of All Major Sports, Telemetry & Tactical Reviews";
+    let title = "The Sports Room | Live Cricket News Today, Football Analysis Blog, FIFA World Cup 2026 Sports Lounge, F1 & Volleyball News & Sports News blog website";
     let description = "The Sports Room (TSR) is the leading digital reporting network for professional athletic telemetry, football tactical breakdowns, cricket biomechanics, and tournament match schedule boards.";
     let keywords = GLOBAL_SEO_KEYWORDS.slice(0, 30).join(", ");
     let pageType = "website";
@@ -145,7 +145,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     // A. Detect Routing Contexts
     if (currentPath === '/' || currentPath === '') {
       // Home context
-      title = "The Sports Room - Live Coverage of All Major Sports, Telemetry & Biomechanics";
+      title = "The Sports Room | Live Cricket News Today, Football Analysis Blog, FIFA World Cup 2026 Sports Lounge, F1 & Volleyball News & Sports News blog website";
       description = "Welcome to The Sports Room. Stream dynamic athletic telemetry, cricket spinning trajectory reviews, football passing networks, and national athletic science data.";
       keywords = GLOBAL_SEO_KEYWORDS.join(", ");
       ldJsonData = {

@@ -72,8 +72,109 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
 
   return (
     <div className="space-y-12 bg-white" id="home-page-container">
-      {/* SECTION 1: HERO OVERLAY SHOWCASE (Saves as core viewport focus) */}
-      <div className="bg-[#f0fdf4]/50 border-b border-emerald-900/10 py-1">
+      {/* SECTION 1: MASTER HERO OVERLAY SHOWCASE with Babar Azam Cricket image background */}
+      <div className="relative bg-slate-950 text-white overflow-hidden py-16 md:py-24 px-4 md:px-8 border-b-4 border-[#22c55e]" id="master-seo-cricket-hero">
+        {/* Cinematic Background Image of Babar Azam cover drive */}
+        <div className="absolute inset-0">
+          <img 
+            src="/babar_cricket_hero.png" 
+            alt="Babar Azam cricket cover drive action background" 
+            className="w-full h-full object-cover opacity-35 object-center"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-8 space-y-6">
+            <span className="inline-flex items-center space-x-2 bg-emerald-500/10 text-[#22c55e] border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider">
+              <span className="h-2 w-2 rounded-full bg-[#22c55e] animate-ping mr-1"></span>
+              Human Written Sports News • The Sports Room Sports Lounge
+            </span>
+            
+            {/* The ONLY H1 tag on the page */}
+            <h1 className="font-display font-black text-3xl md:text-5xl lg:text-6xl tracking-tight uppercase leading-none">
+              The Sports Room | <span className="text-[#22c55e]">Sports Lounge</span>, Cricket News Today, Football &amp; F1 Analysis Blog
+            </h1>
+
+            {/* Paragraph with focus keywords */}
+            <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-3xl">
+              Welcome to <strong>The Sports Room</strong>, your ultimate global <strong>sports editorial platform</strong> and digital <strong>sports lounge</strong>. 
+              We deliver premium <strong>human written sports content</strong>, featuring <strong>sports news today</strong>, <strong>cricket news today</strong>, 
+              <strong>pakistan sports news</strong>, and <strong>football news today</strong>. Follow our detailed <strong>cricket match analysis 2026</strong>, 
+              discover masterclasses on the biomechanics of <strong>babar azam batting technique</strong>, read up on <strong>world cup 2026 news</strong>, or 
+              launch your own profile on our <strong>free sports blog website</strong>. Our <strong>sports analysis blog</strong> uncovers the science behind athletic excellence across football, cricket, basketball, tennis, and Formula 1.
+            </p>
+
+            {/* Internal links - Topical Mapping & Silo */}
+            <div className="space-y-3 pt-4 border-t border-slate-800">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#22c55e] block font-bold">
+                EXPLORE CORE DECIDED TOPICS (INTERNAL LINKING MAP &amp; SPORTS LOUNGE INDEX):
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <button onClick={() => onNavigate('/sport/cricket')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  🏏 Pakistan Cricket News
+                </button>
+                <button onClick={() => onNavigate('/sport/football')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  ⚽ Football &amp; World Cup 2026
+                </button>
+                <button onClick={() => onNavigate('/sport/tennis')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  🎾 Grand Slam Roland Garros
+                </button>
+                <button onClick={() => onNavigate('/sport/f1')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  🏎️ Formula 1 Technical
+                </button>
+                <button onClick={() => onNavigate('/sport/basketball')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  🏀 NBA &amp; Basketball
+                </button>
+                <button onClick={() => onNavigate('/sport/esports')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  🎮 Esports World Cup 2026
+                </button>
+                <button onClick={() => onNavigate('/sport/volleyball')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  🏐 VNL 2026 Volleyball
+                </button>
+                <button onClick={() => onNavigate('/sport/hockey')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  🏑 Pakistan Hockey &amp; Squash
+                </button>
+                <button onClick={() => onNavigate('/sports-atlas')} className="bg-[#22c55e]/20 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/50 text-[#22c55e] text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  📊 Sports Science Atlas
+                </button>
+                <button onClick={() => onNavigate('/about-us')} className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
+                  ℹ️ About TSR human-written
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Quick Metrics Overlay */}
+          <div className="lg:col-span-4 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm space-y-4">
+            <h3 className="text-white font-mono font-bold text-[#22c55e] text-xs uppercase tracking-wider border-b border-slate-800 pb-2">
+              Sports Lounge Live Monitors
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-810/50">
+                <span className="text-[10px] font-mono text-slate-400 block uppercase">Babar Azam Torque</span>
+                <span className="text-base font-bold font-mono text-[#22c55e]">142.6 km/h</span>
+              </div>
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-810/50">
+                <span className="text-[10px] font-mono text-slate-400 block uppercase">F1 Underbody Suction</span>
+                <span className="text-base font-bold font-mono text-[#22c55e]">18.5 kN</span>
+              </div>
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-810/50">
+                <span className="text-[10px] font-mono text-slate-400 block uppercase">Nile Spikes Velocity</span>
+                <span className="text-base font-bold font-mono text-[#22c55e]">114 km/h</span>
+              </div>
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-810/50">
+                <span className="text-[10px] font-mono text-slate-400 block uppercase">Human Accuracy</span>
+                <span className="text-base font-bold font-mono text-[#22c55e]">100% Original</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-[#f0fdf4]/30 border-b border-emerald-990/5 py-1">
         <Hero onNavigate={onNavigate} />
       </div>
 
@@ -94,11 +195,11 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                 <HelpCircle className="h-3 w-3 mr-1 animate-pulse" />
                 <span>Quick Resolution Portal</span>
               </div>
-              <h1 className="font-display font-black text-2xl md:text-3xl tracking-tight uppercase leading-none">
+              <h3 className="font-display font-black text-2xl md:text-3xl tracking-tight uppercase leading-none">
                 What does <br />
                 The Sports Room <br />
                 <span className="text-[#22c55e]">Answer Today?</span>
-              </h1>
+              </h3>
               <p className="text-xs text-slate-300 leading-relaxed font-sans">
                 We design our media platform to solve complex sporting doubts. Each click provides a direct mathematical, strategic, or physical resolution to a core athletic question.
               </p>
@@ -172,7 +273,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
         {/* Editorial Standards & Handcrafted Digital Journalism Callout */}
         <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 my-8" id="editorial-callout-banner">
           <div className="space-y-1">
-            <h3 className="font-display font-black text-slate-900 uppercase text-xs tracking-wider">Original Sports Journalism & Media Publishing</h3>
+            <h3 className="font-display font-black text-slate-900 uppercase text-xs tracking-wider">Original Sports Journalism &amp; Media Publishing | The Sports Room Sports Lounge</h3>
             <p className="text-[11px] text-slate-500 max-w-2xl leading-relaxed">
               The Sports Room (TSR) is built entirely on human-authored tactical analysis without automated scrapers. Discover who we are, our professional journalism frameworks, and read about our chief strategists on the <button onClick={() => onNavigate('/about-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">About Us</button> page, or get in touch through our <button onClick={() => onNavigate('/contact-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">Contact Us</button> channel.
             </p>
@@ -247,7 +348,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
             <div className="border-b-2 border-[#022c22] pb-3 flex justify-between items-center">
               <h3 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
                 <BookOpen className="h-5 w-5 text-[#22c55e]" />
-                <span>LATEST EDITORIAL REPORTINGS</span>
+                <span>LATEST EDITORIAL REPORTINGS | THE SPORTS ROOM SPORTS LOUNGE</span>
               </h3>
               <span className="text-[10px] font-mono text-slate-500">Live UTC Stream</span>
             </div>
