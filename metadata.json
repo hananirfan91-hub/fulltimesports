@@ -1,6 +1,6 @@
 {
-  "name": "Full Time Sports",
-  "description": "Global multi-sport media platform covering cricket, football, basketball, F1, esports, tennis, and more with original, human-style expert editorial coverage.",
+  "name": "The Sports Room",
+  "description": "Premium sports journalism and media platform covering cricket, football, basketball, F1, esports, tennis, and more with high-performance biometric, aerodynamic, and strategic analysis.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -47,7 +47,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
           
           setUpcomingMatchLine(`Upcoming: ${chosenMatch.team1} vs ${chosenMatch.team2} (${chosenMatch.sport.toUpperCase()}) in ${hours > 0 ? `${hours}h ` : ''}${mins}m`);
         } else {
-          setUpcomingMatchLine("FTS Broadcast Network: Matches Scheduled in 2 Hours");
+          setUpcomingMatchLine("TSR Broadcast Network: Matches Scheduled in 2 Hours");
         }
       } catch (e) {
         setUpcomingMatchLine("Upcoming Matches In 2 Hours");
@@ -89,13 +89,9 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
       <div className="bg-[#01140f] text-slate-300 text-xs py-2 px-4 shadow-inner hidden md:block">
         <div className="max-w-7xl mx-auto flex justify-between items-center font-mono">
           <div className="flex items-center space-x-4">
-            <span className="flex items-center text-[#22c55e] font-bold">
-              <span className="h-2 w-2 rounded-full bg-[#22c55e] animate-ping mr-2"></span>
-              LIVE TRANSFERS ACTIVE
-            </span>
-            <span className="text-[#14532d]">|</span>
-            <span className="text-slate-350 hover:text-[#22c55e] cursor-pointer transition duration-150" onClick={() => onNavigate('/fixtures')}>
-              {upcomingMatchLine}
+            <span className="flex items-center text-[#22c55e] font-bold uppercase tracking-wider text-[10px]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#22c55e] mr-2"></span>
+              The Sports Room — Quality Sports Analysis &amp; Editorial Columns
             </span>
           </div>
           <div className="flex items-center space-x-6">
@@ -138,15 +134,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               </AnimatePresence>
             </div>
             
-            <button onClick={() => onNavigate('/rankings')} className="flex items-center space-x-1 text-slate-300 hover:text-white transition duration-150">
-              <Trophy className="h-3.5 w-3.5" />
-              <span>Rankings</span>
-            </button>
-            <button onClick={() => onNavigate('/fixtures')} className="flex items-center space-x-1 text-slate-300 hover:text-white transition duration-150">
-              <Calendar className="h-3.5 w-3.5" />
-              <span>Fixtures</span>
-            </button>
-            <button onClick={() => onNavigate('/admin')} className="flex items-center space-x-1 text-slate-950 hover:bg-[#34d399] transition font-bold bg-[#22c55e] px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider">
+            <button onClick={() => onNavigate('/admin')} className="flex items-center space-x-1 text-slate-950 hover:bg-[#34d399] transition font-bold bg-[#22c55e] px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider font-mono">
               <User className="h-3 w-3" />
               <span>Create Account</span>
             </button>
@@ -217,27 +205,6 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                         {cat.name}
                       </button>
                     ))}
-                    <div className="border-t border-emerald-950 my-1"></div>
-                    <button
-                      onClick={() => {
-                        onNavigate('/rankings');
-                        setShowDropdown(false);
-                      }}
-                      className="w-full text-left px-4 py-2 hover:bg-emerald-950/50 transition font-medium text-slate-300 flex items-center space-x-2"
-                    >
-                      <Trophy className="h-4 w-4 text-[#22c55e]" />
-                      <span>Global Rankings</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        onNavigate('/fixtures');
-                        setShowDropdown(false);
-                      }}
-                      className="w-full text-left px-4 py-2 hover:bg-emerald-950/50 transition font-medium text-slate-300 flex items-center space-x-2"
-                    >
-                      <Calendar className="h-4 w-4 text-[#22c55e]" />
-                      <span>Match Fixtures</span>
-                    </button>
                   </motion.div>
                 </>
               )}
@@ -401,24 +368,6 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
 
               {/* Utility shortcuts */}
               <div className="pt-2 border-t border-emerald-950 flex flex-col space-y-2 font-medium text-xs text-slate-300">
-                <button
-                  onClick={() => {
-                    onNavigate('/rankings');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left py-2 hover:bg-emerald-950/20 transition"
-                >
-                  🏆 View Global Rankings
-                </button>
-                <button
-                  onClick={() => {
-                    onNavigate('/fixtures');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full text-left py-2 hover:bg-emerald-950/20 transition"
-                >
-                  📅 Match Fixtures / Schedules
-                </button>
                 <button
                   onClick={() => {
                     onNavigate('/admin');

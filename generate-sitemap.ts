@@ -30,8 +30,6 @@ async function generate() {
   // Core static URLs
   const coreUrls = [
     { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0" },
-    { loc: `${baseUrl}/rankings`, changefreq: "daily", priority: "0.8" },
-    { loc: `${baseUrl}/fixtures`, changefreq: "always", priority: "0.8" },
     { loc: `${baseUrl}/about-us`, changefreq: "monthly", priority: "0.4" },
     { loc: `${baseUrl}/contact-us`, changefreq: "monthly", priority: "0.4" },
     { loc: `${baseUrl}/privacy-policy`, changefreq: "monthly", priority: "0.3" },
@@ -125,15 +123,22 @@ Sitemap: ${baseUrl}/sitemap.xml
     fs.mkdirSync(publicDir, { recursive: true });
   }
 
-  // Write files
+  // Write files to public directory
   const sitemapPath = path.join(publicDir, "sitemap.xml");
   const robotsPath = path.join(publicDir, "robots.txt");
 
   fs.writeFileSync(sitemapPath, sitemapXML, "utf8");
   fs.writeFileSync(robotsPath, robotsTxt, "utf8");
 
-  console.log(`[Sitemap Generator] Written sitemap.xml to: ${sitemapPath}`);
-  console.log(`[Sitemap Generator] Written robots.txt to: ${robotsPath}`);
+  // Also write directly to the project root directory
+  const rootSitemapPath = path.join(process.cwd(), "sitemap.xml");
+  const rootRobotsPath = path.join(process.cwd(), "robots.txt");
+
+  fs.writeFileSync(rootSitemapPath, sitemapXML, "utf8");
+  fs.writeFileSync(rootRobotsPath, robotsTxt, "utf8");
+
+  console.log(`[Sitemap Generator] Written sitemap.xml to: ${sitemapPath} and ${rootSitemapPath}`);
+  console.log(`[Sitemap Generator] Written robots.txt to: ${robotsPath} and ${rootRobotsPath}`);
   console.log("[Sitemap Generator] XML building completed successfully.");
 }
 

@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Post } from '../types';
 import { DB } from '../lib/db';
+import { SEO_KEYWORDS_REGISTRY } from '../lib/seoKeywords';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
 
 interface ArticleDetailProps {
@@ -47,10 +48,24 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
   useEffect(() => {
     const activePost = DB.getPostBySlug(slug);
     if (activePost) {
-      setPost(activePost);
+      const clonedPost = { ...activePost };
+      
+      const keywords = SEO_KEYWORDS_REGISTRY[clonedPost.slug];
+      if (keywords && !clonedPost.content.includes("Editorial SEO Research Matrix")) {
+        let tableMarkdown = "\n\n### 📈 Editorial SEO Research Matrix: Target Audience & Low-Competition Search Intent\n\n";
+        tableMarkdown += "To maintain elite search visibility under the **PEO Analytical Standard**, we conducted dedicated automated keyword diagnostics. Below are **50 low-competition search query phrases** (Search Difficulty under 20%, Moderate monthly volume) integrated natively into the physical biomechanical and tactical text structure of this article:\n\n";
+        tableMarkdown += "| # | Low-Competition Keyword String | Search Volume | Keyword Difficulty (KD) | Intent Typology |\n";
+        tableMarkdown += "|---|---|---|---|---|\n";
+        keywords.forEach((kw, i) => {
+          tableMarkdown += `| ${i + 1} | **${kw.keyword}** | ${kw.volume} | ${kw.kd} | ${kw.intent} |\n`;
+        });
+        clonedPost.content += tableMarkdown;
+      }
+
+      setPost(clonedPost);
       
       // Update browser/tab document title and meta properties for SEO
-      document.title = `${activePost.title} | Full Time Sports Pakistan`;
+      document.title = `${activePost.title} | The Sports Room`;
       const metaDesc = document.querySelector('meta[name="description"]');
       if (metaDesc) {
         metaDesc.setAttribute('content', activePost.meta_description || `Detail analysis on ${activePost.title}. Dissecting raw sports biometrics, physical speed, tactical mechanics, and strategies.`);
@@ -88,7 +103,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
       <div className="max-w-md mx-auto my-16 text-center space-y-4">
         <ShieldAlert className="h-10 w-10 text-[#22c55e] mx-auto animate-pulse" />
         <h3 className="font-display font-bold text-lg text-slate-800">Editorial Article Not Found</h3>
-        <p className="text-sm text-slate-500">The requested slug does not map to any active article in the FTS local database.</p>
+        <p className="text-sm text-slate-500">The requested slug does not map to any active article in The Sports Room local database.</p>
         <button onClick={() => onNavigate('/')} className="bg-[#022c22] text-white font-mono text-[10px] uppercase py-2 px-4 rounded font-bold">Return Home</button>
       </div>
     );
@@ -130,6 +145,57 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
   };
 
   const articleQA = getQuickQA(post);
+
+  const parseInlineElements = (text: string): React.ReactNode[] => {
+    const elements: React.ReactNode[] = [];
+    let currentIndex = 0;
+    const regex = /(\*\*.*?\*\*|\[.*?\]\(.*?\))/g;
+    
+    let match;
+    let keyIdx = 0;
+    while ((match = regex.exec(text)) !== null) {
+      const matchStr = match[0];
+      const matchIndex = match.index;
+      
+      if (matchIndex > currentIndex) {
+        elements.push(text.substring(currentIndex, matchIndex));
+      }
+      
+      if (matchStr.startsWith('**') && matchStr.endsWith('**')) {
+        const boldText = matchStr.slice(2, -2);
+        elements.push(
+          <strong key={`b-${keyIdx++}`} className="font-extrabold text-slate-950 bg-emerald-50/70 px-1 rounded border-b border-emerald-100">
+            {boldText}
+          </strong>
+        );
+      } else if (matchStr.startsWith('[') && matchStr.includes('](')) {
+        const closingBracket = matchStr.indexOf('](');
+        const linkText = matchStr.slice(1, closingBracket);
+        const linkUrl = matchStr.slice(closingBracket + 2, -1);
+        
+        elements.push(
+          <button
+            key={`a-${keyIdx++}`}
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate(linkUrl);
+            }}
+            className="text-[#22c55e] hover:text-emerald-700 font-bold underline transition inline-block mx-0.5"
+          >
+            {linkText}
+          </button>
+        );
+      }
+      
+      currentIndex = regex.lastIndex;
+    }
+    
+    if (currentIndex < text.length) {
+      elements.push(text.substring(currentIndex));
+    }
+    
+    return elements.length > 0 ? elements : [text];
+  };
 
   // Parse Simple Markdown Elements dynamically to guarantee React-19 stability without dynamic unsafe compiles
   const renderMarkdown = (text: string) => {
@@ -177,11 +243,9 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                 {tableRows.map((row, idx) => (
                   <tr key={idx} className="hover:bg-slate-50/50 transition">
                     {row.map((cell, cidx) => {
-                      // Check for ** bold inside cell
-                      const parts = cell.split('**');
                       return (
-                        <td key={cidx} className="p-3 text-slate-705">
-                          {parts.map((p, pidx) => pidx % 2 === 1 ? <strong key={pidx} className="font-extrabold text-[#22c55e]">{p}</strong> : p)}
+                        <td key={cidx} className="p-3 text-slate-700">
+                          {parseInlineElements(cell)}
                         </td>
                       );
                     })}
@@ -198,19 +262,84 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
       if (trimmed === '') return;
 
-      // Render Headings ###
-      if (trimmed.startsWith('###')) {
-        nodes.push(<h3 key={index} className="font-display font-black text-xl md:text-2xl text-slate-900 mt-8 mb-4 tracking-tight uppercase border-l-4 border-[#22c55e] pl-3">{trimmed.replace('###', '').trim()}</h3>);
-      } else if (trimmed.startsWith('####')) {
-        nodes.push(<h4 key={index} className="font-sans font-bold text-base md:text-lg text-slate-800 mt-6 mb-3 uppercase tracking-wide">{trimmed.replace('####', '').trim()}</h4>);
+      // Handle custom block inline image parsed at any position
+      const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)/);
+      if (imgMatch) {
+        const alt = imgMatch[1];
+        const url = imgMatch[2];
+        nodes.push(
+          <div key={`img-${index}`} className="my-6 rounded-2xl overflow-hidden border border-slate-200 bg-white p-2 shadow-sm">
+            <img src={url} alt={alt} referrerPolicy="no-referrer" className="w-full max-h-[450px] object-cover rounded-xl" />
+            {alt && <p className="text-center text-xs text-slate-400 font-mono mt-2 uppercase tracking-wide">▲ {alt}</p>}
+          </div>
+        );
+        return;
+      }
+
+      // Handle custom block inline video parsed at any position
+      const ytMatch = trimmed.match(/^@\[youtube\]\((.*?)\)/) || trimmed.match(/^\[video\]\((.*?)\)/);
+      if (ytMatch) {
+        let ytId = ytMatch[1];
+        if (ytId.includes("youtube.com") || ytId.includes("youtu.be")) {
+          try {
+            const urlObj = new URL(ytId);
+            if (ytId.includes("youtu.be")) {
+              ytId = urlObj.pathname.substring(1);
+            } else {
+              ytId = urlObj.searchParams.get("v") || ytId;
+            }
+          } catch (_) {}
+        }
+        nodes.push(
+          <div key={`video-${index}`} className="bg-slate-900 p-3 rounded-2xl border border-slate-800 my-6 shadow-lg">
+            <div className="aspect-video rounded-xl overflow-hidden">
+              <iframe 
+                src={`https://www.youtube.com/embed/${ytId}?mute=1&controls=1`}
+                title="Video Player"
+                className="w-full h-full object-cover"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        );
+        return;
+      }
+
+      // Render Headings
+      if (trimmed.startsWith('# ')) {
+        nodes.push(<h1 key={index} className="font-display font-black text-2xl md:text-3xl text-slate-900 mt-8 mb-4 tracking-tight uppercase border-l-4 border-[#22c55e] pl-3">{trimmed.replace('# ', '').trim()}</h1>);
+      } else if (trimmed.startsWith('## ')) {
+        nodes.push(<h2 key={index} className="font-display font-black text-xl md:text-2xl text-slate-900 mt-8 mb-4 tracking-tight uppercase border-l-4 border-[#22c55e] pl-3">{trimmed.replace('## ', '').trim()}</h2>);
+      } else if (trimmed.startsWith('### ')) {
+        nodes.push(<h3 key={index} className="font-display font-black text-lg md:text-xl text-slate-900 mt-6 mb-3 tracking-tight uppercase border-l-4 border-[#22c55e] pl-3">{trimmed.replace('### ', '').trim()}</h3>);
+      } else if (trimmed.startsWith('#### ')) {
+        nodes.push(<h4 key={index} className="font-sans font-bold text-base md:text-lg text-slate-800 mt-5 mb-2.5 uppercase tracking-wide">{trimmed.replace('#### ', '').trim()}</h4>);
       } 
-      // Render simple text block with inline styles
+      // Render dynamic bullet and numbered lists
+      else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        const itemContent = trimmed.slice(2);
+        nodes.push(
+          <li key={index} className="ml-5 list-disc text-slate-700 text-sm md:text-[15px] leading-relaxed mb-1.5 font-sans">
+            {parseInlineElements(itemContent)}
+          </li>
+        );
+      } else if (/^\d+\.\s/.test(trimmed)) {
+        const match = trimmed.match(/^(\d+)\.\s(.*)/);
+        if (match) {
+          const num = match[1];
+          const itemContent = match[2];
+          nodes.push(
+            <li key={index} className="ml-5 list-decimal text-slate-700 text-sm md:text-[15px] leading-relaxed mb-1.5 font-sans">
+              {parseInlineElements(itemContent)}
+            </li>
+          );
+        }
+      }
+      // Render standard paragraph text blocks
       else {
-        // Parse inline **bold** words
-        const parts = line.split('**');
         nodes.push(
           <p key={index} className="font-sans text-slate-700 text-sm md:text-[15px] leading-relaxed mb-4">
-            {parts.map((p, pidx) => pidx % 2 === 1 ? <strong key={pidx} className="font-extrabold text-slate-950 bg-[#f0fdf4] px-1 rounded">{p}</strong> : p)}
+            {parseInlineElements(line)}
           </p>
         );
       }
@@ -303,6 +432,11 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
             {post.title}
           </h1>
 
+          {/* Section 2 Branding Header */}
+          <h2 className="font-display font-black text-xs text-[#22c55e] uppercase tracking-widest mt-1">
+            The Sports Room High-Precision Editorial Verdict
+          </h2>
+
           {/* Sub-author card strip */}
           <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-xl flex items-center justify-between font-mono text-xs text-slate-505">
             <div className="flex items-center space-x-2">
@@ -372,7 +506,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
           {post.video_url && (
             <div className="bg-[#022c22] p-5 rounded-3xl border border-emerald-950 my-8">
               <h4 className="font-mono text-xs font-bold text-[#22c55e] uppercase tracking-wider mb-3">
-                FTS TV • Editorial Video Review Segment
+                TSR TV • Editorial Video Review Segment
               </h4>
               <div className="aspect-video bg-slate-900 rounded-xl overflow-hidden border border-emerald-950">
                 <iframe 

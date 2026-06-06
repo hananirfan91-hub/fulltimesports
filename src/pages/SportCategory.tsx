@@ -162,11 +162,14 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
         <div className="space-y-3 z-10 max-w-2xl relative">
           <div className="flex items-center space-x-2 font-mono text-[10px] font-bold tracking-widest text-[#22c55e] uppercase">
             <Compass className="h-4 w-4 animate-spin" />
-            <span>FTS ACTIVE DIRECTORY • {category.name} DESK</span>
+            <span>TSR ACTIVE DIRECTORY • {category.name} DESK</span>
           </div>
           <h1 className="font-display font-black text-3xl md:text-5xl tracking-tight leading-none uppercase">
             {category.name} <span className="text-[#22c55e]">JOURNAL</span>
           </h1>
+          <h2 className="font-display font-black text-xs text-[#22c55e] uppercase tracking-widest mt-1">
+            The Sports Room {category.name} Editorial Center
+          </h2>
           <p className="text-xs md:text-sm text-slate-300 leading-normal max-w-xl">
             {category.description}
           </p>
@@ -221,9 +224,9 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
               </span>
             </div>
             <p className="text-[10px] font-mono font-bold text-[#22c55e] uppercase tracking-widest leading-none">THE BURNING QUESTION:</p>
-            <h2 className="font-display font-extrabold text-sm md:text-base text-white mt-1 mb-2.5 uppercase leading-snug">
+            <h3 className="font-display font-extrabold text-sm md:text-base text-white mt-1 mb-2.5 uppercase leading-snug">
               {qaAnswer.q}
-            </h2>
+            </h3>
             <div className="border-t border-emerald-900/50 pt-2.5">
               <p className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest leading-none">THE SCIENTIFIC ANSWER:</p>
               <p className="text-slate-350 text-xs md:text-sm mt-1 leading-relaxed">
@@ -306,9 +309,9 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
                       <span>•</span>
                       <span>{new Date(post.created_at).toLocaleDateString([], {month: 'short', day: 'numeric'})}</span>
                     </div>
-                    <h2 className="font-display font-black text-lg md:text-xl text-slate-900 leading-tight uppercase group-hover:text-[#22c55e] transition line-clamp-2">
+                    <h3 className="font-display font-black text-lg md:text-xl text-slate-900 leading-tight uppercase group-hover:text-[#22c55e] transition line-clamp-2">
                       {post.title}
-                    </h2>
+                    </h3>
                     <p className="text-xs text-slate-655 leading-relaxed line-clamp-2">
                       {post.meta_description || post.content.replace(/<[^>]*>/g, '').replace(/[#*`]/g, '').slice(0, 150) + '...'}
                     </p>
@@ -347,67 +350,25 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
         </div>
 
 
-        {/* RIGHT COLUMN: MANUAL STANDINGS AND SCHEDULES */}
+        {/* RIGHT COLUMN: REVIEWS AND SCIENCE FOCUS */}
         <div className="lg:col-span-4 space-y-6">
           
-          {/* A. STANDINGS TABLE PANEL */}
-          {sportRankings.length > 0 && (
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-              <h3 className="font-display font-black text-xs text-[#022c22] uppercase tracking-widest border-b border-slate-100 pb-2.5 mb-4 flex justify-between items-center">
-                <span>{category.name} Desk Standing Rankings</span>
-                <Trophy className="h-4.5 w-4.5 text-[#22c55e] animate-bounce" />
-              </h3>
-
-              <div className="space-y-4">
-                {sportRankings.map((r) => (
-                  <div key={r.id} className="flex justify-between items-center py-2 border-b border-slate-100 last:border-0 font-mono text-xs text-slate-705">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-slate-400">#{r.rank}</span>
-                      <span className="font-bold text-slate-900">{r.name}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="font-extrabold text-[#022c22]">{r.points}</span>
-                      {r.extra && <span className="text-[8px] block font-normal text-[#22c55e] uppercase mt-0.5">{r.extra}</span>}
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {/* A. SPORTS TECH PRINCIPLES */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <h3 className="font-display font-black text-xs text-[#022c22] uppercase tracking-widest border-b border-slate-100 pb-2.5 mb-4 flex justify-between items-center">
+              <span>Scientific Research Desk</span>
+              <FileText className="h-4.5 w-4.5 text-[#22c55e]" />
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed mb-4">
+              The {category.name} Journal focus centers on mechanical efficiency optimization, cardiovascular fatigue threshold indices, and trajectory calculus models. We avoid superficial raw data dumps to deliver elite, human-style biomechanical modeling.
+            </p>
+            <div className="space-y-3">
+              <span className="block font-mono text-[9px] font-bold text-[#22c55e] bg-emerald-50 py-1.5 px-3 rounded border border-emerald-100 w-fit uppercase">
+                PEO Analytical Standard Enabled
+              </span>
+              <p className="text-[10px] text-slate-400">All editorials are designed manually inside our local CMS to keep content original and elite.</p>
             </div>
-          )}
-
-          {/* B. FIXTURES AND SCHEDULE PANEL */}
-          {sportFixtures.length > 0 && (
-            <div className="bg-[#022c22] text-white border border-emerald-950 rounded-2xl p-5 shadow">
-              <h3 className="font-display font-bold text-xs text-[#22c55e] uppercase tracking-widest border-b border-emerald-900 pb-2.5 mb-4">
-                Calendar Schedule Desk
-              </h3>
-
-              <div className="space-y-3.5">
-                {sportFixtures.map((fix) => (
-                  <div key={fix.id} className="p-3 bg-[#01140f] rounded border border-emerald-950 flex flex-col justify-between space-y-2">
-                    <div className="flex justify-between items-center text-[8px] text-slate-400 font-mono">
-                      <span>{fix.stage || 'Schedules Node'}</span>
-                      {fix.status === 'live' ? (
-                        <span className="text-red-500 font-bold animate-pulse">● LIVE NOW</span>
-                      ) : (
-                        <span>{fix.date} • {fix.time}</span>
-                      )}
-                    </div>
-                    <div className="flex justify-between items-center text-xs font-bold text-slate-100">
-                      <span>{fix.team1}</span>
-                      <span className="bg-[#022c22] border border-[#22c55e]/20 px-2 py-0.5 rounded text-[#22c55e] font-mono font-black text-[10px]">
-                        {fix.score || 'VS'}
-                      </span>
-                      <span>{fix.team2}</span>
-                    </div>
-                    <div className="text-[9px] text-slate-400 italic">
-                      Venue: {fix.venue}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          </div>
 
           <AdSensePlaceholder slot="sport-sidebar-rectangle" format="rectangle" />
 
@@ -449,9 +410,9 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
               <Sparkles className="h-3 w-3 mr-1" />
               <span>Academic Reference Vault</span>
             </div>
-            <h2 className="font-display font-black text-2xl md:text-4xl uppercase tracking-tight text-white leading-none">
+            <h3 className="font-display font-black text-2xl md:text-4xl uppercase tracking-tight text-white leading-none">
               ATHLETIC SCIENCE & TACTICAL MANUAL: <span className="text-[#22c55e]">{category.name.toUpperCase()} DESK</span>
-            </h2>
+            </h3>
             <p className="text-xs text-slate-400 mt-2 max-w-3xl leading-relaxed">
               {SPORT_TACTICAL_MANUALS[categorySlug].introduction}
             </p>

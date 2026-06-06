@@ -796,20 +796,6 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               <span>Categories ({categories.length})</span>
             </button>
             <button
-              onClick={() => setActiveTab('rankings')}
-              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'rankings' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              <Trophy className="h-4 w-4" />
-              <span>Manual Rankings</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('fixtures')}
-              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'fixtures' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              <Calendar className="h-4 w-4" />
-              <span>Manual Fixtures</span>
-            </button>
-            <button
               onClick={() => setActiveTab('media')}
               className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'media' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
             >
@@ -1708,15 +1694,80 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-mono font-bold text-slate-655 uppercase mb-1">
-                  Editorial Content Analysis Body (Markdown text enabled)
-                </label>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-xs font-mono font-bold text-slate-600 uppercase">
+                    Editorial Content Analysis Body (Markdown enabled)
+                  </label>
+                  <div className="flex space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const txt = document.getElementById('editorial-textarea') as HTMLTextAreaElement | null;
+                        const content = editingPost.content || '';
+                        const insert = "[Sports Science Atlas](/sports-atlas)";
+                        if (txt) {
+                          const start = txt.selectionStart;
+                          const end = txt.selectionEnd;
+                          const newContent = content.substring(0, start) + insert + content.substring(end);
+                          setEditingPost({ ...editingPost, content: newContent });
+                        } else {
+                          setEditingPost({ ...editingPost, content: content + "\n" + insert });
+                        }
+                      }}
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-mono font-bold py-1 px-2 rounded border border-slate-300 transition"
+                      title="Insert reference internal link"
+                    >
+                      🔗 Link
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const txt = document.getElementById('editorial-textarea') as HTMLTextAreaElement | null;
+                        const content = editingPost.content || '';
+                        const insert = "![Dynamic Ground-Effect Undertray](https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800)";
+                        if (txt) {
+                          const start = txt.selectionStart;
+                          const end = txt.selectionEnd;
+                          const newContent = content.substring(0, start) + insert + content.substring(end);
+                          setEditingPost({ ...editingPost, content: newContent });
+                        } else {
+                          setEditingPost({ ...editingPost, content: content + "\n" + insert });
+                        }
+                      }}
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-mono font-bold py-1 px-2 rounded border border-slate-300 transition"
+                      title="Insert inline structural image"
+                    >
+                      🖼️ Image
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const txt = document.getElementById('editorial-textarea') as HTMLTextAreaElement | null;
+                        const content = editingPost.content || '';
+                        const insert = "@[youtube](H9T9e03d_jE)";
+                        if (txt) {
+                          const start = txt.selectionStart;
+                          const end = txt.selectionEnd;
+                          const newContent = content.substring(0, start) + insert + content.substring(end);
+                          setEditingPost({ ...editingPost, content: newContent });
+                        } else {
+                          setEditingPost({ ...editingPost, content: content + "\n" + insert });
+                        }
+                      }}
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-mono font-bold py-1 px-2 rounded border border-slate-300 transition"
+                      title="Insert inline YouTube video segment"
+                    >
+                      🎥 Video
+                    </button>
+                  </div>
+                </div>
                 <textarea
+                  id="editorial-textarea"
                   required
-                  rows={8}
+                  rows={12}
                   value={editingPost.content || ''}
                   onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded p-4 text-sm focus:outline-none focus:bg-white focus:border-[#e11d48] font-sans leading-relaxed"
+                  className="w-full bg-slate-50 border border-slate-200 rounded p-4 text-sm focus:outline-none focus:bg-white focus:border-[#22c55e] font-sans leading-relaxed"
                   placeholder="Write 800 - 1500 word highly original human opinion narrative... Supports markdown tags like # header, Table columns, etc."
                 />
               </div>

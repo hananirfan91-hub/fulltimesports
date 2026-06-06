@@ -26,8 +26,8 @@ export default function Footer({ onNavigate }: FooterProps) {
   const orgSchema = {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
-    "name": "Full Time Sports",
-    "alternateName": "FTS News",
+    "name": "The Sports Room",
+    "alternateName": "TSR News",
     "url": "https://fulltimesports.vercel.app",
     "logo": "https://images.unsplash.com/photo-1540747737956-378724044282?w=150",
     "sameAs": [
@@ -51,7 +51,7 @@ export default function Footer({ onNavigate }: FooterProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
           <div className="lg:col-span-2">
             <h3 className="font-display text-xl md:text-2xl font-bold text-white tracking-tight uppercase">
-              SUBSCRIBE TO THE <span className="text-[#22c55e]">FTS DISPATCH</span>
+              SUBSCRIBE TO THE <span className="text-[#22c55e]">TSR DISPATCH</span>
             </h3>
             <p className="text-sm text-slate-300 mt-2 max-w-xl">
               Get original expert opinions, mathematical tactical breakdowns, Formula 1 telemetry details, and cricket insider updates delivered straight to your inbox weekly.
@@ -94,13 +94,13 @@ export default function Footer({ onNavigate }: FooterProps) {
           {/* Replaced Text to the beautiful brand logo */}
           <Logo variant="horizontal" className="mb-4" />
           <p className="text-xs leading-relaxed text-slate-400">
-            FTS is a premier global sports media platform providing original human investigations into the kinetic mechanics, statistics, and micro-tactics of elite athletes. No automated scraping, no cheap machine translations—pure editorial craftsmanship.
+            The Sports Room is a premier global sports media platform providing original human investigations into the kinetic mechanics, statistics, and micro-tactics of elite athletes. No automated scraping, no cheap machine translations—pure editorial craftsmanship.
           </p>
           <div className="flex space-x-4 mt-6">
-            <a href="https://www.facebook.com/HananIrfan001" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Facebook Page"><Facebook className="h-4 w-4" /></a>
-            <a href="https://x.com/hananirfan91" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Twitter/X Page"><Twitter className="h-4 w-4" /></a>
-            <a href="https://instagram.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan Instagram Feed"><Instagram className="h-4 w-4" /></a>
-            <a href="https://youtube.com/@fulltimesportspakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="FTS Pakistan YouTube Channel"><Youtube className="h-4 w-4" /></a>
+            <a href="https://www.facebook.com/HananIrfan001" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Facebook Page"><Facebook className="h-4 w-4" /></a>
+            <a href="https://x.com/hananirfan91" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Twitter/X Page"><Twitter className="h-4 w-4" /></a>
+            <a href="https://instagram.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Instagram Feed"><Instagram className="h-4 w-4" /></a>
+            <a href="https://youtube.com/@fulltimesportspakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan YouTube Channel"><Youtube className="h-4 w-4" /></a>
           </div>
         </div>
 
@@ -127,18 +127,6 @@ export default function Footer({ onNavigate }: FooterProps) {
           </h4>
           <ul className="space-y-2 text-xs">
             <li>
-              <button onClick={() => onNavigate('/rankings')} className="text-slate-400 hover:text-[#22c55e] transition flex items-center space-x-1">
-                <Compass className="h-3 w-3 text-[#22c55e]" />
-                <span>ICC, FIFA & F1 Standings Desk</span>
-              </button>
-            </li>
-            <li>
-              <button onClick={() => onNavigate('/fixtures')} className="text-slate-400 hover:text-[#22c55e] transition flex items-center space-x-1">
-                <Compass className="h-3 w-3 text-[#22c55e]" />
-                <span>Major Match Schedule Engine</span>
-              </button>
-            </li>
-            <li>
               <button onClick={() => onNavigate('/sports-atlas')} className="text-slate-400 hover:text-[#22c55e] transition flex items-center space-x-1">
                 <Compass className="h-3 w-3 text-[#22c55e]" />
                 <span className="font-semibold text-emerald-400">Sports Science Glossary &amp; Atlas (100+ Term Index)</span>
@@ -163,7 +151,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             Targeted Regional Desks
           </h4>
           <p className="text-[11px] leading-relaxed text-slate-400">
-            FTS localizes global coverage for primary markets. Our sub-continental nodes cover <strong className="text-slate-200">India & Pakistan</strong> (live test cricket, ICC trophy, Lahore derby), <strong className="text-slate-200">United Kingdom</strong> (EPL transfer logs, telemetry mechanics), <strong className="text-slate-200">USA</strong> (NBA court statistics drafts), and <strong className="text-slate-200">Australia</strong> (A-league, Sheffield, Big Bash dynamics). Filter content dynamically to read region-specific analysis.
+            The Sports Room localizes global coverage for primary markets. Our sub-continental nodes cover <strong className="text-slate-200">India & Pakistan</strong> (live test cricket, Lahore derby), <strong className="text-slate-200">United Kingdom</strong> (EPL tactical breakdowns, telemetry mechanics), <strong className="text-slate-200">USA</strong> (NBA court statistics drafts), and <strong className="text-slate-200">Australia</strong> (A-league, Sheffield, Big Bash dynamics). Filter content dynamically to read region-specific analysis.
           </p>
         </div>
       </div>
@@ -171,17 +159,17 @@ export default function Footer({ onNavigate }: FooterProps) {
       {/* SEO Footer Text Block */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 border-t border-emerald-950 text-[10px] text-slate-500 leading-relaxed">
         <p className="mb-2">
-          <strong>SEO Meta Reference:</strong> Full Time Sports carries specialized thematic networks covering: cricket news, live cricket score, ICC rankings. football news, football transfers, English Premier League analytics. NBA news, stats, standings. Formula 1 race results, technical aerodynamic telemetry standings. Esports tournaments, gaming updates, CS2 Counter Strike roster shuffles. Grand Slam court slides, FIVB rotational mechanics, and drag-flick penalty corners.
+          <strong>SEO Meta Reference:</strong> The Sports Room carries specialized thematic networks covering: cricket news, live cricket analysis, football news, match strategies, English Premier League analytics, NBA news, stats, stands, Formula 1 race results, technical aerodynamic telemetry standings, Esports tournaments, CS2 Counter Strike updates, Grand Slam court slide physics, and penalty corner biomechanics.
         </p>
         <p>
-          Editorial compliance ensures: original editorial reviews, no crawled feeds, human-style expert PEO analysis. Match scores provided on this portal are updated manually by editors within the CMS to eliminate third-party live sports scraping rules. All rights reserved.
+          Editorial compliance ensures: original editorial reviews, no crawled feeds, human-style expert analysis. Content provided on this portal is updated manually by editors within the CMS to ensure elite sports journalism. All rights reserved.
         </p>
       </div>
 
       {/* Small Legal bottom strip */}
       <div className="bg-slate-950 py-6 text-xs border-t border-slate-900/40">
         <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center text-slate-500">
-          <p>© 2026 Full Time Sports Network LLC. All editorial opinions are fully licensed.</p>
+          <p>© 2026 The Sports Room Network LLC. All editorial opinions are fully licensed.</p>
           <div className="flex flex-wrap gap-4 mt-4 md:mt-0 font-medium text-slate-400">
             <button onClick={() => onNavigate('/sports-atlas')} className="hover:text-[#22c55e] text-[#22c55e] transition font-bold">Sports Science Atlas</button>
             <button onClick={() => onNavigate('/about-us')} className="hover:text-[#22c55e] transition">About Us</button>

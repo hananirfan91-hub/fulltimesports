@@ -69,7 +69,7 @@ The hand speed is nearly identical to an orthodox fast-medium bowler, clocking r
 
 When combined with the disguised "googly"—released from the back of the hand with an inverted wrist tilt—the ball breaks sharply back into the right-handed batsman, aiming squarely at the gap between bat and pad. It is an editorial consensus that the traditional forward defensive is no longer a viable safety net; T20 batting requires a complete overhaul to combat this wrist-spin dominance.
 
-*Full Time Sports Editorial Board Rating: Expert Analysis.*`,
+*The Sports Room Editorial Board Rating: Expert Analysis.*`,
     category: 'cricket',
     tags: ['cricket news', 'wrist spin tactics', 'T20 powerplay', 'ICC rankings', 'bowling mechanics', 'Rashid Khan analysis', 'spinning masterclass'],
     featured_image: 'https://images.unsplash.com/photo-1531415080290-b9b6e27967b8?w=1200&auto=format&fit=crop&q=80',

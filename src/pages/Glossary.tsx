@@ -751,7 +751,7 @@ export default function Glossary({ onNavigate }: { onNavigate: (path: string) =>
           <div className="relative z-10 max-w-4xl space-y-6">
             <span className="inline-flex items-center space-x-2 font-mono text-xs font-bold text-[#22c55e] bg-slate-950 px-3 py-1.5 rounded-full border border-emerald-900 uppercase tracking-widest animate-pulse">
               <BookOpen className="h-4 w-4" />
-              <span>Full Time Sports Pakistan • Sports Lexicon Atlas</span>
+              <span>The Sports Room • Sports Lexicon Atlas</span>
             </span>
             
             <h1 className="font-display font-black text-3xl md:text-5xl uppercase tracking-tight leading-none text-white">
@@ -888,7 +888,7 @@ export default function Glossary({ onNavigate }: { onNavigate: (path: string) =>
                 <span>Empirical Analysis &bull; Sports Science Thesis Library</span>
               </span>
               <h2 className="font-display font-black text-xl md:text-2xl text-slate-900 tracking-tight leading-tight uppercase">
-                Sports Science Atlas In-Depth Treatises (~10,000+ Words)
+                The Sports Room Sports Science Atlas In-Depth Treatises (~10,000+ Words)
               </h2>
             </div>
             
@@ -927,7 +927,7 @@ export default function Glossary({ onNavigate }: { onNavigate: (path: string) =>
                   "{essay.introduction}"
                 </p>
                 <div className="pt-2 flex items-center gap-4 text-[10px] text-slate-505 font-mono uppercase font-bold">
-                  <span>Author Code: Full Time Sports Research Desk</span>
+                  <span>Author Code: The Sports Room Research Desk</span>
                   <span className="text-[#22c55e] border-l pl-4 border-slate-200">Length: ~3,200 Words</span>
                 </div>
               </div>
@@ -995,10 +995,10 @@ export default function Glossary({ onNavigate }: { onNavigate: (path: string) =>
           <div className="bg-slate-950 text-slate-400 rounded-2xl p-6 md:p-8 border border-slate-800 space-y-4">
             <h4 className="font-mono text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
               <Award className="h-4 w-4 text-[#22c55e]" />
-              <span>Full Time Sports &bull; Scientific Validation Standards</span>
+              <span>The Sports Room &bull; Scientific Validation Standards</span>
             </h4>
-            <p className="text-[11px] leading-relaxed text-slate-350">
-              The mathematical formulas, fluid dynamic parameters, wind resistance coefficients, and joint compression indicators presented in the Sports Science Lexicon Atlas are maintained by the peer-audited editorial board of Full Time Sports Pakistan. We implement precise video-based coordinate extraction filters to produce standard athletic databases. This platform remains the premier search repository across South Asia for modern athletics.
+            <p className="text-[11px] leading-relaxed text-slate-350 font-sans">
+              The mathematical formulas, fluid dynamic parameters, wind resistance coefficients, and joint compression indicators presented in the Sports Science Lexicon Atlas are maintained by the peer-audited editorial board of The Sports Room. We implement precise video-based coordinate extraction filters to produce standard athletic databases. This platform remains the premier search repository across South Asia for modern athletics.
             </p>
           </div>
 

@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { DB } from '../lib/db';
 
-// 100+ high-performance sports, telemetry, biomechanics, and regional Pakistani keywords
+// 100+ high-performance sports, telemetry, biomechanics, and regional keywords
 export const GLOBAL_SEO_KEYWORDS = [
-  "Full Time Sports Pakistan",
-  "pakistan coverage of all major sports",
-  "FTS BROADCAST NETWORK",
+  "The Sports Room",
+  "The Sports Room Sports Analysis",
+  "The Sports Room Football Coverage",
+  "The Sports Room Cricket Analysis",
   "EXCLUSIVE VIDEO INTERVIEWS & BREAKDOWNS",
   "sports telemetry reviews",
   "physical strategies",
@@ -30,7 +31,7 @@ export const GLOBAL_SEO_KEYWORDS = [
   "human sports journalism Pakistan",
   "Pakistan athletic science directory",
   "sport biochemistry parameters Pakistan",
-  "FTS match analytics portal",
+  "The Sports Room match analytics portal",
   "live telemetry overlays",
   "cricket biomechanics Pakistan",
   "football coaching adjustments PSL",
@@ -44,14 +45,14 @@ export const GLOBAL_SEO_KEYWORDS = [
   "sports glossary Pakistan",
   "Magnus effect volleyball curves",
   "aerodynamics in motorsport",
-  "kinetic chain hockey flicks",
+  "kinetic chain hockey clicks",
   "restricted area basketball drives",
   "input to display latency gaming",
   "sub-150ms trigger esports aiming",
   "rest defense dominance inverted fullbacks",
   "Magnus effect drag coefficient spin",
   "loose brick dust tennis slides",
-  "FTS live broadcast telemetry",
+  "The Sports Room live broadcast telemetry",
   "coaching strategies Pakistan national team",
   "Quetta Gladiators performance review",
   "Multan Sultans analytics center",
@@ -74,20 +75,20 @@ export const GLOBAL_SEO_KEYWORDS = [
   "esports reaction time optimization",
   "volleyball float serve ball turbulence",
   "high contrast sports layout",
-  "monochrome slate theme FTS",
+  "monochrome slate theme TSR",
   "sports telemetry tracker",
   "Pakistani athletes training schedules",
   "Khyber Pakhtunkhwa hockey tournaments",
   "Sindh sports association reviews",
   "Balochistan sports development analytics",
   "Gilgit Baltistan high altitude sports training",
-  "FTS tactical board",
+  "The Sports Room tactical board",
   "football passing network maps",
   "cricket wagon wheel analytics",
-  "FTS sports atlas index",
+  "The Sports Room sports atlas index",
   "AdSense sports websites approval keys",
   "high performance sports Pakistan",
-  "FTS sports glossary list",
+  "The Sports Room sports glossary list",
   "Pakistan national sports telemetry",
   "cricket seam mechanics",
   "kookaburra ball swing physics",
@@ -98,10 +99,10 @@ export const GLOBAL_SEO_KEYWORDS = [
   "football high pressing schemas",
   "gegenpressing tactical blueprints",
   "Zonal marking versus man marking",
-  "FTS sports news original reporting",
+  "The Sports Room sports news original reporting",
   "Non-scraped human-authored sports journalism",
   "Pakistan athletics news live",
-  "FTS live match tracker",
+  "The Sports Room live match tracker",
   "Sports biomechanics encyclopedia"
 ];
 
@@ -134,8 +135,8 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     const cleanPath = currentPath.startsWith('/') ? currentPath : `/${currentPath}`;
     const canonicalUrl = `${origin}${cleanPath === '/' ? '' : cleanPath}`;
     
-    let title = "Full Time Sports Pakistan - Live Coverage of All Major Sports, Telemetry & Tactical Reviews";
-    let description = "Full Time Sports Pakistan (FTS) is the leading digital reporting network for professional athletic telemetry, football tactical breakdowns, cricket biomechanics, and PSL/international match schedule boards.";
+    let title = "The Sports Room - Live Coverage of All Major Sports, Telemetry & Tactical Reviews";
+    let description = "The Sports Room (TSR) is the leading digital reporting network for professional athletic telemetry, football tactical breakdowns, cricket biomechanics, and tournament match schedule boards.";
     let keywords = GLOBAL_SEO_KEYWORDS.slice(0, 30).join(", ");
     let pageType = "website";
     let ogImage = `${origin}/logo-preview.png`;
@@ -144,20 +145,20 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     // A. Detect Routing Contexts
     if (currentPath === '/' || currentPath === '') {
       // Home context
-      title = "Full Time Sports Pakistan - Live Coverage of All Major Sports, Telemetry & Biomechanics";
-      description = "Welcome to Full Time Sports Pakistan (FTS). Stream dynamic athletic telemetry, cricket spinning trajectory reviews, football passing networks, and national athletic science data.";
+      title = "The Sports Room - Live Coverage of All Major Sports, Telemetry & Biomechanics";
+      description = "Welcome to The Sports Room. Stream dynamic athletic telemetry, cricket spinning trajectory reviews, football passing networks, and national athletic science data.";
       keywords = GLOBAL_SEO_KEYWORDS.join(", ");
       ldJsonData = {
         "@context": "https://schema.org",
         "@type": "SportsActivityLocation",
-        "name": "Full Time Sports Pakistan",
-        "alternateName": "FTS Broadcast Network",
-        "description": "Full-scale coverage of all major sports in Pakistan focusing on tactical analytics, biomechanical telemetry reviews, and match calendars.",
+        "name": "The Sports Room",
+        "alternateName": "TSR Broadcast Network",
+        "description": "Full-scale coverage of all major sports in The Sports Room focusing on tactical analytics, biomechanical telemetry reviews, and match calendars.",
         "url": origin,
         "logo": `${origin}/logo-preview.png`,
         "sameAs": [
           "https://www.facebook.com/HananIrfan001",
-          "https://twitter.com/fts_pakistan"
+          "https://twitter.com/thesportsroom"
         ],
         "address": {
           "@type": "PostalAddress",
@@ -173,8 +174,8 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       const matchedCat = categories.find(c => c.slug === categorySlug);
       
       if (matchedCat) {
-        title = `${matchedCat.name} Tactical Telemetry & Coverage - Full Time Sports Pakistan`;
-        description = `Discover detailed ${matchedCat.name} reports, scientific biomechanical analysis, standings tables, live schedule updates, and tactical blueprints for Pakistan and global leagues.`;
+        title = `${matchedCat.name} Tactical Telemetry & Coverage - The Sports Room`;
+        description = `Discover detailed ${matchedCat.name} reports inside The Sports Room, with scientific biomechanical analysis, standings tables, live schedule updates, and tactical blueprints.`;
         
         // Filter keywords specific to this category helper
         const categoryKeywords = GLOBAL_SEO_KEYWORDS.filter(k => 
@@ -216,7 +217,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       const matchedPost = posts.find(p => p.slug === articleSlug);
       
       if (matchedPost) {
-        title = `${matchedPost.title} - Full Time Sports Pakistan`;
+        title = `${matchedPost.title} - The Sports Room`;
         description = matchedPost.meta_description || matchedPost.content.replace(/[#*`]/g, '').slice(0, 160) + "...";
         keywords = [...matchedPost.tags, ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
         pageType = "article";
@@ -232,11 +233,11 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "author": [{
             "@type": "Person",
             "name": matchedPost.author,
-            "jobTitle": "Chief Tactical Strategist FTS"
+            "jobTitle": "Chief Tactical Strategist TSR"
           }],
           "publisher": {
             "@type": "Organization",
-            "name": "Full Time Sports Pakistan",
+            "name": "The Sports Room",
             "logo": {
               "@type": "ImageObject",
               "url": `${origin}/logo-preview.png`
@@ -250,9 +251,9 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         };
       }
     } else if (currentPath === '/sports-atlas' || currentPath === '/glossary') {
-      title = "Sports Science glossary & Atlas - Full Time Sports Pakistan";
-      description = "Biomechanical indexes, strategic definitions, ball velocity drag models, and territorial parameters compiled by the FTS research desk.";
-      keywords = ["Sports glossary", "sport science database", "cricket telemetry atlas", "FTS terminology INDEX", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
+      title = "Sports Science Glossary & Atlas - The Sports Room";
+      description = "Biomechanical indexes, strategic definitions, ball velocity drag models, and territorial parameters compiled by The Sports Room research desk.";
+      keywords = ["Sports glossary", "sport science database", "cricket telemetry atlas", "TSR terminology INDEX", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
       
       ldJsonData = {
         "@context": "https://schema.org",
@@ -262,13 +263,13 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         "url": canonicalUrl
       };
     } else if (currentPath === '/rankings') {
-      title = "Match Standings & Team Rankings - Full Time Sports Pakistan";
-      description = "Real-time sporting metrics, tournament points systems, and physical team classifications representing domestic and global leagues.";
-      keywords = ["Standings", "sports tables", "FTS rankings board", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
+      title = "Match Standings & Team Rankings - The Sports Room";
+      description = "Real-time sporting metrics, tournament points systems, and physical team classifications representing domestic and global leagues - only in The Sports Room.";
+      keywords = ["Standings", "sports tables", "TSR rankings board", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
     } else if (currentPath === '/fixtures') {
-      title = "Tournament Calendars & Local Match Schedules - Full Time Sports Pakistan";
-      description = "Direct time schedules, upcoming match lines, live scores, and stadiums telemetry for cricket, football, hockey, and volleyball.";
-      keywords = ["fixtures list", "match times Pakistan", "FTS fixtures", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
+      title = "Tournament Calendars & Local Match Schedules - The Sports Room";
+      description = "Direct time schedules, upcoming match lines, live scores, and stadiums telemetry for cricket, football, hockey, and volleyball - only in The Sports Room.";
+      keywords = ["fixtures list", "match times Pakistan", "TSR fixtures", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
     }
 
     // B. Inject & Sync with document Head
@@ -309,18 +310,23 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     updateOrCreateMeta("og:url", canonicalUrl, true);
     updateOrCreateMeta("og:image", ogImage, true);
     updateOrCreateMeta("og:type", pageType, true);
-    updateOrCreateMeta("og:site_name", "Full Time Sports Pakistan", true);
+    updateOrCreateMeta("og:site_name", "The Sports Room", true);
 
     // Structured JSON-LD Data Block Insertion
-    let scriptTag = document.getElementById("fts-seo-jsonld");
+    let scriptTag = document.getElementById("thesportsroom-seo-jsonld");
     if (scriptTag) {
       scriptTag.remove();
+    }
+    // and cleanup legacy fts-seo-jsonld if it exists
+    const legacyTag = document.getElementById("fts-seo-jsonld");
+    if (legacyTag) {
+      legacyTag.remove();
     }
     
     if (ldJsonData) {
       scriptTag = document.createElement('script');
       scriptTag.setAttribute('type', 'application/ld+json');
-      scriptTag.setAttribute('id', 'fts-seo-jsonld');
+      scriptTag.setAttribute('id', 'thesportsroom-seo-jsonld');
       scriptTag.textContent = JSON.stringify(ldJsonData, null, 2);
       document.head.appendChild(scriptTag);
     }

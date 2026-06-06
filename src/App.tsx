@@ -4,7 +4,6 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import SportCategory from './pages/SportCategory';
 import ArticleDetail from './pages/ArticleDetail';
-import RankingsFixtures from './pages/RankingsFixtures';
 import TrustPages from './pages/TrustPages';
 import AdminDashboard from './components/AdminDashboard';
 import Glossary from './pages/Glossary';
@@ -48,14 +47,16 @@ export default function App() {
       return <Home onNavigate={handleNavigate} activeGeo={activeGeo} />;
     }
 
-    // 2. Rankings Panel Public link
+    // 2. Rankings Panel Public link (seamless redirect)
     if (currentPath === '/rankings') {
-      return <RankingsFixtures initialTab="rankings" onNavigate={handleNavigate} />;
+      setTimeout(() => handleNavigate('/'), 0);
+      return null;
     }
 
-    // 3. Match calendars schedule link
+    // 3. Match calendars schedule link (seamless redirect)
     if (currentPath === '/fixtures') {
-      return <RankingsFixtures initialTab="fixtures" onNavigate={handleNavigate} />;
+      setTimeout(() => handleNavigate('/'), 0);
+      return null;
     }
 
     // 4. Admin CMS portal dashboard
@@ -107,7 +108,7 @@ export default function App() {
       return <TrustPages page="disclaimer" onNavigate={handleNavigate} />;
     }
 
-    // Stable 404 fallback page matching FTS brand
+    // Stable 404 fallback page matching TSR brand
     return (
       <div className="max-w-xl mx-auto my-24 bg-white border rounded-2xl p-8 text-center space-y-4 shadow-sm" id="fallback-404-pane">
         <span className="font-mono text-xs font-bold text-[#e11d48] uppercase tracking-widest block bg-rose-50/50 py-1 rounded w-fit mx-auto px-3">

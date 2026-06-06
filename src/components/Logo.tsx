@@ -9,7 +9,7 @@ interface LogoProps {
 export default function Logo({ className = '', variant = 'full', size = 'md' }: LogoProps) {
   // Color codes matching the logo uploaded
   const neonGreen = '#22c55e'; // light-green accent
-  const deepGreen = '#064e3b'; // dark forest green
+  const deepGreen = '#064e3b'; // forest green
   const darkShieldBg = '#022c22'; // deep slate green
 
   const sizeClasses = {
@@ -19,7 +19,7 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
     xl: 'h-36 w-auto',
   };
 
-  // 1. Icon component: sleek soccer/cricket shield with "FTS"
+  // 1. Icon component: sleek soccer/cricket shield with "TSR"
   if (variant === 'icon') {
     return (
       <svg
@@ -27,7 +27,7 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
         viewBox="0 0 100 100"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        id="fts-logo-icon"
+        id="tsr-logo-icon"
       >
         <defs>
           <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -49,20 +49,20 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
         {/* Soccer network details hidden subtle design */}
         <path d="M50 10 L50 90 M10 20 L90 20 M12 40 L88 40 M20 60 L80 60 M30 75 L70 75" stroke="rgba(34, 197, 94, 0.15)" strokeWidth="1" />
         
-        {/* Monogram FTS */}
+        {/* Monogram TSR */}
         <text
           x="50"
           y="58"
           fill="#ffffff"
-          fontSize="30"
-          fontWeight="900"
+          fontSize="26"
+          fontWeight="950"
           fontStyle="italic"
           textAnchor="middle"
           fontFamily="system-ui"
-          letterSpacing="-1"
+          letterSpacing="-1.5"
         >
-          FT
-          <tspan fill={neonGreen}>S</tspan>
+          TS
+          <tspan fill={neonGreen}>R</tspan>
         </text>
       </svg>
     );
@@ -71,7 +71,7 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
   // 2. Horizontal component: Perfect for narrow Navbar strip or Footer strip
   if (variant === 'horizontal') {
     return (
-      <div className={`flex items-center space-x-3 cursor-pointer select-none ${className}`} id="fts-logo-horizontal">
+      <div className={`flex items-center space-x-3 cursor-pointer select-none ${className}`} id="tsr-logo-horizontal">
         <svg
           className="h-10 w-10 shrink-0"
           viewBox="0 0 100 100"
@@ -98,31 +98,32 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
             x="50"
             y="58"
             fill="#ffffff"
-            fontSize="32"
-            fontWeight="900"
+            fontSize="28"
+            fontWeight="950"
             fontStyle="italic"
             textAnchor="middle"
             fontFamily="system-ui"
+            letterSpacing="-1"
           >
-            FT<tspan fill="#22c55e">S</tspan>
+            TS<tspan fill="#22c55e">R</tspan>
           </text>
         </svg>
         <div className="flex flex-col text-left">
           <div className="flex items-baseline font-black tracking-tighter uppercase font-display text-white leading-none text-lg">
-            <span>FULL TIME</span>
-            <span className="text-[#22c55e] ml-1">SPORTS</span>
+            <span>THE SPORTS</span>
+            <span className="text-[#22c55e] ml-1">ROOM</span>
           </div>
           <span className="text-[7.5px] font-mono tracking-[0.25em] text-[#22c55e] font-bold uppercase mt-0.5 whitespace-nowrap">
-            YOUR GAME. YOUR PASSION. YOUR NEWS.
+            SCIENTIFIC COVERAGE. METRIC DRIVEN.
           </span>
         </div>
       </div>
     );
   }
 
-  // 3. Full layout: Ultimate exact match for the uploaded logo!
+  // 3. Full layout: Ultimate exact match for the logo branded with The Sports Room!
   return (
-    <div className={`flex flex-col items-center justify-center text-center p-3 font-sans ${className}`} id="fts-logo-full">
+    <div className={`flex flex-col items-center justify-center text-center p-3 font-sans ${className}`} id="tsr-logo-full">
       <svg
         className={`${sizeClasses[size]} drop-shadow-xl`}
         viewBox="0 0 500 400"
@@ -140,7 +141,7 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
             <stop offset="60%" stopColor="#022c22" />
             <stop offset="100%" stopColor="#000000" />
           </linearGradient>
-          <linearGradient id="ftsTextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="tsrTextGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#ffffff" />
             <stop offset="60%" stopColor="#f3f4f6" />
             <stop offset="100%" stopColor="#e5e7eb" />
@@ -217,26 +218,27 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
           <path d="M 353 100 Q 360 95 367 100" fill="none" stroke="#ffffff" strokeWidth="1" />
         </g>
 
-        {/* --- Dynamic FTS Monogram banner --- */}
-        <g id="fts-italic-monogram">
+        {/* --- Dynamic TSR Monogram --- */}
+        <g id="tsr-italic-monogram">
           <text
             x="248"
             y="170"
-            fill="url(#ftsTextGrad)"
+            fill="url(#tsrTextGrad)"
             fontSize="85"
-            fontWeight="900"
+            fontWeight="950"
             fontStyle="italic"
             textAnchor="middle"
             fontFamily="Arial Black, Impact, system-ui"
             stroke="#022c22"
             strokeWidth="4"
+            letterSpacing="-4"
           >
-            FT<tspan fill="#22c55e">S</tspan>
+            TS<tspan fill="#22c55e">R</tspan>
           </text>
         </g>
 
-        {/* --- FULL TIME banner with border --- */}
-        <g id="full-time-banner">
+        {/* --- SPORTS ROOM banner with border --- */}
+        <g id="sports-room-banner">
           {/* Green banner ribbon backing */}
           <polygon
             points="60,225 440,225 420,285 80,285"
@@ -250,42 +252,42 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
             fill="#052e16"
           />
 
-          {/* Bold text: FULL TIME */}
+          {/* Bold text: THE SPORTS ROOM */}
           <text
             x="250"
             y="266"
             fill="#ffffff"
-            fontSize="39"
-            fontWeight="900"
+            fontSize="28"
+            fontWeight="950"
             fontFamily="Arial Black, Impact, sans-serif"
             textAnchor="middle"
-            letterSpacing="2"
+            letterSpacing="1"
           >
-            FULL TIME
+            THE SPORTS ROOM
           </text>
         </g>
 
-        {/* --- SPORTS layout --- */}
+        {/* --- DEEP ANALYTICS tagline layout --- */}
         <g id="sports-banner">
-          {/* Line separator lines on left & right of "SPORTS" */}
-          <line x1="110" y1="316" x2="185" y2="316" stroke="url(#goldHighlight)" strokeWidth="3" />
-          <line x1="315" y1="316" x2="390" y2="316" stroke="url(#goldHighlight)" strokeWidth="3" />
+          {/* Line separator lines on left & right of "ANALYTICS" */}
+          <line x1="110" y1="316" x2="175" y2="316" stroke="url(#goldHighlight)" strokeWidth="3" />
+          <line x1="325" y1="316" x2="390" y2="316" stroke="url(#goldHighlight)" strokeWidth="3" />
 
           <text
             x="250"
             y="322"
             fill="#22c55e"
-            fontSize="23"
+            fontSize="20"
             fontWeight="bold"
             fontFamily="Space Grotesk, system-ui, sans-serif"
             textAnchor="middle"
-            letterSpacing="8"
+            letterSpacing="6"
           >
-            SPORTS
+            ANALYTICS
           </text>
         </g>
 
-        {/* --- YOUR GAME tagline description inside bottom shield curve --- */}
+        {/* --- Brand Tagline tag --- */}
         <text
           x="250"
           y="350"
@@ -297,7 +299,7 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
           letterSpacing="1.5"
           opacity="0.9"
         >
-          YOUR GAME. YOUR PASSION. YOUR NEWS.
+          SCIENTIFIC COVERAGE. METRIC DRIVEN.
         </text>
 
         {/* --- Small custom icons on bottom rim (Cricket Bat & F1 outline symbols) --- */}

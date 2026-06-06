@@ -111,9 +111,9 @@ export default function Hero({ onNavigate }: HeroProps) {
               <Award className="h-3 w-3" />
               <span>{featuredNews.category} BREAKING</span>
             </span>
-            <h2 className="font-display text-xl md:text-2xl font-extrabold text-white tracking-tight leading-tight uppercase group-hover:text-[#22c55e] transition line-clamp-3">
+            <h3 className="font-display text-xl md:text-2xl font-extrabold text-white tracking-tight leading-tight uppercase group-hover:text-[#22c55e] transition line-clamp-3">
               {featuredNews.title}
-            </h2>
+            </h3>
             <p className="text-slate-200 text-xs mt-3 line-clamp-2 leading-relaxed">
               {featuredNews.meta_description || featuredNews.content.slice(0, 150) + "..."}
             </p>
@@ -141,12 +141,12 @@ export default function Hero({ onNavigate }: HeroProps) {
           <div className="flex flex-col h-full justify-between">
             <div>
               <span className="bg-slate-950 font-mono text-[9px] font-black tracking-widest text-[#22c55e] px-2.5 py-1.5 rounded w-fit mb-3 block border border-emerald-950 uppercase">
-                FTS TV • Video Preview
+                TSR TV • Video Preview
               </span>
               <div className="aspect-video bg-black rounded-xl overflow-hidden relative border border-emerald-950/40">
                 <iframe 
                   src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&mute=1&playlist=${activeVideoId}&loop=1&controls=1&modestbranding=1`}
-                  title="FTS Live Video Feed"
+                  title="TSR Live Video Feed"
                   className="w-full h-full object-cover opacity-90"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
@@ -239,7 +239,7 @@ export default function Hero({ onNavigate }: HeroProps) {
         <div className="flex justify-between items-center mb-3 px-1 font-mono text-[10px] text-slate-500 font-bold uppercase">
           <span className="flex items-center space-x-1">
             <BookOpen className="h-3.5 w-3.5 text-[#22c55e]" />
-            <span>FTS Editorial Columns & Blogs</span>
+            <span>TSR Editorial Columns & Blogs</span>
           </span>
           <span>Sliding Loop Slider</span>
         </div>

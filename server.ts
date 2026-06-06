@@ -50,8 +50,6 @@ async function getSitemapXML(host: string): Promise<string> {
   // Core static URLs
   const coreUrls = [
     { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0" },
-    { loc: `${baseUrl}/rankings`, changefreq: "daily", priority: "0.8" },
-    { loc: `${baseUrl}/fixtures`, changefreq: "always", priority: "0.8" },
     { loc: `${baseUrl}/about-us`, changefreq: "monthly", priority: "0.4" },
     { loc: `${baseUrl}/contact-us`, changefreq: "monthly", priority: "0.4" },
     { loc: `${baseUrl}/privacy-policy`, changefreq: "monthly", priority: "0.3" },

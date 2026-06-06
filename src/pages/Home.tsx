@@ -30,10 +30,10 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
   };
 
   useEffect(() => {
-    document.title = "Full Time Sports Pakistan | Scientific Sports Journalism Hub";
+    document.title = "The Sports Room | Scientific Sports Journalism Hub";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', 'FTS is Pakistan’s leading digital platform for athletic mechanical science, biometrics, real-time formula telemetry, and match strategic breakdowns.');
+      metaDesc.setAttribute('content', 'The Sports Room (TSR) is Pakistan’s leading digital platform for athletic mechanical science, biometrics, real-time formula telemetry, and match strategic breakdowns.');
     }
 
     const loadData = () => {
@@ -94,12 +94,12 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                 <HelpCircle className="h-3 w-3 mr-1 animate-pulse" />
                 <span>Quick Resolution Portal</span>
               </div>
-              <h2 className="font-display font-black text-2xl md:text-3xl tracking-tight uppercase leading-none">
+              <h1 className="font-display font-black text-2xl md:text-3xl tracking-tight uppercase leading-none">
                 What does <br />
-                Full Time Sports <br />
+                The Sports Room <br />
                 <span className="text-[#22c55e]">Answer Today?</span>
-              </h2>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              </h1>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans">
                 We design our media platform to solve complex sporting doubts. Each click provides a direct mathematical, strategic, or physical resolution to a core athletic question.
               </p>
               
@@ -107,7 +107,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                 <div className="p-3 bg-[#01140f] border border-emerald-950 rounded-lg text-center">
                   <Logo variant="icon" size="sm" className="mx-auto" />
                   <p className="text-[9px] font-bold text-slate-300 font-mono tracking-widest mt-1 uppercase">
-                    FTS BRAND DESIGN SYSTEM
+                    TSR BRAND DESIGN SYSTEM
                   </p>
                 </div>
               </div>
@@ -122,8 +122,8 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                     Why can I trust these sports write-ups over live scrapers?
                   </h4>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  <strong>The Answer:</strong> Full Time Sports features 100% human-authored strategic reviews. Our editorial desk manually writes tactical data, shielding you from cheap machine translation loops or generic automatic scrapers.
+                <p className="text-[11px] text-slate-300 leading-relaxed mb-4">
+                  <strong>The Answer:</strong> The Sports Room features 100% human-authored strategic reviews. Our editorial desk manually writes tactical data, shielding you from cheap machine translation loops or generic automatic scrapers.
                 </p>
               </div>
 
@@ -174,14 +174,14 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
           <div className="space-y-1">
             <h3 className="font-display font-black text-slate-900 uppercase text-xs tracking-wider">Original Sports Journalism & Media Publishing</h3>
             <p className="text-[11px] text-slate-500 max-w-2xl leading-relaxed">
-              Full Time Sports (FTS) is built entirely on human-authored tactical analysis without automated scrapers. Discover who we are, our professional journalism frameworks, and read about our chief strategists on the <button onClick={() => onNavigate('/about-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">About Us</button> page, or get in touch through our <button onClick={() => onNavigate('/contact-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">Contact Us</button> channel.
+              The Sports Room (TSR) is built entirely on human-authored tactical analysis without automated scrapers. Discover who we are, our professional journalism frameworks, and read about our chief strategists on the <button onClick={() => onNavigate('/about-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">About Us</button> page, or get in touch through our <button onClick={() => onNavigate('/contact-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">Contact Us</button> channel.
             </p>
           </div>
           <button 
             onClick={() => onNavigate('/about-us')} 
             className="shrink-0 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white font-mono font-bold text-[10px] py-2.5 px-5 rounded-lg uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm"
           >
-            Learn About FTS
+            Learn About TSR
           </button>
         </div>
 
@@ -190,7 +190,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
           <div className="flex justify-between items-center mb-6">
             <h2 className="font-display font-black text-2xl text-slate-900 tracking-tight flex items-center space-x-2">
               <Flame className="h-6 w-6 text-[#22c55e] animate-bounce" />
-              <span>TRENDING HEADLINES</span>
+              <span>THE SPORTS ROOM TRENDING HEADLINES</span>
             </h2>
             <span className="text-[10px] font-mono font-bold text-emerald-800 bg-[#f0fdf4] border border-emerald-950/5 px-2 py-0.5 rounded">
               AUTO-SENSING TRAFFIC
@@ -245,10 +245,10 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
           {/* LEFT: SECTION 3: LATEST ARTICLES FEED */}
           <div className="lg:col-span-8 space-y-6" id="latest-editorial-feed">
             <div className="border-b-2 border-[#022c22] pb-3 flex justify-between items-center">
-              <h2 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
+              <h3 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
                 <BookOpen className="h-5 w-5 text-[#22c55e]" />
                 <span>LATEST EDITORIAL REPORTINGS</span>
-              </h2>
+              </h3>
               <span className="text-[10px] font-mono text-slate-500">Live UTC Stream</span>
             </div>
 
@@ -305,7 +305,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm">
               <h3 className="font-display font-black text-sm text-[#022c22] uppercase tracking-wider mb-4 border-b border-slate-150 pb-2 flex items-center space-x-1.5">
                 <Sparkles className="h-4 w-4 text-[#22c55e]" />
-                <span>MOST POPULAR AT FULL TIME</span>
+                <span>MOST POPULAR AT THE SPORTS ROOM</span>
               </h3>
               <div className="space-y-4">
                 {mostRead.map((post, idx) => (
@@ -332,35 +332,31 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
             {/* Live Sports Ticker Sideboard - DIRECT COMPLIANT SPORT THEME */}
             <div className="bg-[#022c22] text-white border border-emerald-950 rounded-2xl p-5 shadow-inner">
               <h3 className="font-mono text-xs font-bold text-[#22c55e] uppercase tracking-widest mb-4 flex items-center space-x-1.5">
-                <Trophy className="h-4 w-4 text-[#22c55e] animate-spin" />
-                <span>LIVE SCORE CODE DESK</span>
+                <Flame className="h-4 w-4 text-[#22c55e] animate-pulse" />
+                <span>TSR SCIENTIFIC HOT TOPICS</span>
               </h3>
-              <div className="space-y-3 divide-y divide-emerald-950">
-                {fixtures.slice(0, 3).map((f) => (
-                  <div key={f.id} className="text-xs pb-3 border-b border-emerald-950/40 last:border-0 pt-3 first:pt-0">
-                    <div className="flex justify-between items-center text-[10px] text-slate-300 font-mono mb-1">
-                      <span className="uppercase font-bold text-slate-400">{f.sport} • {f.stage}</span>
-                      {f.status === 'live' ? (
-                        <span className="text-rose-500 font-bold animate-pulse">● LIVE NOW</span>
-                      ) : (
-                        <span className="text-slate-400">{f.time}</span>
-                      )}
-                    </div>
-                    <div className="flex justify-between items-center text-sm font-bold">
-                      <span>{f.team1}</span>
-                      <span className="bg-[#01140f] px-2 py-0.5 rounded text-[11px] font-mono text-[#22c55e] border border-emerald-900">
-                        {f.score || 'VS'}
-                      </span>
-                      <span>{f.team2}</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="space-y-3">
+                <div className="text-xs p-3 bg-[#01140f] rounded border border-emerald-950 flex flex-col space-y-1">
+                  <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase">Biomechanical Focus</span>
+                  <span className="font-bold text-slate-100">Babar Azam Cover-Drive Torques</span>
+                  <span className="text-[10px] text-slate-400">Analysis of hip-to-shoulder kinetic chain synchronization of international batsman.</span>
+                </div>
+                <div className="text-xs p-3 bg-[#01140f] rounded border border-emerald-950 flex flex-col space-y-1">
+                  <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase">Aerodynamics Tech</span>
+                  <span className="font-bold text-slate-100">Formula 1 Aerodynamic Downforce</span>
+                  <span className="text-[10px] text-slate-400">Computational fluid dynamics tracking ground effects and tire heat-transfer telemetry.</span>
+                </div>
+                <div className="text-xs p-3 bg-[#01140f] rounded border border-emerald-950 flex flex-col space-y-1">
+                  <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase">Cardiology Study</span>
+                  <span className="font-bold text-slate-100">Cardiorespiratory VO2 Max Limits</span>
+                  <span className="text-[10px] text-slate-400">Evaluating mitochondrial oxygen-volume consumption rates across hot sub-continental stadiums.</span>
+                </div>
               </div>
               <button 
-                onClick={() => onNavigate('/fixtures')} 
+                onClick={() => onNavigate('/sports-atlas')} 
                 className="w-full mt-4 py-2 bg-[#01140f] border border-emerald-950 hover:bg-[#022c22] text-white font-mono font-bold text-[10px] uppercase rounded text-center transition"
               >
-                Open Match Centre
+                Explore Sports Science Atlas
               </button>
             </div>
 
@@ -377,10 +373,10 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
         <section className="mt-12 border-t-2 border-[#022c22] pt-8" id="cricket-highlights">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 space-y-4">
-              <h2 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2 animate-pulse">
+              <h3 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2 animate-pulse">
                 <span className="bg-[#22c55e] w-2.5 h-6 rounded-full"></span>
                 <span>CRICKET ANALYSIS & EDITORIAL</span>
-              </h2>
+              </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {cricketArticles.map(post => (
@@ -404,25 +400,29 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
               </div>
             </div>
 
-            {/* Cricket Standings Sidepanel */}
+            {/* Cricket Science Sidepanel */}
             <div className="lg:col-span-4">
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 h-full">
                 <h3 className="font-display font-bold text-xs text-[#022c22] uppercase tracking-widest border-b border-slate-100 pb-2 mb-4 flex justify-between items-center">
-                  <span>ICC Men Test Standings</span>
-                  <Trophy className="h-4 w-4 text-[#22c55e]" />
+                  <span>Cricket Editorial Topics</span>
+                  <BookOpen className="h-4 w-4 text-[#22c55e]" />
                 </h3>
-                <div className="space-y-3 font-mono text-xs">
-                  {activeCricketRankings.map((r, i) => (
-                    <div key={r.id} className="flex justify-between items-center py-1.5 border-b border-slate-150 last:border-0">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-slate-400">#{i + 1}</span>
-                        <span className="font-semibold text-slate-900">{r.name}</span>
-                      </div>
-                      <div className="text-[#022c22] font-bold">
-                        {r.points} <span className="text-[10px] font-normal text-slate-400">PTS</span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="space-y-4 text-xs">
+                  <div className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                    <span className="text-[10px] uppercase font-mono font-bold text-[#22c55e]">Kinetic Chain</span>
+                    <h4 className="font-bold text-slate-800 uppercase mt-0.5">Babar Azam Cover-Drive Sequence</h4>
+                    <p className="text-slate-500 text-[11px] mt-1 leading-relaxed">Ground reaction force transfer sequence optimizing wrist locks at 140 km/h with low vibratory loss.</p>
+                  </div>
+                  <div className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                    <span className="text-[10px] uppercase font-mono font-bold text-[#22c55e]">Aerodynamics</span>
+                    <h4 className="font-bold text-slate-800 uppercase mt-0.5">Humidity vs Ball Swing Trajectories</h4>
+                    <p className="text-slate-505 text-[11px] mt-1 leading-relaxed">How air density boundary layer separations trigger late, devastating swing in damp conditions.</p>
+                  </div>
+                  <div className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                    <span className="text-[10px] uppercase font-mono font-bold text-[#22c55e]">Tension Calculus</span>
+                    <h4 className="font-bold text-slate-808 uppercase mt-0.5">Bat Sweetspot Rebound Damping</h4>
+                    <p className="text-slate-505 text-[11px] mt-1 leading-relaxed">Measuring translational energy conservation rates during off-center strikes against fast deliveries.</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -435,35 +435,47 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
         {/* ========================================================================= */}
         <section className="mt-12 border-t-2 border-[#022c22] pt-8" id="football-highlights">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Football Standings Sidepanel */}
+            {/* Football Tactical Principles Sidepanel */}
             <div className="lg:col-span-4 order-last lg:order-first">
               <div className="bg-[#022c22] text-white border border-emerald-950 rounded-2xl p-5 h-full">
-                <h3 className="font-display font-medium text-xs text-[#22c55e] uppercase tracking-widest border-b border-emerald-900 pb-2 mb-4">
-                  Match Schedule Desk
+                <h3 className="font-display font-medium text-xs text-[#22c55e] uppercase tracking-widest border-b border-emerald-900 pb-2 mb-4 flex justify-between items-center">
+                  <span>Tactical Playbook Desk</span>
+                  <Compass className="h-4 w-4 text-[#22c55e]" />
                 </h3>
-                <div className="space-y-3 text-xs leading-none">
-                  {activeFootballFixtures.map((f) => (
-                    <div key={f.id} className="p-3 bg-[#01140f] rounded border border-emerald-950">
-                      <div className="flex justify-between text-[9px] text-slate-400 font-mono mb-1.5">
-                        <span>{f.stage}</span>
-                        {f.status === 'live' ? <span className="text-[#22c55e] font-bold animate-ping">● LIVE</span> : <span className="text-slate-500">Upcoming</span>}
-                      </div>
-                      <div className="flex justify-between font-bold text-slate-100">
-                        <span>{f.team1}</span>
-                        <span className="text-[#22c55e] font-mono">{f.score || 'VS'}</span>
-                        <span>{f.team2}</span>
-                      </div>
+                <div className="space-y-4 text-xs font-sans">
+                  <div className="p-3 bg-[#01140f] rounded border border-emerald-950 space-y-1">
+                    <div className="flex justify-between items-center text-[9px] text-[#22c55e] font-mono pb-1 border-b border-emerald-950">
+                      <span>TACTICAL RULE #1</span>
+                      <span>ACTIVE</span>
                     </div>
-                  ))}
+                    <h4 className="font-bold text-slate-200 mt-1">Low Block Stretching Velocity</h4>
+                    <p className="text-slate-400 text-[11px] leading-relaxed">Using inverted wingers to lock fullbacks in five lateral channels, leaving critical spaces in half-spaces.</p>
+                  </div>
+                  <div className="p-3 bg-[#01140f] rounded border border-emerald-950 space-y-1">
+                    <div className="flex justify-between items-center text-[9px] text-[#22c55e] font-mono pb-1 border-b border-emerald-950">
+                      <span>TACTICAL RULE #2</span>
+                      <span>ACTIVE</span>
+                    </div>
+                    <h4 className="font-bold text-slate-200 mt-1">High Pressing Counter-Torsion</h4>
+                    <p className="text-slate-400 text-[11px] leading-relaxed">Coordinated forward press restricting passing angles and forcing centerbacks to launch dangerous long diagonals.</p>
+                  </div>
+                  <div className="p-3 bg-[#01140f] rounded border border-emerald-950 space-y-1">
+                    <div className="flex justify-between items-center text-[9px] text-[#22c55e] font-mono pb-1 border-b border-emerald-950">
+                      <span>TACTICAL RULE #3</span>
+                      <span>ACTIVE</span>
+                    </div>
+                    <h4 className="font-bold text-slate-200 mt-1">Rest Defense Box Mechanics</h4>
+                    <p className="text-slate-400 text-[11px] leading-relaxed">Locking a 3-2 structure behind tactical transition lines to instantly smother quick-passing counter-attacks.</p>
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="lg:col-span-8 space-y-4">
-              <h2 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
+              <h3 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
                 <span className="bg-[#22c55e] w-2.5 h-6 rounded-full"></span>
                 <span>FOOTBALL MASTERCLASS DESK</span>
-              </h2>
+              </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {footballArticles.map(post => (
@@ -495,10 +507,10 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
         {/* ========================================================================= */}
         <section className="mt-12 border-t-2 border-[#022c22] pt-8" id="editor-picks">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
+            <h3 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
               <Compass className="h-5 w-5 text-[#22c55e]" />
               <span>EDITORIAL COLUMNS & ANALYSIS</span>
-            </h2>
+            </h3>
             <span className="text-[10px] font-mono font-bold text-slate-400">OPINION PIECES</span>
           </div>
 
@@ -540,11 +552,11 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22c55e]"></span>
               </span>
-              FTS BROADCAST NETWORK
+              THE SPORTS ROOM BROADCAST NETWORK
             </span>
-            <h2 className="font-display font-black text-2xl lg:text-3xl text-white tracking-tight mt-1 uppercase">
+            <h3 className="font-display font-black text-2xl lg:text-3xl text-white tracking-tight mt-1 uppercase">
               EXCLUSIVE VIDEO INTERVIEWS & BREAKDOWNS
-            </h2>
+            </h3>
             <p className="text-slate-350 text-xs mt-2">
               Click any related broadcast log on the right to dynamically stream our telemetry reviews and physical strategies.
             </p>
@@ -640,9 +652,9 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
             <span className="text-[10px] font-mono font-bold text-emerald-800 bg-[#f0fdf4] py-0.5 px-2 rounded border border-emerald-955/10">
               SPORT TAXONOMY NODES
             </span>
-            <h2 className="font-display font-black text-xl text-slate-900 tracking-tight mt-2 uppercase">
+            <h3 className="font-display font-black text-xl text-slate-900 tracking-tight mt-2 uppercase">
               SELECT YOUR SPORTING DESK
-            </h2>
+            </h3>
             <p className="text-xs text-slate-505 mt-1">
               Explore dynamic directories, ICC standings, UEFA statistics clusters, and telemetry logs.
             </p>
@@ -680,9 +692,9 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
               <span className="h-2 w-2 rounded-full bg-[#22c55e]"></span>
               GEOGRAPHIC TAXONOMY AUDIT
             </span>
-            <h2 className="font-display font-black text-2xl lg:text-3xl text-slate-900 tracking-tight uppercase leading-tight">
-              FULL TIME SPORTS PAKISTAN COVERAGE OF ALL MAJOR SPORTS
-            </h2>
+            <h3 className="font-display font-black text-2xl lg:text-3xl text-slate-900 tracking-tight uppercase leading-tight">
+              THE SPORTS ROOM PAKISTAN COVERAGE OF ALL MAJOR SPORTS
+            </h3>
             <p className="text-slate-600 text-xs md:text-sm leading-relaxed">
               We operate localized athletic desks in Islamabad, Rawalpindi, Lahore, and Karachi to bring users the absolute highest quality mathematical, aerodynamic, and thermodynamic performance overlays covering Pakistan Super League, South Asian Football SAFF structures, international test matches, and PHF field hockey tournaments.
             </p>
@@ -753,7 +765,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                 EDITORIAL POLICY & GENERAL DATA COUPLERS
               </h3>
               <p className="text-xs leading-relaxed text-slate-600">
-                Full Time Sports carries manual reporting indices across high-density markets in the ICC, UEFA, Formula 1, and NBA. Our coverage features structured schema markup representing detailed sport databases. We guarantee complete exemption from scraping loops and artificial slop.
+                The Sports Room carries manual reporting indices across high-density markets in the ICC, UEFA, Formula 1, and NBA. Our coverage features structured schema markup representing detailed sport databases. We guarantee complete exemption from scraping loops and artificial slop.
               </p>
               <div className="flex flex-wrap gap-4 pt-2 text-[10px] font-semibold text-emerald-800 uppercase font-mono">
                 <span className="flex items-center space-x-1">
