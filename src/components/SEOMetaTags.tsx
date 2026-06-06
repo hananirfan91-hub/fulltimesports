@@ -113,7 +113,7 @@ interface SEOMetaTagsProps {
 export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
   useEffect(() => {
     // Determine the primary canonical origin for the site to prevent duplicate indexation across preview or dev sandboxes.
-    let origin = 'https://fulltimesports.vercel.app';
+    let origin = 'https://thesportsroom.vercel.app';
     if (typeof window !== 'undefined' && window.location) {
       const hostname = window.location.hostname;
       if (

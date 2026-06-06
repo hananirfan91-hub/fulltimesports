@@ -25,7 +25,7 @@ async function generate() {
   console.log("[Sitemap Generator] Initializing static XML sitemap builder...");
 
   // Primary canonical domain
-  const baseUrl = "https://fulltimesports.vercel.app";
+  const baseUrl = "https://thesportsroom.vercel.app";
 
   // Core static URLs
   const coreUrls = [

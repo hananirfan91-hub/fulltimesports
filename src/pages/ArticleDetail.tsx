@@ -403,17 +403,17 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
-      "item": "https://fulltimesports.vercel.app/"
+      "item": "https://thesportsroom.vercel.app/"
     },{
       "@type": "ListItem",
       "position": 2,
       "name": post.category,
-      "item": `https://fulltimesports.vercel.app/sport/${post.category}`
+      "item": `https://thesportsroom.vercel.app/sport/${post.category}`
     },{
       "@type": "ListItem",
       "position": 3,
       "name": post.title,
-      "item": `https://fulltimesports.vercel.app/blog/${post.slug}`
+      "item": `https://thesportsroom.vercel.app/blog/${post.slug}`
     }]
   };
 
@@ -431,7 +431,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
         "@type": "Person",
         "name": post.author,
         "jobTitle": "Sports Journalism Desk",
-        "url": "https://fulltimesports.vercel.app/authors/fts-desk"
+        "url": "https://thesportsroom.vercel.app/authors/fts-desk"
       }]
   };
 

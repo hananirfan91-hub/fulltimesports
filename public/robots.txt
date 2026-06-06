@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fulltimesports.vercel.app/sitemap.xml
+Sitemap: https://thesportsroom.vercel.app/sitemap.xml

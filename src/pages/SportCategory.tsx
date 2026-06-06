@@ -135,12 +135,12 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
-      "item": "https://fulltimesports.vercel.app/"
+      "item": "https://thesportsroom.vercel.app/"
     },{
       "@type": "ListItem",
       "position": 2,
       "name": category.name,
-      "item": `https://fulltimesports.vercel.app/sport/${category.slug}`
+      "item": `https://thesportsroom.vercel.app/sport/${category.slug}`
     }]
   };
 

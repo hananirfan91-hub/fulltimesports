@@ -28,15 +28,15 @@ export default function Footer({ onNavigate }: FooterProps) {
     "@type": "NewsMediaOrganization",
     "name": "The Sports Room",
     "alternateName": "TSR News",
-    "url": "https://fulltimesports.vercel.app",
+    "url": "https://thesportsroom.vercel.app",
     "logo": "https://images.unsplash.com/photo-1540747737956-378724044282?w=150",
     "sameAs": [
       "https://www.facebook.com/HananIrfan001",
-      "https://twitter.com/fulltimesports",
-      "https://instagram.com/fulltimesports"
+      "https://twitter.com/thesportsroom",
+      "https://instagram.com/thesportsroom"
     ],
-    "publishingPrinciples": "https://fulltimesports.vercel.app/editorial-standards",
-    "correctionPolicy": "https://fulltimesports.vercel.app/corrections"
+    "publishingPrinciples": "https://thesportsroom.vercel.app/editorial-standards",
+    "correctionPolicy": "https://thesportsroom.vercel.app/corrections"
   };
 
   return (
@@ -105,7 +105,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             <a href="https://www.facebook.com/HananIrfan001" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Facebook Page"><Facebook className="h-4 w-4" /></a>
             <a href="https://x.com/hananirfan91" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Twitter/X Page"><Twitter className="h-4 w-4" /></a>
             <a href="https://instagram.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Instagram Feed"><Instagram className="h-4 w-4" /></a>
-            <a href="https://youtube.com/@fulltimesportspakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan YouTube Channel"><Youtube className="h-4 w-4" /></a>
+            <a href="https://youtube.com/@thesportsroom" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan YouTube Channel"><Youtube className="h-4 w-4" /></a>
           </div>
         </div>
 

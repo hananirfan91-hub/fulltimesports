@@ -722,7 +722,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-3 text-sm focus:outline-none transition font-sans"
-                      placeholder="e.g. author@fulltimesports.com"
+                      placeholder="e.g. editor@thesportsroom.com"
                     />
                   </div>
 
