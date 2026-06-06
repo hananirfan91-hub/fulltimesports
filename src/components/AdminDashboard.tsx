@@ -8,6 +8,26 @@ import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketM
 import { DB } from '../lib/db';
 import { supabase } from '../lib/supabase';
 
+const alert = (msg: string) => {
+  try {
+    window.alert(msg);
+  } catch (e) {
+    console.warn("Alert blocked by browser sandbox:", msg);
+  }
+};
+
+const copyToClipboard = (text: string) => {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (e) {
+    console.warn("Clipboard write blocked by sandbox:", e);
+  }
+  return false;
+};
+
 interface AdminDashboardProps {
   onNavigate: (path: string) => void;
 }
@@ -1156,7 +1176,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                   <div className="flex justify-between items-center mt-3 border-t border-slate-700 pt-2">
                     <button 
                       onClick={() => {
-                        navigator.clipboard.writeText(item.file_url);
+                        copyToClipboard(item.file_url);
                         alert("Image Source URL copied into clipboard!");
                       }} 
                       className="text-[9px] text-[#e0a96d] font-mono hover:underline uppercase"

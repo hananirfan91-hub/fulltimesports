@@ -1,6 +1,37 @@
 import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber } from '../types';
 import { supabase } from './supabase';
 
+const memoryStore: Record<string, string> = {};
+
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return window.localStorage.getItem(key);
+    } catch (e) {
+      console.warn("safeLocalStorage getItem error:", e);
+      return memoryStore[key] || null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch (e) {
+      console.warn("safeLocalStorage setItem error:", e);
+      memoryStore[key] = value;
+    }
+  },
+  removeItem: (key: string): void => {
+    try {
+      window.localStorage.removeItem(key);
+    } catch (e) {
+      console.warn("safeLocalStorage removeItem error:", e);
+      delete memoryStore[key];
+    }
+  }
+};
+
+const localStorage = safeLocalStorage;
+
 const STORAGE_KEYS = {
   POSTS: 'fts_posts',
   CATEGORIES: 'fts_categories',

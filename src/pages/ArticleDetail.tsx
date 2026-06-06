@@ -8,6 +8,14 @@ import { DB } from '../lib/db';
 import { SEO_KEYWORDS_REGISTRY } from '../lib/seoKeywords';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
 
+const alert = (msg: string) => {
+  try {
+    window.alert(msg);
+  } catch (e) {
+    console.warn("Alert blocked by browser sandbox:", msg);
+  }
+};
+
 interface ArticleDetailProps {
   slug: string;
   onNavigate: (path: string) => void;
@@ -81,17 +89,22 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
         .slice(0, 3);
       setRelated(relatedFiltered.length > 0 ? relatedFiltered : allPosts.filter(p => p.id !== activePost.id).slice(0, 3));
 
-      // Pull comments simulation from localStorage
+      // Pull comments simulation from localStorage securely
       const commentKey = `comments_${activePost.id}`;
-      const saved = localStorage.getItem(commentKey);
-      if (saved) {
-        setComments(JSON.parse(saved));
-      } else {
-        const dummyComments = [
-          { id: 'c1', author: 'Markus Vance', text: 'This mathematical overview of the Venturi tunnels is the best I have ever read in Formula 1 media. Outstanding quality!', date: '2026-06-03' },
-          { id: 'c2', author: 'Vikram Singh', text: 'I really agree with the analysis of Rashid Khan’s wrist motion. T20 batting setups are indeed struggling heavily.', date: '2026-06-03' }
-        ];
-        localStorage.setItem(commentKey, JSON.stringify(dummyComments));
+      const dummyComments = [
+        { id: 'c1', author: 'Markus Vance', text: 'This mathematical overview of the Venturi tunnels is the best I have ever read in Formula 1 media. Outstanding quality!', date: '2026-06-03' },
+        { id: 'c2', author: 'Vikram Singh', text: 'I really agree with the analysis of Rashid Khan’s wrist motion. T20 batting setups are indeed struggling heavily.', date: '2026-06-03' }
+      ];
+      try {
+        const saved = localStorage.getItem(commentKey);
+        if (saved) {
+          setComments(JSON.parse(saved));
+        } else {
+          localStorage.setItem(commentKey, JSON.stringify(dummyComments));
+          setComments(dummyComments);
+        }
+      } catch (e) {
+        console.warn("Failed to access localStorage comments:", e);
         setComments(dummyComments);
       }
     }
@@ -122,15 +135,29 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
     };
     const updated = [newComment, ...comments];
     setComments(updated);
-    localStorage.setItem(`comments_${post.id}`, JSON.stringify(updated));
+    try {
+      localStorage.setItem(`comments_${post.id}`, JSON.stringify(updated));
+    } catch (e) {
+      console.warn("localStorage comment write blocked:", e);
+    }
     setNewCommentName('');
     setNewCommentText('');
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 3000);
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(window.location.href);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 3000);
+      } else {
+        throw new Error("Clipboard API not available");
+      }
+    } catch (e) {
+      console.warn("Clipboard copy blocked:", e);
+      // Fallback: alert URL
+      alert(`Article URL: ${window.location.href}`);
+    }
   };
 
   // Get active article QA
