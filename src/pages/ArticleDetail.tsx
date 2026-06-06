@@ -16,6 +16,18 @@ const alert = (msg: string) => {
   }
 };
 
+const copyToClipboard = (text: string) => {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (e) {
+    console.warn("Clipboard write blocked by sandbox:", e);
+  }
+  return false;
+};
+
 interface ArticleDetailProps {
   slug: string;
   onNavigate: (path: string) => void;
@@ -145,17 +157,10 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
   };
 
   const handleCopyLink = () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(window.location.href);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 3000);
-      } else {
-        throw new Error("Clipboard API not available");
-      }
-    } catch (e) {
-      console.warn("Clipboard copy blocked:", e);
-      // Fallback: alert URL
+    if (copyToClipboard(window.location.href)) {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 3000);
+    } else {
       alert(`Article URL: ${window.location.href}`);
     }
   };
@@ -200,18 +205,33 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
         const linkText = matchStr.slice(1, closingBracket);
         const linkUrl = matchStr.slice(closingBracket + 2, -1);
         
-        elements.push(
-          <button
-            key={`a-${keyIdx++}`}
-            onClick={(e) => {
-              e.preventDefault();
-              onNavigate(linkUrl);
-            }}
-            className="text-[#22c55e] hover:text-emerald-700 font-bold underline transition inline-block mx-0.5"
-          >
-            {linkText}
-          </button>
-        );
+        const isExternal = linkUrl.startsWith('http://') || linkUrl.startsWith('https://') || linkUrl.startsWith('//');
+        if (isExternal) {
+          elements.push(
+            <a
+              key={`a-${keyIdx++}`}
+              href={linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#22c55e] hover:text-emerald-700 font-bold underline transition inline-block mx-0.5"
+            >
+              {linkText}
+            </a>
+          );
+        } else {
+          elements.push(
+            <button
+              key={`a-${keyIdx++}`}
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate(linkUrl);
+              }}
+              className="text-[#22c55e] hover:text-emerald-700 font-bold underline transition inline-block mx-0.5 cursor-pointer"
+            >
+              {linkText}
+            </button>
+          );
+        }
       }
       
       currentIndex = regex.lastIndex;
@@ -677,8 +697,11 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                       <span>{post.seo_payload.focus_keyword || post.category}</span>
                       <button 
                         onClick={() => {
-                          navigator.clipboard.writeText(post.seo_payload.focus_keyword || post.category);
-                          alert("Focus keyword copied!");
+                          if (copyToClipboard(post.seo_payload.focus_keyword || post.category)) {
+                            alert("Focus keyword copied!");
+                          } else {
+                            alert(`Focus Keyword: ${post.seo_payload.focus_keyword || post.category}`);
+                          }
                         }}
                         className="text-[9px] text-teal-400 hover:text-white uppercase font-bold py-1 px-2 bg-teal-500/10 hover:bg-teal-500/20 rounded border border-teal-500/20 cursor-pointer"
                       >
@@ -761,8 +784,12 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                         key={schemaType}
                         onClick={() => {
                           const codeText = JSON.stringify(schemaObject, null, 2);
-                          navigator.clipboard.writeText(codeText);
-                          alert(`${schemaType} schema copied to clipboard!`);
+                          if (copyToClipboard(codeText)) {
+                            alert(`${schemaType} schema copied to clipboard!`);
+                          } else {
+                            alert(`Schema printed to logs!`);
+                            console.log(`${schemaType} schema:`, codeText);
+                          }
                         }}
                         className="bg-slate-950 hover:bg-slate-800 text-slate-300 hover:text-white p-3 py-2.5 rounded-lg border border-slate-800 text-[10px] font-mono text-center flex flex-col justify-center items-center gap-1 transition cursor-pointer"
                       >
