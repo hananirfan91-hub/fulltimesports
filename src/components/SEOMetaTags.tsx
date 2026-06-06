@@ -190,7 +190,8 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           ],
           "address": {
             "@type": "PostalAddress",
-            "addressLocality": "Lahore",
+            "streetAddress": "Babar Colony",
+            "addressLocality": "Rahim Yar Khan",
             "addressRegion": "Punjab",
             "addressCountry": "PK"
           }
