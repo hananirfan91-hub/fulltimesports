@@ -659,7 +659,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
               EXCLUSIVE VIDEO INTERVIEWS & BREAKDOWNS
             </h3>
             <p className="text-slate-350 text-xs mt-2">
-              Click any related broadcast log on the right to dynamically stream our telemetry reviews and physical strategies.
+           Why we use Embeded YouTube Videos in the Entire Website and How we Embeded it.
             </p>
           </div>
 
