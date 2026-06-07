@@ -30,7 +30,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
   };
 
   useEffect(() => {
-    document.title = "The Sports Room | Scientific Sports Journalism Hub";
+    document.title = "The Sports Room | Global Sports Analytics, News & Performance Insights at Sports Lounge.";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute('content', 'The Sports Room (TSR) is Pakistan’s leading digital platform for athletic mechanical science, biometrics, real-time formula telemetry, and match strategic breakdowns.');
