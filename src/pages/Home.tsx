@@ -30,7 +30,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
   };
 
   useEffect(() => {
-    document.title = "The Sports Room | Global Sports Analytics, News & Performance Insights at Sports Lounge.";
+    document.title = "The Sports Room | Scientific Sports Journalism Hub";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
       metaDesc.setAttribute('content', 'The Sports Room (TSR) is Pakistan’s leading digital platform for athletic mechanical science, biometrics, real-time formula telemetry, and match strategic breakdowns.');
@@ -659,7 +659,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
               EXCLUSIVE VIDEO INTERVIEWS & BREAKDOWNS
             </h3>
             <p className="text-slate-350 text-xs mt-2">
-           Why we use Embeded YouTube Videos in the Entire Website and How we Embeded it.
+              Click any related broadcast log on the right to dynamically stream our telemetry reviews and physical strategies.
             </p>
           </div>
 
@@ -667,7 +667,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
             <div className="lg:col-span-2 flex flex-col justify-between">
               <div className="aspect-video bg-[#01140f] border border-emerald-850 rounded-2xl overflow-hidden relative shadow-2xl flex-grow">
                 <iframe 
-                  src={`https://www.youtube.com/embed/zexmOJ9CNeQ?si=TtgP-Yx6W7GSGFJ_`}
+                  src={`https://www.youtube.com/embed/${selectedVideoId}?autoplay=1&mute=1&playlist=${selectedVideoId}&loop=1&controls=1&modestbranding=1`}
                   title="Exclusive Telemetry Analysis"
                   className="w-full h-full object-cover"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
