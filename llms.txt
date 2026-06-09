@@ -1,31 +1,208 @@
 # The Sports Room (TSR)
 
-> An elite digital sports journalism platform and digital sports lounge offering 105% human-authored athletic coverage, mechanical telemetry, tactical reviews, and schedules.
+A human-authored digital sports journalism platform delivering tactical analysis, sports science insights, match coverage, and structured sports data across cricket, football, Formula 1, tennis, basketball, esports, volleyball, and hockey.
 
-## Core Navigation & Pages
+---
 
-- [Home](/) - The master portal for today's top sports stories, cricket/football news, real-time metrics, and the TSR Sports Lounge contributions feed. Include the cinematic hero featuring Babar Azam's cover drive.
-- [Sports Science Atlas](/sports-atlas) - An extensive database indexing biomechanics in cricket, Formula 1 thermodynamics, football sprinting kinematics, and athletic recovery models.
-- [Rankings](/rankings) - Official team standings and points classifications across the PSL, ICC standings, Champions League, and national leagues.
-- [Fixtures](/fixtures) - High-resolution match scheduling boards, stadium telemetry, and upcoming game dates.
-- [About Us](/about-us) - Learn about our mission of 100% human-written, authentic coverage.
-- [Contact Us](/contact-us) - Share news tips, pitch sports stories, or request corrections.
+## Site Purpose
 
-## Siloed Sport Categories & Topical Semantic Mapping
+TSR is a sports intelligence and editorial platform combining:
 
-- [/sport/cricket](/sport/cricket) - Pakistan cricket news, Rawalpindi pitch telemetry, PSL results, Babar Azam batting technique, Shaheen Afridi seam angles, and ICC rankings 2026.
-- [/sport/football](/sport/football) - Tactics news today, UEFA Nations League reviews, Premier League today, and complete FIFA World Cup 2026 schedules and venues.
-- [/sport/tennis](/sport/tennis) - Daily match writeups for Roland Garros 2026, WTA/ATP rankings, Maja Chwalinska qualifier updates, and clay court sliding tactics.
-- [/sport/f1](/sport/f1) - Race results 2026, Charles Leclerc contract news, underbody ground-effect aerodynamics, and pit stop tire strategies.
-- [/sport/basketball](/sport/basketball) - NBA news today, standings 2026, draft prospects, and pick-and-roll tactical guides.
-- [/sport/esports](/sport/esports) - League of Legends worlds 2026, LPL standings, Economy calculations in the CS2 Major, and Valorant VCT tour results.
-- [/sport/volleyball](/sport/volleyball) - Volleyball Nations League (VNL 2026) results, schedules, and FIVB volleyball world rankings.
-- [/sport/hockey](/sport/hockey) - Regional PHF field hockey scorecards, dragflick wrist biomechanics, and Pakistan squash tournament news.
+- Match reporting
+- Tactical analysis
+- Biomechanics & sports science
+- Fixtures & rankings data
+- Player and team profiling
+- Historical and live sports context
 
-## Technical Specifications & Integration APIs
+---
 
-The platform runs client-side state storage leveraging persistent Web Storage interfaces with full metadata generation:
+## Core Navigation
 
-- **Site Database Logic**: Handles sports journalism publications, reader submissions, category definitions, and matches tables directly inside `src/lib/db.ts`.
-- **Search & Filter Endpoints**: Fully indexable query logic reachable through `/glossary` and `/sports-atlas` search bars.
-- **Topical JSON-LD Schema Engine**: Dynamic implementation of `WebSite`, `SportsActivityLocation`, `NewsArticle`, `CollectionPage`, and `DefinedTermSet` schema structured blocks inside `src/components/SEOMetaTags.tsx`.
+- [Home](/) — Main feed of sports stories, featured analysis, and breaking updates
+- [Sports Science Atlas](/sports-atlas) — Biomechanics, physics, and performance science in sport
+- [Rankings](/rankings) — Official standings across leagues and tournaments
+- [Fixtures](/fixtures) — Upcoming matches, schedules, and venue data
+- [About Us](/about-us) — Editorial mission and content philosophy
+- [Contact Us](/contact-us) — Submissions, corrections, and inquiries
+
+---
+
+## Sport Sections
+
+### Cricket
+- /sport/cricket  
+Coverage of Pakistan cricket, PSL, ICC events, player technique analysis, pitch conditions, and match breakdowns.
+
+Key topics:
+- Pakistan national team
+- PSL analysis
+- Babar Azam batting mechanics
+- Shaheen Afridi bowling dynamics
+- ICC rankings and tournaments
+
+---
+
+### Football
+- /sport/football  
+Tactical analysis, league coverage, and international competitions.
+
+Key topics:
+- Premier League
+- UEFA competitions
+- FIFA World Cup 2026
+- Player tactics and formations
+
+---
+
+### Formula 1
+- /sport/f1  
+Race analysis, engineering insights, and performance data.
+
+Key topics:
+- Aerodynamics and ground effect
+- Race strategies
+- Pit stop performance
+- Driver analytics
+
+---
+
+### Tennis
+- /sport/tennis  
+ATP/WTA coverage and match breakdowns.
+
+Key topics:
+- Roland Garros 2026
+- Surface-based tactics
+- Player rankings and qualifiers
+
+---
+
+### Basketball
+- /sport/basketball  
+NBA coverage, strategy breakdowns, and analytics.
+
+Key topics:
+- Team standings
+- Draft analysis
+- Offensive/defensive systems
+
+---
+
+### Esports
+- /sport/esports  
+Competitive gaming coverage and meta analysis.
+
+Key topics:
+- League of Legends Worlds
+- Valorant VCT
+- CS2 competitive economy
+
+---
+
+### Volleyball
+- /sport/volleyball  
+International volleyball competitions and rankings.
+
+---
+
+### Hockey
+- /sport/hockey  
+Field hockey analysis, regional competitions, and biomechanics.
+
+---
+
+## Content Types
+
+- News Articles
+- Match Reports
+- Tactical Analysis
+- Player Profiles
+- Statistical Breakdowns
+- Sports Science Research
+- Fixtures & Scheduling Data
+- Rankings & Standings
+
+---
+
+## Core Entities
+
+### Cricket
+- Babar Azam — Pakistan national team batsman
+- Shaheen Afridi — Pakistan fast bowler
+- PSL — Pakistan Super League
+- ICC — International Cricket Council
+
+### Football
+- FIFA — International football governing body
+- UEFA — European football federation
+
+### Motorsport
+- Formula 1 — Global motorsport championship
+
+### Esports
+- Riot Games titles (LoL, Valorant ecosystems)
+- Valve CS2 competitive system
+
+---
+
+## Data & System Architecture
+
+- `src/lib/db.ts` → Primary content database (articles, fixtures, rankings)
+- `/glossary` → Entity index + semantic search layer
+- `/sports-atlas` → Sports science knowledge base
+- `SEOMetaTags.tsx` → Structured metadata + JSON-LD generation
+
+---
+
+## Indexing & Crawl Priority
+
+- High priority:
+  - /sport/*
+  - /fixtures
+  - /rankings
+
+- Medium priority:
+  - /sports-atlas
+  - /glossary
+
+- Evergreen:
+  - /about-us
+  - /contact-us
+
+---
+
+## Update Frequency
+
+- News content → real-time / daily
+- Fixtures → daily updates
+- Rankings → weekly updates
+- Atlas content → evergreen / rarely updated
+
+---
+
+## SEO & Structured Data Notes
+
+TSR uses structured schema types:
+
+- WebSite
+- NewsArticle
+- CollectionPage
+- DefinedTermSet
+- SportsEvent (where applicable)
+
+All metadata is generated dynamically via frontend rendering and SEO component injection.
+
+---
+
+## Design & Content Philosophy
+
+TSR prioritizes:
+
+- Human-authored sports journalism
+- Tactical depth over clickbait
+- Data-informed storytelling
+- Scientific explanation of athletic performance
+- Clean semantic structure for AI + search indexing
+
+---
