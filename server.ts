@@ -140,6 +140,29 @@ app.get("/sitemap.xml", async (req, res) => {
   }
 });
 
+// Direct route for Machine-Readable LLM Summary (AIO / GEO / Agentic Browsing)
+app.get("/llms.txt", (req, res) => {
+  res.header("Content-Type", "text/plain; charset=utf-8");
+  res.header("Access-Control-Allow-Origin", "*");
+  const filePath = path.join(process.cwd(), "llms.txt");
+  res.sendFile(filePath);
+});
+
+// Direct route for WebMCP Manifest (Agentic Web Protocol standard)
+app.get("/webmcp.json", (req, res) => {
+  res.header("Content-Type", "application/json; charset=utf-8");
+  res.header("Access-Control-Allow-Origin", "*");
+  const filePath = path.join(process.cwd(), "public", "webmcp.json");
+  res.sendFile(filePath);
+});
+
+// Direct route for Web App Manifest
+app.get("/site.webmanifest", (req, res) => {
+  res.header("Content-Type", "application/manifest+json; charset=utf-8");
+  const filePath = path.join(process.cwd(), "public", "site.webmanifest");
+  res.sendFile(filePath);
+});
+
 // Dynamic robots.txt
 app.get("/robots.txt", (req, res) => {
   const host = req.get("host") || "thesportsroom.vercel.app";

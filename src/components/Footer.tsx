@@ -69,6 +69,7 @@ export default function Footer({ onNavigate }: FooterProps) {
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-emerald-700" />
                   <input
                     type="email"
+                    aria-label="Enter editorial email address"
                     required
                     placeholder="Enter editorial email address..."
                     value={email}

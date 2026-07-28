@@ -221,6 +221,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             </div>
             <input
               type="text"
+              aria-label="Search news, tags, columns"
               placeholder="Search news, tags, columns..."
               value={searchQuery}
               onChange={handleSearchChange}

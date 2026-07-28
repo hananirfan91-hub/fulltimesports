@@ -1,0 +1,80 @@
+{
+  "$schema": "https://webmcp.org/schemas/v1/webmcp.json",
+  "version": "1.0.0",
+  "name": "The Sports Room (TSR)",
+  "description": "Digital sports lounge and sports journalism platform providing 100% human-authored athletic coverage, mechanical telemetry, tactical reviews, and match schedules.",
+  "homepage": "https://thesportsroom.vercel.app",
+  "tools": [
+    {
+      "name": "search_sports_articles",
+      "description": "Search sports news, articles, and biomechanical telemetry analysis by keyword or query.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search term e.g. Babar Azam, F1 aerodynamics, World Cup 2026, Champions League"
+          },
+          "category": {
+            "type": "string",
+            "description": "Optional category filter: cricket, football, f1, tennis, basketball, esports, volleyball, hockey"
+          }
+        },
+        "required": ["query"]
+      },
+      "action": {
+        "type": "navigate",
+        "url_template": "https://thesportsroom.vercel.app/sports-atlas?q={query}"
+      }
+    },
+    {
+      "name": "get_sport_category_feed",
+      "description": "Retrieve specific sport category news feed and tactical breakdowns.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "sport": {
+            "type": "string",
+            "enum": ["cricket", "football", "f1", "tennis", "basketball", "esports", "volleyball", "hockey"],
+            "description": "Sport category identifier"
+          }
+        },
+        "required": ["sport"]
+      },
+      "action": {
+        "type": "navigate",
+        "url_template": "https://thesportsroom.vercel.app/sport/{sport}"
+      }
+    },
+    {
+      "name": "get_match_fixtures_and_standings",
+      "description": "Get upcoming match schedules, PSL/ICC team rankings, and stadium telemetry.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "view": {
+            "type": "string",
+            "enum": ["fixtures", "rankings", "sports-atlas"],
+            "description": "Target schedule or standings page view"
+          }
+        }
+      },
+      "action": {
+        "type": "navigate",
+        "url_template": "https://thesportsroom.vercel.app/{view}"
+      }
+    },
+    {
+      "name": "read_llm_summary",
+      "description": "Fetch machine-readable structured markdown summary of the platform.",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      },
+      "action": {
+        "type": "fetch",
+        "url": "https://thesportsroom.vercel.app/llms.txt"
+      }
+    }
+  ]
+}

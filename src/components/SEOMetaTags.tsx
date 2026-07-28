@@ -135,7 +135,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     const cleanPath = currentPath.startsWith('/') ? currentPath : `/${currentPath}`;
     const canonicalUrl = `${origin}${cleanPath === '/' ? '' : cleanPath}`;
     
-    let title = "The Sports Room | Live Cricket News Today, Football Analysis Blog, FIFA World Cup 2026 Sports Lounge, F1 & Volleyball News & Sports News blog website";
+    let title = "The Sports Room | Live Cricket News Today, Football & F1 Analysis";
     let description = "The Sports Room (TSR) is the leading digital sports platform presenting original cricket news today, football tactics, F1 telemetry, and local sports science.";
     let keywords = GLOBAL_SEO_KEYWORDS.slice(0, 30).join(", ");
     let pageType = "website";
@@ -145,7 +145,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     // A. Detect Routing Contexts
     if (currentPath === '/' || currentPath === '') {
       // Home context
-      title = "The Sports Room | Live Cricket News Today, Football Analysis Blog, FIFA World Cup 2026 Sports Lounge, F1 & Volleyball News & Sports News blog website";
+      title = "The Sports Room | Live Cricket News Today, Football & F1 Analysis";
       description = "Welcome to The Sports Room. Stream live cricket news today, football analysis, Grand Prix F1 telemetry, and Pakistan sports science telemetry data.";
       keywords = GLOBAL_SEO_KEYWORDS.join(", ");
       
@@ -195,6 +195,37 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
             "addressRegion": "Punjab",
             "addressCountry": "PK"
           }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "@id": `${origin}/#faq`,
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What makes The Sports Room coverage authentic?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The Sports Room provides 100% human-authored sports journalism with zero automated scraping or AI translations, offering biomechanical analysis, pitch telemetry, and match statistics."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How does Babar Azam execute his cover drive?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Babar Azam's cover drive relies on late wrist alignment, head transfer over the front knee, and fluid high-elbow follow-through off pitched-up deliveries."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is F1 ground-effect aerodynamics?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ground-effect aerodynamics in modern Formula 1 utilizes shaped Venturi tunnels under the car floor to create low pressure and high downforce with minimal drag."
+              }
+            }
+          ]
         }
       ];
     } else if (currentPath.startsWith('/sport/')) {
