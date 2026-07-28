@@ -667,7 +667,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
             <div className="lg:col-span-2 flex flex-col justify-between">
               <div className="aspect-video bg-[#01140f] border border-emerald-850 rounded-2xl overflow-hidden relative shadow-2xl flex-grow">
                 <iframe 
-                  src="https://youtu.be/-oy0iFULP6Y?si=CO-s2E02cp79CTCJ"
+                  src={`https://www.youtube.com/embed/${selectedVideoId}?autoplay=1&mute=1&playlist=${selectedVideoId}&loop=1&controls=1&modestbranding=1`}
                   title="Exclusive Telemetry Analysis"
                   className="w-full h-full object-cover"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

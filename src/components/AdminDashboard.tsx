@@ -50,6 +50,25 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<Partial<Post> | null>(null);
   const [tempTags, setTempTags] = useState('');
+  const [tempEntities, setTempEntities] = useState('');
+  const [faqList, setFaqList] = useState<Array<{ question: string; answer: string }>>([]);
+  const [postComposerTab, setPostComposerTab] = useState<'content' | 'headings' | 'seo' | 'geo' | 'aeo'>('content');
+
+  const handleAddFaqItem = () => {
+    setFaqList(prev => [...prev, { question: '', answer: '' }]);
+  };
+
+  const handleRemoveFaqItem = (index: number) => {
+    setFaqList(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFaqItemChange = (index: number, field: 'question' | 'answer', value: string) => {
+    setFaqList(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: value };
+      return copy;
+    });
+  };
 
   const [editingCategory, setEditingCategory] = useState<Partial<Category> | null>(null);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -355,6 +374,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const openNewPost = () => {
     setEditingPost({
       title: '',
+      heading_tag: 'h1',
+      subheading: '',
       slug: '',
       content: '',
       category: 'football',
@@ -365,16 +386,36 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       is_featured: false,
       is_trending: false,
       type: 'news',
+      meta_title: '',
       meta_description: '',
+      focus_keyword: '',
+      canonical_url: '',
+      geo_summary: '',
+      geo_entities: [],
+      aeo_direct_answer: '',
+      aeo_faq: [],
+      schema_type: 'NewsArticle',
+      meta_robots: 'index, follow',
       scheduled_for: '',
     });
     setTempTags('');
+    setTempEntities('');
+    setFaqList([]);
+    setPostComposerTab('content');
     setIsPostModalOpen(true);
   };
 
   const openEditPost = (post: Post) => {
-    setEditingPost(post);
-    setTempTags(post.tags.join(', '));
+    setEditingPost({
+      ...post,
+      heading_tag: post.heading_tag || 'h1',
+      schema_type: post.schema_type || (post.type === 'blog' ? 'BlogPosting' : 'NewsArticle'),
+      meta_robots: post.meta_robots || 'index, follow'
+    });
+    setTempTags(post.tags ? post.tags.join(', ') : '');
+    setTempEntities(post.geo_entities ? post.geo_entities.join(', ') : '');
+    setFaqList(post.aeo_faq ? [...post.aeo_faq] : []);
+    setPostComposerTab('content');
     setIsPostModalOpen(true);
   };
 
@@ -386,6 +427,10 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       .map(t => t.trim())
       .filter(t => t.length > 0);
 
+    const entitiesArray = tempEntities.split(',')
+      .map(e => e.trim())
+      .filter(e => e.length > 0);
+
     const generatedSlug = editingPost.slug || editingPost.title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -394,6 +439,10 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     const finalPost = {
       ...editingPost,
       tags: tagsArray,
+      geo_entities: entitiesArray,
+      aeo_faq: faqList,
+      heading_tag: editingPost.heading_tag || 'h1',
+      schema_type: editingPost.schema_type || 'NewsArticle',
       slug: generatedSlug,
       author: editingPost.author || currentAdmin?.name || 'FTS Desk',
       author_email: editingPost.author_email || currentAdmin?.email || '',
@@ -408,6 +457,26 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setIsPostModalOpen(false);
     setEditingPost(null);
     refreshData();
+  };
+
+  const applyFormatToTextarea = (prefix: string, suffix: string = '', defaultSnippet: string = '') => {
+    const txt = document.getElementById('editorial-textarea') as HTMLTextAreaElement | null;
+    const currentContent = editingPost?.content || '';
+    if (!txt) {
+      setEditingPost(prev => prev ? { ...prev, content: currentContent + '\n' + prefix + defaultSnippet + suffix } : null);
+      return;
+    }
+    const start = txt.selectionStart;
+    const end = txt.selectionEnd;
+    const selectedText = currentContent.substring(start, end) || defaultSnippet;
+    const replacement = `${prefix}${selectedText}${suffix}`;
+    const newContent = currentContent.substring(0, start) + replacement + currentContent.substring(end);
+    setEditingPost(prev => prev ? { ...prev, content: newContent } : null);
+    
+    setTimeout(() => {
+      txt.focus();
+      txt.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
+    }, 30);
   };
 
   const handleDeletePost = (id: string) => {
@@ -1543,268 +1612,752 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       {/* ================= MODAL FORMS COMPILATION ================= */}
 
-      {/* A. POST COMPOSER MODAL */}
+      {/* A. POST COMPOSER MODAL (FULL SEO, GEO, AEO & HEADING CUSTOMIZATION SUITE) */}
       {isPostModalOpen && editingPost && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white border rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl relative">
-            <h3 className="font-display font-black text-xl text-slate-900 border-b pb-3 mb-6 uppercase tracking-tight">
-              {editingPost.id ? 'UPDATE EDITORIAL SPORTS POST' : 'WRITE ORIGINAL EDITORIAL POST'}
-            </h3>
-
-            <form onSubmit={handleSavePost} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                <div className="md:col-span-8">
-                  <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Article Title (SEO Priority)</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingPost.title || ''}
-                    onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#e11d48]"
-                    placeholder="e.g. Masterclass: Mechanics of rotation jump serve in Volleyball"
-                  />
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-3 md:p-4 overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-2xl relative overflow-hidden">
+            
+            {/* Header with Title & Optimization Score Gauge */}
+            <div className="bg-slate-900 text-white p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="p-1 px-2 bg-emerald-500 text-slate-950 font-mono text-[10px] font-black uppercase rounded tracking-wider">
+                    TSR SEO / GEO / AEO Studio
+                  </span>
+                  <span className="text-xs text-slate-400 font-mono">
+                    thesportsroom.online
+                  </span>
                 </div>
-                <div className="md:col-span-4">
-                  <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Sport Category</label>
-                  <select
-                    value={editingPost.category || 'football'}
-                    onChange={(e) => setEditingPost({ ...editingPost, category: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#e11d48] text-slate-800"
-                  >
-                    {categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
+                <h3 className="font-display font-black text-lg md:text-xl text-white uppercase tracking-tight mt-1">
+                  {editingPost.id ? 'EDIT ARTICLE WITH SEO & AI ENGINE OPTIMIZATION' : 'WRITE ARTICLE WITH SEO & AI ENGINE OPTIMIZATION'}
+                </h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                <div className="md:col-span-4">
-                  <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Post Slg (Auto-generated if empty)</label>
-                  <input
-                    type="text"
-                    value={editingPost.slug || ''}
-                    onChange={(e) => setEditingPost({ ...editingPost, slug: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs focus:outline-none focus:border-[#e11d48]"
-                    placeholder="custom-url-string-slug"
-                  />
+              {/* Optimization Score */}
+              <div className="bg-slate-800/90 border border-slate-700/80 rounded-xl px-4 py-2.5 flex items-center space-x-3 shrink-0">
+                <div className="text-right">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block leading-none">SEO/GEO/AEO SCORE</span>
+                  <span className="font-mono font-black text-emerald-400 text-lg leading-none">
+                    {(() => {
+                      let score = 10;
+                      if (editingPost.title && editingPost.title.length > 10) score += 15;
+                      if (editingPost.meta_title) score += 15;
+                      if (editingPost.meta_description) score += 15;
+                      if (editingPost.focus_keyword) score += 10;
+                      if (tempTags) score += 10;
+                      if (editingPost.geo_summary) score += 15;
+                      if (editingPost.aeo_direct_answer) score += 10;
+                      return Math.min(100, score);
+                    })()}%
+                  </span>
                 </div>
-                <div className="md:col-span-4">
-                  <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Structure Type</label>
-                  <select
-                    value={editingPost.type || 'news'}
-                    onChange={(e) => setEditingPost({ ...editingPost, type: e.target.value as 'news' | 'blog' })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#e11d48] text-slate-800"
-                  >
-                    <option value="news">News Article (Standard Feed Layout)</option>
-                    <option value="blog">Blog Column (PEO Opinion Style Column)</option>
-                  </select>
-                </div>
-                <div className="md:col-span-4">
-                  <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Author Name Attribution</label>
-                  <input
-                    type="text"
-                    disabled={currentAdmin?.email.toLowerCase() !== 'hananirfan91@gmail.com'}
-                    value={editingPost.author || ''}
-                    onChange={(e) => setEditingPost({ ...editingPost, author: e.target.value })}
-                    className="w-full bg-slate-100 disabled:opacity-75 border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none"
-                  />
+                <div className="w-10 h-10 rounded-full border-2 border-emerald-500/80 flex items-center justify-center bg-emerald-500/10 text-emerald-400 font-black font-mono text-xs">
+                  OPT
                 </div>
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                <div className="md:col-span-6">
-                  <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">Featured Image URL</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingPost.featured_image || ''}
-                    onChange={(e) => setEditingPost({ ...editingPost, featured_image: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs focus:outline-none focus:border-[#e11d48]"
-                    placeholder="Provide image web link or select from list"
-                  />
-                  {/* Shortcut to select from preseeded library */}
-                  <div className="flex gap-1.5 mt-2 overflow-x-auto pb-1">
-                    {media.slice(0, 4).map(m => (
-                      <img 
-                        key={m.id} 
-                        src={m.file_url} 
-                        onClick={() => setEditingPost({ ...editingPost, featured_image: m.file_url })}
-                        alt="" 
-                        className="w-8 h-8 rounded border border-slate-200 hover:border-[#e11d48] cursor-pointer" 
+            {/* Navigation Tabs */}
+            <div className="bg-slate-100 border-b border-slate-200 px-4 pt-2 flex overflow-x-auto gap-1 text-xs font-mono font-bold">
+              <button
+                type="button"
+                onClick={() => setPostComposerTab('content')}
+                className={`py-2.5 px-4 rounded-t-lg transition border-t border-x ${
+                  postComposerTab === 'content'
+                    ? 'bg-white border-slate-200 text-[#022c22] shadow-2xs font-extrabold'
+                    : 'bg-transparent border-transparent text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                📝 Content & Media
+              </button>
+              <button
+                type="button"
+                onClick={() => setPostComposerTab('headings')}
+                className={`py-2.5 px-4 rounded-t-lg transition border-t border-x ${
+                  postComposerTab === 'headings'
+                    ? 'bg-white border-slate-200 text-[#022c22] shadow-2xs font-extrabold'
+                    : 'bg-transparent border-transparent text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                🏷️ Heading Tags (H1/H2)
+              </button>
+              <button
+                type="button"
+                onClick={() => setPostComposerTab('seo')}
+                className={`py-2.5 px-4 rounded-t-lg transition border-t border-x ${
+                  postComposerTab === 'seo'
+                    ? 'bg-white border-slate-200 text-[#022c22] shadow-2xs font-extrabold'
+                    : 'bg-transparent border-transparent text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                🔍 SEO Meta & Canonical
+              </button>
+              <button
+                type="button"
+                onClick={() => setPostComposerTab('geo')}
+                className={`py-2.5 px-4 rounded-t-lg transition border-t border-x ${
+                  postComposerTab === 'geo'
+                    ? 'bg-white border-slate-200 text-[#022c22] shadow-2xs font-extrabold'
+                    : 'bg-transparent border-transparent text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                🤖 GEO (AI Search Engine)
+              </button>
+              <button
+                type="button"
+                onClick={() => setPostComposerTab('aeo')}
+                className={`py-2.5 px-4 rounded-t-lg transition border-t border-x ${
+                  postComposerTab === 'aeo'
+                    ? 'bg-white border-slate-200 text-[#022c22] shadow-2xs font-extrabold'
+                    : 'bg-transparent border-transparent text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                ⚡ AEO (Answer Engine & FAQ)
+              </button>
+            </div>
+
+            {/* Modal Body Form */}
+            <form onSubmit={handleSavePost} className="p-6 overflow-y-auto flex-1 space-y-5">
+              
+              {/* TAB 1: CONTENT & MEDIA */}
+              {postComposerTab === 'content' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-8">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Article Main Title <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editingPost.title || ''}
+                        onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm font-semibold focus:outline-none focus:border-[#22c55e]"
+                        placeholder="e.g. Masterclass: Mechanics of rotation jump serve in Volleyball"
                       />
-                    ))}
+                    </div>
+                    <div className="md:col-span-4">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Sport Category
+                      </label>
+                      <select
+                        value={editingPost.category || 'football'}
+                        onChange={(e) => setEditingPost({ ...editingPost, category: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#22c55e] text-slate-800 font-medium"
+                      >
+                        {categories.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-4">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        URL Slug (Auto-generated if empty)
+                      </label>
+                      <input
+                        type="text"
+                        value={editingPost.slug || ''}
+                        onChange={(e) => setEditingPost({ ...editingPost, slug: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        placeholder="custom-article-slug"
+                      />
+                    </div>
+                    <div className="md:col-span-4">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Structure Layout Type
+                      </label>
+                      <select
+                        value={editingPost.type || 'news'}
+                        onChange={(e) => setEditingPost({ ...editingPost, type: e.target.value as 'news' | 'blog' })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#22c55e] text-slate-800"
+                      >
+                        <option value="news">News Article (Standard Editorial)</option>
+                        <option value="blog">Blog Column (In-Depth Opinion & Tactical Analysis)</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-4">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Author Name Attribution
+                      </label>
+                      <input
+                        type="text"
+                        value={editingPost.author || ''}
+                        onChange={(e) => setEditingPost({ ...editingPost, author: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-6">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Featured Image URL <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editingPost.featured_image || ''}
+                        onChange={(e) => setEditingPost({ ...editingPost, featured_image: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        placeholder="https://images.unsplash.com/..."
+                      />
+                      <div className="flex gap-1.5 mt-2 overflow-x-auto pb-1">
+                        {media.slice(0, 4).map(m => (
+                          <img 
+                            key={m.id} 
+                            src={m.file_url} 
+                            onClick={() => setEditingPost({ ...editingPost, featured_image: m.file_url })}
+                            alt="" 
+                            className="w-8 h-8 rounded border border-slate-200 hover:border-[#22c55e] cursor-pointer object-cover" 
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="md:col-span-6">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        YouTube Video ID (Optional Inline Embed)
+                      </label>
+                      <input
+                        type="text"
+                        value={editingPost.video_url || ''}
+                        onChange={(e) => setEditingPost({ ...editingPost, video_url: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        placeholder="e.g. H9T9e03d_jE"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Draft & Schedule Toggle Bar */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="is_draft_toggle"
+                        checked={!!(editingPost.is_draft || editingPost.scheduled_for === 'draft')}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setEditingPost({
+                            ...editingPost,
+                            is_draft: checked,
+                            scheduled_for: checked ? 'draft' : ''
+                          });
+                        }}
+                        className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer"
+                      />
+                      <div>
+                        <label htmlFor="is_draft_toggle" className="block text-xs font-mono font-bold text-slate-800 uppercase cursor-pointer select-none">
+                          Save as Draft
+                        </label>
+                        <p className="text-[10px] text-slate-500">Drafts are saved safely but hidden from the public feed.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <label className="text-xs font-mono font-bold text-slate-600 uppercase shrink-0">
+                        Schedule Release:
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={editingPost.scheduled_for && editingPost.scheduled_for !== 'draft' ? editingPost.scheduled_for : ''}
+                        onChange={(e) => setEditingPost({ ...editingPost, scheduled_for: e.target.value })}
+                        className="bg-white border border-slate-200 rounded px-2.5 py-1 text-xs text-slate-700 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Main Article Body Editor with Full Rich Formatting Bar */}
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                      <label className="block text-xs font-mono font-bold text-slate-800 uppercase flex items-center space-x-1.5">
+                        <span>Article Content Body</span>
+                        <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded font-mono">
+                          Markdown & HTML Ready
+                        </span>
+                      </label>
+
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => applyFormatToTextarea('[', '](/sports-atlas)', 'Sports Science Atlas')}
+                          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-[10px] font-mono font-bold py-1 px-2 rounded border border-slate-300 transition"
+                          title="Insert Internal Link"
+                        >
+                          🔗 Internal Atlas Link
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => applyFormatToTextarea('![Dynamic Sports Graphic](', ')', 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800')}
+                          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-[10px] font-mono font-bold py-1 px-2 rounded border border-slate-300 transition"
+                          title="Insert Sample Image"
+                        >
+                          🖼️ Unsplash Image
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* RICH FORMATTING TOOLBAR */}
+                    <div className="bg-slate-100 border border-slate-200 rounded-t-xl p-2 flex flex-wrap gap-1 items-center text-xs font-mono">
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('**', '**', 'Bold Text')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-black px-2.5 py-1 rounded border border-slate-300 transition"
+                        title="Bold (**text**)"
+                      >
+                        B
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('*', '*', 'Italic Text')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 italic font-serif px-2.5 py-1 rounded border border-slate-300 transition"
+                        title="Italic (*text*)"
+                      >
+                        I
+                      </button>
+
+                      <div className="h-4 w-px bg-slate-300 mx-1" />
+
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('\n## ', '', 'Heading 2 Title')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Insert Heading 2 (## Title)"
+                      >
+                        H2
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('\n### ', '', 'Heading 3 Title')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Insert Heading 3 (### Title)"
+                      >
+                        H3
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('\n#### ', '', 'Heading 4 Title')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Insert Heading 4 (#### Title)"
+                      >
+                        H4
+                      </button>
+
+                      <div className="h-4 w-px bg-slate-300 mx-1" />
+
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('[', '](https://thesportsroom.online)', 'Link Title')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Insert Link ([Text](URL))"
+                      >
+                        🔗 Link
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('![', '](https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800)', 'Image Description')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Insert Image (![Caption](URL))"
+                      >
+                        🖼️ Image
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('\n@[youtube](', ')', 'H9T9e03d_jE')}
+                        className="bg-white hover:bg-slate-200 text-red-600 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Insert YouTube Video (@[youtube](VIDEO_ID))"
+                      >
+                        ▶️ Video
+                      </button>
+
+                      <div className="h-4 w-px bg-slate-300 mx-1" />
+
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('\n- ', '', 'Bullet point detail')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Bullet List (- Item)"
+                      >
+                        • List
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('\n1. ', '', 'Numbered step detail')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Numbered List (1. Item)"
+                      >
+                        1. List
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('\n> "', '" — Editorial Takeaway', 'Key analytical quote')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Blockquote (> Quote)"
+                      >
+                        “ Quote
+                      </button>
+
+                      <div className="h-4 w-px bg-slate-300 mx-1" />
+
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('\n\n| Metric | Specification | Impact |\n|---|---|---|\n| Speed | 145 km/h | Dynamic dip |\n| Spin | 2400 RPM | Lateral drift |\n\n')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Insert Data Table"
+                      >
+                        📊 Table
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('`', '`', 'code_variable')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Inline Code (`code`)"
+                      >
+                        &lt;/&gt;
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyFormatToTextarea('\n\n---\n\n')}
+                        className="bg-white hover:bg-slate-200 text-slate-900 font-bold px-2 py-1 rounded border border-slate-300 transition text-[11px]"
+                        title="Horizontal Divider (---)"
+                      >
+                        ― Divider
+                      </button>
+                    </div>
+
+                    <textarea
+                      id="editorial-textarea"
+                      required
+                      rows={14}
+                      value={editingPost.content || ''}
+                      onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
+                      className="w-full bg-slate-50 border-x border-b border-slate-200 rounded-b-lg p-4 text-sm focus:outline-none focus:bg-white focus:border-[#22c55e] font-sans leading-relaxed"
+                      placeholder="Write your full article analysis body here... Use the toolbar above to add bold text, headings (H2/H3/H4), images, links, quotes, and tables!"
+                    />
                   </div>
                 </div>
+              )}
 
-                <div className="md:col-span-6">
-                  <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">YouTube Embed ID (YouTube highlight video)</label>
-                  <input
-                    type="text"
-                    value={editingPost.video_url || ''}
-                    onChange={(e) => setEditingPost({ ...editingPost, video_url: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs focus:outline-none focus:border-[#e11d48]"
-                    placeholder="e.g. H9T9e03d_jE (Letters from share URL)"
-                  />
-                </div>
-              </div>
+              {/* TAB 2: TITLE & HEADING TAGS (H1/H2/H3 CUSTOMIZATION) */}
+              {postComposerTab === 'headings' && (
+                <div className="space-y-5">
+                  <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-900 leading-relaxed font-sans">
+                    <p className="font-bold font-mono text-emerald-950 uppercase mb-1">💡 Heading Tag Customization & SEO Hierarchy</p>
+                    Customize the HTML heading element used for the main title (H1, H2, or H3) and define a secondary subheading. This provides maximum control over on-page heading hierarchy for Google crawlers and AI indexing engines.
+                  </div>
 
-              <div>
-                <label className="block text-xs font-mono font-bold text-slate-600 uppercase mb-1">SEO Description (AdSense metadata & snippets)</label>
-                <input
-                  type="text"
-                  value={editingPost.meta_description || ''}
-                  onChange={(e) => setEditingPost({ ...editingPost, meta_description: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#e11d48]"
-                  placeholder="Insert 150-word index snippet summary"
-                  maxLength={160}
-                />
-              </div>
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-4">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Title Semantic Heading Tag
+                      </label>
+                      <select
+                        value={editingPost.heading_tag || 'h1'}
+                        onChange={(e) => setEditingPost({ ...editingPost, heading_tag: e.target.value as 'h1' | 'h2' | 'h3' })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono font-bold focus:outline-none focus:border-[#22c55e] text-slate-900"
+                      >
+                        <option value="h1">&lt;h1&gt; Primary Document Heading (Default)</option>
+                        <option value="h2">&lt;h2&gt; Secondary Section Heading</option>
+                        <option value="h3">&lt;h3&gt; Tertiary Sub-section Heading</option>
+                      </select>
+                    </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-mono font-bold text-[#e11d48] uppercase mb-1 flex items-center space-x-1">
-                    <Tag className="h-3.5 w-3.5" />
-                    <span>SEO Tags (Comma separated keywords)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={tempTags}
-                    onChange={(e) => setTempTags(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#e11d48]"
-                    placeholder="e.g. cricket news, standings, Rashid Khan tips"
-                  />
-                </div>
+                    <div className="md:col-span-8">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Custom Subheading (Rendered as Sub-banner)
+                      </label>
+                      <input
+                        type="text"
+                        value={editingPost.subheading || ''}
+                        onChange={(e) => setEditingPost({ ...editingPost, subheading: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                        placeholder="e.g. Tactical Breakdown of Front-Foot Drive Execution"
+                      />
+                    </div>
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-mono font-bold text-amber-600 uppercase mb-1 flex items-center space-x-1">
-                    <CalendarClock className="h-3.5 w-3.5 animate-pulse" />
-                    <span>Schedule Release Post (Lock until date/time)</span>
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={editingPost.scheduled_for && editingPost.scheduled_for !== 'draft' ? editingPost.scheduled_for : ''}
-                    onChange={(e) => setEditingPost({ ...editingPost, scheduled_for: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-slate-700 focus:outline-none text-xs"
-                  />
-                </div>
-              </div>
+                  {/* Live Heading Hierarchy Preview */}
+                  <div className="bg-slate-900 p-5 rounded-2xl text-white space-y-3">
+                    <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest block border-b border-slate-800 pb-2">
+                      LIVE HEADING HIERARCHY PREVIEW
+                    </span>
+                    <div>
+                      <span className="text-[9px] font-mono bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded uppercase">
+                        TAG: &lt;{editingPost.heading_tag || 'h1'}&gt;
+                      </span>
+                      <p className="font-display font-black text-xl text-white uppercase mt-1">
+                        {editingPost.title || 'Sample Title Here'}
+                      </p>
+                    </div>
 
-              <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200/60 p-3 rounded-lg">
-                <input
-                  type="checkbox"
-                  id="is_draft_toggle"
-                  checked={!!(editingPost.is_draft || editingPost.scheduled_for === 'draft')}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setEditingPost({
-                      ...editingPost,
-                      is_draft: checked,
-                      scheduled_for: checked ? 'draft' : ''
-                    });
-                  }}
-                  className="rounded border-slate-300 text-emerald-655 focus:ring-emerald-555 h-4 w-4"
-                />
-                <div>
-                  <label htmlFor="is_draft_toggle" className="block text-xs font-mono font-bold text-slate-705 uppercase cursor-pointer select-none">
-                    Save as Draft Article
-                  </label>
-                  <p className="text-[10px] text-slate-405 leading-tight">Drafts are securely stored in Supabase cloud but 100% hidden from the public feed until manually published live.</p>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-mono font-bold text-slate-600 uppercase">
-                    Editorial Content Analysis Body (Markdown enabled)
-                  </label>
-                  <div className="flex space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const txt = document.getElementById('editorial-textarea') as HTMLTextAreaElement | null;
-                        const content = editingPost.content || '';
-                        const insert = "[Sports Science Atlas](/sports-atlas)";
-                        if (txt) {
-                          const start = txt.selectionStart;
-                          const end = txt.selectionEnd;
-                          const newContent = content.substring(0, start) + insert + content.substring(end);
-                          setEditingPost({ ...editingPost, content: newContent });
-                        } else {
-                          setEditingPost({ ...editingPost, content: content + "\n" + insert });
-                        }
-                      }}
-                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-mono font-bold py-1 px-2 rounded border border-slate-300 transition"
-                      title="Insert reference internal link"
-                    >
-                      🔗 Link
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const txt = document.getElementById('editorial-textarea') as HTMLTextAreaElement | null;
-                        const content = editingPost.content || '';
-                        const insert = "![Dynamic Ground-Effect Undertray](https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800)";
-                        if (txt) {
-                          const start = txt.selectionStart;
-                          const end = txt.selectionEnd;
-                          const newContent = content.substring(0, start) + insert + content.substring(end);
-                          setEditingPost({ ...editingPost, content: newContent });
-                        } else {
-                          setEditingPost({ ...editingPost, content: content + "\n" + insert });
-                        }
-                      }}
-                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-mono font-bold py-1 px-2 rounded border border-slate-300 transition"
-                      title="Insert inline structural image"
-                    >
-                      🖼️ Image
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const txt = document.getElementById('editorial-textarea') as HTMLTextAreaElement | null;
-                        const content = editingPost.content || '';
-                        const insert = "@[youtube](H9T9e03d_jE)";
-                        if (txt) {
-                          const start = txt.selectionStart;
-                          const end = txt.selectionEnd;
-                          const newContent = content.substring(0, start) + insert + content.substring(end);
-                          setEditingPost({ ...editingPost, content: newContent });
-                        } else {
-                          setEditingPost({ ...editingPost, content: content + "\n" + insert });
-                        }
-                      }}
-                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-mono font-bold py-1 px-2 rounded border border-slate-300 transition"
-                      title="Insert inline YouTube video segment"
-                    >
-                      🎥 Video
-                    </button>
+                    {editingPost.subheading && (
+                      <div className="pt-2 border-t border-slate-800/80">
+                        <span className="text-[9px] font-mono bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded uppercase">
+                          TAG: &lt;h2&gt; SUBHEADING
+                        </span>
+                        <p className="font-display font-extrabold text-sm text-emerald-400 mt-1">
+                          {editingPost.subheading}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <textarea
-                  id="editorial-textarea"
-                  required
-                  rows={12}
-                  value={editingPost.content || ''}
-                  onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded p-4 text-sm focus:outline-none focus:bg-white focus:border-[#22c55e] font-sans leading-relaxed"
-                  placeholder="Write 800 - 1500 word highly original human opinion narrative... Supports markdown tags like # header, Table columns, etc."
-                />
-              </div>
+              )}
 
-              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+              {/* TAB 3: SEO META & CANONICAL */}
+              {postComposerTab === 'seo' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1 flex justify-between">
+                      <span>Custom SEO Meta Title</span>
+                      <span className="text-slate-400 font-normal">
+                        {(editingPost.meta_title || editingPost.title || '').length}/60 chars
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editingPost.meta_title || ''}
+                      onChange={(e) => setEditingPost({ ...editingPost, meta_title: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                      placeholder="Leave blank to use main article title"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Focus Keyword
+                      </label>
+                      <input
+                        type="text"
+                        value={editingPost.focus_keyword || ''}
+                        onChange={(e) => setEditingPost({ ...editingPost, focus_keyword: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                        placeholder="e.g. Babar Azam cover drive technique"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        SEO Tags (Comma Separated)
+                      </label>
+                      <input
+                        type="text"
+                        value={tempTags}
+                        onChange={(e) => setTempTags(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                        placeholder="e.g. cricket, Pakistan, biomechanics"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1 flex justify-between">
+                      <span>Meta Description (Snippet in Search Engines)</span>
+                      <span className="text-slate-400 font-normal">
+                        {(editingPost.meta_description || '').length}/160 chars
+                      </span>
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={editingPost.meta_description || ''}
+                      onChange={(e) => setEditingPost({ ...editingPost, meta_description: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                      placeholder="High-converting 150-word index snippet for Google Search..."
+                      maxLength={160}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div className="md:col-span-6">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Custom Canonical URL Override
+                      </label>
+                      <input
+                        type="url"
+                        value={editingPost.canonical_url || ''}
+                        onChange={(e) => setEditingPost({ ...editingPost, canonical_url: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        placeholder="https://thesportsroom.online/blog/..."
+                      />
+                    </div>
+
+                    <div className="md:col-span-3">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Schema.org Type
+                      </label>
+                      <select
+                        value={editingPost.schema_type || 'NewsArticle'}
+                        onChange={(e) => setEditingPost({ ...editingPost, schema_type: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                      >
+                        <option value="NewsArticle">NewsArticle</option>
+                        <option value="BlogPosting">BlogPosting</option>
+                        <option value="AnalysisNewsArticle">AnalysisNewsArticle</option>
+                        <option value="TechArticle">TechArticle</option>
+                        <option value="SportsArticle">SportsArticle</option>
+                      </select>
+                    </div>
+
+                    <div className="md:col-span-3">
+                      <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                        Meta Robots Directive
+                      </label>
+                      <select
+                        value={editingPost.meta_robots || 'index, follow'}
+                        onChange={(e) => setEditingPost({ ...editingPost, meta_robots: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                      >
+                        <option value="index, follow">index, follow (Default)</option>
+                        <option value="noindex, follow">noindex, follow</option>
+                        <option value="index, nofollow">index, nofollow</option>
+                        <option value="noindex, nofollow">noindex, nofollow</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: GEO (GENERATIVE ENGINE OPTIMIZATION FOR AI SEARCH) */}
+              {postComposerTab === 'geo' && (
+                <div className="space-y-4">
+                  <div className="bg-slate-900 text-white p-4 rounded-xl text-xs space-y-1">
+                    <p className="font-bold text-emerald-400 font-mono uppercase">🤖 Generative Engine Optimization (GEO Standard)</p>
+                    <p className="text-slate-300">
+                      GEO structures article data so AI engines (Google Gemini, Perplexity AI, ChatGPT Search) synthesize and cite your article in AI Overviews and conversational summaries.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                      GEO Executive Summary (Targeted for LLM Synthesis)
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={editingPost.geo_summary || ''}
+                      onChange={(e) => setEditingPost({ ...editingPost, geo_summary: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-sm focus:outline-none focus:border-[#22c55e]"
+                      placeholder="Write a concise 3-4 sentence factual summary containing key numbers, quotes, and conclusions. LLMs pick this up directly for AI Overviews..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                      GEO Entity Graph Tags (Comma Separated Named Entities)
+                    </label>
+                    <input
+                      type="text"
+                      value={tempEntities}
+                      onChange={(e) => setTempEntities(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm font-mono focus:outline-none focus:border-[#22c55e]"
+                      placeholder="e.g. Babar Azam, Cover Drive, PCB, Rotation Biomechanics, Gaddafi Stadium"
+                    />
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Named entities (people, stadiums, physics terms, tournaments) help AI models map your content into knowledge graphs.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 5: AEO (ANSWER ENGINE OPTIMIZATION & FAQ BUILDER) */}
+              {postComposerTab === 'aeo' && (
+                <div className="space-y-5">
+                  <div className="bg-emerald-950 text-emerald-100 p-4 rounded-xl text-xs space-y-1 border border-emerald-900">
+                    <p className="font-bold text-emerald-400 font-mono uppercase">⚡ Answer Engine Optimization (AEO Standard)</p>
+                    <p className="text-emerald-200/90">
+                      AEO optimizes content for Google Featured Snippets (Position Zero) and Voice Assistants (Siri, Alexa, Google Assistant).
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                      AEO Direct Answer Box (40-60 Word Concise Resolution)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={editingPost.aeo_direct_answer || ''}
+                      onChange={(e) => setEditingPost({ ...editingPost, aeo_direct_answer: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-sm focus:outline-none focus:border-[#22c55e]"
+                      placeholder="Directly answer the primary question of this article in 40-60 clear words. This gets pulled for Position-Zero snippets!"
+                    />
+                  </div>
+
+                  {/* Interactive FAQ Builder */}
+                  <div className="border-t pt-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <div>
+                        <h4 className="font-display font-bold text-sm text-slate-900 uppercase">
+                          AEO FAQ Builder (Auto Injects FAQPage Schema)
+                        </h4>
+                        <p className="text-[10px] text-slate-500">
+                          Questions added here generate structured FAQ accordion UI on the article page and Schema.org FAQPage data.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddFaqItem}
+                        className="bg-[#022c22] hover:bg-[#034434] text-[#22c55e] font-mono text-xs font-bold px-3 py-1.5 rounded-lg border border-emerald-800 transition"
+                      >
+                        + Add Q&A Pair
+                      </button>
+                    </div>
+
+                    {faqList.length === 0 ? (
+                      <div className="text-center py-6 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-xs text-slate-500">
+                        No FAQ items added yet. Click "+ Add Q&A Pair" above to build AEO FAQ items.
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {faqList.map((faq, idx) => (
+                          <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 relative">
+                            <div className="flex justify-between items-center">
+                              <span className="font-mono text-xs font-bold text-emerald-700">Question #{idx + 1}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveFaqItem(idx)}
+                                className="text-red-500 hover:text-red-700 text-xs font-mono font-bold"
+                              >
+                                ✕ Delete
+                              </button>
+                            </div>
+                            <input
+                              type="text"
+                              value={faq.question}
+                              onChange={(e) => handleFaqItemChange(idx, 'question', e.target.value)}
+                              className="w-full bg-white border border-slate-200 rounded px-3 py-1.5 text-xs focus:outline-none focus:border-[#22c55e]"
+                              placeholder="e.g. What is Babar Azam's cover drive footwork routine?"
+                            />
+                            <textarea
+                              rows={2}
+                              value={faq.answer}
+                              onChange={(e) => handleFaqItemChange(idx, 'answer', e.target.value)}
+                              className="w-full bg-white border border-slate-200 rounded p-2 text-xs focus:outline-none focus:border-[#22c55e]"
+                              placeholder="Direct answer to question..."
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons Footer */}
+              <div className="flex items-center justify-between pt-4 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setIsPostModalOpen(false)}
-                  className="px-5 py-2 hover:bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider rounded"
+                  className="px-5 py-2 hover:bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider rounded-lg border"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-6 py-2 rounded-lg uppercase tracking-wider"
+                  className="bg-[#022c22] hover:bg-[#034434] text-[#22c55e] text-xs font-black px-7 py-2.5 rounded-lg uppercase tracking-wider border border-emerald-800 shadow-md transition"
                 >
-                  Commit to Local Database
+                  Save & Publish Article
                 </button>
               </div>
             </form>

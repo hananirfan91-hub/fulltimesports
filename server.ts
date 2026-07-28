@@ -130,7 +130,7 @@ ${xmlItems}
 // Dynamic XML Sitemap Endpoint
 app.get("/sitemap.xml", async (req, res) => {
   try {
-    const host = req.get("host") || "thesportsroom.vercel.app";
+    const host = req.get("host") || "thesportsroom.online";
     const xml = await getSitemapXML(host);
     res.header("Content-Type", "application/xml");
     res.send(xml);
@@ -165,7 +165,7 @@ app.get("/site.webmanifest", (req, res) => {
 
 // Dynamic robots.txt
 app.get("/robots.txt", (req, res) => {
-  const host = req.get("host") || "thesportsroom.vercel.app";
+  const host = req.get("host") || "thesportsroom.online";
   const protocol = host.includes("localhost") || host.includes("0.0.0.0") || host.includes("127.0.0.1") ? "http" : "https";
   res.header("Content-Type", "text/plain");
   res.send(`User-agent: *

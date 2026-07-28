@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "name": "The Sports Room (TSR)",
   "description": "Digital sports lounge and sports journalism platform providing 100% human-authored athletic coverage, mechanical telemetry, tactical reviews, and match schedules.",
-  "homepage": "https://thesportsroom.vercel.app",
+  "homepage": "https://thesportsroom.online",
   "tools": [
     {
       "name": "search_sports_articles",
@@ -24,7 +24,7 @@
       },
       "action": {
         "type": "navigate",
-        "url_template": "https://thesportsroom.vercel.app/sports-atlas?q={query}"
+        "url_template": "https://thesportsroom.online/sports-atlas?q={query}"
       }
     },
     {
@@ -43,7 +43,7 @@
       },
       "action": {
         "type": "navigate",
-        "url_template": "https://thesportsroom.vercel.app/sport/{sport}"
+        "url_template": "https://thesportsroom.online/sport/{sport}"
       }
     },
     {
@@ -61,7 +61,7 @@
       },
       "action": {
         "type": "navigate",
-        "url_template": "https://thesportsroom.vercel.app/{view}"
+        "url_template": "https://thesportsroom.online/{view}"
       }
     },
     {
@@ -73,7 +73,7 @@
       },
       "action": {
         "type": "fetch",
-        "url": "https://thesportsroom.vercel.app/llms.txt"
+        "url": "https://thesportsroom.online/llms.txt"
       }
     }
   ]

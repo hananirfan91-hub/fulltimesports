@@ -113,7 +113,7 @@ interface SEOMetaTagsProps {
 export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
   useEffect(() => {
     // Determine the primary canonical origin for the site to prevent duplicate indexation across preview or dev sandboxes.
-    let origin = 'https://thesportsroom.vercel.app';
+    let origin = 'https://thesportsroom.online';
     if (typeof window !== 'undefined' && window.location) {
       const hostname = window.location.hostname;
       if (
@@ -301,21 +301,33 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       const matchedPost = posts.find(p => p.slug === articleSlug);
       
       if (matchedPost) {
-        title = `${matchedPost.title} | ${matchedPost.category.toUpperCase()} News - The Sports Room`;
+        const customCanonical = matchedPost.canonical_url || canonicalUrl;
+        title = matchedPost.meta_title ? matchedPost.meta_title : `${matchedPost.title} | ${matchedPost.category.toUpperCase()} News - The Sports Room`;
         description = matchedPost.meta_description || matchedPost.content.replace(/[#*`]/g, '').slice(0, 160) + "...";
-        keywords = [...matchedPost.tags, ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
+        
+        const combinedKeywords = [];
+        if (matchedPost.focus_keyword) combinedKeywords.push(matchedPost.focus_keyword);
+        if (matchedPost.geo_entities) combinedKeywords.push(...matchedPost.geo_entities);
+        if (matchedPost.tags) combinedKeywords.push(...matchedPost.tags);
+        combinedKeywords.push(...GLOBAL_SEO_KEYWORDS.slice(0, 10));
+        
+        keywords = combinedKeywords.join(", ");
         pageType = "article";
         ogImage = matchedPost.featured_image;
+
+        const mainSchemaType = matchedPost.schema_type || (matchedPost.type === 'blog' ? 'BlogPosting' : 'NewsArticle');
 
         ldJsonData = [
           {
             "@context": "https://schema.org",
-            "@type": "NewsArticle",
-            "@id": `${canonicalUrl}#article`,
-            "headline": matchedPost.title,
+            "@type": mainSchemaType,
+            "@id": `${customCanonical}#article`,
+            "headline": matchedPost.meta_title || matchedPost.title,
             "image": [matchedPost.featured_image],
             "datePublished": matchedPost.created_at,
             "dateModified": matchedPost.created_at,
+            "abstract": matchedPost.geo_summary || matchedPost.meta_description || description,
+            "keywords": keywords,
             "author": [{
               "@type": "Person",
               "name": matchedPost.author,
@@ -332,13 +344,13 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
             "description": description,
             "mainEntityOfPage": {
               "@type": "WebPage",
-              "@id": canonicalUrl
+              "@id": customCanonical
             }
           },
           {
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
-            "@id": `${canonicalUrl}#breadcrumbs`,
+            "@id": `${customCanonical}#breadcrumbs`,
             "itemListElement": [
               {
                 "@type": "ListItem",
@@ -356,11 +368,28 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
                 "@type": "ListItem",
                 "position": 3,
                 "name": matchedPost.title,
-                "item": canonicalUrl
+                "item": customCanonical
               }
             ]
           }
         ];
+
+        // AEO FAQ Schema injection if post contains FAQ items
+        if (matchedPost.aeo_faq && matchedPost.aeo_faq.length > 0) {
+          ldJsonData.push({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "@id": `${customCanonical}#faq`,
+            "mainEntity": matchedPost.aeo_faq.map(item => ({
+              "@type": "Question",
+              "name": item.question,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": item.answer
+              }
+            }))
+          });
+        }
       }
     } else if (currentPath === '/sports-atlas' || currentPath === '/glossary') {
       title = "Sports Science Glossary & Atlas - The Sports Room";

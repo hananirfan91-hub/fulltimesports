@@ -28,15 +28,15 @@ export default function Footer({ onNavigate }: FooterProps) {
     "@type": "NewsMediaOrganization",
     "name": "The Sports Room",
     "alternateName": "TSR News",
-    "url": "https://thesportsroom.vercel.app",
+    "url": "https://thesportsroom.online",
     "logo": "https://images.unsplash.com/photo-1540747737956-378724044282?w=150",
     "sameAs": [
       "https://www.facebook.com/HananIrfan001",
       "https://twitter.com/thesportsroom",
       "https://instagram.com/thesportsroom"
     ],
-    "publishingPrinciples": "https://thesportsroom.vercel.app/editorial-standards",
-    "correctionPolicy": "https://thesportsroom.vercel.app/corrections"
+    "publishingPrinciples": "https://thesportsroom.online/editorial-standards",
+    "correctionPolicy": "https://thesportsroom.online/corrections"
   };
 
   return (

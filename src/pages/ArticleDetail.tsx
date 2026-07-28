@@ -181,7 +181,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
   const parseInlineElements = (text: string): React.ReactNode[] => {
     const elements: React.ReactNode[] = [];
     let currentIndex = 0;
-    const regex = /(\*\*.*?\*\*|\[.*?\]\(.*?\))/g;
+    const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|\[.*?\]\(.*?\))/g;
     
     let match;
     let keyIdx = 0;
@@ -199,6 +199,20 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
           <strong key={`b-${keyIdx++}`} className="font-extrabold text-slate-950 bg-emerald-50/70 px-1 rounded border-b border-emerald-100">
             {boldText}
           </strong>
+        );
+      } else if (matchStr.startsWith('*') && matchStr.endsWith('*') && !matchStr.startsWith('**')) {
+        const italicText = matchStr.slice(1, -1);
+        elements.push(
+          <em key={`i-${keyIdx++}`} className="italic text-slate-800 font-serif">
+            {italicText}
+          </em>
+        );
+      } else if (matchStr.startsWith('`') && matchStr.endsWith('`')) {
+        const codeText = matchStr.slice(1, -1);
+        elements.push(
+          <code key={`c-${keyIdx++}`} className="font-mono text-xs bg-slate-100 text-slate-800 border border-slate-200 px-1.5 py-0.5 rounded">
+            {codeText}
+          </code>
         );
       } else if (matchStr.startsWith('[') && matchStr.includes('](')) {
         const closingBracket = matchStr.indexOf('](');
@@ -352,8 +366,21 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
         return;
       }
 
+      // Render Blockquotes & Callouts (> quote)
+      if (trimmed.startsWith('> ')) {
+        const quoteContent = trimmed.substring(2);
+        nodes.push(
+          <blockquote key={index} className="my-6 border-l-4 border-[#22c55e] bg-slate-50 p-4 rounded-r-xl italic text-slate-800 text-sm md:text-base font-serif leading-relaxed shadow-2xs">
+            {parseInlineElements(quoteContent)}
+          </blockquote>
+        );
+      }
+      // Render Horizontal Divider (--- or ***)
+      else if (trimmed === '---' || trimmed === '***') {
+        nodes.push(<hr key={index} className="my-8 border-t border-slate-200" />);
+      }
       // Render Headings
-      if (trimmed.startsWith('# ')) {
+      else if (trimmed.startsWith('# ')) {
         nodes.push(<h1 key={index} className="font-display font-black text-2xl md:text-3xl text-slate-900 mt-8 mb-4 tracking-tight uppercase border-l-4 border-[#22c55e] pl-3">{trimmed.replace('# ', '').trim()}</h1>);
       } else if (trimmed.startsWith('## ')) {
         nodes.push(<h2 key={index} className="font-display font-black text-xl md:text-2xl text-slate-900 mt-8 mb-4 tracking-tight uppercase border-l-4 border-[#22c55e] pl-3">{trimmed.replace('## ', '').trim()}</h2>);
@@ -403,17 +430,17 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
       "@type": "ListItem",
       "position": 1,
       "name": "Home",
-      "item": "https://thesportsroom.vercel.app/"
+      "item": "https://thesportsroom.online/"
     },{
       "@type": "ListItem",
       "position": 2,
       "name": post.category,
-      "item": `https://thesportsroom.vercel.app/sport/${post.category}`
+      "item": `https://thesportsroom.online/sport/${post.category}`
     },{
       "@type": "ListItem",
       "position": 3,
       "name": post.title,
-      "item": `https://thesportsroom.vercel.app/blog/${post.slug}`
+      "item": `https://thesportsroom.online/blog/${post.slug}`
     }]
   };
 
@@ -431,7 +458,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
         "@type": "Person",
         "name": post.author,
         "jobTitle": "Sports Journalism Desk",
-        "url": "https://thesportsroom.vercel.app/authors/fts-desk"
+        "url": "https://thesportsroom.online/authors/fts-desk"
       }]
   };
 
@@ -474,15 +501,31 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
             </span>
           </div>
 
-          {/* Article Large Title */}
-          <h1 className="font-display font-black text-2xl md:text-4.5xl text-slate-900 tracking-tight leading-none uppercase">
-            {post.title}
-          </h1>
+          {/* Article Large Title with Custom Heading Tag Support */}
+          {post.heading_tag === 'h2' ? (
+            <h2 className="font-display font-black text-2xl md:text-4.5xl text-slate-900 tracking-tight leading-tight uppercase">
+              {post.title}
+            </h2>
+          ) : post.heading_tag === 'h3' ? (
+            <h3 className="font-display font-black text-2xl md:text-4.5xl text-slate-900 tracking-tight leading-tight uppercase">
+              {post.title}
+            </h3>
+          ) : (
+            <h1 className="font-display font-black text-2xl md:text-4.5xl text-slate-900 tracking-tight leading-tight uppercase">
+              {post.title}
+            </h1>
+          )}
 
-          {/* Section 2 Branding Header */}
-          <h2 className="font-display font-black text-xs text-[#22c55e] uppercase tracking-widest mt-1">
-            The Sports Room High-Precision Editorial Verdict
-          </h2>
+          {/* Subheading (H2 / Sub-Title for SEO Structure) */}
+          {post.subheading ? (
+            <h2 className="font-display font-extrabold text-base md:text-lg text-emerald-800 tracking-snug mt-1 border-l-2 border-[#22c55e] pl-3 py-0.5">
+              {post.subheading}
+            </h2>
+          ) : (
+            <h2 className="font-display font-black text-xs text-[#22c55e] uppercase tracking-widest mt-1">
+              The Sports Room High-Precision Editorial Verdict
+            </h2>
+          )}
 
           {/* Sub-author card strip */}
           <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-xl flex items-center justify-between font-mono text-xs text-slate-505">
@@ -508,27 +551,76 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
             </div>
           </div>
 
-          {/* Interactive Burning Q&A block fulfilling the main directive */}
-          <div className="bg-gradient-to-r from-[#022c22] to-[#01140f] border-l-4 border-[#22c55e] rounded-2xl p-5 md:p-6 text-white shadow-md relative overflow-hidden" id="editorial-resolution-key">
-            <div className="flex items-center space-x-2 mb-3">
-              <span className="p-0.5 px-2 bg-[#22c55e] text-[#022c22] font-mono text-[9px] font-black uppercase rounded tracking-wider">
-                Resolution Desk
-              </span>
-              <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider font-mono">
-                Summary of the Core Question Answered below
-              </span>
+          {/* A. GEO (Generative Engine Optimization) AI Summary Callout Block */}
+          {post.geo_summary && (
+            <div className="bg-slate-900 border-l-4 border-emerald-500 rounded-2xl p-5 text-white shadow-md my-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="bg-emerald-500 text-slate-950 text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded tracking-wider">
+                  GEO AI Executive Summary
+                </span>
+                <span className="text-xs font-mono text-emerald-400">
+                  Optimized for Gemini, Perplexity & AI Search
+                </span>
+              </div>
+              <p className="text-slate-200 text-sm md:text-base leading-relaxed">
+                {post.geo_summary}
+              </p>
+              {post.geo_entities && post.geo_entities.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-800">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mr-1 self-center">
+                    Entities & Topics:
+                  </span>
+                  {post.geo_entities.map((entity, i) => (
+                    <span key={i} className="bg-slate-800 text-emerald-300 text-xs font-mono px-2 py-0.5 rounded border border-slate-700">
+                      #{entity}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-            <p className="text-[9px] font-mono font-bold text-emerald-300 uppercase tracking-widest leading-none">THE BURNING QUESTION:</p>
-            <h3 className="font-display font-extrabold text-sm md:text-base text-white mt-1 mb-2.5 uppercase leading-snug">
-              {articleQA.q}
-            </h3>
-            <div className="border-t border-emerald-900/50 pt-2.5">
-              <p className="text-[9px] font-mono font-bold text-emerald-300 uppercase tracking-widest leading-none">THE BRIEF DIRECT ANSWER:</p>
-              <p className="text-slate-300 text-xs md:text-sm mt-1 leading-relaxed">
-                {articleQA.a}
+          )}
+
+          {/* B. AEO (Answer Engine Optimization) Direct Answer / Position-Zero Box */}
+          {post.aeo_direct_answer ? (
+            <div className="bg-gradient-to-r from-[#022c22] to-[#01140f] border-l-4 border-[#22c55e] rounded-2xl p-5 md:p-6 text-white shadow-md relative overflow-hidden" id="editorial-resolution-key">
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="p-0.5 px-2 bg-[#22c55e] text-[#022c22] font-mono text-[9px] font-black uppercase rounded tracking-wider">
+                  AEO Direct Answer Box
+                </span>
+                <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider font-mono">
+                  Position-Zero Featured Snippet Standard
+                </span>
+              </div>
+              <p className="text-[9px] font-mono font-bold text-emerald-300 uppercase tracking-widest leading-none mb-1">
+                KEY DIRECT ANSWER:
+              </p>
+              <p className="text-slate-100 text-sm md:text-base font-medium leading-relaxed">
+                {post.aeo_direct_answer}
               </p>
             </div>
-          </div>
+          ) : (
+            /* Fallback Burning Q&A block fulfilling the default resolution desk */
+            <div className="bg-gradient-to-r from-[#022c22] to-[#01140f] border-l-4 border-[#22c55e] rounded-2xl p-5 md:p-6 text-white shadow-md relative overflow-hidden" id="editorial-resolution-key">
+              <div className="flex items-center space-x-2 mb-3">
+                <span className="p-0.5 px-2 bg-[#22c55e] text-[#022c22] font-mono text-[9px] font-black uppercase rounded tracking-wider">
+                  Resolution Desk
+                </span>
+                <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider font-mono">
+                  Summary of the Core Question Answered below
+                </span>
+              </div>
+              <p className="text-[9px] font-mono font-bold text-emerald-300 uppercase tracking-widest leading-none">THE BURNING QUESTION:</p>
+              <h3 className="font-display font-extrabold text-sm md:text-base text-white mt-1 mb-2.5 uppercase leading-snug">
+                {articleQA.q}
+              </h3>
+              <div className="border-t border-emerald-900/50 pt-2.5">
+                <p className="text-[9px] font-mono font-bold text-emerald-300 uppercase tracking-widest leading-none">THE BRIEF DIRECT ANSWER:</p>
+                <p className="text-slate-300 text-xs md:text-sm mt-1 leading-relaxed">
+                  {articleQA.a}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Cover image area */}
           <div className="w-full h-80 md:h-[420px] rounded-2xl overflow-hidden bg-slate-100 border relative shadow-inner">
@@ -562,6 +654,33 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                   className="w-full h-full object-cover"
                   allowFullScreen
                 />
+              </div>
+            </div>
+          )}
+
+          {/* C. AEO FAQ Accordion Block (Answer Engine Optimization) */}
+          {post.aeo_faq && post.aeo_faq.length > 0 && (
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 my-6 space-y-4" id="aeo-faq-accordion">
+              <div className="flex items-center space-x-2 border-b pb-3">
+                <span className="bg-[#022c22] text-[#22c55e] text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded">
+                  AEO Structured FAQ
+                </span>
+                <h3 className="font-display font-extrabold text-base text-slate-900 uppercase">
+                  Frequently Asked Questions (Answer Engine Optimized)
+                </h3>
+              </div>
+              <div className="space-y-3">
+                {post.aeo_faq.map((faq, idx) => (
+                  <div key={idx} className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs">
+                    <h4 className="font-display font-bold text-slate-900 text-sm md:text-base flex items-start space-x-2">
+                      <span className="text-[#22c55e] font-mono font-black">Q{idx + 1}:</span>
+                      <span>{faq.question}</span>
+                    </h4>
+                    <p className="text-slate-600 text-xs md:text-sm mt-2 font-sans leading-relaxed pl-6 border-l-2 border-emerald-500">
+                      {faq.answer}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           )}

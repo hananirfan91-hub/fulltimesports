@@ -691,7 +691,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
 
               <div className="space-y-6 text-slate-700 text-xs md:text-sm leading-relaxed font-sans">
                 <p>
-                  Welcome to <strong>The Sports Room</strong> ("The Sports Room," "we," "us," or "our"). We operate the website <a href="https://thesportsroom.vercel.app/" className="text-[#22c55e] underline font-medium" target="_blank" rel="noopener noreferrer">https://thesportsroom.vercel.app/</a> and provide sports news, match updates, analysis, opinions, features, and other sports-related content.
+                  Welcome to <strong>The Sports Room</strong> ("The Sports Room," "we," "us," or "our"). We operate the website <a href="https://thesportsroom.online/" className="text-[#22c55e] underline font-medium" target="_blank" rel="noopener noreferrer">https://thesportsroom.online/</a> and provide sports news, match updates, analysis, opinions, features, and other sports-related content.
                 </p>
                 <p>
                   This Privacy Policy explains how we collect, use, store, and protect information when you visit or interact with our website.
@@ -924,7 +924,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <div className="space-y-3 pt-2 border-t border-slate-100">
                   <h3 className="font-display font-bold text-slate-900 text-base uppercase">17. Contact Us</h3>
                   <p>If you have questions about this Privacy Policy, your personal information, or our privacy practices, please contact The Sports Room through our Contact Us page or the official contact information provided on our website.</p>
-                  <p><strong>Website:</strong> <a href="https://thesportsroom.vercel.app/" className="text-[#22c55e] underline" target="_blank" rel="noopener noreferrer">https://thesportsroom.vercel.app/</a></p>
+                  <p><strong>Website:</strong> <a href="https://thesportsroom.online/" className="text-[#22c55e] underline" target="_blank" rel="noopener noreferrer">https://thesportsroom.online/</a></p>
                   <div className="pt-4 border-t border-slate-200">
                     <p className="font-display font-black text-slate-900 uppercase">The Sports Room</p>
                     <p className="text-slate-500 text-xs">Sports News, Updates, Analysis, and Insights</p>
@@ -958,7 +958,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
 
               <div className="space-y-6 text-slate-700 text-xs md:text-sm leading-relaxed font-sans">
                 <p>
-                  Welcome to <strong>The Sports Room</strong> ("The Sports Room," "we," "us," or "our"). These Terms and Conditions govern your use of <a href="https://thesportsroom.vercel.app/" className="text-[#22c55e] underline font-medium" target="_blank" rel="noopener noreferrer">https://thesportsroom.vercel.app/</a> and all related content, features, and services.
+                  Welcome to <strong>The Sports Room</strong> ("The Sports Room," "we," "us," or "our"). These Terms and Conditions govern your use of <a href="https://thesportsroom.online/" className="text-[#22c55e] underline font-medium" target="_blank" rel="noopener noreferrer">https://thesportsroom.online/</a> and all related content, features, and services.
                 </p>
                 <p>
                   By accessing or using The Sports Room, you agree to be bound by these Terms and Conditions. If you do not agree with these terms, please discontinue using the website.
@@ -1233,7 +1233,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <div className="space-y-3 pt-2 border-t border-slate-100">
                   <h3 className="font-display font-bold text-slate-900 text-base uppercase">23. Contact Us</h3>
                   <p>If you have questions about these Terms and Conditions, please contact The Sports Room through our Contact Us page or the official contact information provided on our website.</p>
-                  <p><strong>Website:</strong> <a href="https://thesportsroom.vercel.app/" className="text-[#22c55e] underline" target="_blank" rel="noopener noreferrer">https://thesportsroom.vercel.app/</a></p>
+                  <p><strong>Website:</strong> <a href="https://thesportsroom.online/" className="text-[#22c55e] underline" target="_blank" rel="noopener noreferrer">https://thesportsroom.online/</a></p>
                   <div className="pt-4 border-t border-slate-200">
                     <p className="font-display font-black text-slate-900 uppercase">The Sports Room</p>
                     <p className="text-slate-500 text-xs">Sports News, Updates, Analysis, and Insights</p>

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://thesportsroom.vercel.app/sitemap.xml
+Sitemap: https://thesportsroom.online/sitemap.xml

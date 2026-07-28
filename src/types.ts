@@ -17,6 +17,20 @@ export interface Post {
   meta_description?: string;
   views: number;
   is_draft?: boolean;
+
+  // Advanced Customization for SEO, GEO (Generative Engine Optimization), AEO (Answer Engine Optimization) & Headings
+  heading_tag?: 'h1' | 'h2' | 'h3'; // Heading tag override for title (default 'h1')
+  subheading?: string; // Optional custom H2 subtitle/heading
+  meta_title?: string; // Custom Page Title / Meta Title tag for Search Engines
+  focus_keyword?: string; // Primary target keyphrase
+  canonical_url?: string; // Custom canonical link override
+  geo_summary?: string; // AI Summary snippet optimized for LLM answer engines (Gemini, Perplexity, ChatGPT)
+  geo_entities?: string[]; // Key entity tags for Knowledge Graph indexing
+  aeo_direct_answer?: string; // Direct 40-60 word Answer Box for position-zero ranking & voice assistants
+  aeo_faq?: Array<{ question: string; answer: string }>; // FAQ pairs for automatic FAQPage JSON-LD Schema
+  schema_type?: 'NewsArticle' | 'BlogPosting' | 'TechArticle' | 'AnalysisNewsArticle' | 'FAQPage';
+  meta_robots?: string; // e.g. 'index, follow' or 'noindex, follow'
+
   seo_payload?: any;
 }
 
