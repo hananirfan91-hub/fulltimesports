@@ -103,10 +103,10 @@ export default function Footer({ onNavigate }: FooterProps) {
             <strong>Editorial:</strong> hananirfan91@gmail.com
           </p>
           <div className="flex space-x-4 mt-6">
-            <a href="https://www.facebook.com/HananIrfan001" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Facebook Page"><Facebook className="h-4 w-4" /></a>
-            <a href="https://x.com/hananirfan91" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Twitter/X Page"><Twitter className="h-4 w-4" /></a>
-            <a href="https://instagram.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan Instagram Feed"><Instagram className="h-4 w-4" /></a>
-            <a href="https://youtube.com/@thesportsroom" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#22c55e] transition" title="TSR Pakistan YouTube Channel"><Youtube className="h-4 w-4" /></a>
+            <a href="https://www.facebook.com/HananIrfan001" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-[#22c55e] transition" aria-label="TSR Pakistan Facebook Page" title="TSR Pakistan Facebook Page"><Facebook className="h-4 w-4" /></a>
+            <a href="https://x.com/hananirfan91" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-[#22c55e] transition" aria-label="TSR Pakistan Twitter/X Page" title="TSR Pakistan Twitter/X Page"><Twitter className="h-4 w-4" /></a>
+            <a href="https://instagram.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-[#22c55e] transition" aria-label="TSR Pakistan Instagram Feed" title="TSR Pakistan Instagram Feed"><Instagram className="h-4 w-4" /></a>
+            <a href="https://youtube.com/@thesportsroom" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-[#22c55e] transition" aria-label="TSR Pakistan YouTube Channel" title="TSR Pakistan YouTube Channel"><Youtube className="h-4 w-4" /></a>
           </div>
         </div>
 

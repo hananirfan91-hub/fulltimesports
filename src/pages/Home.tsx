@@ -81,6 +81,10 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
             alt="Babar Azam cricket cover drive action background" 
             className="w-full h-full object-cover opacity-35 object-center"
             referrerPolicy="no-referrer"
+            fetchPriority="high"
+            decoding="async"
+            width={1200}
+            height={675}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-transparent"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
@@ -313,6 +317,10 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                       src={post.featured_image} 
                       alt={post.title} 
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                      loading="lazy"
+                      decoding="async"
+                      width={320}
+                      height={160}
                     />
                     <div className="absolute top-2 left-2 bg-[#022c22] border border-[#22c55e]/35 font-mono text-[9px] font-bold text-white px-2 py-0.5 rounded">
                       #{index + 1} HOT
@@ -366,6 +374,10 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                       src={post.featured_image} 
                       alt={post.title} 
                       className="w-full h-full object-cover group-hover:scale-103 transition duration-500" 
+                      loading="lazy"
+                      decoding="async"
+                      width={176}
+                      height={128}
                     />
                   </div>
                   <div className="flex-1 w-full space-y-2">

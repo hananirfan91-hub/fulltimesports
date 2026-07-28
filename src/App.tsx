@@ -1,14 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
-import SportCategory from './pages/SportCategory';
-import ArticleDetail from './pages/ArticleDetail';
-import TrustPages from './pages/TrustPages';
-import AdminDashboard from './components/AdminDashboard';
-import Glossary from './pages/Glossary';
 import SEOMetaTags from './components/SEOMetaTags';
 import { DB } from './lib/db';
+
+// Lazy load non-homepage route chunks to optimize initial JS payload and eliminate unused JS on mobile FCP/LCP
+const SportCategory = lazy(() => import('./pages/SportCategory'));
+const ArticleDetail = lazy(() => import('./pages/ArticleDetail'));
+const TrustPages = lazy(() => import('./pages/TrustPages'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const Glossary = lazy(() => import('./pages/Glossary'));
+
+function PageSkeleton() {
+  return (
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 space-y-6 animate-pulse">
+      <div className="h-10 bg-slate-200 rounded-xl w-3/4"></div>
+      <div className="h-64 bg-slate-200 rounded-2xl w-full"></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="h-40 bg-slate-200 rounded-xl"></div>
+        <div className="h-40 bg-slate-200 rounded-xl"></div>
+        <div className="h-40 bg-slate-200 rounded-xl"></div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState('/');
@@ -143,7 +159,9 @@ export default function App() {
 
       {/* Main viewport frame */}
       <main className="flex-grow">
-        {renderActiveView()}
+        <Suspense fallback={<PageSkeleton />}>
+          {renderActiveView()}
+        </Suspense>
       </main>
 
       {/* Structured Footer */}

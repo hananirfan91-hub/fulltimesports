@@ -268,7 +268,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
           </div>
 
           {/* Favorite Trigger (Purely client UX visual placeholder) */}
-          <button onClick={() => onNavigate('/')} className="text-slate-400 hover:text-[#22c55e] p-1.5 rounded-full hover:bg-[#01140f] transition duration-150 select-none">
+          <button onClick={() => onNavigate('/')} aria-label="Favorites" className="text-slate-400 hover:text-[#22c55e] p-1.5 rounded-full hover:bg-[#01140f] transition duration-150 select-none">
             <Heart className="h-5 w-5" />
           </button>
 

@@ -102,6 +102,10 @@ export default function Hero({ onNavigate }: HeroProps) {
             src={featuredNews.featured_image} 
             alt={featuredNews.title} 
             className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700 z-0"
+            fetchPriority="high"
+            decoding="async"
+            width={800}
+            height={500}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-[#01140f]/80 to-transparent z-10"></div>
 
@@ -148,6 +152,7 @@ export default function Hero({ onNavigate }: HeroProps) {
                   src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&mute=1&playlist=${activeVideoId}&loop=1&controls=1&modestbranding=1`}
                   title="TSR Live Video Feed"
                   className="w-full h-full object-cover opacity-90"
+                  loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                 />
