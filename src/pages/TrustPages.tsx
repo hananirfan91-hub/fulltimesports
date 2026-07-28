@@ -674,35 +674,263 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
           {page === 'privacy-policy' && (
             <div className="space-y-6 animate-fade-in" id="privacy-content">
               
-              <div className="border-b pb-4 border-slate-100 animate-slide-in">
+              <div className="border-b pb-4 border-slate-100">
                 <div className="flex items-center space-x-2 text-[#22c55e]">
                   <ShieldCheck className="h-6 w-6 text-[#22c55e]" />
                   <h1 className="font-display font-black text-2.5xl tracking-tight uppercase text-slate-900">
-                    Privacy &amp; Cookie Policy
+                    Privacy Policy
                   </h1>
                 </div>
-                <h2 className="font-display font-black text-xs text-[#22c55e] uppercase tracking-widest mt-2">{/* Single H2 */}
-                  The Sports Room Privacy Protection Manual
+                <h2 className="font-display font-black text-xs text-[#22c55e] uppercase tracking-widest mt-2">
+                  The Sports Room Privacy Protection Policy
                 </h2>
+                <p className="text-xs font-mono font-bold text-slate-500 mt-1">
+                  Last Updated: July 28, 2026
+                </p>
               </div>
 
-              <div className="markdown-body space-y-4 leading-relaxed text-slate-700 text-xs">
+              <div className="space-y-6 text-slate-700 text-xs md:text-sm leading-relaxed font-sans">
                 <p>
-                  At The Sports Room (TSR), accessible from our preview nodes, customer data and regulatory shields remain our absolute priority. This document defines what types of registries we store and track.
+                  Welcome to <strong>The Sports Room</strong> ("The Sports Room," "we," "us," or "our"). We operate the website <a href="https://thesportsroom.vercel.app/" className="text-[#22c55e] underline font-medium" target="_blank" rel="noopener noreferrer">https://thesportsroom.vercel.app/</a> and provide sports news, match updates, analysis, opinions, features, and other sports-related content.
+                </p>
+                <p>
+                  This Privacy Policy explains how we collect, use, store, and protect information when you visit or interact with our website.
+                </p>
+                <p>
+                  By using The Sports Room, you acknowledge that you have read and understood this Privacy Policy.
                 </p>
 
-                <h3 className="text-slate-950 font-display text-sm font-black uppercase mt-4 mb-2">Cookie Consent Frameworks</h3>
-                <p>
-                  TSR operates standard security guidelines and cookie consent protocols to ensure user-data protection. Third-party vendor platforms may use cookies to understand navigation patterns on our site.
-                </p>
-                <p>
-                  We utilize standard DoubleClick web cookie algorithms to serve targeted, safe, non-intrusive campaigns. You can opt out of personalized marketing by visiting Google Ads settings.
-                </p>
+                {/* Section 1 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">1. Information We Collect</h3>
+                  <p>We may collect different types of information depending on how you interact with our website.</p>
+                  <h4 className="font-bold text-slate-800 text-xs uppercase">Information You Provide Directly</h4>
+                  <p>You may voluntarily provide information when you:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Subscribe to our newsletter.</li>
+                    <li>Register for an account, if account registration is available.</li>
+                    <li>Contact us through our contact forms or email.</li>
+                    <li>Submit feedback, comments, or other information.</li>
+                    <li>Participate in surveys or other interactive features.</li>
+                  </ul>
+                  <p>This information may include:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Name.</li>
+                    <li>Email address.</li>
+                    <li>Account information.</li>
+                    <li>Messages or feedback you send to us.</li>
+                    <li>Other information you voluntarily choose to provide.</li>
+                  </ul>
+                  <p className="text-slate-500 italic">Please do not submit sensitive personal information through our website unless it is specifically required for the service you are using.</p>
+                </div>
 
-                <h3 className="text-slate-950 font-[#22c55e] text-sm font-black uppercase mt-4 mb-2">Local Storage Registry</h3>
-                <p>
-                  In compliance with CCPA and GDPR, TSR stores user-submitted opinions, preferences (such as selected GEO sport priorities), and dashboard revisions strictly within local browser sandbox LocalStorage keys. We do not transmit details to remote analytical servers without permission.
-                </p>
+                {/* Section 2 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">2. Information Collected Automatically</h3>
+                  <p>When you visit The Sports Room, certain information may be collected automatically by our website, hosting provider, analytics services, advertising partners, or other third-party technologies.</p>
+                  <p>This may include:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>IP address.</li>
+                    <li>Browser type and version.</li>
+                    <li>Device type.</li>
+                    <li>Operating system.</li>
+                    <li>General geographic information.</li>
+                    <li>Pages visited.</li>
+                    <li>Time spent on pages.</li>
+                    <li>Referring website.</li>
+                    <li>Date and time of visits.</li>
+                    <li>General usage and interaction information.</li>
+                  </ul>
+                  <p>This information is generally used to understand how visitors use our website, improve performance, maintain security, and provide a better user experience.</p>
+                </div>
+
+                {/* Section 3 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">3. Cookies and Similar Technologies</h3>
+                  <p>The Sports Room may use cookies and similar technologies to improve website functionality, understand visitor behavior, remember preferences, and support analytics and advertising.</p>
+                  <p>Cookies are small text files stored on your device by your browser.</p>
+                  <p>We may use:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Essential cookies required for website functionality.</li>
+                    <li>Analytics cookies to understand website traffic and performance.</li>
+                    <li>Preference cookies to remember certain settings.</li>
+                    <li>Advertising-related cookies, where applicable.</li>
+                  </ul>
+                  <p>You can control or disable cookies through your browser settings. However, disabling certain cookies may affect the functionality of some parts of the website.</p>
+                </div>
+
+                {/* Section 4 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">4. Newsletter and Email Communications</h3>
+                  <p>If you subscribe to The Sports Room newsletter, we may collect your email address and, where provided, your name.</p>
+                  <p>We use this information to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Send sports news and updates.</li>
+                    <li>Send newsletters and editorial content.</li>
+                    <li>Provide information about new articles or important sports events.</li>
+                    <li>Manage your newsletter subscription.</li>
+                  </ul>
+                  <p>You may unsubscribe from our newsletter at any time by using the unsubscribe option included in our emails or by contacting us.</p>
+                  <p>We will not knowingly sell your email address to third parties.</p>
+                </div>
+
+                {/* Section 5 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">5. User Accounts and Registration</h3>
+                  <p>If The Sports Room offers user registration or account functionality, we may collect information necessary to create and manage your account, such as your name, email address, and authentication information.</p>
+                  <p>We use account information to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Create and maintain your account.</li>
+                    <li>Authenticate users.</li>
+                    <li>Provide requested features.</li>
+                    <li>Protect account security.</li>
+                    <li>Communicate important service-related information.</li>
+                  </ul>
+                  <p>You are responsible for keeping your account credentials confidential and for notifying us if you believe your account has been accessed without authorization.</p>
+                </div>
+
+                {/* Section 6 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">6. Google Reader Revenue Manager</h3>
+                  <p>The Sports Room may use <strong>Google Reader Revenue Manager</strong> or related Google services to support reader engagement, newsletter signup, registration, subscriptions, or other reader-focused features.</p>
+                  <p>When you interact with a Google-powered feature, Google may process certain information according to its own terms, policies, and privacy practices.</p>
+                  <p>Depending on the feature you use, information such as your email address or other account-related information may be processed to provide the requested service.</p>
+                  <p>We encourage you to review Google's applicable privacy policies and terms for more information about how Google processes personal information.</p>
+                </div>
+
+                {/* Section 7 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">7. Analytics</h3>
+                  <p>We may use analytics services, including <strong>Google Analytics</strong>, to understand how visitors interact with The Sports Room.</p>
+                  <p>Analytics information may help us understand:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Number of visitors.</li>
+                    <li>Popular pages and articles.</li>
+                    <li>Traffic sources.</li>
+                    <li>Device and browser usage.</li>
+                    <li>General geographic information.</li>
+                    <li>Website performance.</li>
+                  </ul>
+                  <p>We use this information to improve our content, website structure, user experience, and overall performance.</p>
+                  <p>Analytics providers may use cookies or similar technologies to collect information about website usage.</p>
+                </div>
+
+                {/* Section 8 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">8. Advertising</h3>
+                  <p>The Sports Room may display advertisements provided by third-party advertising networks or platforms.</p>
+                  <p>Advertising partners may use cookies, web beacons, or similar technologies to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Display advertisements.</li>
+                    <li>Measure advertising performance.</li>
+                    <li>Understand general audience interests.</li>
+                    <li>Provide relevant advertising where permitted.</li>
+                  </ul>
+                  <p>Third-party advertising companies may collect information about your visits to this and other websites in accordance with their own privacy policies.</p>
+                  <p>We do not control the privacy practices of third-party advertising providers.</p>
+                </div>
+
+                {/* Section 9 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">9. Third-Party Services and Links</h3>
+                  <p>Our website may contain links to third-party websites, social media platforms, services, or other external resources.</p>
+                  <p>These websites may include, but are not limited to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Social media platforms.</li>
+                    <li>Sports organizations.</li>
+                    <li>News sources.</li>
+                    <li>Video platforms.</li>
+                    <li>Advertising services.</li>
+                    <li>Analytics services.</li>
+                    <li>Payment or subscription services.</li>
+                  </ul>
+                  <p>Once you leave The Sports Room and visit a third-party website, that website's own privacy policy and terms apply.</p>
+                  <p>We are not responsible for the privacy practices, content, or security of third-party websites.</p>
+                </div>
+
+                {/* Section 10 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">10. How We Use Information</h3>
+                  <p>We may use collected information to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Operate and maintain The Sports Room.</li>
+                    <li>Provide and improve our services.</li>
+                    <li>Publish and deliver sports content.</li>
+                    <li>Send newsletters and updates when you subscribe.</li>
+                    <li>Manage user accounts.</li>
+                    <li>Respond to inquiries and feedback.</li>
+                    <li>Understand website traffic and audience behavior.</li>
+                    <li>Improve website performance and security.</li>
+                    <li>Detect and prevent fraud, abuse, or unauthorized activity.</li>
+                    <li>Comply with applicable legal requirements.</li>
+                    <li>Support advertising and monetization activities.</li>
+                    <li>Provide reader engagement features.</li>
+                  </ul>
+                </div>
+
+                {/* Section 11 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">11. How We Protect Information</h3>
+                  <p>We take reasonable administrative, technical, and organizational measures to protect information from unauthorized access, misuse, alteration, disclosure, or destruction.</p>
+                  <p>However, no method of transmission or electronic storage is completely secure. Therefore, we cannot guarantee absolute security of information transmitted to or stored by us.</p>
+                </div>
+
+                {/* Section 12 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">12. Data Retention</h3>
+                  <p>We retain personal information only for as long as reasonably necessary for the purposes described in this Privacy Policy, unless a longer retention period is required or permitted by applicable law.</p>
+                  <p>Newsletter information may be retained while you remain subscribed or until you request removal, subject to legal and operational requirements.</p>
+                </div>
+
+                {/* Section 13 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">13. Your Privacy Rights</h3>
+                  <p>Depending on your location and applicable law, you may have rights regarding your personal information, including the right to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Request access to personal information we hold about you.</li>
+                    <li>Request correction of inaccurate information.</li>
+                    <li>Request deletion of certain personal information.</li>
+                    <li>Withdraw consent where processing is based on consent.</li>
+                    <li>Unsubscribe from marketing communications.</li>
+                    <li>Request information about how your data is processed.</li>
+                  </ul>
+                  <p>To make a privacy-related request, contact us using the information provided in the Contact Us section.</p>
+                  <p>We may need to verify your identity before completing certain requests.</p>
+                </div>
+
+                {/* Section 14 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">14. Children's Privacy</h3>
+                  <p>The Sports Room is not intended to knowingly collect personal information from children in violation of applicable laws.</p>
+                  <p>If you are a parent or guardian and believe that a child has provided personal information to us without appropriate consent, please contact us so that we can take appropriate action.</p>
+                </div>
+
+                {/* Section 15 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">15. International Visitors</h3>
+                  <p>The Sports Room may be accessed by visitors from different countries. Depending on the services we use, information may be processed or stored in countries other than your country of residence.</p>
+                  <p>By using our website, you acknowledge that your information may be processed in accordance with applicable laws and the privacy practices of the relevant service providers.</p>
+                </div>
+
+                {/* Section 16 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">16. Changes to This Privacy Policy</h3>
+                  <p>We may update this Privacy Policy from time to time to reflect changes in our website, services, technology, or legal requirements.</p>
+                  <p>When we make changes, we will update the "Last Updated" date at the top of this page.</p>
+                  <p>We encourage you to review this Privacy Policy periodically.</p>
+                </div>
+
+                {/* Section 17 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">17. Contact Us</h3>
+                  <p>If you have questions about this Privacy Policy, your personal information, or our privacy practices, please contact The Sports Room through our Contact Us page or the official contact information provided on our website.</p>
+                  <p><strong>Website:</strong> <a href="https://thesportsroom.vercel.app/" className="text-[#22c55e] underline" target="_blank" rel="noopener noreferrer">https://thesportsroom.vercel.app/</a></p>
+                  <div className="pt-4 border-t border-slate-200">
+                    <p className="font-display font-black text-slate-900 uppercase">The Sports Room</p>
+                    <p className="text-slate-500 text-xs">Sports News, Updates, Analysis, and Insights</p>
+                  </div>
+                </div>
+
               </div>
             </div>
           )}
@@ -717,23 +945,301 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <div className="flex items-center space-x-2 text-[#22c55e]">
                   <Scale className="h-6 w-6 text-[#22c55e]" />
                   <h1 className="font-display font-black text-2.5xl tracking-tight uppercase text-slate-900">
-                    Terms of Service &amp; Usage
+                    Terms and Conditions
                   </h1>
                 </div>
                 <h2 className="font-display font-black text-xs text-[#22c55e] uppercase tracking-widest mt-2">
-                  The Sports Room Terms of Use Regulation
+                  The Sports Room Terms and Conditions Regulation
                 </h2>
+                <p className="text-xs font-mono font-bold text-slate-500 mt-1">
+                  Last Updated: July 28, 2026
+                </p>
               </div>
 
-              <div className="markdown-body space-y-4 leading-relaxed text-slate-700 text-xs">
+              <div className="space-y-6 text-slate-700 text-xs md:text-sm leading-relaxed font-sans">
                 <p>
-                  Welcome to The Sports Room. By accessing our global sports directories, match schedulers, or editorial columns, you agree to fully comply with our structural laws.
+                  Welcome to <strong>The Sports Room</strong> ("The Sports Room," "we," "us," or "our"). These Terms and Conditions govern your use of <a href="https://thesportsroom.vercel.app/" className="text-[#22c55e] underline font-medium" target="_blank" rel="noopener noreferrer">https://thesportsroom.vercel.app/</a> and all related content, features, and services.
+                </p>
+                <p>
+                  By accessing or using The Sports Room, you agree to be bound by these Terms and Conditions. If you do not agree with these terms, please discontinue using the website.
                 </p>
 
-                <h3 className="text-slate-950 font-display text-sm font-black uppercase mt-4 mb-2 font-bold">Intellectual Property Restrictions</h3>
-                <p>
-                  All analysis, including the aerodynamic computations of Formula cars, leg-spin draft metrics, penalty corner hockey maps, and volleyball aerodynamics columns are properties of TSR LLC. You may reference small paragraphs for academic use, provided that clear backlinks to our sitemap nodes are cited.
-                </p>
+                {/* Section 1 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">1. About The Sports Room</h3>
+                  <p>The Sports Room is a sports media and publishing platform that provides sports news, match updates, analysis, opinions, features, statistics, and other sports-related content.</p>
+                  <p>Our coverage may include sports such as:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Cricket.</li>
+                    <li>Football.</li>
+                    <li>Basketball.</li>
+                    <li>Tennis.</li>
+                    <li>Formula 1.</li>
+                    <li>Hockey.</li>
+                    <li>Volleyball.</li>
+                    <li>Esports.</li>
+                    <li>Other sports and sporting events.</li>
+                  </ul>
+                </div>
+
+                {/* Section 2 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">2. Acceptance of Terms</h3>
+                  <p>By accessing, browsing, or using The Sports Room, you confirm that:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>You have read these Terms and Conditions.</li>
+                    <li>You understand these terms.</li>
+                    <li>You agree to comply with them.</li>
+                    <li>You will use the website only for lawful purposes.</li>
+                  </ul>
+                  <p>If you do not agree to these Terms and Conditions, you should not use the website.</p>
+                </div>
+
+                {/* Section 3 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">3. Website Content</h3>
+                  <p>The content published on The Sports Room is provided for general informational and entertainment purposes.</p>
+                  <p>Our content may include:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Original articles.</li>
+                    <li>Sports news.</li>
+                    <li>Match reports.</li>
+                    <li>Analysis.</li>
+                    <li>Opinions.</li>
+                    <li>Statistics.</li>
+                    <li>Predictions.</li>
+                    <li>Editorial content.</li>
+                    <li>Images and multimedia.</li>
+                    <li>Embedded third-party content.</li>
+                  </ul>
+                  <p>While we make reasonable efforts to provide accurate and timely information, we do not guarantee that all information will always be complete, accurate, current, or error-free.</p>
+                  <p>Sports information can change quickly due to injuries, team selections, match results, transfers, schedules, and other developments.</p>
+                  <p>We reserve the right to update, correct, modify, or remove content at any time.</p>
+                </div>
+
+                {/* Section 4 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">4. No Professional Advice</h3>
+                  <p>The content published on The Sports Room is not intended to constitute professional, financial, legal, medical, or other specialized advice.</p>
+                  <p>Any opinions, predictions, analysis, or commentary published on the website represent the views expressed in the relevant content and should not be treated as guaranteed outcomes.</p>
+                  <p>Readers should independently verify important information before relying on it.</p>
+                </div>
+
+                {/* Section 5 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">5. Sports Predictions and Betting Disclaimer</h3>
+                  <p>Any predictions, forecasts, or opinions about sporting events are provided for informational and entertainment purposes only.</p>
+                  <p>The Sports Room does not guarantee the outcome of any sporting event.</p>
+                  <p>The Sports Room does not encourage illegal gambling or betting activities.</p>
+                  <p>If you choose to participate in any legal betting or gambling activity, you are solely responsible for complying with the laws applicable to you.</p>
+                  <p>The Sports Room is not responsible for any financial loss resulting from reliance on predictions, opinions, statistics, or other content published on the website.</p>
+                </div>
+
+                {/* Section 6 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">6. Intellectual Property</h3>
+                  <p>Unless otherwise stated, the original content created and published by The Sports Room, including written articles, logos, branding, graphics, website design, and original materials, is owned by or licensed to The Sports Room and is protected by applicable intellectual property laws.</p>
+                  <p>You may:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Access and read our content for personal, non-commercial purposes.</li>
+                    <li>Share links to our articles.</li>
+                    <li>Quote reasonable portions of our content with proper attribution and a link back to the original article.</li>
+                  </ul>
+                  <p>You may not, without prior written permission:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Copy and republish substantial portions of our articles.</li>
+                    <li>Reproduce our website or branding.</li>
+                    <li>Sell or commercially exploit our original content.</li>
+                    <li>Scrape or systematically collect our content for unauthorized commercial purposes.</li>
+                    <li>Claim our original content as your own.</li>
+                  </ul>
+                </div>
+
+                {/* Section 7 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">7. Third-Party Content and Copyright</h3>
+                  <p>The Sports Room may display or reference content, images, videos, statistics, trademarks, logos, or other materials belonging to third parties.</p>
+                  <p>Such materials remain the property of their respective owners.</p>
+                  <p>Where third-party content is used, we aim to respect applicable copyright and intellectual property rights.</p>
+                  <p>If you believe that content appearing on The Sports Room infringes your copyright or other intellectual property rights, please contact us with sufficient information to identify the material and explain your concern.</p>
+                  <p>We will review legitimate complaints and take appropriate action where required.</p>
+                </div>
+
+                {/* Section 8 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">8. User-Generated Content</h3>
+                  <p>If we allow users to submit comments, feedback, reviews, or other content, you are responsible for the content you submit.</p>
+                  <p>You agree not to submit content that:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Is unlawful or fraudulent.</li>
+                    <li>Is defamatory or threatening.</li>
+                    <li>Contains hate speech.</li>
+                    <li>Promotes violence.</li>
+                    <li>Harasses or abuses others.</li>
+                    <li>Infringes intellectual property rights.</li>
+                    <li>Contains malicious software.</li>
+                    <li>Contains spam or unauthorized advertising.</li>
+                    <li>Violates another person's privacy.</li>
+                    <li>Violates applicable laws.</li>
+                  </ul>
+                  <p>We reserve the right to remove or restrict access to user-generated content that violates these Terms or that we reasonably believe is inappropriate.</p>
+                </div>
+
+                {/* Section 9 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">9. Newsletter and Communications</h3>
+                  <p>If you subscribe to our newsletter, you agree to receive communications from The Sports Room related to sports news, articles, updates, and other relevant content.</p>
+                  <p>You may unsubscribe at any time using the unsubscribe option included in our emails.</p>
+                  <p>Your use of newsletter services may also be subject to the terms and privacy policies of third-party email service providers we use.</p>
+                </div>
+
+                {/* Section 10 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">10. Reader Registration and Accounts</h3>
+                  <p>If account registration is available, you are responsible for providing accurate information and maintaining the security of your account credentials.</p>
+                  <p>You are responsible for activities conducted through your account unless the activity resulted from unauthorized access that was not caused by your failure to protect your credentials.</p>
+                  <p>We reserve the right to suspend or terminate accounts that violate these Terms or applicable laws.</p>
+                </div>
+
+                {/* Section 11 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">11. Reader Revenue Manager and Paid Features</h3>
+                  <p>The Sports Room may use Google Reader Revenue Manager or other third-party services to support subscriptions, reader contributions, registration, newsletter features, or other reader engagement services.</p>
+                  <p>Where paid subscriptions or other paid services are offered, the applicable payment provider's terms and conditions may also apply.</p>
+                  <p>Google or another payment provider may process payments, refunds, taxes, service fees, and other transaction-related matters according to its applicable terms.</p>
+                  <p>The Sports Room is not responsible for technical problems or payment processing issues caused by third-party payment providers.</p>
+                </div>
+
+                {/* Section 12 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">12. Advertising</h3>
+                  <p>The Sports Room may display advertisements from third-party advertising providers.</p>
+                  <p>Advertising content is provided by third parties, and we do not necessarily endorse every product or service displayed through advertisements.</p>
+                  <p>We are not responsible for the accuracy, availability, quality, or performance of third-party products or services advertised on our website.</p>
+                  <p>Any transaction between you and an advertiser is solely between you and that advertiser.</p>
+                </div>
+
+                {/* Section 13 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">13. External Links</h3>
+                  <p>Our website may contain links to external websites and services.</p>
+                  <p>These links are provided for convenience and informational purposes.</p>
+                  <p>We do not control or guarantee the accuracy, security, availability, or content of third-party websites.</p>
+                  <p>Your use of external websites is subject to their respective terms and privacy policies.</p>
+                </div>
+
+                {/* Section 14 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">14. Prohibited Uses</h3>
+                  <p>You agree not to use The Sports Room to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Violate applicable laws or regulations.</li>
+                    <li>Attempt to gain unauthorized access to our systems.</li>
+                    <li>Interfere with website security or operation.</li>
+                    <li>Introduce viruses, malware, or harmful code.</li>
+                    <li>Scrape or collect data through unauthorized automated methods.</li>
+                    <li>Copy or reproduce substantial content without permission.</li>
+                    <li>Impersonate another person or organization.</li>
+                    <li>Use the website for fraudulent or harmful purposes.</li>
+                    <li>Abuse or disrupt services provided to other users.</li>
+                  </ul>
+                  <p>We reserve the right to restrict or terminate access to users who violate these Terms.</p>
+                </div>
+
+                {/* Section 15 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">15. Website Availability</h3>
+                  <p>We aim to keep The Sports Room available and functional, but we do not guarantee uninterrupted or error-free access.</p>
+                  <p>The website may occasionally be unavailable due to:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Maintenance.</li>
+                    <li>Updates.</li>
+                    <li>Hosting issues.</li>
+                    <li>Technical failures.</li>
+                    <li>Security incidents.</li>
+                    <li>Internet or network problems.</li>
+                    <li>Circumstances beyond our reasonable control.</li>
+                  </ul>
+                  <p>We reserve the right to modify, suspend, or discontinue any part of the website without prior notice.</p>
+                </div>
+
+                {/* Section 16 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">16. Disclaimer of Warranties</h3>
+                  <p>To the maximum extent permitted by applicable law, The Sports Room is provided on an "as is" and "as available" basis.</p>
+                  <p>We do not guarantee that:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>The website will always be available.</li>
+                    <li>Content will always be accurate or complete.</li>
+                    <li>The website will be free from errors or security vulnerabilities.</li>
+                    <li>Information will always be current.</li>
+                    <li>The website will meet every user's individual requirements.</li>
+                  </ul>
+                  <p>Your use of the website is at your own risk.</p>
+                </div>
+
+                {/* Section 17 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">17. Limitation of Liability</h3>
+                  <p>To the maximum extent permitted by applicable law, The Sports Room and its owners, operators, contributors, and affiliates will not be responsible for indirect, incidental, special, consequential, or other losses arising from your use of, or inability to use, the website or its content.</p>
+                  <p>This includes, where permitted by law, losses resulting from reliance on sports news, analysis, predictions, statistics, external links, advertisements, or third-party services.</p>
+                </div>
+
+                {/* Section 18 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">18. Indemnification</h3>
+                  <p>To the extent permitted by applicable law, you agree to defend, indemnify, and hold harmless The Sports Room and its owners, operators, contributors, and affiliates from claims, damages, liabilities, losses, and expenses arising from:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-xs">
+                    <li>Your violation of these Terms.</li>
+                    <li>Your unlawful use of the website.</li>
+                    <li>Your violation of another person's rights.</li>
+                    <li>Content you submit to the website.</li>
+                  </ul>
+                </div>
+
+                {/* Section 19 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">19. Privacy</h3>
+                  <p>Your use of The Sports Room is also governed by our Privacy Policy.</p>
+                  <p>Our Privacy Policy explains how we collect, use, and protect information.</p>
+                  <p>Please review our Privacy Policy for more information.</p>
+                </div>
+
+                {/* Section 20 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">20. Changes to These Terms</h3>
+                  <p>We may update these Terms and Conditions from time to time.</p>
+                  <p>Changes will become effective when the updated Terms are published on this page unless otherwise stated.</p>
+                  <p>The "Last Updated" date will be changed when material updates are made.</p>
+                  <p>Your continued use of the website after changes are published means that you accept the updated Terms.</p>
+                </div>
+
+                {/* Section 21 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">21. Termination</h3>
+                  <p>We may restrict or terminate your access to The Sports Room at any time if we believe you have violated these Terms, applicable laws, or the rights of others.</p>
+                  <p>You may stop using the website at any time.</p>
+                  <p>Sections that are intended to survive termination, including intellectual property, disclaimers, limitations of liability, and indemnification, will continue to apply where legally permitted.</p>
+                </div>
+
+                {/* Section 22 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">22. Governing Law</h3>
+                  <p>These Terms and Conditions will be interpreted in accordance with the applicable laws of the jurisdiction in which The Sports Room operates, subject to any mandatory consumer protection rights that may apply to you.</p>
+                  <p>Nothing in these Terms is intended to limit any rights that cannot legally be excluded under applicable law.</p>
+                </div>
+
+                {/* Section 23 */}
+                <div className="space-y-3 pt-2 border-t border-slate-100">
+                  <h3 className="font-display font-bold text-slate-900 text-base uppercase">23. Contact Us</h3>
+                  <p>If you have questions about these Terms and Conditions, please contact The Sports Room through our Contact Us page or the official contact information provided on our website.</p>
+                  <p><strong>Website:</strong> <a href="https://thesportsroom.vercel.app/" className="text-[#22c55e] underline" target="_blank" rel="noopener noreferrer">https://thesportsroom.vercel.app/</a></p>
+                  <div className="pt-4 border-t border-slate-200">
+                    <p className="font-display font-black text-slate-900 uppercase">The Sports Room</p>
+                    <p className="text-slate-500 text-xs">Sports News, Updates, Analysis, and Insights</p>
+                  </div>
+                </div>
+
               </div>
             </div>
           )}
