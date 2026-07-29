@@ -462,6 +462,14 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
       }]
   };
 
+  const matchedCategory = DB.getCategories().find(c => 
+    c.slug.toLowerCase() === post.category.toLowerCase() ||
+    c.id.toLowerCase() === post.category.toLowerCase() ||
+    c.name.toLowerCase() === post.category.toLowerCase()
+  );
+  const targetCategorySlug = matchedCategory ? matchedCategory.slug : post.category.toLowerCase().replace(/\s+/g, '-');
+  const targetCategoryName = matchedCategory ? matchedCategory.name : post.category;
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6" id="article-reader-container">
       {/* Schemas */}
@@ -470,11 +478,11 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
       {/* Back button */}
       <button 
-        onClick={() => onNavigate(`/sport/${post.category}`)}
-        className="flex items-center space-x-1 font-mono text-xs font-bold text-slate-500 hover:text-[#22c55e] transition mb-6 uppercase"
+        onClick={() => onNavigate(`/sport/${targetCategorySlug}`)}
+        className="flex items-center space-x-1 font-mono text-xs font-bold text-slate-500 hover:text-[#22c55e] transition mb-6 uppercase cursor-pointer"
       >
         <ArrowLeft className="h-4 w-4" />
-        <span>Back to {post.category} coverage</span>
+        <span>Back to {targetCategoryName} coverage</span>
       </button>
 
       {/* AdSense Top Header space */}

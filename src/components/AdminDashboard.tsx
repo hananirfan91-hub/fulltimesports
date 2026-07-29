@@ -1004,7 +1004,25 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end space-x-2">
+                        <div className="flex items-center justify-end space-x-1.5">
+                          {!post.is_draft && (
+                            <>
+                              <button
+                                onClick={() => onNavigate(`/sport/${post.category}`)}
+                                className="px-2 py-1 text-[10px] font-mono font-bold bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-600 hover:text-white rounded transition flex items-center space-x-1"
+                                title="View on Sports Category Page"
+                              >
+                                <span>Sport Page</span>
+                              </button>
+                              <button
+                                onClick={() => onNavigate(`/blog/${post.slug}`)}
+                                className="px-2 py-1 text-[10px] font-mono font-bold bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-800 hover:text-white rounded transition flex items-center space-x-1"
+                                title="View Published Article Detail"
+                              >
+                                <span>Read</span>
+                              </button>
+                            </>
+                          )}
                           {post.is_draft && (
                             <button
                               onClick={() => {
@@ -1013,7 +1031,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                                   refreshData();
                                 }
                               }}
-                              className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#f0fdf4] border border-[#22c55e]/30 text-emerald-700 hover:bg-[#22c55e] hover:text-[#022c22] rounded transition"
+                              className="px-2 py-1 text-[10px] font-mono font-bold bg-[#f0fdf4] border border-[#22c55e]/30 text-emerald-700 hover:bg-[#22c55e] hover:text-[#022c22] rounded transition"
                               title="Publish Live Now"
                             >
                               Publish Live

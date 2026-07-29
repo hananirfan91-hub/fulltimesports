@@ -62,7 +62,11 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
 
   useEffect(() => {
     const cats = DB.getCategories();
-    const matched = cats.find(c => c.slug === categorySlug);
+    const matched = cats.find(c => 
+      c.slug.toLowerCase() === categorySlug.toLowerCase() ||
+      c.id.toLowerCase() === categorySlug.toLowerCase() ||
+      c.name.toLowerCase() === categorySlug.toLowerCase()
+    );
     setCategory(matched || null);
 
     if (matched) {
@@ -73,14 +77,30 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
       }
     }
 
-    // Fetch related items filtered by sport
-    const allPosts = DB.getPosts().filter(p => p.category === categorySlug);
+    // Fetch related items filtered by sport (case-insensitive & alias matched)
+    const targetSlug = matched ? matched.slug.toLowerCase() : categorySlug.toLowerCase();
+    const targetId = matched ? matched.id.toLowerCase() : categorySlug.toLowerCase();
+    const targetName = matched ? matched.name.toLowerCase() : categorySlug.toLowerCase();
+
+    const allPosts = DB.getPosts().filter(p => {
+      if (!p.category) return false;
+      const pCat = p.category.toLowerCase().trim();
+      return pCat === targetSlug || pCat === targetId || pCat === targetName;
+    });
     setPosts(allPosts);
 
-    const rankings = DB.getRankings().filter(r => r.sport === categorySlug);
+    const rankings = DB.getRankings().filter(r => {
+      if (!r.sport) return false;
+      const rSport = r.sport.toLowerCase().trim();
+      return rSport === targetSlug || rSport === targetId || rSport === targetName;
+    });
     setSportRankings(rankings);
 
-    const fixtures = DB.getFixtures().filter(f => f.sport === categorySlug);
+    const fixtures = DB.getFixtures().filter(f => {
+      if (!f.sport) return false;
+      const fSport = f.sport.toLowerCase().trim();
+      return fSport === targetSlug || fSport === targetId || fSport === targetName;
+    });
     setSportFixtures(fixtures);
   }, [categorySlug]);
 
@@ -100,7 +120,7 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
     // 1. Tab filter
     const matchesTab = activeTab === 'all' || 
                        (activeTab === 'news' && post.type === 'news') || 
-                       (activeTab === 'opinion' && post.type === 'blog');
+                       (activeTab === 'opinion' && (post.type === 'blog' || post.type === 'opinion'));
 
     // 2. Regional filter simulation
     // Let's check matching tags for localized terms
