@@ -7,6 +7,7 @@ import {
 import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, Subscriber } from '../types';
 import { DB } from '../lib/db';
 import { supabase } from '../lib/supabase';
+import { normalizeSlug } from '../lib/slugUtils';
 
 const alert = (msg: string) => {
   try {
@@ -432,10 +433,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         .map(e => e.trim())
         .filter(e => e.length > 0);
 
-      const generatedSlug = editingPost.slug || editingPost.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)+/g, '');
+      const generatedSlug = normalizeSlug(editingPost.slug || editingPost.title);
 
       const finalPost = {
         ...editingPost,

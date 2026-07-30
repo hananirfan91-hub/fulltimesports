@@ -1,5 +1,6 @@
 import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber } from '../types';
 import { supabase } from './supabase';
+import { normalizeSlug } from './slugUtils';
 
 const memoryStore: Record<string, string> = {};
 
@@ -529,6 +530,49 @@ export class DB {
     }
   }
 
+  static parseRemotePost(p: any): Post {
+    const safeArrayParse = (val: any) => {
+      if (Array.isArray(val)) return val;
+      if (typeof val === 'string' && val.trim()) {
+        try { return JSON.parse(val); } catch { return [val]; }
+      }
+      return [];
+    };
+
+    const cleanSlug = normalizeSlug(p.slug || p.id || '');
+    return {
+      id: String(p.id || ''),
+      title: String(p.title || ''),
+      slug: cleanSlug,
+      content: String(p.content || ''),
+      category: String(p.category || 'cricket').toLowerCase().trim(),
+      tags: safeArrayParse(p.tags),
+      featured_image: String(p.featured_image || ''),
+      video_url: String(p.video_url || ''),
+      author: String(p.author || 'FTS Desk'),
+      author_email: String(p.author_email || ''),
+      created_at: String(p.created_at || new Date().toISOString()),
+      is_featured: Boolean(p.is_featured),
+      is_trending: Boolean(p.is_trending),
+      type: p.type === 'blog' ? 'blog' : 'news',
+      scheduled_for: String(p.scheduled_for || ''),
+      meta_description: String(p.meta_description || ''),
+      views: Number(p.views) || 0,
+      is_draft: p.is_draft === true || p.scheduled_for === 'draft',
+      heading_tag: p.heading_tag || 'h1',
+      subheading: String(p.subheading || ''),
+      meta_title: String(p.meta_title || ''),
+      focus_keyword: String(p.focus_keyword || ''),
+      canonical_url: String(p.canonical_url || ''),
+      geo_summary: String(p.geo_summary || ''),
+      geo_entities: safeArrayParse(p.geo_entities),
+      aeo_direct_answer: String(p.aeo_direct_answer || ''),
+      aeo_faq: safeArrayParse(p.aeo_faq),
+      schema_type: p.schema_type || 'NewsArticle',
+      meta_robots: p.meta_robots || 'index, follow',
+    };
+  }
+
   static async syncFromSupabase() {
     try {
       // 1. Sync Categories
@@ -547,77 +591,32 @@ export class DB {
         }
       }
 
-      // Helper to safely parse JSON or return original array
-      const safeArrayParse = (val: any) => {
-        if (Array.isArray(val)) return val;
-        if (typeof val === 'string' && val.trim()) {
-          try { return JSON.parse(val); } catch { return [val]; }
-        }
-        return [];
-      };
-
       // 2. Sync Posts with robust bi-directional merge
       const { data: remotePosts, error: postError } = await supabase.from('fts_posts').select('*');
       if (postError) {
         console.error("Supabase fetch posts error:", postError);
       } else if (remotePosts) {
         const localPosts = this.getAdminAllPosts();
-
-        const parseRemotePost = (p: any): Post => ({
-          id: p.id,
-          title: p.title || '',
-          slug: p.slug || '',
-          content: p.content || '',
-          category: (p.category || 'cricket').toLowerCase().trim(),
-          tags: safeArrayParse(p.tags),
-          featured_image: p.featured_image || '',
-          video_url: p.video_url || '',
-          author: p.author || 'FTS Desk',
-          author_email: p.author_email || '',
-          created_at: p.created_at || new Date().toISOString(),
-          is_featured: Boolean(p.is_featured),
-          is_trending: Boolean(p.is_trending),
-          type: p.type === 'blog' ? 'blog' : 'news',
-          scheduled_for: p.scheduled_for || '',
-          meta_description: p.meta_description || '',
-          views: Number(p.views) || 0,
-          is_draft: p.is_draft === true || p.scheduled_for === 'draft',
-          heading_tag: p.heading_tag || 'h1',
-          subheading: p.subheading || '',
-          meta_title: p.meta_title || '',
-          focus_keyword: p.focus_keyword || '',
-          canonical_url: p.canonical_url || '',
-          geo_summary: p.geo_summary || '',
-          geo_entities: safeArrayParse(p.geo_entities),
-          aeo_direct_answer: p.aeo_direct_answer || '',
-          aeo_faq: safeArrayParse(p.aeo_faq),
-          schema_type: p.schema_type || 'NewsArticle',
-          meta_robots: p.meta_robots || 'index, follow',
-        });
-        
-        const parsedRemote = remotePosts.map(parseRemotePost);
+        const parsedRemote = remotePosts.map(p => this.parseRemotePost(p));
 
         if (parsedRemote.length === 0 && localPosts.length > 0) {
           // Empty remote database, seed Supabase with local items
           await this.safeUpsertPosts(localPosts);
         } else {
-          // Merge remote and local posts into a unified collection
+          // Merge remote and local posts into a unified collection keyed strictly by ID
           const postsMap = new Map<string, Post>();
 
           // Fill map with remote items
           parsedRemote.forEach((rp: Post) => {
-            const key = rp.slug || rp.id;
-            postsMap.set(key, rp);
-            postsMap.set(rp.id, rp);
+            if (rp.id) postsMap.set(rp.id, rp);
           });
 
           // Overlay local items (preserving local edits or newly authored posts)
           const unsyncedToPush: Post[] = [];
           localPosts.forEach((lp: Post) => {
-            const key = lp.slug || lp.id;
-            const existing = postsMap.get(key) || postsMap.get(lp.id);
+            if (!lp.id) return;
+            const existing = postsMap.get(lp.id);
             if (!existing) {
-              postsMap.set(key, lp);
               postsMap.set(lp.id, lp);
               unsyncedToPush.push(lp);
             } else {
@@ -625,22 +624,12 @@ export class DB {
               const existingTime = new Date(existing.created_at).getTime() || 0;
               const localTime = new Date(lp.created_at).getTime() || 0;
               if (localTime >= existingTime) {
-                postsMap.set(key, lp);
                 postsMap.set(lp.id, lp);
               }
             }
           });
 
-          // Deduplicate items by ID
-          const uniquePostsSet = new Set<string>();
-          const mergedList: Post[] = [];
-          Array.from(postsMap.values()).forEach(p => {
-            if (!uniquePostsSet.has(p.id)) {
-              uniquePostsSet.add(p.id);
-              mergedList.push(p);
-            }
-          });
-
+          const mergedList = Array.from(postsMap.values());
           mergedList.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
           localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(mergedList));
 
@@ -763,30 +752,78 @@ export class DB {
 
   static getPostBySlug(slug: string): Post | undefined {
     if (!slug) return undefined;
-    const cleanSlug = decodeURIComponent(slug).toLowerCase().trim();
+    const cleanSlug = normalizeSlug(slug);
     const publicPosts = this.getPosts();
-    const matchedPublic = publicPosts.find(p => p.slug.toLowerCase().trim() === cleanSlug);
+    const matchedPublic = publicPosts.find(p => normalizeSlug(p.slug) === cleanSlug || p.id === cleanSlug || normalizeSlug(p.id) === cleanSlug);
     if (matchedPublic) return matchedPublic;
     
     // Fallback to all posts (including draft or newly saved)
-    return this.getAdminAllPosts().find(p => p.slug.toLowerCase().trim() === cleanSlug);
+    return this.getAdminAllPosts().find(p => normalizeSlug(p.slug) === cleanSlug || p.id === cleanSlug || normalizeSlug(p.id) === cleanSlug);
+  }
+
+  static async getPostBySlugAsync(slug: string): Promise<Post | undefined> {
+    if (!slug) return undefined;
+    const cleanSlug = normalizeSlug(slug);
+
+    // 1. Try local memory/localStorage lookup
+    const localPost = this.getPostBySlug(cleanSlug);
+    if (localPost) return localPost;
+
+    // 2. Query Supabase directly if missing from local cache
+    try {
+      const rawTarget = decodeURIComponent(slug).trim();
+      const { data, error } = await supabase
+        .from('fts_posts')
+        .select('*')
+        .or(`slug.eq.${cleanSlug},id.eq.${cleanSlug},slug.eq.${rawTarget},id.eq.${rawTarget}`)
+        .limit(1);
+
+      if (!error && data && data.length > 0) {
+        const remotePost = this.parseRemotePost(data[0]);
+
+        // Merge into local cache so future lookups succeed instantly
+        const allPosts = this.getAdminAllPosts();
+        const existingIdx = allPosts.findIndex(p => p.id === remotePost.id || normalizeSlug(p.slug) === cleanSlug);
+        if (existingIdx !== -1) {
+          allPosts[existingIdx] = remotePost;
+        } else {
+          allPosts.unshift(remotePost);
+        }
+        localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(allPosts));
+        window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+        return remotePost;
+      } else if (error) {
+        console.warn("Supabase post lookup notice:", error.message);
+      }
+    } catch (err) {
+      console.error("Supabase getPostBySlugAsync exception:", err);
+    }
+
+    return undefined;
   }
 
   static async insertPost(post: Omit<Post, 'id' | 'created_at' | 'views'>): Promise<Post> {
     const posts = this.getAdminAllPosts();
     const cleanCategory = (post.category || 'cricket').toLowerCase().trim();
+    const cleanSlug = normalizeSlug(post.slug || post.title);
+    
     const newPost: Post = {
       ...post,
       category: cleanCategory,
-      id: post.slug ? `post-${post.slug}` : `post-${Date.now()}`,
+      slug: cleanSlug,
+      id: cleanSlug ? `post-${cleanSlug}` : `post-${Date.now()}`,
       created_at: new Date().toISOString(),
       views: 0,
+      is_draft: Boolean(post.is_draft),
+      scheduled_for: post.is_draft ? 'draft' : (post.scheduled_for || ''),
     };
+
     posts.unshift(newPost);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
-    // Async sync with Supabase
+    // Sync with Supabase
     try {
       await this.safeUpsertPosts([newPost]);
     } catch (err) {
@@ -798,12 +835,16 @@ export class DB {
 
   static async updatePost(id: string, updatedFields: Partial<Post>): Promise<Post> {
     const posts = this.getAdminAllPosts();
-    const index = posts.findIndex(p => p.id === id || p.slug === id);
-    if (index === -1) throw new Error('Post not found');
+    const cleanId = normalizeSlug(id);
+    const index = posts.findIndex(p => p.id === id || normalizeSlug(p.id) === cleanId || normalizeSlug(p.slug) === cleanId);
+    if (index === -1) throw new Error('Post not found in database registry');
     
     const nextFields = { ...updatedFields };
     if (nextFields.category) {
       nextFields.category = nextFields.category.toLowerCase().trim();
+    }
+    if (nextFields.slug || nextFields.title) {
+      nextFields.slug = normalizeSlug(nextFields.slug || nextFields.title || '');
     }
     if (nextFields.is_draft !== undefined) {
       if (nextFields.is_draft) {
@@ -818,7 +859,7 @@ export class DB {
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
-    // Async sync with Supabase
+    // Sync with Supabase
     try {
       await this.safeUpsertPosts([updatedPost]);
     } catch (err) {

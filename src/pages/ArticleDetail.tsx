@@ -60,6 +60,7 @@ const CORE_QUESTIONS_ANSWERS: Record<string, { q: string, a: string }> = {
 
 export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) {
   const [post, setPost] = useState<Post | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [related, setRelated] = useState<Post[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [newCommentName, setNewCommentName] = useState('');
@@ -67,8 +68,14 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    const loadPostData = () => {
-      const activePost = DB.getPostBySlug(slug);
+    let isMounted = true;
+
+    const loadPostData = async () => {
+      setIsLoading(true);
+      const activePost = await DB.getPostBySlugAsync(slug);
+
+      if (!isMounted) return;
+
       if (activePost) {
         const clonedPost = { ...activePost };
         
@@ -121,7 +128,10 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
           console.warn("Failed to access localStorage comments:", e);
           setComments(dummyComments);
         }
+      } else {
+        setPost(null);
       }
+      setIsLoading(false);
     };
 
     loadPostData();
@@ -129,16 +139,27 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
     window.addEventListener('fts_db_sync', loadPostData);
     return () => {
+      isMounted = false;
       window.removeEventListener('fts_db_sync', loadPostData);
     };
   }, [slug]);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-16 space-y-6 animate-pulse">
+        <div className="h-8 bg-slate-200 rounded-lg w-2/3"></div>
+        <div className="h-64 bg-slate-200 rounded-xl w-full"></div>
+        <div className="h-24 bg-slate-200 rounded-lg w-full"></div>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
       <div className="max-w-md mx-auto my-16 text-center space-y-4">
         <ShieldAlert className="h-10 w-10 text-[#22c55e] mx-auto animate-pulse" />
         <h3 className="font-display font-bold text-lg text-slate-800">Editorial Article Not Found</h3>
-        <p className="text-sm text-slate-500">The requested slug does not map to any active article in The Sports Room local database.</p>
+        <p className="text-sm text-slate-500">The requested slug does not map to any active article in The Sports Room database.</p>
         <button onClick={() => onNavigate('/')} className="bg-[#022c22] text-white font-mono text-[10px] uppercase py-2 px-4 rounded font-bold">Return Home</button>
       </div>
     );
