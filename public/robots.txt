@@ -1,4 +1,50 @@
+# ==============================================================================
+# The Sports Room (TSR) - Robots.txt & AI Crawler Indexing Configuration
+# Website: https://thesportsroom.online
+# ==============================================================================
+
+# Allow all general search engine crawlers and web spiders full access
 User-agent: *
 Allow: /
 
+# Explicitly allow AI agents, LLM search engines & research bots
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Cohere-ai
+Allow: /
+
+User-agent: FacebookExternalHit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+# Direct links to XML Sitemap and AI Summary Manifest
 Sitemap: https://thesportsroom.online/sitemap.xml
+LLMs-txt: https://thesportsroom.online/llms.txt
+
