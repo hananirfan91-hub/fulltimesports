@@ -61,47 +61,56 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
   const [isShareAlertOpen, setIsShareAlertOpen] = useState(false);
 
   useEffect(() => {
-    const cats = DB.getCategories();
-    const matched = cats.find(c => 
-      c.slug.toLowerCase() === categorySlug.toLowerCase() ||
-      c.id.toLowerCase() === categorySlug.toLowerCase() ||
-      c.name.toLowerCase() === categorySlug.toLowerCase()
-    );
-    setCategory(matched || null);
+    const loadCategoryData = () => {
+      const cats = DB.getCategories();
+      const matched = cats.find(c => 
+        c.slug.toLowerCase() === categorySlug.toLowerCase() ||
+        c.id.toLowerCase() === categorySlug.toLowerCase() ||
+        c.name.toLowerCase() === categorySlug.toLowerCase()
+      );
+      setCategory(matched || null);
 
-    if (matched) {
-      document.title = `${matched.name} Tactical Analysis & Stats | Full Time Sports Pakistan`;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute('content', `Premium physical investigations, biomechanics telemetry, match strategies, and fixtures for ${matched.name} in Pakistan.`);
+      if (matched) {
+        document.title = `${matched.name} Tactical Analysis & Stats | Full Time Sports Pakistan`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', `Premium physical investigations, biomechanics telemetry, match strategies, and fixtures for ${matched.name} in Pakistan.`);
+        }
       }
-    }
 
-    // Fetch related items filtered by sport (case-insensitive & alias matched)
-    const targetSlug = matched ? matched.slug.toLowerCase() : categorySlug.toLowerCase();
-    const targetId = matched ? matched.id.toLowerCase() : categorySlug.toLowerCase();
-    const targetName = matched ? matched.name.toLowerCase() : categorySlug.toLowerCase();
+      // Fetch related items filtered by sport (case-insensitive & alias matched)
+      const targetSlug = matched ? matched.slug.toLowerCase() : categorySlug.toLowerCase();
+      const targetId = matched ? matched.id.toLowerCase() : categorySlug.toLowerCase();
+      const targetName = matched ? matched.name.toLowerCase() : categorySlug.toLowerCase();
 
-    const allPosts = DB.getPosts().filter(p => {
-      if (!p.category) return false;
-      const pCat = p.category.toLowerCase().trim();
-      return pCat === targetSlug || pCat === targetId || pCat === targetName;
-    });
-    setPosts(allPosts);
+      const allPosts = DB.getPosts().filter(p => {
+        if (!p.category) return false;
+        const pCat = p.category.toLowerCase().trim();
+        return pCat === targetSlug || pCat === targetId || pCat === targetName;
+      });
+      setPosts(allPosts);
 
-    const rankings = DB.getRankings().filter(r => {
-      if (!r.sport) return false;
-      const rSport = r.sport.toLowerCase().trim();
-      return rSport === targetSlug || rSport === targetId || rSport === targetName;
-    });
-    setSportRankings(rankings);
+      const rankings = DB.getRankings().filter(r => {
+        if (!r.sport) return false;
+        const rSport = r.sport.toLowerCase().trim();
+        return rSport === targetSlug || rSport === targetId || rSport === targetName;
+      });
+      setSportRankings(rankings);
 
-    const fixtures = DB.getFixtures().filter(f => {
-      if (!f.sport) return false;
-      const fSport = f.sport.toLowerCase().trim();
-      return fSport === targetSlug || fSport === targetId || fSport === targetName;
-    });
-    setSportFixtures(fixtures);
+      const fixtures = DB.getFixtures().filter(f => {
+        if (!f.sport) return false;
+        const fSport = f.sport.toLowerCase().trim();
+        return fSport === targetSlug || fSport === targetId || fSport === targetName;
+      });
+      setSportFixtures(fixtures);
+    };
+
+    loadCategoryData();
+
+    window.addEventListener('fts_db_sync', loadCategoryData);
+    return () => {
+      window.removeEventListener('fts_db_sync', loadCategoryData);
+    };
   }, [categorySlug]);
 
   if (!category) {

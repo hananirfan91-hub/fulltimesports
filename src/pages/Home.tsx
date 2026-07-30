@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Post, FixtureItem, RankingItem } from '../types';
 import { DB } from '../lib/db';
+import { getYouTubeId } from '../lib/videoUtils';
 import Hero from '../components/Hero';
 import Logo from '../components/Logo';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
@@ -20,14 +21,6 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
   const [fixtures, setFixtures] = useState<FixtureItem[]>([]);
   const [rankings, setRankings] = useState<RankingItem[]>([]);
   const [selectedVideoId, setSelectedVideoId] = useState<string>('YBzE8S5S9_U');
-
-  // Helper to extract clean 11-char YouTube ID from any full link or raw ID
-  const getYouTubeId = (urlOrId: string): string => {
-    if (!urlOrId) return 'YBzE8S5S9_U';
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = urlOrId.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : urlOrId;
-  };
 
   useEffect(() => {
     document.title = "The Sports Room | Scientific Sports Journalism Hub";
@@ -676,31 +669,36 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-            <div className="lg:col-span-2 flex flex-col justify-between">
-              <div className="aspect-video bg-[#01140f] border border-emerald-850 rounded-2xl overflow-hidden relative shadow-2xl flex-grow">
-                <iframe 
-                  src={`https://www.youtube.com/embed/${selectedVideoId}?autoplay=1&mute=1&playlist=${selectedVideoId}&loop=1&controls=1&modestbranding=1`}
-                  title="Exclusive Telemetry Analysis"
-                  className="w-full h-full object-cover"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-              <div className="flex justify-between items-center mt-2.5 px-2 py-1.5 bg-[#01140f] border border-emerald-950/80 rounded-lg text-xs">
-                <div className="flex items-center space-x-2 text-slate-305">
-                  <span className="h-2 w-2 rounded-full bg-[#22c55e] animate-ping"></span>
-                  <span>Video ID: <strong className="font-mono text-[#22c55e]">{selectedVideoId}</strong></span>
+            {(() => {
+              const cleanActiveId = getYouTubeId(selectedVideoId);
+              return (
+                <div className="lg:col-span-2 flex flex-col justify-between">
+                  <div className="aspect-video bg-[#01140f] border border-emerald-850 rounded-2xl overflow-hidden relative shadow-2xl flex-grow">
+                    <iframe 
+                      src={`https://www.youtube.com/embed/${cleanActiveId}?autoplay=1&mute=1&playlist=${cleanActiveId}&loop=1&controls=1&modestbranding=1`}
+                      title="Exclusive Telemetry Analysis"
+                      className="w-full h-full object-cover"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
+                  <div className="flex justify-between items-center mt-2.5 px-2 py-1.5 bg-[#01140f] border border-emerald-950/80 rounded-lg text-xs">
+                    <div className="flex items-center space-x-2 text-slate-305">
+                      <span className="h-2 w-2 rounded-full bg-[#22c55e] animate-ping"></span>
+                      <span>Video ID: <strong className="font-mono text-[#22c55e]">{cleanActiveId}</strong></span>
+                    </div>
+                    <a 
+                      href={`https://www.youtube.com/watch?v=${cleanActiveId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-black font-mono text-[10px] uppercase py-1 px-3 rounded flex items-center space-x-1 transition"
+                    >
+                      <span>Launch External Player ↗</span>
+                    </a>
+                  </div>
                 </div>
-                <a 
-                  href={`https://www.youtube.com/watch?v=${selectedVideoId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-black font-mono text-[10px] uppercase py-1 px-3 rounded flex items-center space-x-1 transition"
-                >
-                  <span>Launch External Player ↗</span>
-                </a>
-              </div>
-            </div>
+              );
+            })()}
             
             <div className="space-y-3 flex flex-col justify-start">
               <p className="font-mono text-xs text-[#22c55e] font-bold uppercase tracking-wider pb-1 border-b border-emerald-950/60">

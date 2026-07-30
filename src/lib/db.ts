@@ -449,88 +449,259 @@ const SEED_FIXTURES: FixtureItem[] = [
 ];
 
 export class DB {
+  // Helper to safely upsert post(s) to Supabase with automatic fallback if table is missing extended columns
+  static async safeUpsertPosts(posts: Post[]) {
+    if (!posts || posts.length === 0) return;
+
+    const fullPayloads = posts.map(p => ({
+      id: p.id,
+      title: p.title || '',
+      slug: p.slug || '',
+      content: p.content || '',
+      category: (p.category || 'cricket').toLowerCase().trim(),
+      tags: JSON.stringify(p.tags || []) as any,
+      featured_image: p.featured_image || '',
+      video_url: p.video_url || '',
+      author: p.author || 'FTS Desk',
+      author_email: p.author_email || '',
+      created_at: p.created_at || new Date().toISOString(),
+      is_featured: Boolean(p.is_featured),
+      is_trending: Boolean(p.is_trending),
+      type: p.type === 'blog' ? 'blog' : 'news',
+      scheduled_for: p.is_draft ? 'draft' : (p.scheduled_for || ''),
+      meta_description: p.meta_description || '',
+      views: Number(p.views) || 0,
+      is_draft: Boolean(p.is_draft),
+      heading_tag: p.heading_tag || 'h1',
+      subheading: p.subheading || '',
+      meta_title: p.meta_title || '',
+      focus_keyword: p.focus_keyword || '',
+      canonical_url: p.canonical_url || '',
+      geo_summary: p.geo_summary || '',
+      geo_entities: JSON.stringify(p.geo_entities || []) as any,
+      aeo_direct_answer: p.aeo_direct_answer || '',
+      aeo_faq: JSON.stringify(p.aeo_faq || []) as any,
+      schema_type: p.schema_type || 'NewsArticle',
+      meta_robots: p.meta_robots || 'index, follow',
+    }));
+
+    const { error: fullError } = await supabase.from('fts_posts').upsert(fullPayloads);
+
+    if (fullError) {
+      console.error("Supabase full post upsert error:", fullError);
+      
+      const isMissingColumn = fullError.code === 'PGRST204' || 
+                              fullError.code === '42703' || 
+                              fullError.message?.toLowerCase().includes('column') ||
+                              fullError.details?.toLowerCase().includes('column');
+
+      if (isMissingColumn) {
+        console.warn("Supabase table missing extended SEO/AEO columns. Retrying post upsert with core columns payload...");
+        const basePayloads = posts.map(p => ({
+          id: p.id,
+          title: p.title || '',
+          slug: p.slug || '',
+          content: p.content || '',
+          category: (p.category || 'cricket').toLowerCase().trim(),
+          tags: JSON.stringify(p.tags || []) as any,
+          featured_image: p.featured_image || '',
+          video_url: p.video_url || '',
+          author: p.author || 'FTS Desk',
+          author_email: p.author_email || '',
+          created_at: p.created_at || new Date().toISOString(),
+          is_featured: Boolean(p.is_featured),
+          is_trending: Boolean(p.is_trending),
+          type: p.type === 'blog' ? 'blog' : 'news',
+          scheduled_for: p.is_draft ? 'draft' : (p.scheduled_for || ''),
+          meta_description: p.meta_description || '',
+          views: Number(p.views) || 0,
+          is_draft: Boolean(p.is_draft),
+        }));
+
+        const { error: baseError } = await supabase.from('fts_posts').upsert(basePayloads);
+        if (baseError) {
+          console.error("Supabase fallback post upsert error:", baseError);
+          throw baseError;
+        }
+      } else {
+        throw fullError;
+      }
+    }
+  }
+
   static async syncFromSupabase() {
     try {
       // 1. Sync Categories
       const { data: categories, error: catError } = await supabase.from('fts_categories').select('*');
-      if (!catError && categories) {
+      if (catError) {
+        console.error("Supabase fetch categories error:", catError);
+      } else if (categories) {
         if (categories.length > 0) {
           localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
         } else {
-          // Empty, seed Supabase
           const localCats = this.getCategories();
-          await supabase.from('fts_categories').insert(localCats);
+          if (localCats.length > 0) {
+            const { error: upsertErr } = await supabase.from('fts_categories').upsert(localCats);
+            if (upsertErr) console.error("Supabase categories upsert error:", upsertErr);
+          }
         }
       }
 
-      // 2. Sync Posts
-      const { data: posts, error: postError } = await supabase.from('fts_posts').select('*');
-      if (!postError && posts) {
-        if (posts.length > 0) {
-          const parsedPosts = posts.map(p => ({
-            ...p,
-            is_draft: p.is_draft || p.scheduled_for === 'draft',
-            tags: Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? JSON.parse(p.tags) : [])
-          }));
-          localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(parsedPosts));
+      // Helper to safely parse JSON or return original array
+      const safeArrayParse = (val: any) => {
+        if (Array.isArray(val)) return val;
+        if (typeof val === 'string' && val.trim()) {
+          try { return JSON.parse(val); } catch { return [val]; }
+        }
+        return [];
+      };
+
+      // 2. Sync Posts with robust bi-directional merge
+      const { data: remotePosts, error: postError } = await supabase.from('fts_posts').select('*');
+      if (postError) {
+        console.error("Supabase fetch posts error:", postError);
+      } else if (remotePosts) {
+        const localPosts = this.getAdminAllPosts();
+
+        const parseRemotePost = (p: any): Post => ({
+          id: p.id,
+          title: p.title || '',
+          slug: p.slug || '',
+          content: p.content || '',
+          category: (p.category || 'cricket').toLowerCase().trim(),
+          tags: safeArrayParse(p.tags),
+          featured_image: p.featured_image || '',
+          video_url: p.video_url || '',
+          author: p.author || 'FTS Desk',
+          author_email: p.author_email || '',
+          created_at: p.created_at || new Date().toISOString(),
+          is_featured: Boolean(p.is_featured),
+          is_trending: Boolean(p.is_trending),
+          type: p.type === 'blog' ? 'blog' : 'news',
+          scheduled_for: p.scheduled_for || '',
+          meta_description: p.meta_description || '',
+          views: Number(p.views) || 0,
+          is_draft: p.is_draft === true || p.scheduled_for === 'draft',
+          heading_tag: p.heading_tag || 'h1',
+          subheading: p.subheading || '',
+          meta_title: p.meta_title || '',
+          focus_keyword: p.focus_keyword || '',
+          canonical_url: p.canonical_url || '',
+          geo_summary: p.geo_summary || '',
+          geo_entities: safeArrayParse(p.geo_entities),
+          aeo_direct_answer: p.aeo_direct_answer || '',
+          aeo_faq: safeArrayParse(p.aeo_faq),
+          schema_type: p.schema_type || 'NewsArticle',
+          meta_robots: p.meta_robots || 'index, follow',
+        });
+        
+        const parsedRemote = remotePosts.map(parseRemotePost);
+
+        if (parsedRemote.length === 0 && localPosts.length > 0) {
+          // Empty remote database, seed Supabase with local items
+          await this.safeUpsertPosts(localPosts);
         } else {
-          // Empty, seed Supabase
-          const localPosts = this.getAdminAllPosts();
-          // Convert tags to JSON arrays for Supabase
-          const dbPosts = localPosts.map(p => {
-            const { is_draft, ...cleanPost } = p;
-            if (is_draft && !cleanPost.scheduled_for) {
-              cleanPost.scheduled_for = 'draft';
-            }
-            return {
-              ...cleanPost,
-              tags: JSON.stringify(cleanPost.tags) as any
-            };
+          // Merge remote and local posts into a unified collection
+          const postsMap = new Map<string, Post>();
+
+          // Fill map with remote items
+          parsedRemote.forEach((rp: Post) => {
+            const key = rp.slug || rp.id;
+            postsMap.set(key, rp);
+            postsMap.set(rp.id, rp);
           });
-          await supabase.from('fts_posts').insert(dbPosts);
+
+          // Overlay local items (preserving local edits or newly authored posts)
+          const unsyncedToPush: Post[] = [];
+          localPosts.forEach((lp: Post) => {
+            const key = lp.slug || lp.id;
+            const existing = postsMap.get(key) || postsMap.get(lp.id);
+            if (!existing) {
+              postsMap.set(key, lp);
+              postsMap.set(lp.id, lp);
+              unsyncedToPush.push(lp);
+            } else {
+              // Compare timestamps if both exist
+              const existingTime = new Date(existing.created_at).getTime() || 0;
+              const localTime = new Date(lp.created_at).getTime() || 0;
+              if (localTime >= existingTime) {
+                postsMap.set(key, lp);
+                postsMap.set(lp.id, lp);
+              }
+            }
+          });
+
+          // Deduplicate items by ID
+          const uniquePostsSet = new Set<string>();
+          const mergedList: Post[] = [];
+          Array.from(postsMap.values()).forEach(p => {
+            if (!uniquePostsSet.has(p.id)) {
+              uniquePostsSet.add(p.id);
+              mergedList.push(p);
+            }
+          });
+
+          mergedList.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(mergedList));
+
+          if (unsyncedToPush.length > 0) {
+            await this.safeUpsertPosts(unsyncedToPush);
+          }
         }
       }
 
       // 3. Sync Rankings
       const { data: rankings, error: rankError } = await supabase.from('fts_rankings').select('*');
-      if (!rankError && rankings) {
+      if (rankError) {
+        console.error("Supabase fetch rankings error:", rankError);
+      } else if (rankings) {
         if (rankings.length > 0) {
           localStorage.setItem(STORAGE_KEYS.RANKINGS, JSON.stringify(rankings));
         } else {
-          // Empty, seed Supabase
           const localRankings = this.getRankings();
-          await supabase.from('fts_rankings').insert(localRankings);
+          if (localRankings.length > 0) {
+            const { error: rankUpsertErr } = await supabase.from('fts_rankings').upsert(localRankings);
+            if (rankUpsertErr) console.error("Supabase rankings upsert error:", rankUpsertErr);
+          }
         }
       }
 
       // 4. Sync Fixtures
       const { data: fixtures, error: fixError } = await supabase.from('fts_fixtures').select('*');
-      if (!fixError && fixtures) {
+      if (fixError) {
+        console.error("Supabase fetch fixtures error:", fixError);
+      } else if (fixtures) {
         if (fixtures.length > 0) {
           localStorage.setItem(STORAGE_KEYS.FIXTURES, JSON.stringify(fixtures));
         } else {
-          // Empty, seed Supabase
           const localFixtures = this.getFixtures();
-          await supabase.from('fts_fixtures').insert(localFixtures);
+          if (localFixtures.length > 0) {
+            const { error: fixUpsertErr } = await supabase.from('fts_fixtures').upsert(localFixtures);
+            if (fixUpsertErr) console.error("Supabase fixtures upsert error:", fixUpsertErr);
+          }
         }
       }
 
       // 5. Sync Media
       const { data: media, error: mediaError } = await supabase.from('fts_media').select('*');
-      if (!mediaError && media) {
+      if (mediaError) {
+        console.error("Supabase fetch media error:", mediaError);
+      } else if (media) {
         if (media.length > 0) {
           localStorage.setItem(STORAGE_KEYS.MEDIA, JSON.stringify(media));
         } else {
-          // Empty, seed Supabase
           const localMedia = this.getMedia();
-          await supabase.from('fts_media').insert(localMedia);
+          if (localMedia.length > 0) {
+            const { error: mediaUpsertErr } = await supabase.from('fts_media').upsert(localMedia);
+            if (mediaUpsertErr) console.error("Supabase media upsert error:", mediaUpsertErr);
+          }
         }
       }
 
       // Broadcast update across listening views
       window.dispatchEvent(new CustomEvent('fts_db_sync'));
     } catch (e) {
-      console.warn("Supabase Sync Incomplete or SQL Setup Missing, using robust Local Cache:", e);
+      console.error("Supabase Sync error:", e);
     }
   }
 
@@ -573,8 +744,11 @@ export class DB {
       if (p.is_draft || p.scheduled_for === 'draft') {
         return false;
       }
-      if (p.scheduled_for) {
-        return new Date(p.scheduled_for).getTime() <= now;
+      if (p.scheduled_for && p.scheduled_for.trim() !== '') {
+        const scheduledTime = new Date(p.scheduled_for).getTime();
+        if (!isNaN(scheduledTime) && scheduledTime > now) {
+          return false;
+        }
       }
       return true;
     }).sort((a: Post, b: Post) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -588,91 +762,102 @@ export class DB {
   }
 
   static getPostBySlug(slug: string): Post | undefined {
-    return this.getPosts().find(p => p.slug === slug);
+    if (!slug) return undefined;
+    const cleanSlug = decodeURIComponent(slug).toLowerCase().trim();
+    const publicPosts = this.getPosts();
+    const matchedPublic = publicPosts.find(p => p.slug.toLowerCase().trim() === cleanSlug);
+    if (matchedPublic) return matchedPublic;
+    
+    // Fallback to all posts (including draft or newly saved)
+    return this.getAdminAllPosts().find(p => p.slug.toLowerCase().trim() === cleanSlug);
   }
 
-  static insertPost(post: Omit<Post, 'id' | 'created_at' | 'views'>): Post {
+  static async insertPost(post: Omit<Post, 'id' | 'created_at' | 'views'>): Promise<Post> {
     const posts = this.getAdminAllPosts();
+    const cleanCategory = (post.category || 'cricket').toLowerCase().trim();
     const newPost: Post = {
       ...post,
-      id: `post-${Date.now()}`,
+      category: cleanCategory,
+      id: post.slug ? `post-${post.slug}` : `post-${Date.now()}`,
       created_at: new Date().toISOString(),
       views: 0,
     };
     posts.unshift(newPost);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
-    // Async sync with Supabase (strip is_draft and write draft to scheduled_for)
-    const { is_draft, ...supabasePost } = newPost;
-    if (is_draft && !supabasePost.scheduled_for) {
-      supabasePost.scheduled_for = 'draft';
+    // Async sync with Supabase
+    try {
+      await this.safeUpsertPosts([newPost]);
+    } catch (err) {
+      console.error("Supabase insertPost sync error:", err);
     }
-    supabase.from('fts_posts').insert([{
-      ...supabasePost,
-      tags: JSON.stringify(supabasePost.tags) as any
-    }]).then(({ error }) => {
-      if (error) console.warn("Supabase insert fts_posts error:", error);
-    });
 
     return newPost;
   }
 
-  static updatePost(id: string, updatedFields: Partial<Post>): Post {
+  static async updatePost(id: string, updatedFields: Partial<Post>): Promise<Post> {
     const posts = this.getAdminAllPosts();
-    const index = posts.findIndex(p => p.id === id);
+    const index = posts.findIndex(p => p.id === id || p.slug === id);
     if (index === -1) throw new Error('Post not found');
     
-    // Ensure is_draft status update maps correctly
     const nextFields = { ...updatedFields };
-    if (nextFields.is_draft) {
-      nextFields.scheduled_for = 'draft';
-    } else if (nextFields.is_draft === false && nextFields.scheduled_for === 'draft') {
-      nextFields.scheduled_for = '';
+    if (nextFields.category) {
+      nextFields.category = nextFields.category.toLowerCase().trim();
+    }
+    if (nextFields.is_draft !== undefined) {
+      if (nextFields.is_draft) {
+        nextFields.scheduled_for = 'draft';
+      } else if (nextFields.scheduled_for === 'draft') {
+        nextFields.scheduled_for = '';
+      }
     }
 
-    posts[index] = { ...posts[index], ...nextFields };
+    const updatedPost = { ...posts[index], ...nextFields };
+    posts[index] = updatedPost;
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     // Async sync with Supabase
-    const { is_draft, ...supabaseFields } = nextFields;
-    if (supabaseFields.tags) {
-      supabaseFields.tags = JSON.stringify(supabaseFields.tags) as any;
+    try {
+      await this.safeUpsertPosts([updatedPost]);
+    } catch (err) {
+      console.error("Supabase updatePost sync error:", err);
     }
 
-    supabase.from('fts_posts').update(supabaseFields).eq('id', id).then(({ error }) => {
-      if (error) console.warn("Supabase update fts_posts error:", error);
-    });
-
-    return posts[index];
+    return updatedPost;
   }
 
-  static deletePost(id: string) {
+  static async deletePost(id: string) {
     const posts = this.getAdminAllPosts();
-    const filtered = posts.filter(p => p.id !== id);
+    const filtered = posts.filter(p => p.id !== id && p.slug !== id);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     // Async sync with Supabase
-    supabase.from('fts_posts').delete().eq('id', id).then(({ error }) => {
-      if (error) console.warn("Supabase delete fts_posts error:", error);
-    });
+    try {
+      const { error } = await supabase.from('fts_posts').delete().eq('id', id);
+      if (error) console.error("Supabase delete fts_posts error:", error);
+    } catch (err) {
+      console.error("Supabase deletePost exception:", err);
+    }
   }
 
-  static incrementViews(id: string) {
+  static async incrementViews(id: string) {
     try {
       const posts = this.getAdminAllPosts();
-      const index = posts.findIndex(p => p.id === id);
+      const index = posts.findIndex(p => p.id === id || p.slug === id);
       if (index !== -1) {
         const nextViews = (posts[index].views || 0) + 1;
         posts[index].views = nextViews;
         localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
 
-        // Async sync stats
-        supabase.from('fts_posts').update({ views: nextViews }).eq('id', id).then(({ error }) => {
-          if (error) console.warn("Supabase views update error", error);
-        });
+        const targetId = posts[index].id;
+        const { error } = await supabase.from('fts_posts').update({ views: nextViews }).eq('id', targetId);
+        if (error) console.error("Supabase views update error:", error);
       }
     } catch (e) {
-      console.warn("Could not increment views", e);
+      console.error("Could not increment views:", e);
     }
   }
 

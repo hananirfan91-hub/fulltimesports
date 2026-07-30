@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Play, TrendingUp, ChevronRight, BookOpen, Clock, Award } from 'lucide-react';
 import { Post } from '../types';
 import { DB } from '../lib/db';
+import { getYouTubeId } from '../lib/videoUtils';
 
 interface HeroProps {
   onNavigate: (path: string) => void;
@@ -53,14 +54,6 @@ export default function Hero({ onNavigate }: HeroProps) {
 
   // Safe checks
   if (!featuredNews) return <div className="h-44 bg-slate-100 animate-pulse"></div>;
-
-  // Helper to extract clean 11-char YouTube ID from any full link or raw ID
-  const getYouTubeId = (urlOrId: string): string => {
-    if (!urlOrId) return 'YBzE8S5S9_U';
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = urlOrId.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : urlOrId;
-  };
 
   // Active items in the carousel (2 at a time)
   const carouselItem1 = carouselPool[carouselIndex % carouselPool.length];

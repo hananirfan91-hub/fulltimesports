@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Post } from '../types';
 import { DB } from '../lib/db';
+import { getYouTubeId } from '../lib/videoUtils';
 import { SEO_KEYWORDS_REGISTRY } from '../lib/seoKeywords';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
 
@@ -66,61 +67,70 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    const activePost = DB.getPostBySlug(slug);
-    if (activePost) {
-      const clonedPost = { ...activePost };
-      
-      const keywords = SEO_KEYWORDS_REGISTRY[clonedPost.slug];
-      if (keywords && !clonedPost.content.includes("Editorial SEO Research Matrix")) {
-        let tableMarkdown = "\n\n### 📈 Editorial SEO Research Matrix: Target Audience & Low-Competition Search Intent\n\n";
-        tableMarkdown += "To maintain elite search visibility under the **PEO Analytical Standard**, we conducted dedicated automated keyword diagnostics. Below are **50 low-competition search query phrases** (Search Difficulty under 20%, Moderate monthly volume) integrated natively into the physical biomechanical and tactical text structure of this article:\n\n";
-        tableMarkdown += "| # | Low-Competition Keyword String | Search Volume | Keyword Difficulty (KD) | Intent Typology |\n";
-        tableMarkdown += "|---|---|---|---|---|\n";
-        keywords.forEach((kw, i) => {
-          tableMarkdown += `| ${i + 1} | **${kw.keyword}** | ${kw.volume} | ${kw.kd} | ${kw.intent} |\n`;
-        });
-        clonedPost.content += tableMarkdown;
-      }
+    const loadPostData = () => {
+      const activePost = DB.getPostBySlug(slug);
+      if (activePost) {
+        const clonedPost = { ...activePost };
+        
+        const keywords = SEO_KEYWORDS_REGISTRY[clonedPost.slug];
+        if (keywords && !clonedPost.content.includes("Editorial SEO Research Matrix")) {
+          let tableMarkdown = "\n\n### 📈 Editorial SEO Research Matrix: Target Audience & Low-Competition Search Intent\n\n";
+          tableMarkdown += "To maintain elite search visibility under the **PEO Analytical Standard**, we conducted dedicated automated keyword diagnostics. Below are **50 low-competition search query phrases** (Search Difficulty under 20%, Moderate monthly volume) integrated natively into the physical biomechanical and tactical text structure of this article:\n\n";
+          tableMarkdown += "| # | Low-Competition Keyword String | Search Volume | Keyword Difficulty (KD) | Intent Typology |\n";
+          tableMarkdown += "|---|---|---|---|---|\n";
+          keywords.forEach((kw, i) => {
+            tableMarkdown += `| ${i + 1} | **${kw.keyword}** | ${kw.volume} | ${kw.kd} | ${kw.intent} |\n`;
+          });
+          clonedPost.content += tableMarkdown;
+        }
 
-      setPost(clonedPost);
-      
-      // Update browser/tab document title and meta properties for SEO
-      document.title = `${activePost.title} | The Sports Room`;
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        metaDesc.setAttribute('content', activePost.meta_description || `Detail analysis on ${activePost.title}. Dissecting raw sports biometrics, physical speed, tactical mechanics, and strategies.`);
-      }
+        setPost(clonedPost);
+        
+        // Update browser/tab document title and meta properties for SEO
+        document.title = `${activePost.title} | The Sports Room`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+          metaDesc.setAttribute('content', activePost.meta_description || `Detail analysis on ${activePost.title}. Dissecting raw sports biometrics, physical speed, tactical mechanics, and strategies.`);
+        }
 
-      // Increment views
-      DB.incrementViews(activePost.id);
+        // Increment views
+        DB.incrementViews(activePost.id);
 
-      // Pull related articles
-      const allPosts = DB.getPosts();
-      const relatedFiltered = allPosts
-        .filter(p => p.id !== activePost.id && p.category === activePost.category)
-        .slice(0, 3);
-      setRelated(relatedFiltered.length > 0 ? relatedFiltered : allPosts.filter(p => p.id !== activePost.id).slice(0, 3));
+        // Pull related articles
+        const allPosts = DB.getPosts();
+        const relatedFiltered = allPosts
+          .filter(p => p.id !== activePost.id && p.category === activePost.category)
+          .slice(0, 3);
+        setRelated(relatedFiltered.length > 0 ? relatedFiltered : allPosts.filter(p => p.id !== activePost.id).slice(0, 3));
 
-      // Pull comments simulation from localStorage securely
-      const commentKey = `comments_${activePost.id}`;
-      const dummyComments = [
-        { id: 'c1', author: 'Markus Vance', text: 'This mathematical overview of the Venturi tunnels is the best I have ever read in Formula 1 media. Outstanding quality!', date: '2026-06-03' },
-        { id: 'c2', author: 'Vikram Singh', text: 'I really agree with the analysis of Rashid Khan’s wrist motion. T20 batting setups are indeed struggling heavily.', date: '2026-06-03' }
-      ];
-      try {
-        const saved = localStorage.getItem(commentKey);
-        if (saved) {
-          setComments(JSON.parse(saved));
-        } else {
-          localStorage.setItem(commentKey, JSON.stringify(dummyComments));
+        // Pull comments simulation from localStorage securely
+        const commentKey = `comments_${activePost.id}`;
+        const dummyComments = [
+          { id: 'c1', author: 'Markus Vance', text: 'This mathematical overview of the Venturi tunnels is the best I have ever read in Formula 1 media. Outstanding quality!', date: '2026-06-03' },
+          { id: 'c2', author: 'Vikram Singh', text: 'I really agree with the analysis of Rashid Khan’s wrist motion. T20 batting setups are indeed struggling heavily.', date: '2026-06-03' }
+        ];
+        try {
+          const saved = localStorage.getItem(commentKey);
+          if (saved) {
+            setComments(JSON.parse(saved));
+          } else {
+            localStorage.setItem(commentKey, JSON.stringify(dummyComments));
+            setComments(dummyComments);
+          }
+        } catch (e) {
+          console.warn("Failed to access localStorage comments:", e);
           setComments(dummyComments);
         }
-      } catch (e) {
-        console.warn("Failed to access localStorage comments:", e);
-        setComments(dummyComments);
       }
-    }
+    };
+
+    loadPostData();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    window.addEventListener('fts_db_sync', loadPostData);
+    return () => {
+      window.removeEventListener('fts_db_sync', loadPostData);
+    };
   }, [slug]);
 
   if (!post) {
@@ -340,17 +350,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
       // Handle custom block inline video parsed at any position
       const ytMatch = trimmed.match(/^@\[youtube\]\((.*?)\)/) || trimmed.match(/^\[video\]\((.*?)\)/);
       if (ytMatch) {
-        let ytId = ytMatch[1];
-        if (ytId.includes("youtube.com") || ytId.includes("youtu.be")) {
-          try {
-            const urlObj = new URL(ytId);
-            if (ytId.includes("youtu.be")) {
-              ytId = urlObj.pathname.substring(1);
-            } else {
-              ytId = urlObj.searchParams.get("v") || ytId;
-            }
-          } catch (_) {}
-        }
+        const ytId = getYouTubeId(ytMatch[1]);
         nodes.push(
           <div key={`video-${index}`} className="bg-slate-900 p-3 rounded-2xl border border-slate-800 my-6 shadow-lg">
             <div className="aspect-video rounded-xl overflow-hidden">
@@ -657,7 +657,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
               </h4>
               <div className="aspect-video bg-slate-900 rounded-xl overflow-hidden border border-emerald-950">
                 <iframe 
-                  src={`https://www.youtube.com/embed/${post.video_url}?mute=1&controls=1&modestbranding=1`}
+                  src={`https://www.youtube.com/embed/${getYouTubeId(post.video_url)}?mute=1&controls=1&modestbranding=1`}
                   title="Video review block"
                   className="w-full h-full object-cover"
                   allowFullScreen

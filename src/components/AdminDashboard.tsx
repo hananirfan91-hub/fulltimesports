@@ -419,44 +419,49 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setIsPostModalOpen(true);
   };
 
-  const handleSavePost = (e: React.FormEvent) => {
+  const handleSavePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPost || !editingPost.title) return;
 
-    const tagsArray = tempTags.split(',')
-      .map(t => t.trim())
-      .filter(t => t.length > 0);
+    try {
+      const tagsArray = tempTags.split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
 
-    const entitiesArray = tempEntities.split(',')
-      .map(e => e.trim())
-      .filter(e => e.length > 0);
+      const entitiesArray = tempEntities.split(',')
+        .map(e => e.trim())
+        .filter(e => e.length > 0);
 
-    const generatedSlug = editingPost.slug || editingPost.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
+      const generatedSlug = editingPost.slug || editingPost.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
 
-    const finalPost = {
-      ...editingPost,
-      tags: tagsArray,
-      geo_entities: entitiesArray,
-      aeo_faq: faqList,
-      heading_tag: editingPost.heading_tag || 'h1',
-      schema_type: editingPost.schema_type || 'NewsArticle',
-      slug: generatedSlug,
-      author: editingPost.author || currentAdmin?.name || 'FTS Desk',
-      author_email: editingPost.author_email || currentAdmin?.email || '',
-    } as Omit<Post, 'id' | 'created_at' | 'views'> & { id?: string };
+      const finalPost = {
+        ...editingPost,
+        tags: tagsArray,
+        geo_entities: entitiesArray,
+        aeo_faq: faqList,
+        heading_tag: editingPost.heading_tag || 'h1',
+        schema_type: editingPost.schema_type || 'NewsArticle',
+        slug: generatedSlug,
+        author: editingPost.author || currentAdmin?.name || 'FTS Desk',
+        author_email: editingPost.author_email || currentAdmin?.email || '',
+      } as Omit<Post, 'id' | 'created_at' | 'views'> & { id?: string };
 
-    if (finalPost.id) {
-      DB.updatePost(finalPost.id, finalPost);
-    } else {
-      DB.insertPost(finalPost);
+      if (finalPost.id) {
+        await DB.updatePost(finalPost.id, finalPost);
+      } else {
+        await DB.insertPost(finalPost);
+      }
+
+      setIsPostModalOpen(false);
+      setEditingPost(null);
+      refreshData();
+    } catch (err: any) {
+      console.error("Failed to save article:", err);
+      alert("Notice: Failed to save article to Supabase: " + (err?.message || "Please check connection."));
     }
-
-    setIsPostModalOpen(false);
-    setEditingPost(null);
-    refreshData();
   };
 
   const applyFormatToTextarea = (prefix: string, suffix: string = '', defaultSnippet: string = '') => {
@@ -1025,10 +1030,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                           )}
                           {post.is_draft && (
                             <button
-                              onClick={() => {
+                              onClick={async () => {
                                 if (window.confirm(`Are you sure you want to publish "${post.title}" live now?`)) {
-                                  DB.updatePost(post.id, { is_draft: false, scheduled_for: '' });
-                                  refreshData();
+                                  try {
+                                    await DB.updatePost(post.id, { is_draft: false, scheduled_for: '' });
+                                    refreshData();
+                                  } catch (err) {
+                                    console.error("Publish live error:", err);
+                                  }
                                 }
                               }}
                               className="px-2 py-1 text-[10px] font-mono font-bold bg-[#f0fdf4] border border-[#22c55e]/30 text-emerald-700 hover:bg-[#22c55e] hover:text-[#022c22] rounded transition"
