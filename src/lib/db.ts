@@ -833,7 +833,20 @@ export class DB {
       console.error("Supabase insertPost sync error:", err);
     }
 
+    newPost.is_draft ? null : this.updateSitemapRegistry();
     return newPost;
+  }
+
+  static updateSitemapRegistry() {
+    try {
+      const publicPosts = this.getPosts();
+      const baseUrl = "https://thesportsroom.online";
+      const sitemapUrls = publicPosts.map(p => `${baseUrl}/blog/${p.slug}`);
+      localStorage.setItem('fts_sitemap_post_urls', JSON.stringify(sitemapUrls));
+      window.dispatchEvent(new CustomEvent('fts_sitemap_updated', { detail: { urls: sitemapUrls } }));
+    } catch (e) {
+      console.warn("Sitemap registry update warning:", e);
+    }
   }
 
   static async updatePost(id: string, updatedFields: Partial<Post>): Promise<Post> {
@@ -870,6 +883,7 @@ export class DB {
       console.error("Supabase updatePost sync error:", err);
     }
 
+    this.updateSitemapRegistry();
     return updatedPost;
   }
 
@@ -878,6 +892,7 @@ export class DB {
     const filtered = posts.filter(p => p.id !== id && p.slug !== id);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
+    this.updateSitemapRegistry();
 
     // Async sync with Supabase
     try {
