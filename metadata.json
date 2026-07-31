@@ -1,6 +1,6 @@
 {
   "name": "The Sports Room",
-  "description": "Premium sports journalism and media platform covering cricket, football, basketball, F1, esports, tennis, and more with high-performance biometric, aerodynamic, and strategic analysis.",
+  "description": "Premium sports media platform with live cricket scores, real-time match updates, upcoming match schedules, and full coverage of international series and premier tournaments.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

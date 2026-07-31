@@ -4,6 +4,21 @@ import { DB } from '../lib/db';
 // 100+ high-performance sports, telemetry, biomechanics, and regional keywords
 export const GLOBAL_SEO_KEYWORDS = [
   "The Sports Room",
+  "live cricket scores",
+  "real-time match updates",
+  "upcoming cricket matches",
+  "cricket match schedules",
+  "international cricket live",
+  "cricket tournaments 2026",
+  "PSL 2026 live scores",
+  "IPL 2026 live coverage",
+  "Major League Cricket MLC 2026",
+  "The Hundred Men 2026",
+  "Lanka Premier League LPL 2026",
+  "Pakistan vs West Indies test series 2026",
+  "ball by ball cricket updates",
+  "recent match results scoreboard",
+  "tournament standings and fixtures",
   "The Sports Room Sports Analysis",
   "The Sports Room Football Coverage",
   "The Sports Room Cricket Analysis",
@@ -135,8 +150,8 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     const cleanPath = currentPath.startsWith('/') ? currentPath : `/${currentPath}`;
     const canonicalUrl = `${origin}${cleanPath === '/' ? '' : cleanPath}`;
     
-    let title = "The Sports Room | Live Cricket News Today, Football & F1 Analysis";
-    let description = "The Sports Room (TSR) is the leading digital sports platform presenting original cricket news today, football tactics, F1 telemetry, and local sports science.";
+    let title = "The Sports Room | Live Cricket Scores, Real-Time Match Updates & Tournaments";
+    let description = "Follow live cricket scores, real-time match updates, upcoming schedules, and complete coverage of international series and major tournaments on The Sports Room.";
     let keywords = GLOBAL_SEO_KEYWORDS.slice(0, 30).join(", ");
     let pageType = "website";
     let ogImage = `${origin}/logo-preview.png`;
@@ -145,8 +160,8 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     // A. Detect Routing Contexts
     if (currentPath === '/' || currentPath === '') {
       // Home context
-      title = "The Sports Room | Live Cricket News Today, Football & F1 Analysis";
-      description = "Welcome to The Sports Room. Stream live cricket news today, football analysis, Grand Prix F1 telemetry, and Pakistan sports science telemetry data.";
+      title = "The Sports Room | Live Cricket Scores, Match Updates & Upcoming Tournaments";
+      description = "Welcome to The Sports Room. Track live cricket scores, real-time match updates, upcoming match schedules, and complete tournament coverage for international series and global leagues.";
       keywords = GLOBAL_SEO_KEYWORDS.join(", ");
       
       // Multi-schema: Website + SportsActivityLocation with topical about entries
