@@ -294,6 +294,32 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           });
         }
       }
+    } else if (currentPath.startsWith('/topic/')) {
+      const topicSlug = currentPath.replace('/topic/', '');
+      const formattedTitle = topicSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      
+      title = `${formattedTitle} Directory & Analysis | The Sports Room`;
+      description = `Read comprehensive editorial coverage, statistics, and tactical breakdown for ${formattedTitle} on The Sports Room.`;
+      keywords = `${formattedTitle}, ${formattedTitle} news, ${formattedTitle} analysis, ${GLOBAL_SEO_KEYWORDS.slice(0, 10).join(', ')}`;
+      pageType = "website";
+
+      ldJsonData = [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "@id": `${canonicalUrl}#topic-collection`,
+          "name": `${formattedTitle} Sports Topic Hub`,
+          "description": description,
+          "url": canonicalUrl,
+          "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": origin },
+              { "@type": "ListItem", "position": 2, "name": "Topics", "item": `${origin}/topic/${topicSlug}` }
+            ]
+          }
+        }
+      ];
     } else if (currentPath.startsWith('/blog/')) {
       // Detailed article page
       const articleSlug = currentPath.replace('/blog/', '');

@@ -8,6 +8,7 @@ import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketM
 import { DB } from '../lib/db';
 import { supabase } from '../lib/supabase';
 import { normalizeSlug } from '../lib/slugUtils';
+import { detectEntitiesInText } from '../lib/entityRegistry';
 
 const alert = (msg: string) => {
   try {
@@ -2061,6 +2062,30 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       className="w-full bg-slate-50 border-x border-b border-slate-200 rounded-b-lg p-4 text-sm focus:outline-none focus:bg-white focus:border-[#22c55e] font-sans leading-relaxed"
                       placeholder="Write your full article analysis body here... Use the toolbar above to add bold text, headings (H2/H3/H4), images, links, quotes, and tables!"
                     />
+
+                    {/* Auto-Detected Sports Entities Indicator */}
+                    {(() => {
+                      const detected = detectEntitiesInText(`${editingPost.title || ''} ${editingPost.content || ''}`);
+                      if (detected.length === 0) return null;
+                      return (
+                        <div className="bg-[#f0fdf4] border border-[#22c55e]/30 rounded-xl p-3 mt-2 space-y-1.5">
+                          <div className="flex items-center justify-between text-[10px] font-mono font-bold text-[#022c22]">
+                            <span>⚡ AUTO-DETECTED ENTITIES ({detected.length}) — WILL AUTOMATICALLY LINK TO TOPIC HUBS:</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {detected.map((ent, idx) => (
+                              <span
+                                key={idx}
+                                className="text-[10px] font-mono font-bold bg-white text-[#022c22] border border-[#22c55e]/40 px-2 py-0.5 rounded-md flex items-center space-x-1"
+                              >
+                                <span>{ent.name}</span>
+                                <span className="text-[8px] text-[#22c55e] uppercase">({ent.type})</span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               )}

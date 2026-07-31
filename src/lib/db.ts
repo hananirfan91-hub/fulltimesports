@@ -1,6 +1,7 @@
 import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber } from '../types';
 import { supabase } from './supabase';
 import { normalizeSlug } from './slugUtils';
+import { ensureFullSeoGeoAeo } from './seoGenerator';
 
 const memoryStore: Record<string, string> = {};
 
@@ -539,7 +540,7 @@ export class DB {
     };
 
     const cleanSlug = normalizeSlug(p.slug || p.id || '');
-    return {
+    const basePost: Post = {
       id: String(p.id || ''),
       title: String(p.title || ''),
       slug: cleanSlug,
@@ -570,6 +571,7 @@ export class DB {
       schema_type: p.schema_type || 'NewsArticle',
       meta_robots: p.meta_robots || 'index, follow',
     };
+    return ensureFullSeoGeoAeo(basePost);
   }
 
   static async syncFromSupabase() {
@@ -807,7 +809,7 @@ export class DB {
     const cleanCategory = (post.category || 'cricket').toLowerCase().trim();
     const cleanSlug = normalizeSlug(post.slug || post.title);
     
-    const newPost: Post = {
+    const rawPost: Post = {
       ...post,
       category: cleanCategory,
       slug: cleanSlug,
@@ -817,6 +819,8 @@ export class DB {
       is_draft: Boolean(post.is_draft),
       scheduled_for: post.is_draft ? 'draft' : (post.scheduled_for || ''),
     };
+
+    const newPost = ensureFullSeoGeoAeo(rawPost);
 
     posts.unshift(newPost);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
@@ -853,7 +857,8 @@ export class DB {
       }
     }
 
-    const updatedPost = { ...posts[index], ...nextFields };
+    const mergedPost = { ...posts[index], ...nextFields };
+    const updatedPost = ensureFullSeoGeoAeo(mergedPost);
     posts[index] = updatedPost;
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
     window.dispatchEvent(new CustomEvent('fts_db_sync'));

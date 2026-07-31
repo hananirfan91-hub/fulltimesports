@@ -46,6 +46,21 @@ async function generate() {
     priority: "0.9"
   }));
 
+  // Topic Hub URLs
+  const topicSlugs = [
+    "babar-azam", "shaheen-afridi", "mohammad-rizwan", "sufyan-muqeem", "naseem-shah",
+    "pakistan-cricket", "india-cricket", "australia-cricket", "england-cricket",
+    "psl", "ipl", "icc-champions-trophy", "asia-cup", "icc-cricket-world-cup",
+    "lionel-messi", "cristiano-ronaldo", "champions-league", "premier-league",
+    "max-verstappen", "real-madrid", "barcelona"
+  ];
+
+  const topicUrls = topicSlugs.map(t => ({
+    loc: `${baseUrl}/topic/${t}`,
+    changefreq: "daily",
+    priority: "0.85"
+  }));
+
   // Query Supabase dynamic blog posts with published status checks
   const postUrls: Array<{ loc: string; changefreq: string; priority: string }> = [];
   try {
@@ -98,7 +113,7 @@ async function generate() {
     });
   }
 
-  const allUrls = [...coreUrls, ...categoryUrls, ...postUrls];
+  const allUrls = [...coreUrls, ...categoryUrls, ...topicUrls, ...postUrls];
 
   const xmlItems = allUrls.map(item => `  <url>
     <loc>${item.loc}</loc>

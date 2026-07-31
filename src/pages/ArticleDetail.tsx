@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { 
   ArrowLeft, Clock, Eye, Share2, Facebook, Twitter, Link as LinkIcon, 
-  CheckCircle, MessageSquare, Compass, Send, ShieldAlert, Award
+  CheckCircle, MessageSquare, Compass, Send, ShieldAlert, Award, List, Sparkles, BookOpen
 } from 'lucide-react';
 import { Post } from '../types';
 import { DB } from '../lib/db';
 import { getYouTubeId } from '../lib/videoUtils';
 import { SEO_KEYWORDS_REGISTRY } from '../lib/seoKeywords';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
+import { injectInternalLinks } from '../lib/internalLinkEngine';
+import { getSmartRelatedArticles, getBidirectionalReferences } from '../lib/relatedArticlesEngine';
+import { detectEntitiesInText } from '../lib/entityRegistry';
 
 const alert = (msg: string) => {
   try {
@@ -62,10 +65,12 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
   const [post, setPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [related, setRelated] = useState<Post[]>([]);
+  const [bidirectional, setBidirectional] = useState<Post[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [newCommentName, setNewCommentName] = useState('');
   const [newCommentText, setNewCommentText] = useState('');
   const [isCopied, setIsCopied] = useState(false);
+  const [readTimeMinutes, setReadTimeMinutes] = useState(5);
 
   useEffect(() => {
     let isMounted = true;
@@ -91,6 +96,13 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
           clonedPost.content += tableMarkdown;
         }
 
+        // Apply Intelligent Internal Link Engine
+        clonedPost.content = injectInternalLinks(clonedPost.content, clonedPost.slug);
+
+        // Calculate Reading Time
+        const wordCount = clonedPost.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
+        setReadTimeMinutes(Math.max(2, Math.ceil(wordCount / 200)));
+
         setPost(clonedPost);
         
         // Update browser/tab document title and meta properties for SEO
@@ -103,12 +115,13 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
         // Increment views
         DB.incrementViews(activePost.id);
 
-        // Pull related articles
+        // Pull smart related articles and bidirectional links
         const allPosts = DB.getPosts();
-        const relatedFiltered = allPosts
-          .filter(p => p.id !== activePost.id && p.category === activePost.category)
-          .slice(0, 3);
-        setRelated(relatedFiltered.length > 0 ? relatedFiltered : allPosts.filter(p => p.id !== activePost.id).slice(0, 3));
+        const smartRelated = getSmartRelatedArticles(activePost, allPosts, 6);
+        setRelated(smartRelated);
+
+        const bidiLinks = getBidirectionalReferences(activePost, allPosts, 4);
+        setBidirectional(bidiLinks);
 
         // Pull comments simulation from localStorage securely
         const commentKey = `comments_${activePost.id}`;
@@ -571,7 +584,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
             <div className="flex items-center space-x-4">
               <span className="flex items-center space-x-1">
                 <Clock className="h-3.5 w-3.5 text-slate-400" />
-                <span>8 min read</span>
+                <span>{readTimeMinutes} min read</span>
               </span>
               <span className="flex items-center space-x-1">
                 <Eye className="h-4 w-4 text-slate-400" />
@@ -579,6 +592,32 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
               </span>
             </div>
           </div>
+
+          {/* Table of Contents (TOC) for Long Form Journalism */}
+          {post.content && post.content.includes('#') && (
+            <div className="bg-[#f0fdf4] border border-[#22c55e]/30 rounded-2xl p-4 my-4">
+              <div className="flex items-center space-x-2 border-b border-[#22c55e]/20 pb-2 mb-2">
+                <List className="h-4 w-4 text-[#22c55e]" />
+                <span className="font-display font-bold text-xs uppercase text-[#022c22] tracking-wider">
+                  Article Table of Contents
+                </span>
+              </div>
+              <div className="space-y-1 text-xs font-mono text-[#022c22]">
+                {post.content.split('\n')
+                  .filter(l => l.trim().startsWith('## ') || l.trim().startsWith('### '))
+                  .slice(0, 6)
+                  .map((headingLine, hIdx) => {
+                    const cleanH = headingLine.replace(/#+/g, '').trim();
+                    return (
+                      <div key={hIdx} className="flex items-center space-x-2 pl-2 border-l-2 border-[#22c55e]">
+                        <span className="text-[10px] text-[#22c55e] font-bold">{hIdx + 1}.</span>
+                        <span className="line-clamp-1">{cleanH}</span>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
 
           {/* A. GEO (Generative Engine Optimization) AI Summary Callout Block */}
           {post.geo_summary && (
@@ -973,10 +1012,10 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
         {/* RIGHT COLUMN: RAIL RELATED PANELS */}
         <div className="lg:col-span-4 space-y-8" id="editorial-rail">
           
-          {/* Related Columns */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <h3 className="font-display font-black text-xs text-slate-990 uppercase tracking-widest border-b pb-2.5 mb-4 flex justify-between items-center">
-              <span>Related Columns</span>
+          {/* Related Columns (Semantic Similarity Engine) */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-2xs">
+            <h3 className="font-display font-black text-xs text-slate-900 uppercase tracking-widest border-b pb-2.5 mb-4 flex justify-between items-center">
+              <span>Smart Related Analysis</span>
               <Award className="h-4 w-4 text-[#22c55e] animate-pulse" />
             </h3>
 
@@ -992,7 +1031,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                     <span className="text-[8px] font-mono font-bold text-[#22c55e] uppercase tracking-wider block">
                       {item.category} • {item.author}
                     </span>
-                    <h4 className="text-xs font-bold text-slate-805 group-hover:text-[#22c55e] uppercase leading-snug line-clamp-2 mt-0.5 transition">
+                    <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#22c55e] uppercase leading-snug line-clamp-2 mt-0.5 transition">
                       {item.title}
                     </h4>
                   </div>
@@ -1000,6 +1039,35 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
               ))}
             </div>
           </div>
+
+          {/* Bidirectional Linking Panel */}
+          {bidirectional.length > 0 && (
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-2xs space-y-3">
+              <h3 className="font-display font-black text-xs text-[#022c22] uppercase tracking-widest border-b pb-2 flex justify-between items-center">
+                <span>Mentioned In Related Stories</span>
+                <BookOpen className="h-4 w-4 text-[#22c55e]" />
+              </h3>
+              <p className="text-[10px] text-slate-500 font-mono">
+                Articles in our network referencing entities mentioned in this report:
+              </p>
+              <div className="space-y-2 pt-1">
+                {bidirectional.map((bItem) => (
+                  <button
+                    key={bItem.id}
+                    onClick={() => onNavigate(`/blog/${bItem.slug}`)}
+                    className="w-full text-left p-2.5 bg-slate-50 hover:bg-emerald-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition group"
+                  >
+                    <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase block">
+                      {bItem.category}
+                    </span>
+                    <h5 className="text-xs font-bold text-slate-800 group-hover:text-[#022c22] line-clamp-1 uppercase">
+                      {bItem.title}
+                    </h5>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* AdSense vertical sidebar */}
           <AdSensePlaceholder slot="article-sidebar-square" format="rectangle" />

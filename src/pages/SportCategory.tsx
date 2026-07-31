@@ -7,6 +7,7 @@ import { Post, Category, RankingItem, FixtureItem } from '../types';
 import { DB } from '../lib/db';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
 import { SPORT_TACTICAL_MANUALS } from '../data/sportManuals';
+import CricketLiveWidget from '../components/CricketLiveWidget';
 
 interface SportCategoryProps {
   categorySlug: string;
@@ -223,6 +224,75 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
           </button>
         </div>
       </div>
+
+      {/* CRICKET SUB-CATEGORIES & DESK NAVIGATION BAR */}
+      {category.slug.toLowerCase() === 'cricket' && (
+        <div className="bg-white border border-[#22c55e]/30 rounded-2xl p-4 shadow-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono font-bold text-[#022c22] uppercase tracking-wider flex items-center space-x-1.5">
+              <Sparkles className="h-4 w-4 text-[#22c55e]" />
+              <span>CRICKET CATEGORIES & TOPIC HUBS:</span>
+            </span>
+            <span className="text-[10px] font-mono text-slate-400">Click to enter dedicated hub</span>
+          </div>
+
+          <div className="flex flex-wrap gap-2 text-xs font-mono font-bold">
+            <button
+              onClick={() => onNavigate('/topic/pakistan-cricket')}
+              className="bg-emerald-50 hover:bg-[#022c22] text-[#022c22] hover:text-[#22c55e] border border-emerald-200 hover:border-[#22c55e] px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5"
+            >
+              <span>🇵🇰 Pakistan Cricket</span>
+            </button>
+            <button
+              onClick={() => onNavigate('/topic/india-cricket')}
+              className="bg-emerald-50 hover:bg-[#022c22] text-[#022c22] hover:text-[#22c55e] border border-emerald-200 hover:border-[#22c55e] px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5"
+            >
+              <span>🇮🇳 India Cricket</span>
+            </button>
+            <button
+              onClick={() => onNavigate('/topic/psl')}
+              className="bg-emerald-50 hover:bg-[#022c22] text-[#022c22] hover:text-[#22c55e] border border-emerald-200 hover:border-[#22c55e] px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5"
+            >
+              <span>⚡ PSL</span>
+            </button>
+            <button
+              onClick={() => onNavigate('/topic/ipl')}
+              className="bg-emerald-50 hover:bg-[#022c22] text-[#022c22] hover:text-[#22c55e] border border-emerald-200 hover:border-[#22c55e] px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5"
+            >
+              <span>🏆 IPL</span>
+            </button>
+            <button
+              onClick={() => onNavigate('/topic/icc-cricket-world-cup')}
+              className="bg-emerald-50 hover:bg-[#022c22] text-[#022c22] hover:text-[#22c55e] border border-emerald-200 hover:border-[#22c55e] px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5"
+            >
+              <span>🌍 World Cup</span>
+            </button>
+            <button
+              onClick={() => onNavigate('/topic/asia-cup')}
+              className="bg-emerald-50 hover:bg-[#022c22] text-[#022c22] hover:text-[#22c55e] border border-emerald-200 hover:border-[#22c55e] px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5"
+            >
+              <span>🏏 Asia Cup</span>
+            </button>
+            <button
+              onClick={() => onNavigate('/topic/icc-rankings')}
+              className="bg-emerald-50 hover:bg-[#022c22] text-[#022c22] hover:text-[#22c55e] border border-emerald-200 hover:border-[#22c55e] px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5"
+            >
+              <span>📊 ICC Rankings</span>
+            </button>
+            <button
+              onClick={() => onNavigate('/knowledge-hub')}
+              className="bg-[#022c22] text-[#22c55e] border border-[#22c55e] px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5"
+            >
+              <span>📚 Knowledge Hub</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* RAPIDAPI CRICKET LIVE CENTER WIDGET */}
+      {category.slug.toLowerCase() === 'cricket' && (
+        <CricketLiveWidget />
+      )}
 
       {isShareAlertOpen && (
         <div className="bg-emerald-950 border border-emerald-550/40 text-[#22c55e] p-3 rounded-lg text-xs flex items-center space-x-2 w-fit">

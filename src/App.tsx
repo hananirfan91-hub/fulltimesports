@@ -8,6 +8,7 @@ import { DB } from './lib/db';
 // Lazy load non-homepage route chunks to optimize initial JS payload and eliminate unused JS on mobile FCP/LCP
 const SportCategory = lazy(() => import('./pages/SportCategory'));
 const ArticleDetail = lazy(() => import('./pages/ArticleDetail'));
+const TopicHub = lazy(() => import('./pages/TopicHub'));
 const TrustPages = lazy(() => import('./pages/TrustPages'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const Glossary = lazy(() => import('./pages/Glossary'));
@@ -97,6 +98,16 @@ export default function App() {
     if (currentPath.startsWith('/blog/')) {
       const slug = currentPath.replace('/blog/', '');
       return <ArticleDetail slug={slug} onNavigate={handleNavigate} />;
+    }
+
+    // Dynamic Editorial Topic Hubs (/topic/:topicSlug)
+    if (currentPath.startsWith('/topic/')) {
+      const topicSlug = currentPath.replace('/topic/', '');
+      return <TopicHub topicSlug={topicSlug} onNavigate={handleNavigate} />;
+    }
+
+    if (currentPath === '/knowledge-hub') {
+      return <TopicHub topicSlug="knowledge-hub" onNavigate={handleNavigate} />;
     }
 
     // 7. Sports Science Atlas & Glossary index
