@@ -176,13 +176,13 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
         <Hero onNavigate={onNavigate} />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-8 pt-4">
         
+        {/* RAPIDAPI CRICKET LIVE CENTER & SCORES WIDGET AT TOP BELOW NAVIGATION BAR */}
+        <CricketLiveWidget />
+
         {/* AdSense Leaderboard Placement */}
         <AdSensePlaceholder slot="home-top-leaderboard" format="horizontal" />
-
-        {/* RAPIDAPI CRICKET LIVE CENTER & SCORES WIDGET ON HOMEPAGE */}
-        <CricketLiveWidget />
 
         {/* ========================================================================= */}
         {/* EXPLICIT ANSWER PANEL: FULFILLING DIRECTIVES "EACH PAGE TELLS AN ANSWER" */}
