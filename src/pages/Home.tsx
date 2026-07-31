@@ -172,15 +172,16 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
         </div>
       </div>
 
+      {/* CRICKET LIVE SCORES & SCHEDULE BANNER STRIP - LOCATED DIRECTLY AFTER NAV BAR */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-3 pb-1">
+        <CricketLiveWidget variant="banner" onNavigate={onNavigate} />
+      </div>
+
       <div className="bg-[#f0fdf4]/30 border-b border-emerald-990/5 py-1">
         <Hero onNavigate={onNavigate} />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-8 pt-4">
-        
-        {/* RAPIDAPI CRICKET LIVE CENTER & SCORES WIDGET AT TOP BELOW NAVIGATION BAR */}
-        <CricketLiveWidget />
-
         {/* AdSense Leaderboard Placement */}
         <AdSensePlaceholder slot="home-top-leaderboard" format="horizontal" />
 

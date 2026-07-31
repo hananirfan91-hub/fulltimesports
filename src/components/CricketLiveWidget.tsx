@@ -1,45 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  Trophy, Radio, Calendar, Users, List, RefreshCw, ChevronRight, CheckCircle2, AlertCircle, Award, Sparkles, Search, Star, MapPin, Flame
+  Trophy, Radio, Calendar, Users, RefreshCw, CheckCircle2, AlertCircle, Search, MapPin, Flame, ChevronRight, ArrowRight
 } from 'lucide-react';
 import { 
   getLiveCricketScores, getUpcomingCricketMatches, getRecentCricketMatches, 
-  getCricketSchedule, getCricketSeries, getCricketTeams 
+  getCricketSeries, getCricketTeams 
 } from '../lib/cricketApi';
 
-// Famous teams and premier keywords for filtering famous top-rating matches
-const FAMOUS_KEYWORDS = [
-  'pakistan', 'west indies', 'wi', 'india', 'england', 'australia', 'bangladesh', 'south africa', 'new zealand', 'sri lanka',
-  'psl', 'ipl', 'bbl', 'mlc', 'major league cricket', 'the hundred', 'lpl', 'lanka premier league',
-  'icc', 'champions trophy', 'world cup', 'asia cup', 'peshawar zalmi', 'lahore qalandars', 'karachi kings',
-  'mumbai indians', 'chennai super kings', 'texas super kings', 'oval invincibles', 'jaffna kings'
-];
-
-function isFamousMatch(item: any): boolean {
-  const str = JSON.stringify(item).toLowerCase();
-  return FAMOUS_KEYWORDS.some(kw => str.includes(kw));
-}
-
-function sortMatchesByPriority(items: any[]): any[] {
-  if (!Array.isArray(items)) return items;
-  return [...items].sort((a, b) => {
-    const textA = JSON.stringify(a).toLowerCase();
-    const textB = JSON.stringify(b).toLowerCase();
-
-    const isIntlA = textA.includes('icc') || textA.includes('international') || textA.includes('pakistan') || textA.includes('india') || textA.includes('australia') || textA.includes('england') || textA.includes('world cup') || textA.includes('asia cup') || textA.includes('champions trophy');
-    const isIntlB = textB.includes('icc') || textB.includes('international') || textB.includes('pakistan') || textB.includes('india') || textB.includes('australia') || textB.includes('england') || textB.includes('world cup') || textB.includes('asia cup') || textB.includes('champions trophy');
-
-    if (isIntlA && !isIntlB) return -1;
-    if (!isIntlA && isIntlB) return 1;
-
-    const isLeagueA = textA.includes('psl') || textA.includes('ipl') || textA.includes('league') || textA.includes('bbl');
-    const isLeagueB = textB.includes('psl') || textB.includes('ipl') || textB.includes('league') || textB.includes('bbl');
-
-    if (isLeagueA && !isLeagueB) return -1;
-    if (!isLeagueA && isLeagueB) return 1;
-
-    return 0;
-  });
+interface CricketLiveWidgetProps {
+  variant?: 'banner' | 'full';
+  onNavigate?: (path: string) => void;
 }
 
 function parseMatchItem(item: any) {
@@ -64,7 +34,7 @@ function parseMatchItem(item: any) {
   return { team1, team2, score1: score1 || '0/0', score2: score2 || '0/0', status, seriesName, venue, date };
 }
 
-export default function CricketLiveWidget() {
+export default function CricketLiveWidget({ variant = 'full', onNavigate }: CricketLiveWidgetProps) {
   const [activeTab, setActiveTab] = useState<'live' | 'upcoming' | 'recent' | 'series' | 'teams'>('live');
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -74,158 +44,212 @@ export default function CricketLiveWidget() {
   const [seriesList, setSeriesList] = useState<any[]>([]);
   const [teamsList, setTeamsList] = useState<any[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [bannerTab, setBannerTab] = useState<'live' | 'upcoming'>('upcoming');
 
   const loadApiData = async () => {
     setLoading(true);
     try {
-      if (activeTab === 'live') {
-        const res = await getLiveCricketScores();
-        let items: any[] = [];
-        if (res && res.data) {
-          items = Array.isArray(res.data) ? res.data : [res.data];
-        } else if (res && Array.isArray(res)) {
-          items = res;
-        } else {
-          items = [
-            {
-              id: 'm-live-1',
-              team1: 'Pakistan',
-              team2: 'West Indies',
-              score1: '340 & 192/4 (52.0 ov)',
-              score2: '280 (88.4 ov)',
-              status: 'Pakistan lead West Indies by 252 runs (Day 3, 1st Test)',
-              venue: 'National Stadium, Karachi',
-              seriesName: 'Pakistan vs West Indies Test Series 2026'
-            },
-            {
-              id: 'm-live-2',
-              team1: 'Washington Freedom',
-              team2: 'LA Knight Riders',
-              score1: '185/4 (18.2 ov)',
-              score2: '182/7 (20.0 ov)',
-              status: 'Washington Freedom need 3 runs in 10 balls',
-              venue: 'Grand Prairie Stadium, Dallas',
-              seriesName: 'Major League Cricket (MLC 2026)'
-            },
-            {
-              id: 'm-live-3',
-              team1: 'Oval Invincibles',
-              team2: 'Trent Rockets',
-              score1: '145/5 (85 balls)',
-              score2: '142/8 (100 balls)',
-              status: 'Oval Invincibles won by 5 wickets',
-              venue: 'The Kia Oval, London',
-              seriesName: 'The Hundred Men 2026'
-            },
-            {
-              id: 'm-live-4',
-              team1: 'Galle Marvels',
-              team2: 'Kandy Falcons',
-              score1: '168/6 (20.0 ov)',
-              score2: '150/9 (18.5 ov)',
-              status: 'Kandy Falcons need 19 runs in 7 balls',
-              venue: 'R. Premadasa Stadium, Colombo',
-              seriesName: 'Lanka Premier League (LPL 2026)'
-            },
-            {
-              id: 'm-live-5',
-              team1: 'India',
-              team2: 'England',
-              score1: '310/6 (50.0 ov)',
-              score2: '265/8 (46.0 ov)',
-              status: 'England need 46 runs in 24 balls',
-              venue: 'Lord\'s, London',
-              seriesName: 'ICC ODI Series 2026'
-            }
-          ];
-        }
-        // Filter famous top rating matches
-        const famousItems = items.filter(isFamousMatch);
-        const finalLive = famousItems.length > 0 ? famousItems : items;
-        setLiveScores(sortMatchesByPriority(finalLive));
-      } else if (activeTab === 'upcoming') {
-        const res = await getUpcomingCricketMatches();
-        let items: any[] = [];
-        if (res && res.data) {
-          items = Array.isArray(res.data) ? res.data : [res.data];
-        } else if (res && Array.isArray(res)) {
-          items = res;
-        } else {
-          items = [
-            { id: 'u1', team1: 'Pakistan', team2: 'West Indies', date: 'Sun 02 Aug 2026, 05:00 GMT', venue: 'Multan Cricket Stadium, Pakistan', seriesName: '2nd Test - Pakistan vs West Indies Test Series 2026' },
-            { id: 'u2', team1: 'India', team2: 'England', date: 'Fri 07 Aug 2026, 10:00 GMT', venue: 'Lord\'s, London', seriesName: '3rd Test - ICC World Test Championship' },
-            { id: 'u3', team1: 'Australia', team2: 'Bangladesh', date: 'Tue 11 Aug 2026, 04:30 GMT', venue: 'MCG, Melbourne', seriesName: '1st ODI - Australia vs Bangladesh Trophy 2026' },
-            { id: 'u4', team1: 'Texas Super Kings', team2: 'MI New York', date: 'Sun 09 Aug 2026, 19:30 GMT', venue: 'Grand Prairie Stadium, Dallas', seriesName: 'Major League Cricket (MLC 2026)' },
-            { id: 'u5', team1: 'Manchester Originals', team2: 'London Spirit', date: 'Mon 10 Aug 2026, 17:30 GMT', venue: 'Old Trafford, Manchester', seriesName: 'The Hundred Competition 2026' },
-            { id: 'u6', team1: 'Jaffna Kings', team2: 'Colombo Strikers', date: 'Wed 12 Aug 2026, 14:00 GMT', venue: 'R. Premadasa Stadium, Colombo', seriesName: 'Lanka Premier League (LPL 2026)' },
-            { id: 'u7', team1: 'Pakistan', team2: 'India', date: 'Sun 15 Aug 2026, 09:00 GMT', venue: 'Pallekele Cricket Stadium, Sri Lanka', seriesName: 'Asia Cup 2026 Tournament' },
-            { id: 'u8', team1: 'Karachi Kings', team2: 'Islamabad United', date: 'Sat 22 Aug 2026, 14:00 GMT', venue: 'National Stadium, Karachi', seriesName: 'HBL PSL 2026' }
-          ];
-        }
-        const famousItems = items.filter(isFamousMatch);
-        const finalUpcoming = famousItems.length > 0 ? famousItems : items;
-        setUpcomingMatches(sortMatchesByPriority(finalUpcoming));
-      } else if (activeTab === 'recent') {
-        const res = await getRecentCricketMatches();
-        let items: any[] = [];
-        if (res && res.data) {
-          items = Array.isArray(res.data) ? res.data : [res.data];
-        } else if (res && Array.isArray(res)) {
-          items = res;
-        } else {
-          items = [
-            { id: 'r1', team1: 'Pakistan', team2: 'West Indies', score1: '312/5 & 240', score2: '298 & 126', status: 'Pakistan won by 128 runs (1st Test)', venue: 'National Stadium Karachi', seriesName: 'Pakistan vs WI Test Series' },
-            { id: 'r2', team1: 'West Indies', team2: 'Bangladesh', score1: '245/6 (46.2 ov)', score2: '241/9 (50.0 ov)', status: 'West Indies won by 4 wickets', venue: 'Kensington Oval, Barbados', seriesName: 'WI vs BAN ODI Series' },
-            { id: 'r3', team1: 'England', team2: 'Australia', score1: '185 & 240', score2: '380 & 48/2', status: 'Australia won by 8 wickets', venue: 'The Oval, London', seriesName: 'The Ashes Test Series' },
-            { id: 'r4', team1: 'San Francisco Unicorns', team2: 'Seattle Orcas', score1: '192/5 (20.0 ov)', score2: '174/8 (20.0 ov)', status: 'Unicorns won by 18 runs', venue: 'Dallas', seriesName: 'MLC 2026' }
-          ];
-        }
-        const famousItems = items.filter(isFamousMatch);
-        const finalRecent = famousItems.length > 0 ? famousItems : items;
-        setRecentMatches(sortMatchesByPriority(finalRecent));
-      } else if (activeTab === 'series') {
-        const res = await getCricketSeries('all');
-        let items: any[] = [];
-        if (res && res.data) {
-          items = Array.isArray(res.data) ? res.data : [res.data];
-        } else {
-          items = [
-            { seriesName: 'Pakistan vs West Indies Test Series 2026', category: 'International Test Series' },
-            { seriesName: 'Major League Cricket (MLC 2026)', category: 'USA Premier T20 League' },
-            { seriesName: 'The Hundred Competition 2026', category: 'UK 100-Ball League' },
-            { seriesName: 'Lanka Premier League (LPL 2026)', category: 'Sri Lanka T20 League' },
-            { seriesName: 'ICC World Test Championship 2025-27', category: 'International Test' },
-            { seriesName: 'HBL Pakistan Super League (PSL 2026)', category: 'T20 Franchise League' },
-            { seriesName: 'Indian Premier League (IPL 2026)', category: 'T20 Franchise League' },
-            { seriesName: 'Big Bash League (BBL 2026)', category: 'T20 Franchise League' },
-            { seriesName: 'Asia Cup 2026 Tournament', category: 'International Championship' }
-          ];
-        }
-        setSeriesList(sortMatchesByPriority(items));
-      } else if (activeTab === 'teams') {
-        const res = await getCricketTeams('international');
-        if (res && res.data) {
-          setTeamsList(Array.isArray(res.data) ? res.data : [res.data]);
-        } else {
-          setTeamsList([
-            { teamName: 'Pakistan', teamShortName: 'PAK', type: 'International' },
-            { teamName: 'West Indies', teamShortName: 'WI', type: 'International' },
-            { teamName: 'India', teamShortName: 'IND', type: 'International' },
-            { teamName: 'England', teamShortName: 'ENG', type: 'International' },
-            { teamName: 'Australia', teamShortName: 'AUS', type: 'International' },
-            { teamName: 'Bangladesh', teamShortName: 'BAN', type: 'International' },
-            { teamName: 'South Africa', teamShortName: 'SA', type: 'International' },
-            { teamName: 'Texas Super Kings', teamShortName: 'TSK', type: 'MLC Franchise' },
-            { teamName: 'Oval Invincibles', teamShortName: 'OVAL', type: 'The Hundred' },
-            { teamName: 'Jaffna Kings', teamShortName: 'JK', type: 'LPL Franchise' },
-            { teamName: 'Peshawar Zalmi', teamShortName: 'PZ', type: 'PSL Franchise' },
-            { teamName: 'Mumbai Indians', teamShortName: 'MI', type: 'IPL Franchise' }
-          ]);
-        }
+      // 1. LIVE SCORES (International & Domestic Leagues: PSL, IPL, MLC, The Hundred, LPL)
+      const resLive = await getLiveCricketScores();
+      let liveItems: any[] = [];
+      if (resLive && resLive.data) {
+        liveItems = Array.isArray(resLive.data) ? resLive.data : [resLive.data];
+      } else if (resLive && Array.isArray(resLive)) {
+        liveItems = resLive;
+      } else {
+        liveItems = [
+          {
+            id: 'm-live-1',
+            team1: 'Pakistan',
+            team2: 'West Indies',
+            score1: '340 & 192/4 (52.0 ov)',
+            score2: '280 (88.4 ov)',
+            status: 'Pakistan lead West Indies by 252 runs (Day 3, 1st Test)',
+            venue: 'National Stadium, Karachi',
+            seriesName: 'Pakistan vs West Indies Test Series 2026'
+          },
+          {
+            id: 'm-live-2',
+            team1: 'Washington Freedom',
+            team2: 'LA Knight Riders',
+            score1: '185/4 (18.2 ov)',
+            score2: '182/7 (20.0 ov)',
+            status: 'Washington Freedom need 3 runs in 10 balls',
+            venue: 'Grand Prairie Stadium, Dallas',
+            seriesName: 'Major League Cricket (MLC 2026)'
+          },
+          {
+            id: 'm-live-3',
+            team1: 'Oval Invincibles',
+            team2: 'Trent Rockets',
+            score1: '145/5 (85 balls)',
+            score2: '142/8 (100 balls)',
+            status: 'Oval Invincibles won by 5 wickets',
+            venue: 'The Kia Oval, London',
+            seriesName: 'The Hundred Men 2026'
+          },
+          {
+            id: 'm-live-4',
+            team1: 'Galle Marvels',
+            team2: 'Kandy Falcons',
+            score1: '168/6 (20.0 ov)',
+            score2: '150/9 (18.5 ov)',
+            status: 'Kandy Falcons need 19 runs in 7 balls',
+            venue: 'R. Premadasa Stadium, Colombo',
+            seriesName: 'Lanka Premier League (LPL 2026)'
+          },
+          {
+            id: 'm-live-5',
+            team1: 'India',
+            team2: 'England',
+            score1: '310/6 (50.0 ov)',
+            score2: '265/8 (46.0 ov)',
+            status: 'England need 46 runs in 24 balls',
+            venue: 'Lord\'s, London',
+            seriesName: 'ICC ODI Series 2026'
+          }
+        ];
       }
+      setLiveScores(liveItems);
+
+      // 2. UPCOMING MATCHES (Including Pakistan vs West Indies 2nd Test on 2 August 2026!)
+      const resUpcoming = await getUpcomingCricketMatches();
+      let upcomingItems: any[] = [];
+      if (resUpcoming && resUpcoming.data) {
+        upcomingItems = Array.isArray(resUpcoming.data) ? resUpcoming.data : [resUpcoming.data];
+      } else if (resUpcoming && Array.isArray(resUpcoming)) {
+        upcomingItems = resUpcoming;
+      } else {
+        upcomingItems = [
+          { 
+            id: 'u1', 
+            team1: 'Pakistan', 
+            team2: 'West Indies', 
+            date: 'Sun 02 Aug 2026, 05:00 GMT', 
+            venue: 'Multan Cricket Stadium, Pakistan', 
+            seriesName: '2nd Test - Pakistan vs West Indies Test Series 2026' 
+          },
+          { 
+            id: 'u2', 
+            team1: 'India', 
+            team2: 'England', 
+            date: 'Fri 07 Aug 2026, 10:00 GMT', 
+            venue: 'Lord\'s, London', 
+            seriesName: '3rd Test - ICC World Test Championship' 
+          },
+          { 
+            id: 'u3', 
+            team1: 'Australia', 
+            team2: 'Bangladesh', 
+            date: 'Tue 11 Aug 2026, 04:30 GMT', 
+            venue: 'MCG, Melbourne', 
+            seriesName: '1st ODI - Australia vs Bangladesh Trophy 2026' 
+          },
+          { 
+            id: 'u4', 
+            team1: 'Texas Super Kings', 
+            team2: 'MI New York', 
+            date: 'Sun 09 Aug 2026, 19:30 GMT', 
+            venue: 'Grand Prairie Stadium, Dallas', 
+            seriesName: 'Major League Cricket (MLC 2026)' 
+          },
+          { 
+            id: 'u5', 
+            team1: 'Manchester Originals', 
+            team2: 'London Spirit', 
+            date: 'Mon 10 Aug 2026, 17:30 GMT', 
+            venue: 'Old Trafford, Manchester', 
+            seriesName: 'The Hundred Competition 2026' 
+          },
+          { 
+            id: 'u6', 
+            team1: 'Jaffna Kings', 
+            team2: 'Colombo Strikers', 
+            date: 'Wed 12 Aug 2026, 14:00 GMT', 
+            venue: 'R. Premadasa Stadium, Colombo', 
+            seriesName: 'Lanka Premier League (LPL 2026)' 
+          },
+          { 
+            id: 'u7', 
+            team1: 'Pakistan', 
+            team2: 'India', 
+            date: 'Sun 15 Aug 2026, 09:00 GMT', 
+            venue: 'Pallekele Cricket Stadium, Sri Lanka', 
+            seriesName: 'Asia Cup 2026 Tournament' 
+          },
+          { 
+            id: 'u8', 
+            team1: 'Karachi Kings', 
+            team2: 'Islamabad United', 
+            date: 'Sat 22 Aug 2026, 14:00 GMT', 
+            venue: 'National Stadium, Karachi', 
+            seriesName: 'HBL PSL 2026' 
+          }
+        ];
+      }
+      setUpcomingMatches(upcomingItems);
+
+      // 3. RECENT MATCH RESULTS
+      const resRecent = await getRecentCricketMatches();
+      let recentItems: any[] = [];
+      if (resRecent && resRecent.data) {
+        recentItems = Array.isArray(resRecent.data) ? resRecent.data : [resRecent.data];
+      } else if (resRecent && Array.isArray(resRecent)) {
+        recentItems = resRecent;
+      } else {
+        recentItems = [
+          { id: 'r1', team1: 'Pakistan', team2: 'West Indies', score1: '312/5 & 240', score2: '298 & 126', status: 'Pakistan won by 128 runs (1st Test)', venue: 'National Stadium Karachi', seriesName: 'Pakistan vs WI Test Series' },
+          { id: 'r2', team1: 'West Indies', team2: 'Bangladesh', score1: '245/6 (46.2 ov)', score2: '241/9 (50.0 ov)', status: 'West Indies won by 4 wickets', venue: 'Kensington Oval, Barbados', seriesName: 'WI vs BAN ODI Series' },
+          { id: 'r3', team1: 'England', team2: 'Australia', score1: '185 & 240', score2: '380 & 48/2', status: 'Australia won by 8 wickets', venue: 'The Oval, London', seriesName: 'The Ashes Test Series' },
+          { id: 'r4', team1: 'San Francisco Unicorns', team2: 'Seattle Orcas', score1: '192/5 (20.0 ov)', score2: '174/8 (20.0 ov)', status: 'Unicorns won by 18 runs', venue: 'Dallas', seriesName: 'MLC 2026' }
+        ];
+      }
+      setRecentMatches(recentItems);
+
+      // 4. TOURNAMENTS & SERIES
+      const resSeries = await getCricketSeries('all');
+      let seriesItems: any[] = [];
+      if (resSeries && resSeries.data) {
+        seriesItems = Array.isArray(resSeries.data) ? resSeries.data : [resSeries.data];
+      } else {
+        seriesItems = [
+          { seriesName: 'Pakistan vs West Indies Test Series 2026', category: 'International Test Series' },
+          { seriesName: 'Major League Cricket (MLC 2026)', category: 'USA Premier T20 League' },
+          { seriesName: 'The Hundred Competition 2026', category: 'UK 100-Ball League' },
+          { seriesName: 'Lanka Premier League (LPL 2026)', category: 'Sri Lanka T20 League' },
+          { seriesName: 'ICC World Test Championship 2025-27', category: 'International Test' },
+          { seriesName: 'HBL Pakistan Super League (PSL 2026)', category: 'T20 Franchise League' },
+          { seriesName: 'Indian Premier League (IPL 2026)', category: 'T20 Franchise League' },
+          { seriesName: 'Big Bash League (BBL 2026)', category: 'T20 Franchise League' },
+          { seriesName: 'Asia Cup 2026 Tournament', category: 'International Championship' }
+        ];
+      }
+      setSeriesList(seriesItems);
+
+      // 5. TEAMS LIST
+      const resTeams = await getCricketTeams('international');
+      if (resTeams && resTeams.data) {
+        setTeamsList(Array.isArray(resTeams.data) ? resTeams.data : [resTeams.data]);
+      } else {
+        setTeamsList([
+          { teamName: 'Pakistan', teamShortName: 'PAK', type: 'International' },
+          { teamName: 'West Indies', teamShortName: 'WI', type: 'International' },
+          { teamName: 'India', teamShortName: 'IND', type: 'International' },
+          { teamName: 'England', teamShortName: 'ENG', type: 'International' },
+          { teamName: 'Australia', teamShortName: 'AUS', type: 'International' },
+          { teamName: 'Bangladesh', teamShortName: 'BAN', type: 'International' },
+          { teamName: 'South Africa', teamShortName: 'SA', type: 'International' },
+          { teamName: 'Texas Super Kings', teamShortName: 'TSK', type: 'MLC Franchise' },
+          { teamName: 'Oval Invincibles', teamShortName: 'OVAL', type: 'The Hundred' },
+          { teamName: 'Jaffna Kings', teamShortName: 'JK', type: 'LPL Franchise' },
+          { teamName: 'Peshawar Zalmi', teamShortName: 'PZ', type: 'PSL Franchise' },
+          { teamName: 'Mumbai Indians', teamShortName: 'MI', type: 'IPL Franchise' }
+        ]);
+      }
+
       setLastUpdated(new Date().toLocaleTimeString());
     } catch (e) {
-      console.error("Error loading Cricket RapidAPI data:", e);
+      console.error("Error loading Cricket data:", e);
     } finally {
       setLoading(false);
     }
@@ -233,16 +257,9 @@ export default function CricketLiveWidget() {
 
   useEffect(() => {
     loadApiData();
-  }, [activeTab]);
+  }, []);
 
-  // Featured top match banner (always pick the highest priority live or upcoming match)
-  const featuredMatch = useMemo(() => {
-    if (liveScores.length > 0) return parseMatchItem(liveScores[0]);
-    if (upcomingMatches.length > 0) return parseMatchItem(upcomingMatches[0]);
-    return null;
-  }, [liveScores, upcomingMatches]);
-
-  // Filter items based on user search query
+  // Filter items based on user search query (show all matches, no top rating filter)
   const filteredLive = useMemo(() => {
     if (!searchQuery.trim()) return liveScores;
     const q = searchQuery.toLowerCase().trim();
@@ -273,110 +290,177 @@ export default function CricketLiveWidget() {
     return teamsList.filter(item => JSON.stringify(item).toLowerCase().includes(q));
   }, [teamsList, searchQuery]);
 
-  return (
-    <div className="bg-[#022c22] border border-[#22c55e]/30 rounded-2xl p-3.5 sm:p-4 text-white space-y-3.5 shadow-xl relative overflow-hidden">
-      {/* Background glow effect */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-[#22c55e]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
+  // =========================================================================
+  // HOMEPAGE COMPACT SLEEK BANNER MODE (Takes minimal vertical space right below Navbar)
+  // =========================================================================
+  if (variant === 'banner') {
+    return (
+      <div className="bg-[#022c22] border border-[#22c55e]/40 rounded-xl p-2.5 sm:p-3 text-white shadow-lg relative overflow-hidden">
+        {/* Sleek Header Strip */}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-900/80 pb-2 mb-2">
+          <div className="flex items-center space-x-2">
+            <span className="bg-[#22c55e] text-slate-950 font-mono font-black text-[9px] px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
+              <Radio className="h-3 w-3 animate-pulse" /> LIVE BANNER
+            </span>
+            <span className="font-display font-black text-xs sm:text-sm text-white uppercase tracking-tight">
+              Cricket Matches & Schedule
+            </span>
+          </div>
 
-      {/* Widget Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-emerald-900 pb-2.5 relative z-10">
-        <div className="flex items-center space-x-2.5">
-          <div className="h-9 w-9 bg-gradient-to-br from-[#22c55e] to-emerald-600 text-slate-950 rounded-xl flex items-center justify-center font-bold font-display shadow-md shadow-[#22c55e]/20 shrink-0">
-            <Radio className="h-4.5 w-4.5 animate-pulse" />
+          <div className="flex items-center space-x-2">
+            <div className="flex bg-emerald-950/80 p-0.5 rounded-lg border border-emerald-800 text-[10px] font-mono font-bold">
+              <button
+                onClick={() => setBannerTab('upcoming')}
+                className={`px-2.5 py-1 rounded transition ${bannerTab === 'upcoming' ? 'bg-[#22c55e] text-slate-950 font-black' : 'text-emerald-300 hover:text-white'}`}
+              >
+                Upcoming (2 Aug)
+              </button>
+              <button
+                onClick={() => setBannerTab('live')}
+                className={`px-2.5 py-1 rounded transition ${bannerTab === 'live' ? 'bg-[#22c55e] text-slate-950 font-black' : 'text-emerald-300 hover:text-white'}`}
+              >
+                Live Scores
+              </button>
+            </div>
+
+            {onNavigate && (
+              <button
+                onClick={() => onNavigate('/sport/cricket')}
+                className="bg-emerald-900/60 hover:bg-emerald-800 text-[#22c55e] border border-emerald-700/60 px-2.5 py-1 rounded text-[10px] font-mono font-bold flex items-center gap-1 transition"
+              >
+                <span>Full Cricket Page</span>
+                <ChevronRight className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Compact Match Cards Ribbon (Horizontal Scroll / Grid) */}
+        {loading ? (
+          <div className="py-2 text-center text-emerald-400 font-mono text-[10px] flex items-center justify-center space-x-1.5">
+            <RefreshCw className="h-3.5 w-3.5 animate-spin text-[#22c55e]" />
+            <span>Loading Cricket Banner Feeds...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            {bannerTab === 'upcoming' ? (
+              upcomingMatches.slice(0, 4).map((rawItem, idx) => {
+                const item = parseMatchItem(rawItem);
+                const isPakWi2nd = item.team1.includes('Pakistan') && item.team2.includes('West Indies');
+                return (
+                  <div 
+                    key={idx} 
+                    className={`p-2.5 rounded-lg border transition ${
+                      isPakWi2nd 
+                        ? 'bg-gradient-to-r from-emerald-900 to-emerald-950 border-[#22c55e] shadow-md ring-1 ring-[#22c55e]/50' 
+                        : 'bg-emerald-950/70 border-emerald-800/80 hover:border-emerald-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-[9px] font-mono text-emerald-300 mb-1">
+                      <span className="font-bold truncate max-w-[140px]">{item.seriesName}</span>
+                      {isPakWi2nd && (
+                        <span className="bg-amber-400 text-slate-950 font-black text-[8px] px-1.5 rounded uppercase">
+                          MATCH HIGHLIGHT
+                        </span>
+                      )}
+                    </div>
+                    <div className="font-display font-black text-xs text-white flex justify-between items-center my-0.5">
+                      <span>{item.team1} vs {item.team2}</span>
+                    </div>
+                    <div className="text-[9px] font-mono text-slate-300 flex justify-between items-center border-t border-emerald-900/60 pt-1 mt-1">
+                      <span className="text-amber-300 font-bold">{item.date}</span>
+                      <span className="text-emerald-400 truncate max-w-[110px]">{item.venue}</span>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              liveScores.slice(0, 4).map((rawItem, idx) => {
+                const item = parseMatchItem(rawItem);
+                return (
+                  <div key={idx} className="bg-emerald-950/70 border border-emerald-800/80 p-2.5 rounded-lg hover:border-emerald-600 transition">
+                    <div className="flex items-center justify-between text-[9px] font-mono text-emerald-300 mb-1">
+                      <span className="font-bold truncate max-w-[150px]">{item.seriesName}</span>
+                      <span className="bg-red-500 text-white font-bold text-[8px] px-1.5 rounded animate-pulse">
+                        LIVE
+                      </span>
+                    </div>
+                    <div className="space-y-0.5 text-xs font-bold font-display">
+                      <div className="flex justify-between">
+                        <span>{item.team1}</span>
+                        <span className="font-mono text-emerald-300 text-[11px]">{item.score1}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{item.team2}</span>
+                        <span className="font-mono text-emerald-300 text-[11px]">{item.score2}</span>
+                      </div>
+                    </div>
+                    <div className="text-[9px] font-mono text-amber-300 border-t border-emerald-900/60 pt-1 mt-1 truncate">
+                      {item.status}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // FULL DETAILED CRICKET CENTER PAGE VIEW (Used in /sport/cricket)
+  // Shows ALL matches (International & Leagues), Search Bar, & Comprehensive Detail
+  // =========================================================================
+  return (
+    <div className="bg-[#022c22] border border-[#22c55e]/30 rounded-2xl p-4 sm:p-5 text-white space-y-4 shadow-xl relative overflow-hidden">
+      {/* Widget Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-emerald-900 pb-3 relative z-10">
+        <div className="flex items-center space-x-3">
+          <div className="h-10 w-10 bg-gradient-to-br from-[#22c55e] to-emerald-600 text-slate-950 rounded-xl flex items-center justify-center font-bold font-display shadow-md shadow-[#22c55e]/20 shrink-0">
+            <Radio className="h-5 w-5 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase tracking-widest flex items-center gap-1">
+              <span className="text-[10px] font-mono font-bold text-[#22c55e] uppercase tracking-widest flex items-center gap-1">
                 <Flame className="h-3 w-3 text-amber-400 fill-amber-400" />
-                TOP RATING & FAMOUS LEAGUES
+                ALL INTERNATIONAL & LEAGUE MATCHES
               </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping"></span>
+              <span className="h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
             </div>
-            <h2 className="font-display font-black text-lg sm:text-xl text-white uppercase tracking-tight leading-tight">
+            <h2 className="font-display font-black text-xl sm:text-2xl text-white uppercase tracking-tight">
               Cricket Live Center & Scoreboard
             </h2>
           </div>
         </div>
 
-        {/* Live Controls & Refresh */}
+        {/* Refresh & Sync Controls */}
         <div className="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end">
           {lastUpdated && (
-            <span className="text-[9px] font-mono text-slate-400 hidden sm:inline">
-              Sync: {lastUpdated}
+            <span className="text-[10px] font-mono text-slate-400 hidden sm:inline">
+              Synced: {lastUpdated}
             </span>
           )}
           <button
             onClick={loadApiData}
             disabled={loading}
-            className="bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 px-3 py-1 rounded-lg text-[10px] font-mono font-bold flex items-center space-x-1 transition shadow"
+            className="bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-mono font-bold flex items-center space-x-1.5 transition shadow"
           >
-            <RefreshCw className={`h-3 w-3 ${loading ? 'animate-spin text-[#22c55e]' : ''}`} />
-            <span>{loading ? 'SYNCING...' : 'LIVE REFRESH'}</span>
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin text-[#22c55e]' : ''}`} />
+            <span>{loading ? 'REFRESHING...' : 'LIVE REFRESH'}</span>
           </button>
         </div>
       </div>
 
-      {/* PROMINENT COMPACT FEATURED MATCH BANNER SECTION */}
-      {featuredMatch && (
-        <div className="bg-gradient-to-r from-[#011c15] via-[#02382c] to-[#011c15] border border-[#22c55e]/60 rounded-xl p-3 sm:p-3.5 relative overflow-hidden shadow-lg">
-          <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5 border-b border-emerald-900/60 pb-1">
-            <div className="text-[10px] font-mono text-emerald-300 font-bold uppercase tracking-wider flex items-center gap-1">
-              <Trophy className="h-3 w-3 text-amber-400" />
-              <span className="truncate max-w-[280px] sm:max-w-none">{featuredMatch.seriesName}</span>
-            </div>
-            <div className="flex items-center space-x-1.5">
-              <span className="bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[8px] font-mono font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                <Star className="h-2.5 w-2.5 fill-amber-300" /> TOP FEATURED
-              </span>
-              <span className="bg-red-600 text-white font-mono font-black text-[8px] px-1.5 py-0.5 rounded uppercase tracking-widest animate-pulse">
-                LIVE BANNER
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 items-center">
-            {/* Team 1 */}
-            <div className="flex items-center justify-between space-x-2 bg-emerald-950/80 px-3 py-1.5 rounded-lg border border-emerald-800/80">
-              <span className="font-display font-black text-sm sm:text-base text-white">
-                {featuredMatch.team1}
-              </span>
-              <span className="font-mono font-black text-xs text-[#22c55e] bg-emerald-900/80 px-2 py-0.5 rounded">
-                {featuredMatch.score1}
-              </span>
-            </div>
-
-            {/* Match Status Center */}
-            <div className="text-center py-0.5 space-y-0.5">
-              <span className="text-[11px] font-mono font-bold text-amber-300 block bg-emerald-950/90 px-2.5 py-1 rounded-lg border border-amber-400/30 truncate">
-                {featuredMatch.status}
-              </span>
-              <span className="text-[9px] font-mono text-slate-300 flex items-center justify-center gap-1">
-                <MapPin className="h-2.5 w-2.5 text-emerald-400" /> {featuredMatch.venue}
-              </span>
-            </div>
-
-            {/* Team 2 */}
-            <div className="flex items-center justify-between space-x-2 bg-emerald-950/80 px-3 py-1.5 rounded-lg border border-emerald-800/80">
-              <span className="font-mono font-black text-xs text-[#22c55e] bg-emerald-900/80 px-2 py-0.5 rounded">
-                {featuredMatch.score2}
-              </span>
-              <span className="font-display font-black text-sm sm:text-base text-white">
-                {featuredMatch.team2}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* SEARCH INPUT BAR FOR SPECIFIC TEAMS / MATCHES */}
+      {/* SEARCH INPUT BAR FOR ALL TEAMS & MATCHES */}
       <div className="relative">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-400" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search specific team, match, or league (e.g. Pakistan, India, Australia, PSL, IPL)..."
-          className="w-full bg-[#011a14] border border-emerald-800/80 focus:border-[#22c55e] text-white placeholder-slate-400 text-xs font-sans rounded-2xl pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#22c55e]/30 transition"
+          placeholder="Search any team or match (e.g. Pakistan, West Indies, India, England, MLC, PSL, IPL, The Hundred, LPL)..."
+          className="w-full bg-[#011a14] border border-emerald-800/80 focus:border-[#22c55e] text-white placeholder-slate-400 text-xs font-sans rounded-xl pl-10 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#22c55e]/30 transition"
         />
         {searchQuery && (
           <button
@@ -427,7 +511,7 @@ export default function CricketLiveWidget() {
           }`}
         >
           <Trophy className="h-3.5 w-3.5" />
-          <span>Top Tournaments ({filteredSeries.length})</span>
+          <span>Tournaments & Leagues ({filteredSeries.length})</span>
         </button>
 
         <button
@@ -437,7 +521,7 @@ export default function CricketLiveWidget() {
           }`}
         >
           <Users className="h-3.5 w-3.5" />
-          <span>Famous Teams ({filteredTeams.length})</span>
+          <span>Teams Directory ({filteredTeams.length})</span>
         </button>
       </div>
 
@@ -445,7 +529,7 @@ export default function CricketLiveWidget() {
       {loading ? (
         <div className="py-12 text-center text-emerald-400 font-mono text-xs flex justify-center items-center space-x-2">
           <RefreshCw className="h-5 w-5 animate-spin text-[#22c55e]" />
-          <span>Connecting to Cricket Live Feed...</span>
+          <span>Connecting to Live Cricket Feeds...</span>
         </div>
       ) : (
         <div className="space-y-3">
@@ -455,7 +539,7 @@ export default function CricketLiveWidget() {
               {filteredLive.length === 0 ? (
                 <div className="bg-emerald-950/40 border border-emerald-900 rounded-2xl p-8 text-center space-y-2">
                   <AlertCircle className="h-8 w-8 text-emerald-500 mx-auto" />
-                  <p className="font-mono text-xs text-slate-300">No live match matches found for "{searchQuery}".</p>
+                  <p className="font-mono text-xs text-slate-300">No live matches found for "{searchQuery}".</p>
                   <button onClick={() => setSearchQuery('')} className="text-xs font-mono text-[#22c55e] underline font-bold">Clear search filter</button>
                 </div>
               ) : (
@@ -465,8 +549,7 @@ export default function CricketLiveWidget() {
                     return (
                       <div key={idx} className="bg-emerald-950/80 border border-emerald-800/80 rounded-2xl p-4 space-y-3 hover:border-[#22c55e]/50 transition shadow-lg">
                         <div className="flex justify-between items-center text-[10px] font-mono text-emerald-300 border-b border-emerald-900 pb-2">
-                          <span className="font-bold uppercase tracking-wider flex items-center gap-1">
-                            <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
+                          <span className="font-bold uppercase tracking-wider">
                             {item.seriesName}
                           </span>
                           <span className="bg-red-500 text-white font-bold px-2 py-0.5 rounded text-[9px] uppercase tracking-wider animate-pulse">
@@ -508,20 +591,38 @@ export default function CricketLiveWidget() {
                   <button onClick={() => setSearchQuery('')} className="text-xs font-mono text-[#22c55e] underline font-bold">Clear search filter</button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {filteredUpcoming.map((rawItem, idx) => {
                     const u = parseMatchItem(rawItem);
+                    const isHighlight = u.team1.includes('Pakistan') && u.team2.includes('West Indies');
                     return (
-                      <div key={idx} className="bg-emerald-950/60 border border-emerald-800/70 rounded-2xl p-4 space-y-2 text-xs hover:border-[#22c55e]/40 transition">
-                        <span className="text-[10px] font-mono text-[#22c55e] font-bold block uppercase tracking-wide">
-                          ⭐ {u.seriesName}
-                        </span>
-                        <div className="font-bold font-display text-sm text-white">
+                      <div 
+                        key={idx} 
+                        className={`border rounded-2xl p-4 space-y-2 text-xs transition ${
+                          isHighlight 
+                            ? 'bg-gradient-to-r from-emerald-900/90 to-emerald-950 border-[#22c55e] shadow-lg ring-1 ring-[#22c55e]/40' 
+                            : 'bg-emerald-950/60 border-emerald-800/70 hover:border-[#22c55e]/40'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between text-[10px] font-mono">
+                          <span className="text-[#22c55e] font-bold block uppercase tracking-wide truncate max-w-[200px]">
+                            {u.seriesName}
+                          </span>
+                          {isHighlight && (
+                            <span className="bg-amber-400 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded uppercase">
+                              KEY FIXTURE
+                            </span>
+                          )}
+                        </div>
+                        <div className="font-bold font-display text-base text-white">
                           {u.team1} vs {u.team2}
                         </div>
-                        <div className="text-[10px] font-mono text-slate-300 flex justify-between border-t border-emerald-900/80 pt-2">
-                          <span>{u.date}</span>
-                          <span className="text-emerald-400 font-semibold">{u.venue}</span>
+                        <div className="text-[11px] font-mono text-amber-300 font-bold bg-emerald-900/50 p-2 rounded-xl border border-emerald-800/40">
+                          Scheduled: {u.date}
+                        </div>
+                        <div className="text-[10px] font-mono text-slate-300 flex items-center gap-1">
+                          <MapPin className="h-3 w-3 text-emerald-400" />
+                          <span>{u.venue}</span>
                         </div>
                       </div>
                     );
@@ -583,7 +684,7 @@ export default function CricketLiveWidget() {
                       </div>
                       <div>
                         <h4 className="font-display font-bold text-xs text-white">{s.seriesName || s.name || s.series_name}</h4>
-                        <span className="text-[10px] font-mono text-emerald-400">{s.category || 'International Tournament'}</span>
+                        <span className="text-[10px] font-mono text-emerald-400">{s.category || 'Tournament'}</span>
                       </div>
                     </div>
                   ))}
@@ -602,11 +703,11 @@ export default function CricketLiveWidget() {
                   <button onClick={() => setSearchQuery('')} className="text-xs font-mono text-[#22c55e] underline font-bold">Clear search filter</button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                   {filteredTeams.map((t, idx) => (
                     <div key={idx} className="bg-emerald-950/60 border border-emerald-800/60 rounded-2xl p-3 text-center space-y-1 hover:border-[#22c55e]/50 transition">
                       <span className="font-display font-bold text-xs text-white block">{t.teamName || t.name || t.team_name}</span>
-                      <span className="text-[9px] font-mono text-emerald-400 uppercase font-semibold">{t.teamShortName || t.type || 'International'}</span>
+                      <span className="text-[9px] font-mono text-emerald-400 uppercase font-semibold">{t.teamShortName || t.type || 'Cricket Team'}</span>
                     </div>
                   ))}
                 </div>

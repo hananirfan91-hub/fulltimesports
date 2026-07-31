@@ -289,9 +289,9 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
         </div>
       )}
 
-      {/* RAPIDAPI CRICKET LIVE CENTER WIDGET */}
+      {/* RAPIDAPI CRICKET LIVE CENTER WIDGET - SHOWS ALL MATCHES & DETAILED FEEDS */}
       {category.slug.toLowerCase() === 'cricket' && (
-        <CricketLiveWidget />
+        <CricketLiveWidget variant="full" />
       )}
 
       {isShareAlertOpen && (
