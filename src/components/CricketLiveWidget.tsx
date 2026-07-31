@@ -7,6 +7,28 @@ import {
   getCricketSchedule, getCricketSeries, getCricketTeams 
 } from '../lib/cricketApi';
 
+function sortMatchesByPriority(items: any[]): any[] {
+  if (!Array.isArray(items)) return items;
+  return [...items].sort((a, b) => {
+    const textA = JSON.stringify(a).toLowerCase();
+    const textB = JSON.stringify(b).toLowerCase();
+
+    const isIntlA = textA.includes('icc') || textA.includes('international') || textA.includes('pakistan') || textA.includes('india') || textA.includes('australia') || textA.includes('england') || textA.includes('world cup') || textA.includes('asia cup') || textA.includes('champions trophy');
+    const isIntlB = textB.includes('icc') || textB.includes('international') || textB.includes('pakistan') || textB.includes('india') || textB.includes('australia') || textB.includes('england') || textB.includes('world cup') || textB.includes('asia cup') || textB.includes('champions trophy');
+
+    if (isIntlA && !isIntlB) return -1;
+    if (!isIntlA && isIntlB) return 1;
+
+    const isLeagueA = textA.includes('psl') || textA.includes('ipl') || textA.includes('league') || textA.includes('bbl');
+    const isLeagueB = textB.includes('psl') || textB.includes('ipl') || textB.includes('league') || textB.includes('bbl');
+
+    if (isLeagueA && !isLeagueB) return -1;
+    if (!isLeagueA && isLeagueB) return 1;
+
+    return 0;
+  });
+}
+
 function parseMatchItem(item: any) {
   const team1 = item.team1 || item.team1_name || (item.teams && item.teams[0]) || (item.teamInfo && item.teamInfo[0]?.name) || 'Team 1';
   const team2 = item.team2 || item.team2_name || (item.teams && item.teams[1]) || (item.teamInfo && item.teamInfo[1]?.name) || 'Team 2';
@@ -44,13 +66,13 @@ export default function CricketLiveWidget() {
     try {
       if (activeTab === 'live') {
         const res = await getLiveCricketScores();
+        let items: any[] = [];
         if (res && res.data) {
-          setLiveScores(Array.isArray(res.data) ? res.data : [res.data]);
+          items = Array.isArray(res.data) ? res.data : [res.data];
         } else if (res && Array.isArray(res)) {
-          setLiveScores(res);
+          items = res;
         } else {
-          // Fallback initial sample live matches if API is rate limited
-          setLiveScores([
+          items = [
             {
               id: 'm-live-1',
               team1: 'Pakistan',
@@ -63,6 +85,16 @@ export default function CricketLiveWidget() {
             },
             {
               id: 'm-live-2',
+              team1: 'Australia',
+              team2: 'England',
+              score1: '310/4 (48.1)',
+              score2: '308/9 (50.0)',
+              status: 'Australia need 3 runs in 11 balls',
+              venue: 'MCG, Melbourne',
+              seriesName: 'ODI International Series 2026'
+            },
+            {
+              id: 'm-live-3',
               team1: 'Peshawar Zalmi',
               team2: 'Lahore Qalandars',
               score1: '198/4 (20.0)',
@@ -70,47 +102,69 @@ export default function CricketLiveWidget() {
               status: 'Peshawar Zalmi need 5 runs in 2 balls',
               venue: 'Rawalpindi Cricket Stadium',
               seriesName: 'HBL PSL Season 10'
+            },
+            {
+              id: 'm-live-4',
+              team1: 'Mumbai Indians',
+              team2: 'Chennai Super Kings',
+              score1: '175/5 (18.2)',
+              score2: '174/8 (20.0)',
+              status: 'Mumbai Indians won by 5 wickets',
+              venue: 'Wankhede Stadium, Mumbai',
+              seriesName: 'Indian Premier League (IPL 2026)'
             }
-          ]);
+          ];
         }
+        setLiveScores(sortMatchesByPriority(items));
       } else if (activeTab === 'upcoming') {
         const res = await getUpcomingCricketMatches();
+        let items: any[] = [];
         if (res && res.data) {
-          setUpcomingMatches(Array.isArray(res.data) ? res.data : [res.data]);
+          items = Array.isArray(res.data) ? res.data : [res.data];
         } else if (res && Array.isArray(res)) {
-          setUpcomingMatches(res);
+          items = res;
         } else {
-          setUpcomingMatches([
-            { id: 'u1', team1: 'Pakistan', team2: 'Australia', date: 'Tomorrow, 14:00 GMT', venue: 'Kadafi Stadium', seriesName: 'ODI Series 2026' },
-            { id: 'u2', team1: 'India', team2: 'England', date: 'Fri 06 Jun, 09:30 GMT', venue: 'Lord\'s, London', seriesName: 'Test Championship' },
-            { id: 'u3', team1: 'Mumbai Indians', team2: 'Chennai Super Kings', date: 'Sat 07 Jun, 14:00 GMT', venue: 'Wankhede Stadium', seriesName: 'IPL 2026' }
-          ]);
+          items = [
+            { id: 'u1', team1: 'Pakistan', team2: 'Australia', date: 'Tomorrow, 14:00 GMT', venue: 'Gaddafi Stadium', seriesName: 'ICC ODI Series 2026' },
+            { id: 'u2', team1: 'India', team2: 'England', date: 'Fri 06 Jun, 09:30 GMT', venue: 'Lord\'s, London', seriesName: 'ICC World Test Championship' },
+            { id: 'u3', team1: 'Pakistan', team2: 'India', date: 'Sun 15 Jun, 09:00 GMT', venue: 'Colombo, Sri Lanka', seriesName: 'Asia Cup 2026' },
+            { id: 'u4', team1: 'Karachi Kings', team2: 'Islamabad United', date: 'Sat 07 Jun, 14:00 GMT', venue: 'National Stadium, Karachi', seriesName: 'HBL PSL 2026' },
+            { id: 'u5', team1: 'Royal Challengers Bengaluru', team2: 'Kolkata Knight Riders', date: 'Sun 08 Jun, 14:00 GMT', venue: 'Chinnaswamy Stadium', seriesName: 'IPL 2026' }
+          ];
         }
+        setUpcomingMatches(sortMatchesByPriority(items));
       } else if (activeTab === 'recent') {
         const res = await getRecentCricketMatches();
+        let items: any[] = [];
         if (res && res.data) {
-          setRecentMatches(Array.isArray(res.data) ? res.data : [res.data]);
+          items = Array.isArray(res.data) ? res.data : [res.data];
         } else if (res && Array.isArray(res)) {
-          setRecentMatches(res);
+          items = res;
         } else {
-          setRecentMatches([
-            { id: 'r1', team1: 'Pakistan', team2: 'South Africa', score1: '312/5', score2: '298/10', status: 'Pakistan won by 14 runs', venue: 'Karachi' },
-            { id: 'r2', team1: 'England', team2: 'Australia', score1: '185 & 240', score2: '380 & 48/2', status: 'Australia won by 8 wickets', venue: 'Oval' }
-          ]);
+          items = [
+            { id: 'r1', team1: 'Pakistan', team2: 'South Africa', score1: '312/5', score2: '298/10', status: 'Pakistan won by 14 runs', venue: 'Karachi', seriesName: 'ICC ODI Series' },
+            { id: 'r2', team1: 'England', team2: 'Australia', score1: '185 & 240', score2: '380 & 48/2', status: 'Australia won by 8 wickets', venue: 'The Oval', seriesName: 'The Ashes Test Series' },
+            { id: 'r3', team1: 'Quetta Gladiators', team2: 'Multan Sultans', score1: '165/8', score2: '166/3', status: 'Multan Sultans won by 7 wickets', venue: 'Multan', seriesName: 'PSL Season 10' }
+          ];
         }
+        setRecentMatches(sortMatchesByPriority(items));
       } else if (activeTab === 'series') {
         const res = await getCricketSeries('all');
+        let items: any[] = [];
         if (res && res.data) {
-          setSeriesList(Array.isArray(res.data) ? res.data : [res.data]);
+          items = Array.isArray(res.data) ? res.data : [res.data];
         } else {
-          setSeriesList([
-            { seriesName: 'HBL Pakistan Super League (PSL 2026)', category: 'T20 League' },
-            { seriesName: 'Indian Premier League (IPL 2026)', category: 'T20 League' },
-            { seriesName: 'ICC Cricket World Cup', category: 'International' },
-            { seriesName: 'Asia Cup 2026', category: 'International' },
-            { seriesName: 'ICC Champions Trophy', category: 'ICC Event' }
-          ]);
+          items = [
+            { seriesName: 'ICC Cricket World Cup 2027', category: 'International ICC Event' },
+            { seriesName: 'ICC Champions Trophy 2025/26', category: 'International ICC Event' },
+            { seriesName: 'Asia Cup 2026 Tournament', category: 'International Championship' },
+            { seriesName: 'ICC World Test Championship Final', category: 'International Test' },
+            { seriesName: 'HBL Pakistan Super League (PSL 2026)', category: 'T20 Franchise League' },
+            { seriesName: 'Indian Premier League (IPL 2026)', category: 'T20 Franchise League' },
+            { seriesName: 'Big Bash League (BBL 2026)', category: 'T20 League' }
+          ];
         }
+        setSeriesList(sortMatchesByPriority(items));
       } else if (activeTab === 'teams') {
         const res = await getCricketTeams('international');
         if (res && res.data) {

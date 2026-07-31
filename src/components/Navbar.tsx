@@ -23,6 +23,8 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showCricketDropdown, setShowCricketDropdown] = useState(false);
+  const [mobileCricketOpen, setMobileCricketOpen] = useState(false);
   const [showGeoDropdown, setShowGeoDropdown] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [upcomingMatchLine, setUpcomingMatchLine] = useState("Upcoming Matches In 2 Hours");
@@ -161,7 +163,149 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
           >
             Home
           </button>
-          {categories.slice(0, 5).map((cat) => (
+
+          {/* CRICKET DROPDOWN NAVIGATION MENU */}
+          <div 
+            className="relative"
+            onMouseEnter={() => setShowCricketDropdown(true)}
+            onMouseLeave={() => setShowCricketDropdown(false)}
+          >
+            <button
+              onClick={() => {
+                onNavigate('/sport/cricket');
+                setShowCricketDropdown(false);
+              }}
+              className={`flex items-center space-x-1 font-display text-sm font-semibold tracking-wide uppercase transition duration-150 ${
+                currentPath.includes('cricket') || currentPath.includes('/topic/psl') || currentPath.includes('/topic/ipl') || currentPath === '/knowledge-hub'
+                  ? 'text-[#22c55e]'
+                  : 'text-slate-200 hover:text-[#22c55e]'
+              }`}
+            >
+              <span>Cricket</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+
+            <AnimatePresence>
+              {showCricketDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute left-0 mt-2 w-72 rounded-2xl bg-[#01140f] shadow-2xl border border-[#22c55e]/30 z-50 p-3 font-sans text-xs space-y-2 text-white"
+                >
+                  <div className="flex items-center justify-between pb-1.5 border-b border-emerald-950 px-1">
+                    <span className="font-mono text-[10px] font-bold text-[#22c55e] uppercase tracking-wider">
+                      🏏 Cricket Central Hub
+                    </span>
+                    <button 
+                      onClick={() => { onNavigate('/sport/cricket'); setShowCricketDropdown(false); }}
+                      className="text-[10px] font-mono text-slate-300 hover:text-white underline"
+                    >
+                      View All
+                    </button>
+                  </div>
+
+                  {/* Top Priority: International Teams & Tournaments */}
+                  <div className="space-y-1">
+                    <div className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest px-2 pt-1">
+                      ⭐ Top Priority: International
+                    </div>
+                    <button
+                      onClick={() => { onNavigate('/topic/pakistan-cricket'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>🇵🇰 Pakistan Cricket</span>
+                      <span className="text-[9px] font-mono text-emerald-400">Intl Team</span>
+                    </button>
+                    <button
+                      onClick={() => { onNavigate('/topic/india-cricket'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>🇮🇳 India Cricket</span>
+                      <span className="text-[9px] font-mono text-emerald-400">Intl Team</span>
+                    </button>
+                    <button
+                      onClick={() => { onNavigate('/topic/australia-cricket'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>🇦🇺 Australia Cricket</span>
+                      <span className="text-[9px] font-mono text-emerald-400">Intl Team</span>
+                    </button>
+                    <button
+                      onClick={() => { onNavigate('/topic/england-cricket'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 England Cricket</span>
+                      <span className="text-[9px] font-mono text-emerald-400">Intl Team</span>
+                    </button>
+                    <button
+                      onClick={() => { onNavigate('/topic/icc-cricket-world-cup'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>🌍 ICC World Cup</span>
+                      <span className="text-[9px] font-mono text-emerald-400">ICC Event</span>
+                    </button>
+                    <button
+                      onClick={() => { onNavigate('/topic/icc-champions-trophy'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>🏆 Champions Trophy</span>
+                      <span className="text-[9px] font-mono text-emerald-400">ICC Event</span>
+                    </button>
+                    <button
+                      onClick={() => { onNavigate('/topic/asia-cup'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>🏏 Asia Cup</span>
+                      <span className="text-[9px] font-mono text-emerald-400">Intl Cup</span>
+                    </button>
+                    <button
+                      onClick={() => { onNavigate('/topic/icc-rankings'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>📊 ICC Rankings</span>
+                      <span className="text-[9px] font-mono text-emerald-400">Official</span>
+                    </button>
+                  </div>
+
+                  {/* Domestic Leagues */}
+                  <div className="space-y-1 pt-1.5 border-t border-emerald-950">
+                    <div className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest px-2">
+                      ⚡ Famous Domestic T20 Leagues
+                    </div>
+                    <button
+                      onClick={() => { onNavigate('/topic/psl'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>⚡ PSL (Pakistan Super League)</span>
+                      <span className="text-[9px] font-mono text-amber-400">T20 League</span>
+                    </button>
+                    <button
+                      onClick={() => { onNavigate('/topic/ipl'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                    >
+                      <span>🏆 IPL (Indian Premier League)</span>
+                      <span className="text-[9px] font-mono text-amber-400">T20 League</span>
+                    </button>
+                  </div>
+
+                  {/* Knowledge Base */}
+                  <div className="pt-1.5 border-t border-emerald-950">
+                    <button
+                      onClick={() => { onNavigate('/knowledge-hub'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-800/80 hover:bg-emerald-900 transition flex items-center justify-between font-bold text-[#22c55e]"
+                    >
+                      <span>📚 Sports Science & Knowledge Hub</span>
+                      <span className="text-[9px] font-mono">Guides ↗</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Other Categories */}
+          {categories.filter(c => c.slug !== 'cricket').slice(0, 4).map((cat) => (
             <button
               key={cat.id}
               onClick={() => onNavigate(`/sport/${cat.slug}`)}
@@ -343,28 +487,64 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               </div>
 
               {/* Main Links */}
-              <div className="grid grid-cols-2 gap-2 text-slate-200 py-2 font-display text-sm font-semibold uppercase">
-                <button
-                  onClick={() => {
-                    onNavigate('/');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="text-left py-2 border-b border-emerald-950"
-                >
-                  Home
-                </button>
-                {categories.map((cat) => (
+              <div className="space-y-2 text-slate-200 py-2 font-display text-sm font-semibold uppercase">
+                <div className="grid grid-cols-2 gap-2">
                   <button
-                    key={cat.id}
                     onClick={() => {
-                      onNavigate(`/sport/${cat.slug}`);
+                      onNavigate('/');
                       setMobileMenuOpen(false);
                     }}
-                    className="text-left py-2 border-b border-emerald-950"
+                    className="text-left py-2 border-b border-emerald-950 text-[#22c55e]"
                   >
-                    {cat.name}
+                    Home
                   </button>
-                ))}
+                  <button
+                    onClick={() => setMobileCricketOpen(!mobileCricketOpen)}
+                    className="text-left py-2 border-b border-emerald-950 flex items-center justify-between text-[#22c55e]"
+                  >
+                    <span>🏏 Cricket Hubs</span>
+                    <ChevronDown className={`h-4 w-4 transform transition ${mobileCricketOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                {mobileCricketOpen && (
+                  <div className="bg-[#01140f] p-3 rounded-xl border border-[#22c55e]/30 space-y-2 text-xs font-sans normal-case">
+                    <div className="text-[10px] font-mono font-bold text-[#22c55e] uppercase">⭐ Top Priority: International</div>
+                    <div className="grid grid-cols-2 gap-1.5 text-slate-200 font-medium">
+                      <button onClick={() => { onNavigate('/topic/pakistan-cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🇵🇰 Pakistan</button>
+                      <button onClick={() => { onNavigate('/topic/india-cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🇮🇳 India</button>
+                      <button onClick={() => { onNavigate('/topic/australia-cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🇦🇺 Australia</button>
+                      <button onClick={() => { onNavigate('/topic/england-cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</button>
+                      <button onClick={() => { onNavigate('/topic/icc-cricket-world-cup'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🌍 World Cup</button>
+                      <button onClick={() => { onNavigate('/topic/icc-champions-trophy'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🏆 Champions</button>
+                      <button onClick={() => { onNavigate('/topic/asia-cup'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🏏 Asia Cup</button>
+                      <button onClick={() => { onNavigate('/topic/icc-rankings'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">📊 Rankings</button>
+                    </div>
+
+                    <div className="text-[10px] font-mono font-bold text-amber-400 uppercase pt-2 border-t border-emerald-950">⚡ T20 Leagues & Base</div>
+                    <div className="grid grid-cols-2 gap-1.5 text-slate-200 font-medium">
+                      <button onClick={() => { onNavigate('/topic/psl'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">⚡ PSL</button>
+                      <button onClick={() => { onNavigate('/topic/ipl'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🏆 IPL</button>
+                      <button onClick={() => { onNavigate('/sport/cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🏏 All Cricket</button>
+                      <button onClick={() => { onNavigate('/knowledge-hub'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">📚 Knowledge</button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                  {categories.filter(c => c.slug !== 'cricket').map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        onNavigate(`/sport/${cat.slug}`);
+                        setMobileMenuOpen(false);
+                      }}
+                      className="text-left py-2 border-b border-emerald-950"
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Utility shortcuts */}

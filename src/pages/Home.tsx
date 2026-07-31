@@ -10,6 +10,7 @@ import { getYouTubeId } from '../lib/videoUtils';
 import Hero from '../components/Hero';
 import Logo from '../components/Logo';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
+import CricketLiveWidget from '../components/CricketLiveWidget';
 
 interface HomeProps {
   onNavigate: (path: string) => void;
@@ -179,6 +180,9 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
         
         {/* AdSense Leaderboard Placement */}
         <AdSensePlaceholder slot="home-top-leaderboard" format="horizontal" />
+
+        {/* RAPIDAPI CRICKET LIVE CENTER & SCORES WIDGET ON HOMEPAGE */}
+        <CricketLiveWidget />
 
         {/* ========================================================================= */}
         {/* EXPLICIT ANSWER PANEL: FULFILLING DIRECTIVES "EACH PAGE TELLS AN ANSWER" */}
