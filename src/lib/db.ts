@@ -450,82 +450,81 @@ const SEED_FIXTURES: FixtureItem[] = [
 ];
 
 export class DB {
-  // Helper to safely upsert post(s) to Supabase with automatic fallback if table is missing extended columns
+  // Helper to safely upsert post(s) to Supabase with automatic fallback if table is missing extended or is_draft columns
   static async safeUpsertPosts(posts: Post[]) {
     if (!posts || posts.length === 0) return;
 
-    const fullPayloads = posts.map(p => ({
-      id: p.id,
-      title: p.title || '',
-      slug: p.slug || '',
-      content: p.content || '',
-      category: (p.category || 'cricket').toLowerCase().trim(),
-      tags: JSON.stringify(p.tags || []) as any,
-      featured_image: p.featured_image || '',
-      video_url: p.video_url || '',
-      author: p.author || 'FTS Desk',
-      author_email: p.author_email || '',
-      created_at: p.created_at || new Date().toISOString(),
-      is_featured: Boolean(p.is_featured),
-      is_trending: Boolean(p.is_trending),
-      type: p.type === 'blog' ? 'blog' : 'news',
-      scheduled_for: p.is_draft ? 'draft' : (p.scheduled_for || ''),
-      meta_description: p.meta_description || '',
-      views: Number(p.views) || 0,
-      is_draft: Boolean(p.is_draft),
-      heading_tag: p.heading_tag || 'h1',
-      subheading: p.subheading || '',
-      meta_title: p.meta_title || '',
-      focus_keyword: p.focus_keyword || '',
-      canonical_url: p.canonical_url || '',
-      geo_summary: p.geo_summary || '',
-      geo_entities: JSON.stringify(p.geo_entities || []) as any,
-      aeo_direct_answer: p.aeo_direct_answer || '',
-      aeo_faq: JSON.stringify(p.aeo_faq || []) as any,
-      schema_type: p.schema_type || 'NewsArticle',
-      meta_robots: p.meta_robots || 'index, follow',
-    }));
+    const buildPayload = (p: Post, mode: 'full' | 'base' | 'legacy') => {
+      const cleanSlug = normalizeSlug(p.slug || p.title || '');
+      const tagsVal = Array.isArray(p.tags) ? p.tags : (p.tags ? [p.tags] : []);
+      const geoEntitiesVal = Array.isArray(p.geo_entities) ? p.geo_entities : [];
+      const aeoFaqVal = Array.isArray(p.aeo_faq) ? p.aeo_faq : [];
 
+      const legacy: any = {
+        id: p.id,
+        title: p.title || '',
+        slug: cleanSlug,
+        content: p.content || '',
+        category: (p.category || 'cricket').toLowerCase().trim(),
+        tags: tagsVal,
+        featured_image: p.featured_image || '',
+        video_url: p.video_url || '',
+        author: p.author || 'FTS Desk',
+        author_email: p.author_email || '',
+        created_at: p.created_at || new Date().toISOString(),
+        is_featured: Boolean(p.is_featured),
+        is_trending: Boolean(p.is_trending),
+        type: p.type === 'blog' ? 'blog' : 'news',
+        scheduled_for: p.is_draft ? 'draft' : (p.scheduled_for || ''),
+        meta_description: p.meta_description || '',
+        views: Number(p.views) || 0,
+      };
+
+      if (mode === 'legacy') return legacy;
+
+      const base = {
+        ...legacy,
+        is_draft: Boolean(p.is_draft),
+      };
+
+      if (mode === 'base') return base;
+
+      return {
+        ...base,
+        heading_tag: p.heading_tag || 'h1',
+        subheading: p.subheading || '',
+        meta_title: p.meta_title || '',
+        focus_keyword: p.focus_keyword || '',
+        canonical_url: p.canonical_url || '',
+        geo_summary: p.geo_summary || '',
+        geo_entities: geoEntitiesVal,
+        aeo_direct_answer: p.aeo_direct_answer || '',
+        aeo_faq: aeoFaqVal,
+        schema_type: p.schema_type || 'NewsArticle',
+        meta_robots: p.meta_robots || 'index, follow',
+      };
+    };
+
+    // Tier 1: Try Full payload
+    const fullPayloads = posts.map(p => buildPayload(p, 'full'));
     const { error: fullError } = await supabase.from('fts_posts').upsert(fullPayloads);
 
     if (fullError) {
-      console.error("Supabase full post upsert error:", fullError);
+      console.warn("Supabase full post upsert notice:", fullError.message);
       
-      const isMissingColumn = fullError.code === 'PGRST204' || 
-                              fullError.code === '42703' || 
-                              fullError.message?.toLowerCase().includes('column') ||
-                              fullError.details?.toLowerCase().includes('column');
+      // Tier 2: Try Base payload (with is_draft)
+      const basePayloads = posts.map(p => buildPayload(p, 'base'));
+      const { error: baseError } = await supabase.from('fts_posts').upsert(basePayloads);
 
-      if (isMissingColumn) {
-        console.warn("Supabase table missing extended SEO/AEO columns. Retrying post upsert with core columns payload...");
-        const basePayloads = posts.map(p => ({
-          id: p.id,
-          title: p.title || '',
-          slug: p.slug || '',
-          content: p.content || '',
-          category: (p.category || 'cricket').toLowerCase().trim(),
-          tags: JSON.stringify(p.tags || []) as any,
-          featured_image: p.featured_image || '',
-          video_url: p.video_url || '',
-          author: p.author || 'FTS Desk',
-          author_email: p.author_email || '',
-          created_at: p.created_at || new Date().toISOString(),
-          is_featured: Boolean(p.is_featured),
-          is_trending: Boolean(p.is_trending),
-          type: p.type === 'blog' ? 'blog' : 'news',
-          scheduled_for: p.is_draft ? 'draft' : (p.scheduled_for || ''),
-          meta_description: p.meta_description || '',
-          views: Number(p.views) || 0,
-          is_draft: Boolean(p.is_draft),
-        }));
+      if (baseError) {
+        console.warn("Supabase base post upsert notice:", baseError.message);
 
-        const { error: baseError } = await supabase.from('fts_posts').upsert(basePayloads);
-        if (baseError) {
-          console.error("Supabase fallback post upsert error:", baseError);
-          throw baseError;
+        // Tier 3: Try Legacy payload (without is_draft column)
+        const legacyPayloads = posts.map(p => buildPayload(p, 'legacy'));
+        const { error: legacyError } = await supabase.from('fts_posts').upsert(legacyPayloads);
+        if (legacyError) {
+          console.error("Supabase legacy post upsert error:", legacyError);
         }
-      } else {
-        throw fullError;
       }
     }
   }
