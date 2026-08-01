@@ -243,6 +243,48 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           ]
         }
       ];
+    } else if (currentPath === '/live-stream' || currentPath.startsWith('/live-stream')) {
+      title = "Live Sports Streaming | The Sports Room";
+      description = "Watch official embedded Facebook Live and YouTube Live sports streams directly on The Sports Room. Stay updated with live cricket, football, Formula 1, tennis, basketball and more.";
+      keywords = "The Sports Room live stream, live cricket streaming, Facebook live cricket, YouTube live sports, live match stream, live football streaming, F1 live streaming, embedded sports live stream";
+      pageType = "website";
+
+      ldJsonData = [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "@id": `${canonicalUrl}#webpage`,
+          "name": "Live Sports Streaming | The Sports Room",
+          "description": description,
+          "url": canonicalUrl,
+          "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": origin
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Live Stream",
+                "item": canonicalUrl
+              }
+            ]
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "The Sports Room",
+            "url": origin,
+            "logo": {
+              "@type": "ImageObject",
+              "url": `${origin}/logo-preview.png`
+            }
+          }
+        }
+      ];
     } else if (currentPath.startsWith('/sport/')) {
       // Category index
       const categorySlug = currentPath.replace('/sport/', '');

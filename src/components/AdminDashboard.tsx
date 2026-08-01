@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { 
   Users, LayoutGrid, FileText, FolderPlus, Trophy, Calendar, Image as ImageIcon, 
   Trash2, Edit3, Plus, Key, LogOut, CheckCircle, AlertTriangle, ShieldCheck, 
-  Tag, Upload, CalendarClock, Globe, PlusCircle, ArrowUpRight, MessageSquare, Mail
+  Tag, Upload, CalendarClock, Globe, PlusCircle, ArrowUpRight, MessageSquare, Mail,
+  Radio, Tv, Video, Eye, Play, ExternalLink
 } from 'lucide-react';
-import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, Subscriber } from '../types';
+import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, Subscriber, LiveStreamItem } from '../types';
 import { DB } from '../lib/db';
 import { supabase } from '../lib/supabase';
 import { normalizeSlug } from '../lib/slugUtils';
 import { detectEntitiesInText } from '../lib/entityRegistry';
+import { validateAndConvertStreamUrl } from '../lib/streamEmbed';
 
 const alert = (msg: string) => {
   try {
@@ -36,7 +38,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'subscribers'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'subscribers' | 'live_streams'>('posts');
   
   // States
   const [posts, setPosts] = useState<Post[]>([]);
@@ -47,6 +49,12 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [tickets, setTickets] = useState<TicketMessage[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [liveStreams, setLiveStreams] = useState<LiveStreamItem[]>([]);
+
+  // Live Streams Form State
+  const [editingStream, setEditingStream] = useState<Partial<LiveStreamItem> | null>(null);
+  const [isStreamModalOpen, setIsStreamModalOpen] = useState(false);
+  const [streamUrlError, setStreamUrlError] = useState('');
 
   // Editing Forms States
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -138,6 +146,97 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setMedia(DB.getMedia());
     setTickets(DB.getTickets());
     setSubscribers(DB.getSubscribers());
+    setLiveStreams(DB.getLiveStreams());
+  };
+
+  // LIVE STREAMS CRUD HANDLERS
+  const openNewStream = () => {
+    setStreamUrlError('');
+    setEditingStream({
+      title: '',
+      description: '',
+      platform: 'youtube',
+      video_url: '',
+      embed_url: '',
+      thumbnail: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
+      status: 'active',
+      is_featured: false,
+      match_name: '',
+      team_one: '',
+      team_two: '',
+      tournament: '',
+      stream_start: new Date().toISOString().slice(0, 16),
+      stream_end: new Date(Date.now() + 14400000).toISOString().slice(0, 16),
+      enable_chat: true,
+      created_by: currentAdmin?.name || 'Hanan Irfan'
+    });
+    setIsStreamModalOpen(true);
+  };
+
+  const openEditStream = (item: LiveStreamItem) => {
+    setStreamUrlError('');
+    setEditingStream({
+      ...item,
+      stream_start: item.stream_start ? item.stream_start.slice(0, 16) : new Date().toISOString().slice(0, 16),
+      stream_end: item.stream_end ? item.stream_end.slice(0, 16) : new Date(Date.now() + 14400000).toISOString().slice(0, 16),
+    });
+    setIsStreamModalOpen(true);
+  };
+
+  const handleSaveStream = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStream || !editingStream.title || !editingStream.video_url) {
+      setStreamUrlError('Stream title and video URL are required.');
+      return;
+    }
+
+    // Auto-convert and validate stream URL
+    const conversion = validateAndConvertStreamUrl(editingStream.video_url);
+    if (!conversion.isValid || !conversion.embedUrl) {
+      setStreamUrlError(conversion.error || 'Invalid video stream URL. Please provide a valid Facebook or YouTube video link.');
+      return;
+    }
+
+    const streamDataToSave: Omit<LiveStreamItem, 'id'> & { id?: string } = {
+      id: editingStream.id,
+      title: editingStream.title.trim(),
+      description: editingStream.description?.trim() || '',
+      platform: conversion.platform,
+      video_url: editingStream.video_url.trim(),
+      embed_url: conversion.embedUrl,
+      thumbnail: editingStream.thumbnail || 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
+      status: editingStream.status || 'active',
+      is_featured: !!editingStream.is_featured,
+      match_name: editingStream.match_name?.trim() || 'Live Sports Broadcast',
+      team_one: editingStream.team_one?.trim() || 'Team A',
+      team_two: editingStream.team_two?.trim() || 'Team B',
+      tournament: editingStream.tournament?.trim() || 'International Series 2026',
+      stream_start: editingStream.stream_start ? new Date(editingStream.stream_start).toISOString() : new Date().toISOString(),
+      stream_end: editingStream.stream_end ? new Date(editingStream.stream_end).toISOString() : new Date(Date.now() + 14400000).toISOString(),
+      created_by: editingStream.created_by || currentAdmin?.name || 'Hanan Irfan',
+      created_at: editingStream.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      enable_chat: editingStream.enable_chat !== undefined ? editingStream.enable_chat : true,
+      views: editingStream.views || 0,
+    };
+
+    DB.saveLiveStream(streamDataToSave);
+    setIsStreamModalOpen(false);
+    setEditingStream(null);
+    setStreamUrlError('');
+    refreshData();
+  };
+
+  const handleDeleteStream = (id: string) => {
+    if (confirm("Are you sure you want to delete this live stream item?")) {
+      DB.deleteLiveStream(id);
+      refreshData();
+    }
+  };
+
+  const handleToggleStreamFeatured = (id: string) => {
+    DB.toggleLiveStreamFeatured(id);
+    refreshData();
   };
 
   const [isSigningIn, setIsSigningIn] = useState(false);
@@ -877,6 +976,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         >
           <FileText className="h-4 w-4" />
           <span>My Editorials ({posts.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('live_streams')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'live_streams' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <Radio className="h-4 w-4 text-rose-500 animate-pulse" />
+          <span>Live Streams ({liveStreams.length})</span>
         </button>
 
         {currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
@@ -1624,6 +1731,145 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                           title="Delete Subscriber"
                         >
                           <Trash2 className="h-3.5 w-3.5 shrink-0" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 10. LIVE STREAMS MODULE */}
+      {activeTab === 'live_streams' && (
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="bg-[#22c55e] text-slate-950 text-[10px] font-mono font-bold px-2 py-0.5 rounded uppercase">
+                  Database Table: fts_live_streams
+                </span>
+                <span className="text-xs text-slate-400 font-mono">
+                  Auto Facebook & YouTube Embeds
+                </span>
+              </div>
+              <h3 className="font-display font-extrabold text-xl text-slate-900 mt-1 uppercase">
+                LIVE STREAMS MANAGEMENT MODULE
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Add, edit, or feature Facebook Live and YouTube Live match broadcasts visible on <span className="font-bold text-[#022c22]">/live-stream</span>.
+              </p>
+            </div>
+
+            <button
+              onClick={openNewStream}
+              className="bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] font-mono font-bold text-xs uppercase px-5 py-2.5 rounded-xl border border-emerald-950 flex items-center space-x-2 transition shadow-md shrink-0 cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add New Live Stream</span>
+            </button>
+          </div>
+
+          {liveStreams.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 border border-dashed rounded-2xl">
+              <Radio className="h-10 w-10 text-slate-400 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-slate-700">No live streams registered in database.</p>
+              <p className="text-xs text-slate-400 mt-1">Click "Add New Live Stream" above to broadcast Facebook or YouTube live match streams.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-slate-600 text-sm">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-550 border-b border-slate-200 font-mono text-[11px] uppercase text-left">
+                    <th className="py-3 px-4">Stream & Match Info</th>
+                    <th className="py-3 px-4">Platform</th>
+                    <th className="py-3 px-4">Teams & Tournament</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Featured</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {liveStreams.map((stream) => (
+                    <tr key={stream.id} className="hover:bg-slate-50/80 transition">
+                      <td className="py-3.5 px-4 font-sans">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={stream.thumbnail || 'https://images.unsplash.com/photo-1540747737956-378724044282?w=200&auto=format&fit=crop&q=80'}
+                            alt={`${stream.title} thumbnail`}
+                            className="w-14 h-9 object-cover rounded border border-slate-200 shrink-0"
+                          />
+                          <div>
+                            <span className="font-bold text-slate-900 text-xs line-clamp-1 block hover:text-[#22c55e] cursor-pointer" onClick={() => openEditStream(stream)}>
+                              {stream.title}
+                            </span>
+                            <span className="text-[10px] font-mono text-slate-400">
+                              By {stream.created_by} • {stream.views || 0} views
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono text-xs">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase text-white ${stream.platform === 'youtube' ? 'bg-red-600' : 'bg-blue-600'}`}>
+                          {stream.platform === 'youtube' ? 'YouTube' : 'Facebook'}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-sans text-xs">
+                        <span className="font-bold text-slate-800 block">{stream.team_one} vs {stream.team_two}</span>
+                        <span className="text-[10px] text-slate-500 font-mono">{stream.tournament}</span>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono text-xs">
+                        {stream.status === 'active' ? (
+                          <span className="bg-rose-100 text-rose-700 border border-rose-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase inline-flex items-center space-x-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping"></span>
+                            <span>🔴 Live Now</span>
+                          </span>
+                        ) : stream.status === 'upcoming' ? (
+                          <span className="bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
+                            ⏳ Upcoming
+                          </span>
+                        ) : (
+                          <span className="bg-slate-100 text-slate-600 border border-slate-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
+                            🏁 Ended
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <button
+                          onClick={() => handleToggleStreamFeatured(stream.id)}
+                          className={`text-xs font-mono font-bold px-2.5 py-1 rounded transition border ${stream.is_featured ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}
+                        >
+                          {stream.is_featured ? '⭐ Featured' : 'Normal'}
+                        </button>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right space-x-1 font-mono text-xs">
+                        <button
+                          onClick={() => onNavigate(`/live-stream?id=${stream.id}`)}
+                          className="p-1.5 border border-slate-200 hover:border-emerald-600 rounded text-slate-600 hover:text-emerald-600 transition bg-white"
+                          title="Preview Stream"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => openEditStream(stream)}
+                          className="p-1.5 border border-slate-200 hover:border-blue-600 rounded text-slate-600 hover:text-blue-600 transition bg-white"
+                          title="Edit Stream"
+                        >
+                          <Edit3 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStream(stream.id)}
+                          className="p-1.5 border border-slate-200 hover:border-red-600 rounded text-slate-600 hover:text-red-600 transition bg-white"
+                          title="Delete Stream"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </td>
                     </tr>
@@ -2672,6 +2918,263 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               <div className="flex justify-end space-x-2 pt-4">
                 <button type="button" onClick={() => setIsFixtureModalOpen(false)} className="text-xs px-3 py-1.5 text-slate-500 font-bold uppercase hover:bg-slate-50">Cancel</button>
                 <button type="submit" className="text-xs px-4 py-2 bg-slate-900 text-white font-bold rounded uppercase">Save Fixture</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* E. LIVE STREAM MANAGEMENT MODAL */}
+      {isStreamModalOpen && editingStream && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white border rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div>
+                <span className="bg-[#22c55e] text-slate-950 font-mono text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                  Auto Facebook & YouTube Conversion Engine
+                </span>
+                <h3 className="font-display font-black text-xl text-slate-900 uppercase tracking-tight mt-1">
+                  {editingStream.id ? 'Edit Live Match Stream' : 'Add New Live Match Stream'}
+                </h3>
+              </div>
+              <button onClick={() => setIsStreamModalOpen(false)} className="text-slate-400 hover:text-slate-700 font-bold text-sm">
+                ✕
+              </button>
+            </div>
+
+            {streamUrlError && (
+              <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-mono font-bold flex items-center space-x-2">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+                <span>{streamUrlError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveStream} className="space-y-4 font-sans text-xs">
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Stream Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editingStream.title || ''}
+                  onChange={(e) => setEditingStream({ ...editingStream, title: e.target.value })}
+                  placeholder="e.g. Pakistan vs West Indies 2nd Test 2026 - Day 3 Live Stream"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#22c55e]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Facebook or YouTube Video URL / Embed String *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editingStream.video_url || ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const res = validateAndConvertStreamUrl(val);
+                    if (res.isValid) {
+                      setStreamUrlError('');
+                    }
+                    setEditingStream({ 
+                      ...editingStream, 
+                      video_url: val,
+                      platform: res.platform,
+                      embed_url: res.embedUrl || editingStream.embed_url
+                    });
+                  }}
+                  placeholder="https://www.youtube.com/watch?v=... or https://www.facebook.com/.../videos/..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                />
+                <p className="text-[11px] text-slate-500 mt-1 font-mono">
+                  Supported formats: Full URLs, shortened URLs (youtu.be, fb.watch), or raw iframe embed tags. Automatically converted to responsive iframe.
+                </p>
+              </div>
+
+              {/* Auto Detected Embed Preview Indicator */}
+              {editingStream.video_url && (
+                <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl text-slate-200 font-mono text-[11px] space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#22c55e] font-bold">● Auto Detected Engine:</span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold text-white ${editingStream.platform === 'youtube' ? 'bg-red-600' : 'bg-blue-600'}`}>
+                      {editingStream.platform === 'youtube' ? 'YouTube Live' : 'Facebook Live'}
+                    </span>
+                  </div>
+                  <p className="text-slate-400 text-[10px] truncate">
+                    Target Embed URL: {validateAndConvertStreamUrl(editingStream.video_url).embedUrl || 'Waiting for valid link...'}
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Match Name (e.g. 2nd Test Day 3)
+                  </label>
+                  <input
+                    type="text"
+                    value={editingStream.match_name || ''}
+                    onChange={(e) => setEditingStream({ ...editingStream, match_name: e.target.value })}
+                    placeholder="2nd Test Match - Day 3"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Tournament Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editingStream.tournament || ''}
+                    onChange={(e) => setEditingStream({ ...editingStream, tournament: e.target.value })}
+                    placeholder="Pakistan vs West Indies Test Series 2026"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Team 1 Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editingStream.team_one || ''}
+                    onChange={(e) => setEditingStream({ ...editingStream, team_one: e.target.value })}
+                    placeholder="Pakistan"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Team 2 Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editingStream.team_two || ''}
+                    onChange={(e) => setEditingStream({ ...editingStream, team_two: e.target.value })}
+                    placeholder="West Indies"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Stream Status
+                  </label>
+                  <select
+                    value={editingStream.status || 'active'}
+                    onChange={(e) => setEditingStream({ ...editingStream, status: e.target.value as any })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none"
+                  >
+                    <option value="active">🔴 Live Now</option>
+                    <option value="upcoming">⏳ Upcoming Stream</option>
+                    <option value="ended">🏁 Stream Ended</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Featured Homepage Status
+                  </label>
+                  <select
+                    value={editingStream.is_featured ? 'true' : 'false'}
+                    onChange={(e) => setEditingStream({ ...editingStream, is_featured: e.target.value === 'true' })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none"
+                  >
+                    <option value="false">Normal Priority</option>
+                    <option value="true">⭐ Featured Top Stream</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    YouTube Live Chat
+                  </label>
+                  <select
+                    value={editingStream.enable_chat ? 'true' : 'false'}
+                    onChange={(e) => setEditingStream({ ...editingStream, enable_chat: e.target.value === 'true' })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none"
+                  >
+                    <option value="true">Enabled (Sidebar Chat)</option>
+                    <option value="false">Disabled</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Stream Scheduled Start Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={editingStream.stream_start || ''}
+                    onChange={(e) => setEditingStream({ ...editingStream, stream_start: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Stream Scheduled End Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={editingStream.stream_end || ''}
+                    onChange={(e) => setEditingStream({ ...editingStream, stream_end: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Thumbnail Image URL (With Alt Text Optimization)
+                </label>
+                <input
+                  type="text"
+                  value={editingStream.thumbnail || ''}
+                  onChange={(e) => setEditingStream({ ...editingStream, thumbnail: e.target.value })}
+                  placeholder="https://images.unsplash.com/photo-..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Stream Editorial Description & SEO Text
+                </label>
+                <textarea
+                  rows={3}
+                  value={editingStream.description || ''}
+                  onChange={(e) => setEditingStream({ ...editingStream, description: e.target.value })}
+                  placeholder="Enter detailed match stream overview and commentary information..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => setIsStreamModalOpen(false)}
+                  className="text-xs px-4 py-2 text-slate-600 font-mono font-bold uppercase hover:bg-slate-100 rounded-xl transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="text-xs px-6 py-2.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] font-mono font-bold uppercase rounded-xl border border-emerald-950 shadow-md transition"
+                >
+                  Save & Publish Live Stream
+                </button>
               </div>
             </form>
           </div>

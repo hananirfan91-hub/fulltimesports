@@ -12,6 +12,7 @@ const TopicHub = lazy(() => import('./pages/TopicHub'));
 const TrustPages = lazy(() => import('./pages/TrustPages'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const Glossary = lazy(() => import('./pages/Glossary'));
+const LiveStream = lazy(() => import('./pages/LiveStream'));
 
 function PageSkeleton() {
   return (
@@ -79,6 +80,13 @@ export default function App() {
     // 4. Admin CMS portal dashboard
     if (currentPath === '/admin') {
       return <AdminDashboard onNavigate={handleNavigate} />;
+    }
+
+    // Live Stream Module Route (/live-stream)
+    if (currentPath === '/live-stream' || currentPath.startsWith('/live-stream')) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const streamId = urlParams.get('id') || undefined;
+      return <LiveStream onNavigate={handleNavigate} streamId={streamId} />;
     }
 
     // 5. Dynamic Sport taxonomy pages (/sport/:slug)

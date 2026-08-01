@@ -304,6 +304,19 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             </AnimatePresence>
           </div>
 
+          {/* Live Stream Button with Live Pulse Indicator */}
+          <button
+            onClick={() => onNavigate('/live-stream')}
+            className={`flex items-center space-x-1.5 font-display text-sm font-bold tracking-wide uppercase transition duration-150 px-2.5 py-1 rounded-full border ${
+              currentPath === '/live-stream'
+                ? 'bg-rose-950 text-rose-400 border-rose-800'
+                : 'bg-[#01140f] text-slate-100 hover:text-[#22c55e] border-[#22c55e]/30 hover:border-[#22c55e]'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+            <span>🎥 Live Stream</span>
+          </button>
+
           {/* Other Categories */}
           {categories.filter(c => c.slug !== 'cricket').slice(0, 4).map((cat) => (
             <button
@@ -488,7 +501,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
 
               {/* Main Links */}
               <div className="space-y-2 text-slate-200 py-2 font-display text-sm font-semibold uppercase">
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => {
                       onNavigate('/');
@@ -499,10 +512,20 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                     Home
                   </button>
                   <button
+                    onClick={() => {
+                      onNavigate('/live-stream');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="text-left py-2 border-b border-emerald-950 text-rose-400 font-bold flex items-center space-x-1"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                    <span>Live Stream</span>
+                  </button>
+                  <button
                     onClick={() => setMobileCricketOpen(!mobileCricketOpen)}
                     className="text-left py-2 border-b border-emerald-950 flex items-center justify-between text-[#22c55e]"
                   >
-                    <span>🏏 Cricket Hubs</span>
+                    <span>Cricket</span>
                     <ChevronDown className={`h-4 w-4 transform transition ${mobileCricketOpen ? 'rotate-180' : ''}`} />
                   </button>
                 </div>

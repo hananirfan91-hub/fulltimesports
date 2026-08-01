@@ -106,6 +106,29 @@ export interface Subscriber {
   created_at: string;
 }
 
+export interface LiveStreamItem {
+  id: string;
+  title: string;
+  description: string;
+  platform: 'facebook' | 'youtube';
+  video_url: string;
+  embed_url: string;
+  thumbnail?: string;
+  status: 'active' | 'inactive' | 'upcoming' | 'ended';
+  is_featured: boolean;
+  match_name: string;
+  team_one: string;
+  team_two: string;
+  tournament: string;
+  stream_start: string;
+  stream_end?: string;
+  created_by?: string;
+  created_at: string;
+  updated_at?: string;
+  enable_chat?: boolean;
+  views?: number;
+}
+
 export interface SearchFilter {
   query: string;
   category: string;

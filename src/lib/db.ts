@@ -1,4 +1,4 @@
-import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber } from '../types';
+import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber, LiveStreamItem } from '../types';
 import { supabase } from './supabase';
 import { normalizeSlug } from './slugUtils';
 import { ensureFullSeoGeoAeo } from './seoGenerator';
@@ -44,6 +44,7 @@ const STORAGE_KEYS = {
   CURRENT_ADMIN: 'fts_current_admin',
   TICKETS: 'fts_tickets',
   SUBSCRIBERS: 'fts_subscribers',
+  LIVE_STREAMS: 'fts_live_streams',
 };
 
 // Seed Categories
@@ -450,6 +451,98 @@ const SEED_FIXTURES: FixtureItem[] = [
   { id: 'fix-8', sport: 'volleyball', team1: 'Poland', team2: 'Brazil', date: '2026-06-04', time: '19:00 GMT', venue: 'Spodek, Katowice', status: 'upcoming', stage: 'Nations League' },
 ];
 
+// Seed Live Streams
+const SEED_STREAMS: LiveStreamItem[] = [
+  {
+    id: 'stream-1',
+    title: 'Pakistan vs West Indies 2nd Test 2026 - Day 3 Live Coverage & Commentary',
+    description: 'Watch live ball-by-ball stream, tactical analysis, and commentary of Pakistan vs West Indies 2nd Test match live from National Stadium, Karachi.',
+    platform: 'youtube',
+    video_url: 'https://www.youtube.com/watch?v=H9T9e03d_jE',
+    embed_url: 'https://www.youtube.com/embed/H9T9e03d_jE',
+    thumbnail: 'https://images.unsplash.com/photo-1531415080290-b9b6e27967b8?w=1200&auto=format&fit=crop&q=80',
+    status: 'active',
+    is_featured: true,
+    match_name: '2nd Test Match - Day 3',
+    team_one: 'Pakistan',
+    team_two: 'West Indies',
+    tournament: 'Pakistan vs West Indies Test Series 2026',
+    stream_start: new Date(Date.now() - 3600000).toISOString(),
+    stream_end: new Date(Date.now() + 18000000).toISOString(),
+    created_by: 'Hanan Irfan',
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+    updated_at: new Date().toISOString(),
+    enable_chat: true,
+    views: 14250
+  },
+  {
+    id: 'stream-2',
+    title: 'PSL 2026 Grand Final - Lahore Qalandars vs Multan Sultans Live Match',
+    description: 'Official live match stream of Pakistan Super League (PSL) 2026 Final featuring high-voltage T20 action and live scoreboard.',
+    platform: 'youtube',
+    video_url: 'https://www.youtube.com/watch?v=6p8bV_G7u20',
+    embed_url: 'https://www.youtube.com/embed/6p8bV_G7u20',
+    thumbnail: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
+    status: 'active',
+    is_featured: false,
+    match_name: 'PSL 2026 Championship Final',
+    team_one: 'Lahore Qalandars',
+    team_two: 'Multan Sultans',
+    tournament: 'HBL PSL 2026',
+    stream_start: new Date(Date.now() - 1800000).toISOString(),
+    stream_end: new Date(Date.now() + 10800000).toISOString(),
+    created_by: 'Hanan Irfan',
+    created_at: new Date(Date.now() - 1800000).toISOString(),
+    updated_at: new Date().toISOString(),
+    enable_chat: true,
+    views: 28900
+  },
+  {
+    id: 'stream-3',
+    title: 'UEFA Champions League Final - Real Madrid vs Manchester City Official Stream',
+    description: 'Live broadcast of the UEFA Champions League Final. Watch tactile build-up play, pitch cams, and English commentary.',
+    platform: 'facebook',
+    video_url: 'https://www.facebook.com/facebook/videos/10153231379946729/',
+    embed_url: 'https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Ffacebook%2Fvideos%2F10153231379946729%2F&show_text=false&width=1280',
+    thumbnail: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&auto=format&fit=crop&q=80',
+    status: 'upcoming',
+    is_featured: false,
+    match_name: 'UEFA Champions League Final',
+    team_one: 'Real Madrid',
+    team_two: 'Manchester City',
+    tournament: 'UEFA Champions League 2026',
+    stream_start: new Date(Date.now() + 86400000).toISOString(),
+    stream_end: new Date(Date.now() + 97200000).toISOString(),
+    created_by: 'Hanan Irfan',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    enable_chat: false,
+    views: 4500
+  },
+  {
+    id: 'stream-4',
+    title: 'Monaco Grand Prix 2026 - Main Race Live Telemetry & Track Cam Stream',
+    description: 'Live Formula 1 Grand Prix coverage with real-time pitstop telemetry, sector timings, and driver cockpit streams.',
+    platform: 'youtube',
+    video_url: 'https://www.youtube.com/watch?v=YBzE8S5S9_U',
+    embed_url: 'https://www.youtube.com/embed/YBzE8S5S9_U',
+    thumbnail: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&auto=format&fit=crop&q=80',
+    status: 'upcoming',
+    is_featured: false,
+    match_name: 'Monaco Grand Prix',
+    team_one: 'Red Bull Racing',
+    team_two: 'Ferrari',
+    tournament: 'FIA Formula 1 World Championship 2026',
+    stream_start: new Date(Date.now() + 172800000).toISOString(),
+    stream_end: new Date(Date.now() + 180000000).toISOString(),
+    created_by: 'Hanan Irfan',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    enable_chat: true,
+    views: 1200
+  }
+];
+
 export class DB {
   // Helper to safely upsert post(s) to Supabase with automatic fallback if table is missing extended or is_draft columns
   static async safeUpsertPosts(posts: Post[]) {
@@ -688,6 +781,22 @@ export class DB {
         }
       }
 
+      // 6. Sync Live Streams
+      const { data: streams, error: streamError } = await supabase.from('fts_live_streams').select('*');
+      if (streamError) {
+        console.warn("Supabase fetch live streams notice:", streamError.message);
+      } else if (streams) {
+        if (streams.length > 0) {
+          localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
+        } else {
+          const localStreams = this.getLiveStreams();
+          if (localStreams.length > 0) {
+            const { error: streamUpsertErr } = await supabase.from('fts_live_streams').upsert(localStreams);
+            if (streamUpsertErr) console.warn("Supabase live streams upsert notice:", streamUpsertErr.message);
+          }
+        }
+      }
+
       // Broadcast update across listening views
       window.dispatchEvent(new CustomEvent('fts_db_sync'));
     } catch (e) {
@@ -720,9 +829,117 @@ export class DB {
     if (!localStorage.getItem(STORAGE_KEYS.SUBSCRIBERS)) {
       localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify([]));
     }
+    if (!localStorage.getItem(STORAGE_KEYS.LIVE_STREAMS)) {
+      localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(SEED_STREAMS));
+    }
     
     // Start background sync from Supabase database
     this.syncFromSupabase();
+  }
+
+  // LIVE STREAMS MODULE
+  static getLiveStreams(): LiveStreamItem[] {
+    const data = localStorage.getItem(STORAGE_KEYS.LIVE_STREAMS);
+    const streams: LiveStreamItem[] = data ? JSON.parse(data) : [];
+    // Sort by created_at desc or featured first
+    return streams.sort((a, b) => {
+      if (a.is_featured && !b.is_featured) return -1;
+      if (!a.is_featured && b.is_featured) return 1;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }
+
+  static getLiveStreamById(id: string): LiveStreamItem | null {
+    const streams = this.getLiveStreams();
+    return streams.find(s => s.id === id) || null;
+  }
+
+  static saveLiveStream(stream: Omit<LiveStreamItem, 'id'> & { id?: string }): LiveStreamItem {
+    const streams = this.getLiveStreams();
+    const nowIso = new Date().toISOString();
+
+    if (stream.id) {
+      const index = streams.findIndex(s => s.id === stream.id);
+      if (index !== -1) {
+        // Handle featured exclusivity if updated stream is featured
+        if (stream.is_featured) {
+          streams.forEach(s => { s.is_featured = false; });
+        }
+        const updated: LiveStreamItem = {
+          ...streams[index],
+          ...stream,
+          updated_at: nowIso
+        };
+        streams[index] = updated;
+        localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
+
+        // Attempt async sync to Supabase
+        supabase.from('fts_live_streams').upsert([updated]).then(({ error }) => {
+          if (error) console.warn("Supabase upsert fts_live_streams notice:", error.message);
+        });
+
+        window.dispatchEvent(new CustomEvent('fts_db_sync'));
+        return updated;
+      }
+    }
+
+    // Handle featured exclusivity if new stream is featured
+    if (stream.is_featured) {
+      streams.forEach(s => { s.is_featured = false; });
+    }
+
+    const newStream: LiveStreamItem = {
+      ...stream,
+      id: stream.id || `stream-${Date.now()}`,
+      created_at: stream.created_at || nowIso,
+      updated_at: nowIso,
+      views: stream.views || 0,
+    } as LiveStreamItem;
+
+    streams.unshift(newStream);
+    localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
+
+    // Async sync with Supabase
+    supabase.from('fts_live_streams').insert([newStream]).then(({ error }) => {
+      if (error) console.warn("Supabase insert fts_live_streams notice:", error.message);
+    });
+
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+    return newStream;
+  }
+
+  static deleteLiveStream(id: string) {
+    const streams = this.getLiveStreams();
+    const filtered = streams.filter(s => s.id !== id);
+    localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(filtered));
+
+    supabase.from('fts_live_streams').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn("Supabase delete fts_live_streams notice:", error?.message);
+    });
+
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+  }
+
+  static toggleLiveStreamFeatured(id: string) {
+    const streams = this.getLiveStreams();
+    streams.forEach(s => {
+      if (s.id === id) {
+        s.is_featured = !s.is_featured;
+      } else if (s.is_featured) {
+        s.is_featured = false;
+      }
+    });
+    localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+  }
+
+  static incrementStreamViews(id: string) {
+    const streams = this.getLiveStreams();
+    const item = streams.find(s => s.id === id);
+    if (item) {
+      item.views = (item.views || 0) + 1;
+      localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
+    }
   }
 
   // POSTS
