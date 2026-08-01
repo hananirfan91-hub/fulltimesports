@@ -93,7 +93,7 @@ export default function Hero({ onNavigate }: HeroProps) {
           <img 
             referrerPolicy="no-referrer"
             src={featuredNews.featured_image} 
-            alt={featuredNews.title} 
+            alt={featuredNews.image_alt || `${featuredNews.title} - The Sports Room Sports Lounge Analysis`} 
             className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700 z-0"
             fetchPriority="high"
             decoding="async"
@@ -209,8 +209,10 @@ export default function Hero({ onNavigate }: HeroProps) {
                       <img 
                         referrerPolicy="no-referrer"
                         src={item.featured_image} 
-                        alt={item.title} 
+                        alt={item.image_alt || `${item.title} - The Sports Room Sports Analysis`} 
                         className="w-full h-full object-cover group-hover:scale-105 transition"
+                        loading="lazy"
+                        decoding="async"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -257,8 +259,10 @@ export default function Hero({ onNavigate }: HeroProps) {
                   <img 
                     referrerPolicy="no-referrer"
                     src={blog.featured_image} 
-                    alt={blog.title} 
+                    alt={blog.image_alt || `${blog.title} - The Sports Room Editorial Column`} 
                     className="w-14 h-14 object-cover rounded-lg bg-slate-100 shrink-0" 
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="overflow-hidden">
                     <span className="text-[8px] font-mono font-bold text-slate-400 uppercase tracking-widest leading-none block">

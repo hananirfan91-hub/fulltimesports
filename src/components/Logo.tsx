@@ -19,10 +19,12 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
     return (
       <img
         src="/logo-preview.png"
-        alt="TSR Logo"
+        alt="The Sports Room - TSR Official Sports Lounge Logo"
         className={`${sizeClasses[size]} rounded-lg object-contain ${className}`}
         id="tsr-logo-icon"
         referrerPolicy="no-referrer"
+        loading="eager"
+        decoding="async"
       />
     );
   }
@@ -33,9 +35,11 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
       <div className={`flex items-center space-x-3 cursor-pointer select-none ${className}`} id="tsr-logo-horizontal">
         <img
           src="/logo-preview.png"
-          alt="TSR Logo"
+          alt="The Sports Room - TSR Official Sports Lounge Logo"
           className="h-9 w-9 shrink-0 rounded-md object-contain"
           referrerPolicy="no-referrer"
+          loading="eager"
+          decoding="async"
         />
         <div className="flex flex-col text-left">
           <div className="flex items-baseline font-black tracking-tighter uppercase font-display text-white leading-none text-lg">
@@ -55,9 +59,11 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
     <div className={`flex flex-col items-center justify-center text-center p-3 font-sans ${className}`} id="tsr-logo-full">
       <img
         src="/logo-preview.png"
-        alt="The Sports Room Logo"
+        alt="The Sports Room - TSR Official Sports Lounge Brand Logo"
         className={`${sizeClasses[size]} rounded-2xl shadow-2xl object-contain border border-slate-800/40 bg-slate-950/20 p-1.5 transition-transform duration-300 hover:scale-[1.02]`}
         referrerPolicy="no-referrer"
+        loading="eager"
+        decoding="async"
       />
     </div>
   );

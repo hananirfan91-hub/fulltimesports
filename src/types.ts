@@ -6,6 +6,7 @@ export interface Post {
   category: string; // 'cricket' | 'football' | 'basketball' | 'f1' | 'esports' | 'tennis' | 'hockey' | 'volleyball'
   tags: string[]; // SEO Keywords
   featured_image: string;
+  image_alt?: string; // Custom alt text for article featured image
   video_url?: string; // YouTube embed only (e.g. YouTube ID or share link)
   author: string;
   author_email?: string; // Track who wrote the article

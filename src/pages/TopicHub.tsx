@@ -283,8 +283,10 @@ export default function TopicHub({ topicSlug, onNavigate }: TopicHubProps) {
                     <img 
                       referrerPolicy="no-referrer" 
                       src={post.featured_image} 
-                      alt={post.title} 
+                      alt={post.image_alt || `${post.title} - ${entity.name} Topic Hub on The Sports Room`} 
                       className="w-full h-full object-cover group-hover:scale-103 transition duration-500" 
+                      loading="lazy"
+                      decoding="async"
                     />
                     {post.type === 'blog' && (
                       <span className="absolute top-2 left-2 bg-[#022c22] text-[#22c55e] text-[8px] font-mono font-bold uppercase px-2 py-0.5 rounded border border-emerald-850">

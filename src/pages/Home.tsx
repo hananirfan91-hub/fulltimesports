@@ -313,7 +313,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                     <img 
                       referrerPolicy="no-referrer"
                       src={post.featured_image} 
-                      alt={post.title} 
+                      alt={post.image_alt || `${post.title} - The Sports Room Trending News Coverage`} 
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
                       loading="lazy"
                       decoding="async"
@@ -370,7 +370,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                     <img 
                       referrerPolicy="no-referrer"
                       src={post.featured_image} 
-                      alt={post.title} 
+                      alt={post.image_alt || `${post.title} - The Sports Room Editorial Report`} 
                       className="w-full h-full object-cover group-hover:scale-103 transition duration-500" 
                       loading="lazy"
                       decoding="async"
