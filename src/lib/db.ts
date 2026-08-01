@@ -458,8 +458,8 @@ const SEED_STREAMS: LiveStreamItem[] = [
     title: 'Pakistan vs West Indies 2nd Test 2026 - Day 3 Live Coverage & Commentary',
     description: 'Watch live ball-by-ball stream, tactical analysis, and commentary of Pakistan vs West Indies 2nd Test match live from National Stadium, Karachi.',
     platform: 'youtube',
-    video_url: 'https://www.youtube.com/watch?v=H9T9e03d_jE',
-    embed_url: 'https://www.youtube.com/embed/H9T9e03d_jE',
+    video_url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+    embed_url: 'https://www.youtube.com/embed/jfKfPfyJRdk',
     thumbnail: 'https://images.unsplash.com/photo-1531415080290-b9b6e27967b8?w=1200&auto=format&fit=crop&q=80',
     status: 'active',
     is_featured: true,
@@ -480,8 +480,8 @@ const SEED_STREAMS: LiveStreamItem[] = [
     title: 'PSL 2026 Grand Final - Lahore Qalandars vs Multan Sultans Live Match',
     description: 'Official live match stream of Pakistan Super League (PSL) 2026 Final featuring high-voltage T20 action and live scoreboard.',
     platform: 'youtube',
-    video_url: 'https://www.youtube.com/watch?v=6p8bV_G7u20',
-    embed_url: 'https://www.youtube.com/embed/6p8bV_G7u20',
+    video_url: 'https://www.youtube.com/watch?v=21X5lGlDOfg',
+    embed_url: 'https://www.youtube.com/embed/21X5lGlDOfg',
     thumbnail: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
     status: 'active',
     is_featured: false,
@@ -524,8 +524,8 @@ const SEED_STREAMS: LiveStreamItem[] = [
     title: 'Monaco Grand Prix 2026 - Main Race Live Telemetry & Track Cam Stream',
     description: 'Live Formula 1 Grand Prix coverage with real-time pitstop telemetry, sector timings, and driver cockpit streams.',
     platform: 'youtube',
-    video_url: 'https://www.youtube.com/watch?v=YBzE8S5S9_U',
-    embed_url: 'https://www.youtube.com/embed/YBzE8S5S9_U',
+    video_url: 'https://www.youtube.com/watch?v=5qap5aO4i9A',
+    embed_url: 'https://www.youtube.com/embed/5qap5aO4i9A',
     thumbnail: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&auto=format&fit=crop&q=80',
     status: 'upcoming',
     is_featured: false,
@@ -840,7 +840,30 @@ export class DB {
   // LIVE STREAMS MODULE
   static getLiveStreams(): LiveStreamItem[] {
     const data = localStorage.getItem(STORAGE_KEYS.LIVE_STREAMS);
-    const streams: LiveStreamItem[] = data ? JSON.parse(data) : [];
+    let streams: LiveStreamItem[] = data ? JSON.parse(data) : [];
+    
+    // Auto-repair legacy dummy URLs if present in browser localStorage
+    let updated = false;
+    streams = streams.map(s => {
+      if (s.embed_url?.includes('H9T9e03d_jE')) {
+        updated = true;
+        return { ...s, video_url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk', embed_url: 'https://www.youtube.com/embed/jfKfPfyJRdk' };
+      }
+      if (s.embed_url?.includes('6p8bV_G7u20')) {
+        updated = true;
+        return { ...s, video_url: 'https://www.youtube.com/watch?v=21X5lGlDOfg', embed_url: 'https://www.youtube.com/embed/21X5lGlDOfg' };
+      }
+      if (s.embed_url?.includes('YBzE8S5S9_U')) {
+        updated = true;
+        return { ...s, video_url: 'https://www.youtube.com/watch?v=5qap5aO4i9A', embed_url: 'https://www.youtube.com/embed/5qap5aO4i9A' };
+      }
+      return s;
+    });
+
+    if (updated) {
+      localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
+    }
+
     // Sort by created_at desc or featured first
     return streams.sort((a, b) => {
       if (a.is_featured && !b.is_featured) return -1;
