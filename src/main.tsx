@@ -40,7 +40,9 @@ if (typeof window !== 'undefined') {
     const errorMsg = reason?.message || '';
     if (
       errorStr.toLowerCase().includes('websocket') || 
-      errorMsg.toLowerCase().includes('websocket')
+      errorStr.toLowerCase().includes('script error') || 
+      errorMsg.toLowerCase().includes('websocket') ||
+      errorMsg.toLowerCase().includes('script error')
     ) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -51,7 +53,9 @@ if (typeof window !== 'undefined') {
     const errorMsg = event.message || '';
     if (
       errorMsg.toLowerCase().includes('websocket') || 
-      event.error?.message?.toLowerCase().includes('websocket')
+      errorMsg.toLowerCase().includes('script error') ||
+      event.error?.message?.toLowerCase().includes('websocket') ||
+      event.error?.message?.toLowerCase().includes('script error')
     ) {
       event.preventDefault();
       event.stopImmediatePropagation();
