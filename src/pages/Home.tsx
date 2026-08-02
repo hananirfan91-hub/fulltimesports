@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { 
-  Trophy, Calendar, Tv, ArrowRight, Play, Eye, Flame, BookOpen, 
-  Sparkles, Mail, MessageSquare, Compass, ShieldCheck, HelpCircle
+  Play, Eye, Flame, ArrowRight, CheckCircle2,
+  Clock, Tv, Mail, Sparkles, TrendingUp, BookOpen, Compass
 } from 'lucide-react';
-import { Post, FixtureItem, RankingItem } from '../types';
+import { Post, FixtureItem } from '../types';
 import { DB } from '../lib/db';
-import { getYouTubeId } from '../lib/videoUtils';
 import Hero from '../components/Hero';
-import Logo from '../components/Logo';
-import AdSensePlaceholder from '../components/AdSensePlaceholder';
 import CricketLiveWidget from '../components/CricketLiveWidget';
+import AdSensePlaceholder from '../components/AdSensePlaceholder';
 
 interface HomeProps {
   onNavigate: (path: string) => void;
@@ -20,891 +18,379 @@ interface HomeProps {
 export default function Home({ onNavigate, activeGeo }: HomeProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [fixtures, setFixtures] = useState<FixtureItem[]>([]);
-  const [rankings, setRankings] = useState<RankingItem[]>([]);
-  const [selectedVideoId, setSelectedVideoId] = useState<string>('YBzE8S5S9_U');
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
 
   useEffect(() => {
-    document.title = "The Sports Room | Scientific Sports Journalism Hub";
+    document.title = "The Sports Room | Live Scores, Sports News & Expert Analysis";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute('content', 'The Sports Room (TSR) is Pakistan’s leading digital platform for athletic mechanical science, biometrics, real-time formula telemetry, and match strategic breakdowns.');
+      metaDesc.setAttribute(
+        'content', 
+        'The Sports Room provides real-time live scores, breaking sports news, expert match analysis, Formula 1 telemetry, player rankings and sports insights.'
+      );
     }
 
     const loadData = () => {
       const allPosts = DB.getPosts();
       setPosts(allPosts);
       setFixtures(DB.getFixtures());
-      setRankings(DB.getRankings());
-      
-      const firstWithVideo = allPosts.find(p => !!p.video_url);
-      if (firstWithVideo?.video_url) {
-        setSelectedVideoId(getYouTubeId(firstWithVideo.video_url));
-      }
     };
-    
+
     loadData();
-    
+
     window.addEventListener('fts_db_sync', loadData);
     return () => {
       window.removeEventListener('fts_db_sync', loadData);
     };
   }, [activeGeo]);
 
-  // Section divisions
-  const trendingNews = posts.filter(p => p.is_trending).slice(0, 4);
+  const trendingNews = posts.filter(p => p.is_trending).slice(0, 6);
+  const displayTrending = trendingNews.length >= 3 ? trendingNews : posts.slice(0, 6);
   const latestArticles = posts.slice(0, 6);
-  const cricketArticles = posts.filter(p => p.category === 'cricket').slice(0, 2);
-  const footballArticles = posts.filter(p => p.category === 'football').slice(0, 2);
-  const editorPicks = posts.filter(p => p.type === 'blog').slice(0, 3);
-  const mostRead = [...posts].sort((a,b) => b.views - a.views).slice(0, 5);
-  const videoArticles = posts.filter(p => !!p.video_url).slice(0, 3);
+  const featuredPost = posts.find(p => p.is_featured) || posts[0];
+  const videoPosts = posts.filter(p => !!p.video_url).slice(0, 3);
 
-  // Active Live Fixtures for side panel in Football division
-  const activeFootballFixtures = fixtures.filter(f => f.sport === 'football').slice(0, 3);
-  // Active Cricket side panel
-  const activeCricketRankings = rankings.filter(r => r.sport === 'cricket').slice(0, 4);
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newsletterEmail.trim().length > 3) {
+      DB.insertSubscriber(newsletterEmail);
+      setSubscribed(true);
+      setNewsletterEmail('');
+      setTimeout(() => setSubscribed(false), 5000);
+    }
+  };
+
+  const categoriesList = [
+    { name: 'Cricket', icon: '🏏', slug: 'cricket' },
+    { name: 'Football', icon: '⚽', slug: 'football' },
+    { name: 'Formula 1', icon: '🏎️', slug: 'f1' },
+    { name: 'Basketball', icon: '🏀', slug: 'basketball' },
+    { name: 'Tennis', icon: '🎾', slug: 'tennis' },
+    { name: 'Esports', icon: '🎮', slug: 'esports' },
+    { name: 'Hockey', icon: '🏑', slug: 'hockey' },
+    { name: 'Volleyball', icon: '🏐', slug: 'volleyball' },
+  ];
 
   return (
-    <div className="space-y-12 bg-white" id="home-page-container">
-      {/* SECTION 1: MASTER HERO OVERLAY SHOWCASE with Babar Azam Cricket image background */}
-      <div className="relative bg-slate-950 text-white overflow-hidden py-16 md:py-24 px-4 md:px-8 border-b-4 border-[#22c55e]" id="master-seo-cricket-hero">
-        {/* Cinematic Background Image of Babar Azam cover drive */}
-        <div className="absolute inset-0">
-          <img 
-            src="/babar_cricket_hero.png" 
-            alt="Babar Azam cricket cover drive action background" 
-            className="w-full h-full object-cover opacity-35 object-center"
-            referrerPolicy="no-referrer"
-            fetchPriority="high"
-            decoding="async"
-            width={1200}
-            height={675}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/95 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-        </div>
+    <div className="bg-[#01140f] text-slate-100 min-h-screen pb-16 space-y-12 font-sans selection:bg-[#22c55e] selection:text-[#022c22]" id="home-page-container">
+      
+      {/* 1. HERO SECTION (3D Editorial Board) */}
+      <Hero onNavigate={onNavigate} />
 
-        <div className="max-w-7xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-8 space-y-6">
-            <span className="inline-flex items-center space-x-2 bg-emerald-500/10 text-[#22c55e] border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider">
-              <span className="h-2 w-2 rounded-full bg-[#22c55e] animate-ping mr-1"></span>
-              Human Written Sports News • The Sports Room Sports Lounge
-            </span>
-            
-            {/* The ONLY H1 tag on the page */}
-            <h1 className="font-display font-black text-3xl md:text-5xl lg:text-6xl tracking-tight uppercase leading-none">
-              The Sports Room | <span className="text-[#22c55e]">Sports Lounge</span>, Cricket News Today, Football &amp; F1 Analysis Blog
-            </h1>
-
-            {/* Paragraph with focus keywords - concise & punchy */}
-            <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-3xl">
-              Welcome to <strong>The Sports Room</strong> — Pakistan’s premier human-written <strong>sports editorial platform</strong> &amp; <strong>sports lounge</strong>. 
-              Get live updates on <strong>cricket news today</strong>, <strong>pakistan sports news</strong>, <strong>football news today</strong>, 
-              <strong>babar azam batting technique</strong>, <strong>world cup 2026 news</strong>, and Formula 1 technical breakdowns.
-            </p>
-
-            {/* Internal links - Topical Mapping & Silo */}
-            <div className="space-y-3 pt-4 border-t border-slate-800">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#22c55e] block font-bold">
-                EXPLORE CORE DECIDED TOPICS (INTERNAL LINKING MAP &amp; SPORTS LOUNGE INDEX):
-              </span>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={() => onNavigate('/sport/cricket')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  🏏 Pakistan Cricket News
-                </button>
-                <button onClick={() => onNavigate('/sport/football')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  ⚽ Football &amp; World Cup 2026
-                </button>
-                <button onClick={() => onNavigate('/sport/tennis')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  🎾 Grand Slam Roland Garros
-                </button>
-                <button onClick={() => onNavigate('/sport/f1')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  🏎️ Formula 1 Technical
-                </button>
-                <button onClick={() => onNavigate('/sport/basketball')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  🏀 NBA &amp; Basketball
-                </button>
-                <button onClick={() => onNavigate('/sport/esports')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  🎮 Esports World Cup 2026
-                </button>
-                <button onClick={() => onNavigate('/sport/volleyball')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  🏐 VNL 2026 Volleyball
-                </button>
-                <button onClick={() => onNavigate('/sport/hockey')} className="bg-[#022c22]/80 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/20 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  🏑 Pakistan Hockey &amp; Squash
-                </button>
-                <button onClick={() => onNavigate('/sports-atlas')} className="bg-[#22c55e]/20 hover:bg-[#22c55e] hover:text-[#022c22] border border-[#22c55e]/50 text-[#22c55e] text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  📊 Sports Science Atlas
-                </button>
-                <button onClick={() => onNavigate('/about-us')} className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-1.5 px-3 rounded-lg font-mono font-bold transition cursor-pointer">
-                  ℹ️ About TSR human-written
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          {/* Quick Metrics Overlay */}
-          <div className="lg:col-span-4 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm space-y-4">
-            <h3 className="text-white font-mono font-bold text-[#22c55e] text-xs uppercase tracking-wider border-b border-slate-800 pb-2">
-              Sports Lounge Live Monitors
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-810/50">
-                <span className="text-[10px] font-mono text-slate-400 block uppercase">Babar Azam Torque</span>
-                <span className="text-base font-bold font-mono text-[#22c55e]">142.6 km/h</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-810/50">
-                <span className="text-[10px] font-mono text-slate-400 block uppercase">F1 Underbody Suction</span>
-                <span className="text-base font-bold font-mono text-[#22c55e]">18.5 kN</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-810/50">
-                <span className="text-[10px] font-mono text-slate-400 block uppercase">Nile Spikes Velocity</span>
-                <span className="text-base font-bold font-mono text-[#22c55e]">114 km/h</span>
-              </div>
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-810/50">
-                <span className="text-[10px] font-mono text-slate-400 block uppercase">Human Accuracy</span>
-                <span className="text-base font-bold font-mono text-[#22c55e]">100% Original</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* CRICKET LIVE SCORES & SCHEDULE BANNER STRIP - LOCATED DIRECTLY AFTER NAV BAR */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-3 pb-1">
+      {/* 2. CRICKET LIVE SCOREBOARD WIDGET (Compact Featured Banner) */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6">
         <CricketLiveWidget variant="banner" onNavigate={onNavigate} />
-      </div>
+      </section>
 
-      <div className="bg-[#f0fdf4]/30 border-b border-emerald-990/5 py-1">
-        <Hero onNavigate={onNavigate} />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 md:px-6 space-y-8 pt-4">
-        {/* AdSense Leaderboard Placement */}
-        <AdSensePlaceholder slot="home-top-leaderboard" format="horizontal" />
-
-        {/* ========================================================================= */}
-        {/* EXPLICIT ANSWER PANEL: FULFILLING DIRECTIVES "EACH PAGE TELLS AN ANSWER" */}
-        {/* ========================================================================= */}
-        <div className="bg-[#022c22] text-white rounded-3xl p-6 md:p-8 shadow-xl border-b-4 border-[#22c55e] border border-emerald-950 overflow-hidden relative" id="homepage-core-answers-desk">
-          <div className="absolute top-0 right-0 h-40 w-40 bg-gradient-radial from-[#22c55e]/10 to-transparent pointer-events-none"></div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-            <div className="lg:col-span-4 space-y-4">
-              <div className="inline-flex items-center space-x-2 font-mono text-[9px] font-black text-[#22c55e] bg-[#01140f] px-2.5 py-1.5 rounded tracking-wide border border-emerald-950 uppercase">
-                <HelpCircle className="h-3 w-3 mr-1 animate-pulse" />
-                <span>Quick Resolution Portal</span>
-              </div>
-              <h3 className="font-display font-black text-2xl md:text-3xl tracking-tight uppercase leading-none">
-                What does <br />
-                The Sports Room <br />
-                <span className="text-[#22c55e]">Answer Today?</span>
+      {/* EDITORIAL POLICY BANNER CARD (Mint green card matching screenshot) */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="bg-[#f0fdf4] border border-[#22c55e]/40 rounded-2xl p-6 md:p-8 text-[#022c22] shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+          <div className="space-y-2 max-w-3xl">
+            <div className="flex items-center space-x-2">
+              <Sparkles className="h-4 w-4 text-[#16a34a]" />
+              <h3 className="font-mono font-black text-sm uppercase tracking-wider text-[#022c22]">
+                EDITORIAL POLICY &amp; GENERAL DATA COUPLERS
               </h3>
-              <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                We design our media platform to solve complex sporting doubts. Each click provides a direct mathematical, strategic, or physical resolution to a core athletic question.
-              </p>
-              
-              <div className="flex flex-col space-y-2 pt-2">
-                <div className="p-3 bg-[#01140f] border border-emerald-950 rounded-lg text-center">
-                  <Logo variant="icon" size="sm" className="mx-auto" />
-                  <p className="text-[9px] font-bold text-slate-300 font-mono tracking-widest mt-1 uppercase">
-                    TSR BRAND DESIGN SYSTEM
-                  </p>
-                </div>
-              </div>
             </div>
-            
-            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Q1 */}
-              <div className="bg-[#01140f] p-4.5 rounded-xl border border-emerald-950 hover:border-[#22c55e]/50 transition duration-150 space-y-2">
-                <div className="flex items-center space-x-2">
-                  <span className="font-mono text-xs font-black text-[#22c55e] bg-emerald-950/80 p-1 px-1.5 rounded">Q1</span>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wide text-slate-100">
-                    Why can I trust these sports write-ups over live scrapers?
-                  </h4>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed mb-4">
-                  <strong>The Answer:</strong> The Sports Room features 100% human-authored strategic reviews. Our editorial desk manually writes tactical data, shielding you from cheap machine translation loops or generic automatic scrapers.
-                </p>
-              </div>
-
-              {/* Q2 */}
-              <div className="bg-[#01140f] p-4.5 rounded-xl border border-emerald-950 hover:border-[#22c55e]/50 transition duration-150 space-y-2">
-                <div className="flex items-center space-x-2">
-                  <span className="font-mono text-xs font-black text-[#22c55e] bg-emerald-950/80 p-1 px-1.5 rounded">Q2</span>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wide text-slate-100">
-                    Why have wing-backs and fullbacks shifted roles?
-                  </h4>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  <strong>The Answer:</strong> Classical overlapping defenders have been replaced by "Inverted Pivots" who drift inside during possession. This guarantees numerical superiority in midfield, locking down central rest-defense spaces.
-                </p>
-              </div>
-
-              {/* Q3 */}
-              <div className="bg-[#01140f] p-4.5 rounded-xl border border-emerald-950 hover:border-[#22c55e]/50 transition duration-150 space-y-2">
-                <div className="flex items-center space-x-2">
-                  <span className="font-mono text-xs font-black text-[#22c55e] bg-emerald-950/80 p-1 px-1.5 rounded">Q3</span>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wide text-slate-100">
-                    How do spinners get massive side drift and late dip?
-                  </h4>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  <strong>The Answer:</strong> Heavy wrist revolutions (2400+ RPM) generate a high Magnus effect drag coefficient. This forces the cricket ball to drift laterally and dip down suddenly, scrambling the batsmans footwork in powerplays.
-                </p>
-              </div>
-
-              {/* Q4 */}
-              <div className="bg-[#01140f] p-4.5 rounded-xl border border-emerald-950 hover:border-[#22c55e]/50 transition duration-150 space-y-2">
-                <div className="flex items-center space-x-2">
-                  <span className="font-mono text-xs font-black text-[#22c55e] bg-emerald-950/80 p-1 px-1.5 rounded">Q4</span>
-                  <h4 className="text-xs font-mono font-bold uppercase tracking-wide text-slate-100">
-                    What stands behind ground-effect aerodynamics in modern F1?
-                  </h4>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  <strong>The Answer:</strong> Molded underbody Venturi Tunnels generate low pressure suction beneath the chassis. This allows cars to follow closely behind other vehicles dirty air without sacrificing vital pneumatic cornering force.
-                </p>
-              </div>
+            <p className="text-xs text-slate-700 leading-relaxed font-sans">
+              The Sports Room carries manual reporting indices across high-density markets in the ICC, UEFA, Formula 1, and NBA. Our coverage features structured schema markup representing detailed sport databases. We guarantee complete exemption from scraping loops and artificial slop.
+            </p>
+            <div className="flex flex-wrap items-center gap-4 pt-1 font-mono text-[10px] font-bold text-[#16a34a] uppercase">
+              <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> VERIFIED EDITORIAL PLATFORM</span>
+              <span>•</span>
+              <span>NO SCRAPING FEEDS</span>
+              <span>•</span>
+              <span>HUMAN EDITORIAL ANALYSIS</span>
             </div>
           </div>
+          <div className="shrink-0 space-y-2 text-right w-full md:w-auto">
+            <span className="block text-[9px] font-mono text-slate-500 uppercase tracking-widest">NEED REPORTING ASSISTANCE?</span>
+            <button 
+              onClick={() => onNavigate('/contact-us')}
+              className="w-full md:w-auto px-5 py-2.5 bg-[#022c22] hover:bg-[#01140f] text-white font-mono font-bold text-xs uppercase rounded-lg tracking-wider transition shadow-md cursor-pointer border border-emerald-900"
+            >
+              SUBMIT EDITORIAL TICKET
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. SPORTS CATEGORIES NAVIGATION GRID */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-2">
+            <Compass className="h-5 w-5 text-[#22c55e]" />
+            <h2 className="text-xl font-bold text-white tracking-wide uppercase font-mono">Explore Sports Categories</h2>
+          </div>
+          <span className="text-xs text-slate-400 font-mono">Select a sport to filter coverage</span>
         </div>
 
-        {/* Editorial Standards & Handcrafted Digital Journalism Callout */}
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 my-8" id="editorial-callout-banner">
-          <div className="space-y-1">
-            <h3 className="font-display font-black text-slate-900 uppercase text-xs tracking-wider">Original Sports Journalism &amp; Media Publishing | The Sports Room Sports Lounge</h3>
-            <p className="text-[11px] text-slate-500 max-w-2xl leading-relaxed">
-              The Sports Room (TSR) is built entirely on human-authored tactical analysis without automated scrapers. Discover who we are, our professional journalism frameworks, and read about our chief strategists on the <button onClick={() => onNavigate('/about-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">About Us</button> page, or get in touch through our <button onClick={() => onNavigate('/contact-us')} className="text-emerald-700 hover:text-[#22c55e] font-bold underline cursor-pointer">Contact Us</button> channel.
-            </p>
+        <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
+          {categoriesList.map((cat) => (
+            <button
+              key={cat.slug}
+              onClick={() => onNavigate(`/sport/${cat.slug}`)}
+              className="flex flex-col items-center group cursor-pointer p-3 bg-[#022c22] hover:bg-emerald-950/80 border border-[#22c55e]/20 hover:border-[#22c55e] rounded-2xl transition duration-200 shadow-md"
+            >
+              <div className="text-2xl sm:text-3xl mb-1.5 group-hover:scale-110 transition duration-200">
+                {cat.icon}
+              </div>
+              <span className="text-xs font-bold font-mono text-slate-200 group-hover:text-[#22c55e] transition">
+                {cat.name}
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* AdSense Top Banner Placement */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <AdSensePlaceholder slot="home-top-leaderboard" format="horizontal" />
+      </div>
+
+      {/* 4. TRENDING NEWS SECTION */}
+      <section id="trending-news" className="max-w-7xl mx-auto px-4 md:px-6 pt-2">
+        <div className="flex items-center justify-between mb-6 border-b border-[#22c55e]/20 pb-3">
+          <div className="flex items-center space-x-2">
+            <Flame className="h-5 w-5 text-[#22c55e]" />
+            <h2 className="text-xl font-bold text-white tracking-wide font-mono uppercase">Trending News &amp; Headlines</h2>
           </div>
           <button 
-            onClick={() => onNavigate('/about-us')} 
-            className="shrink-0 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white font-mono font-bold text-[10px] py-2.5 px-5 rounded-lg uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-sm"
+            onClick={() => onNavigate('/sport/cricket')}
+            className="text-xs font-bold text-[#22c55e] hover:underline flex items-center space-x-1 font-mono uppercase"
           >
-            Learn About TSR
+            <span>View More</span>
+            <ArrowRight className="h-3.5 w-3.5" />
           </button>
         </div>
 
-        {/* SECTION 2: TRENDING SPORTS NEWS GRID */}
-        <section className="border-t-4 border-[#022c22] pt-6" id="trending-news-grid">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="font-display font-black text-2xl text-slate-900 tracking-tight flex items-center space-x-2">
-              <Flame className="h-6 w-6 text-[#22c55e] animate-bounce" />
-              <span>THE SPORTS ROOM TRENDING HEADLINES</span>
-            </h2>
-            <span className="text-[10px] font-mono font-bold text-emerald-800 bg-[#f0fdf4] border border-emerald-950/5 px-2 py-0.5 rounded">
-              AUTO-SENSING TRAFFIC
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {trendingNews.map((post, index) => (
-              <motion.div
-                key={post.id}
-                onClick={() => onNavigate(`/blog/${post.slug}`)}
-                className="bg-white border border-slate-200 rounded-xl overflow-hidden cursor-pointer group shadow-xs hover:shadow-md transition duration-200 flex flex-col justify-between"
-                whileHover={{ y: -4 }}
-              >
-                <div>
-                  <div className="h-40 overflow-hidden bg-slate-100 relative">
-                    <img 
-                      referrerPolicy="no-referrer"
-                      src={post.featured_image} 
-                      alt={post.image_alt || `${post.title} - The Sports Room Trending News Coverage`} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
-                      loading="lazy"
-                      decoding="async"
-                      width={320}
-                      height={160}
-                    />
-                    <div className="absolute top-2 left-2 bg-[#022c22] border border-[#22c55e]/35 font-mono text-[9px] font-bold text-white px-2 py-0.5 rounded">
-                      #{index + 1} HOT
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <span className="text-[10px] font-mono font-bold text-[#22c55e] uppercase tracking-wider">{post.category}</span>
-                    <h3 className="font-display text-sm font-bold text-slate-900 uppercase leading-snug line-clamp-2 mt-1 group-hover:text-[#22c55e] transition">
-                      {post.title}
-                    </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayTrending.map((post) => (
+            <div 
+              key={post.id}
+              onClick={() => onNavigate(`/blog/${post.slug}`)}
+              className="bg-[#022c22] border border-[#22c55e]/20 rounded-2xl overflow-hidden hover:border-[#22c55e] transition duration-300 group cursor-pointer shadow-xl flex flex-col justify-between"
+            >
+              <div>
+                <div className="relative h-48 overflow-hidden bg-[#01140f]">
+                  <img 
+                    src={post.featured_image} 
+                    alt={post.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute top-3 left-3 bg-[#22c55e] text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider font-mono">
+                    {post.category}
                   </div>
                 </div>
-                <div className="p-4 pt-0 border-t border-slate-100/60 flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                  <span>{post.author}</span>
-                  <span className="flex items-center space-x-1">
-                    <Eye className="h-3 w-3 text-[#22c55e]" />
-                    <span>{post.views} Views</span>
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
 
-
-        {/* ========================================================================= */}
-        {/* TWO-COLUMN GRID: LATEST ARTICLES FEED (LEFT) vs MOST READ & RANKINGS (RIGHT) */}
-        {/* ========================================================================= */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-12">
-          
-          {/* LEFT: SECTION 3: LATEST ARTICLES FEED */}
-          <div className="lg:col-span-8 space-y-6" id="latest-editorial-feed">
-            <div className="border-b-2 border-[#022c22] pb-3 flex justify-between items-center">
-              <h3 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
-                <BookOpen className="h-5 w-5 text-[#22c55e]" />
-                <span>LATEST EDITORIAL REPORTINGS | THE SPORTS ROOM SPORTS LOUNGE</span>
-              </h3>
-              <span className="text-[10px] font-mono text-slate-500">Live UTC Stream</span>
-            </div>
-
-            <div className="space-y-6">
-              {latestArticles.map((post) => (
-                <div 
-                  key={post.id}
-                  onClick={() => onNavigate(`/blog/${post.slug}`)}
-                  className="bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 cursor-pointer group shadow-xs hover:shadow transition duration-200"
-                >
-                  <div className="w-full sm:w-44 h-32 bg-slate-100 rounded-lg overflow-hidden shrink-0">
-                    <img 
-                      referrerPolicy="no-referrer"
-                      src={post.featured_image} 
-                      alt={post.image_alt || `${post.title} - The Sports Room Editorial Report`} 
-                      className="w-full h-full object-cover group-hover:scale-103 transition duration-500" 
-                      loading="lazy"
-                      decoding="async"
-                      width={176}
-                      height={128}
-                    />
+                <div className="p-5 space-y-2">
+                  <div className="flex items-center space-x-3 text-[11px] text-slate-400 font-mono">
+                    <span className="flex items-center"><Clock className="h-3 w-3 mr-1 text-[#22c55e]" /> {new Date(post.created_at).toLocaleDateString()}</span>
+                    <span className="flex items-center"><Eye className="h-3 w-3 mr-1 text-[#22c55e]" /> {post.views} views</span>
                   </div>
-                  <div className="flex-1 w-full space-y-2">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-[10px] font-mono font-black text-white bg-[#022c22] px-2 py-0.5 rounded uppercase">
-                        {post.category}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {new Date(post.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </span>
-                    </div>
-                    <h3 className="font-display font-black text-base text-slate-900 leading-tight uppercase group-hover:text-[#22c55e] transition line-clamp-2" id="post-link-title">
-                      {post.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                      {post.meta_description || post.content.replace(/<[^>]*>/g, '').replace(/[#*`]/g, '').slice(0, 140) + '...'}
-                    </p>
-                    <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-1">
-                      <span>Analysis By: <strong className="text-[#022c22] font-semibold">{post.author}</strong></span>
-                      <span className="flex items-center space-x-1 text-[#22c55e] font-bold">
-                        <span>Read breakdown</span>
-                        <ArrowRight className="h-3 w-3 shrink-0" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
 
-            {/* In-feed AdSense Box */}
-            <AdSensePlaceholder slot="homepage-mid-infeed" format="horizontal" />
-          </div>
-
-          {/* RIGHT RAIL: SECTION 7: MOST READ ARTICLES & FIXTURES BRIEF */}
-          <div className="lg:col-span-4 space-y-8" id="right-rail">
-            
-            {/* SECTION 7: MOST READ DIRECT TICKER */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm">
-              <h3 className="font-display font-black text-sm text-[#022c22] uppercase tracking-wider mb-4 border-b border-slate-150 pb-2 flex items-center space-x-1.5">
-                <Sparkles className="h-4 w-4 text-[#22c55e]" />
-                <span>MOST POPULAR AT THE SPORTS ROOM</span>
-              </h3>
-              <div className="space-y-4">
-                {mostRead.map((post, idx) => (
-                  <div 
-                    key={post.id}
-                    onClick={() => onNavigate(`/blog/${post.slug}`)}
-                    className="flex items-start space-x-3 cursor-pointer group animate-fade-in"
-                  >
-                    <span className="font-display font-black text-2xl text-slate-300 group-hover:text-[#22c55e] transition shrink-0 w-6">
-                      0{idx + 1}
-                    </span>
-                    <div className="overflow-hidden">
-                      <span className="text-[8px] font-mono font-bold text-[#22c55e] uppercase tracking-wider block">{post.category}</span>
-                      <h4 className="text-xs font-bold text-slate-805 uppercase leading-snug line-clamp-2 mt-0.5 group-hover:underline">
-                        {post.title}
-                      </h4>
-                      <span className="text-[9px] text-slate-400 font-mono">{post.views} unique views</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Live Sports Ticker Sideboard - DIRECT COMPLIANT SPORT THEME */}
-            <div className="bg-[#022c22] text-white border border-emerald-950 rounded-2xl p-5 shadow-inner">
-              <h3 className="font-mono text-xs font-bold text-[#22c55e] uppercase tracking-widest mb-4 flex items-center space-x-1.5">
-                <Flame className="h-4 w-4 text-[#22c55e] animate-pulse" />
-                <span>TSR SCIENTIFIC HOT TOPICS</span>
-              </h3>
-              <div className="space-y-3">
-                <div className="text-xs p-3 bg-[#01140f] rounded border border-emerald-950 flex flex-col space-y-1">
-                  <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase">Biomechanical Focus</span>
-                  <span className="font-bold text-slate-100">Babar Azam Cover-Drive Torques</span>
-                  <span className="text-[10px] text-slate-400">Analysis of hip-to-shoulder kinetic chain synchronization of international batsman.</span>
-                </div>
-                <div className="text-xs p-3 bg-[#01140f] rounded border border-emerald-950 flex flex-col space-y-1">
-                  <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase">Aerodynamics Tech</span>
-                  <span className="font-bold text-slate-100">Formula 1 Aerodynamic Downforce</span>
-                  <span className="text-[10px] text-slate-400">Computational fluid dynamics tracking ground effects and tire heat-transfer telemetry.</span>
-                </div>
-                <div className="text-xs p-3 bg-[#01140f] rounded border border-emerald-950 flex flex-col space-y-1">
-                  <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase">Cardiology Study</span>
-                  <span className="font-bold text-slate-100">Cardiorespiratory VO2 Max Limits</span>
-                  <span className="text-[10px] text-slate-400">Evaluating mitochondrial oxygen-volume consumption rates across hot sub-continental stadiums.</span>
-                </div>
-              </div>
-              <button 
-                onClick={() => onNavigate('/sports-atlas')} 
-                className="w-full mt-4 py-2 bg-[#01140f] border border-emerald-950 hover:bg-[#022c22] text-white font-mono font-bold text-[10px] uppercase rounded text-center transition"
-              >
-                Explore Sports Science Atlas
-              </button>
-            </div>
-
-            {/* Right AdSense space matching traditional newspaper rails */}
-            <AdSensePlaceholder slot="right-rail-rectangle" format="rectangle" />
-          </div>
-
-        </div>
-
-
-        {/* ========================================================================= */}
-        {/* SECTION 4: CRICKET HIGHLIGHTS DIVISION */}
-        {/* ========================================================================= */}
-        <section className="mt-12 border-t-2 border-[#022c22] pt-8" id="cricket-highlights">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-8 space-y-4">
-              <h3 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2 animate-pulse">
-                <span className="bg-[#22c55e] w-2.5 h-6 rounded-full"></span>
-                <span>CRICKET ANALYSIS & EDITORIAL</span>
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {cricketArticles.map(post => (
-                  <div 
-                    key={post.id} 
-                    onClick={() => onNavigate(`/blog/${post.slug}`)}
-                    className="bg-white border border-slate-200 rounded-xl overflow-hidden cursor-pointer group hover:border-[#22c55e] transition shadow-xs"
-                  >
-                    <img referrerPolicy="no-referrer" src={post.featured_image} alt={post.title} className="w-full h-44 object-cover" />
-                    <div className="p-4">
-                      <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase tracking-widest">{post.category}</span>
-                      <h3 className="font-display text-sm font-bold text-slate-900 uppercase leading-snug line-clamp-2 mt-1 group-hover:text-[#22c55e] transition">
-                        {post.title}
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed font-sans">
-                        {post.meta_description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Cricket Science Sidepanel */}
-            <div className="lg:col-span-4">
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 h-full">
-                <h3 className="font-display font-bold text-xs text-[#022c22] uppercase tracking-widest border-b border-slate-100 pb-2 mb-4 flex justify-between items-center">
-                  <span>Cricket Editorial Topics</span>
-                  <BookOpen className="h-4 w-4 text-[#22c55e]" />
-                </h3>
-                <div className="space-y-4 text-xs">
-                  <div className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                    <span className="text-[10px] uppercase font-mono font-bold text-[#22c55e]">Kinetic Chain</span>
-                    <h4 className="font-bold text-slate-800 uppercase mt-0.5">Babar Azam Cover-Drive Sequence</h4>
-                    <p className="text-slate-500 text-[11px] mt-1 leading-relaxed">Ground reaction force transfer sequence optimizing wrist locks at 140 km/h with low vibratory loss.</p>
-                  </div>
-                  <div className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                    <span className="text-[10px] uppercase font-mono font-bold text-[#22c55e]">Aerodynamics</span>
-                    <h4 className="font-bold text-slate-800 uppercase mt-0.5">Humidity vs Ball Swing Trajectories</h4>
-                    <p className="text-slate-505 text-[11px] mt-1 leading-relaxed">How air density boundary layer separations trigger late, devastating swing in damp conditions.</p>
-                  </div>
-                  <div className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                    <span className="text-[10px] uppercase font-mono font-bold text-[#22c55e]">Tension Calculus</span>
-                    <h4 className="font-bold text-slate-808 uppercase mt-0.5">Bat Sweetspot Rebound Damping</h4>
-                    <p className="text-slate-505 text-[11px] mt-1 leading-relaxed">Measuring translational energy conservation rates during off-center strikes against fast deliveries.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-        {/* ========================================================================= */}
-        {/* SECTION 5: FOOTBALL HIGHLIGHTS & TRADING DIVISION */}
-        {/* ========================================================================= */}
-        <section className="mt-12 border-t-2 border-[#022c22] pt-8" id="football-highlights">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Football Tactical Principles Sidepanel */}
-            <div className="lg:col-span-4 order-last lg:order-first">
-              <div className="bg-[#022c22] text-white border border-emerald-950 rounded-2xl p-5 h-full">
-                <h3 className="font-display font-medium text-xs text-[#22c55e] uppercase tracking-widest border-b border-emerald-900 pb-2 mb-4 flex justify-between items-center">
-                  <span>Tactical Playbook Desk</span>
-                  <Compass className="h-4 w-4 text-[#22c55e]" />
-                </h3>
-                <div className="space-y-4 text-xs font-sans">
-                  <div className="p-3 bg-[#01140f] rounded border border-emerald-950 space-y-1">
-                    <div className="flex justify-between items-center text-[9px] text-[#22c55e] font-mono pb-1 border-b border-emerald-950">
-                      <span>TACTICAL RULE #1</span>
-                      <span>ACTIVE</span>
-                    </div>
-                    <h4 className="font-bold text-slate-200 mt-1">Low Block Stretching Velocity</h4>
-                    <p className="text-slate-400 text-[11px] leading-relaxed">Using inverted wingers to lock fullbacks in five lateral channels, leaving critical spaces in half-spaces.</p>
-                  </div>
-                  <div className="p-3 bg-[#01140f] rounded border border-emerald-950 space-y-1">
-                    <div className="flex justify-between items-center text-[9px] text-[#22c55e] font-mono pb-1 border-b border-emerald-950">
-                      <span>TACTICAL RULE #2</span>
-                      <span>ACTIVE</span>
-                    </div>
-                    <h4 className="font-bold text-slate-200 mt-1">High Pressing Counter-Torsion</h4>
-                    <p className="text-slate-400 text-[11px] leading-relaxed">Coordinated forward press restricting passing angles and forcing centerbacks to launch dangerous long diagonals.</p>
-                  </div>
-                  <div className="p-3 bg-[#01140f] rounded border border-emerald-950 space-y-1">
-                    <div className="flex justify-between items-center text-[9px] text-[#22c55e] font-mono pb-1 border-b border-emerald-950">
-                      <span>TACTICAL RULE #3</span>
-                      <span>ACTIVE</span>
-                    </div>
-                    <h4 className="font-bold text-slate-200 mt-1">Rest Defense Box Mechanics</h4>
-                    <p className="text-slate-400 text-[11px] leading-relaxed">Locking a 3-2 structure behind tactical transition lines to instantly smother quick-passing counter-attacks.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-8 space-y-4">
-              <h3 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
-                <span className="bg-[#22c55e] w-2.5 h-6 rounded-full"></span>
-                <span>FOOTBALL MASTERCLASS DESK</span>
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {footballArticles.map(post => (
-                  <div 
-                    key={post.id} 
-                    onClick={() => onNavigate(`/blog/${post.slug}`)}
-                    className="bg-white border border-slate-200 rounded-xl overflow-hidden cursor-pointer group hover:border-[#22c55e] transition shadow-xs"
-                  >
-                    <img referrerPolicy="no-referrer" src={post.featured_image} alt={post.title} className="w-full h-44 object-cover" />
-                    <div className="p-4">
-                      <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase tracking-widest">{post.category}</span>
-                      <h3 className="font-display text-sm font-bold text-slate-900 uppercase leading-snug line-clamp-2 mt-1 group-hover:text-[#22c55e] transition">
-                        {post.title}
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
-                        {post.meta_description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-        {/* ========================================================================= */}
-        {/* SECTION 6: FEATURED EDITOR PICKS (PEO Opinion Style blog blocks) */}
-        {/* ========================================================================= */}
-        <section className="mt-12 border-t-2 border-[#022c22] pt-8" id="editor-picks">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-display font-black text-xl text-slate-900 tracking-tight flex items-center space-x-2">
-              <Compass className="h-5 w-5 text-[#22c55e]" />
-              <span>EDITORIAL COLUMNS & ANALYSIS</span>
-            </h3>
-            <span className="text-[10px] font-mono font-bold text-slate-400">OPINION PIECES</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {editorPicks.map(post => (
-              <div 
-                key={post.id}
-                onClick={() => onNavigate(`/blog/${post.slug}`)}
-                className="bg-[#022c22] text-white border border-emerald-950 p-5 rounded-2xl cursor-pointer hover:border-[#22c55e] transition relative flex flex-col justify-between min-h-[220px]"
-              >
-                <div>
-                  <span className="text-[8px] bg-[#01140f] border border-emerald-950 text-[#22c55e] font-mono px-2 py-0.5 rounded uppercase tracking-wider font-bold">
-                    COLUMNIST: {post.author.toUpperCase()}
-                  </span>
-                  <h3 className="font-display text-base font-bold tracking-tight text-white leading-snug uppercase mt-3 hover:text-emerald-300 line-clamp-3">
+                  <h3 className="text-base font-bold text-white group-hover:text-[#22c55e] transition line-clamp-2 leading-snug">
                     {post.title}
                   </h3>
-                </div>
-                <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono mt-6 pt-3 border-t border-emerald-950">
-                  <span>{post.views} column views</span>
-                  <span className="text-[#22c55e] font-bold uppercase flex items-center space-x-1">
-                    <span>Read opinion</span>
-                    <ArrowRight className="h-3 w-3 shrink-0" />
-                  </span>
+
+                  <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                    {post.excerpt}
+                  </p>
                 </div>
               </div>
-            ))}
+
+              <div className="px-5 pb-5 pt-1 text-xs font-bold text-[#22c55e] flex items-center space-x-1 font-mono group-hover:translate-x-1 transition duration-200">
+                <span>Read Full Article</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. LATEST ARTICLES SECTION */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between mb-6 border-b border-[#22c55e]/20 pb-3">
+          <div className="flex items-center space-x-2">
+            <TrendingUp className="h-5 w-5 text-[#22c55e]" />
+            <h2 className="text-xl font-bold text-white tracking-wide font-mono uppercase">Latest Editorials &amp; Columns</h2>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {latestArticles.map((post) => (
+            <div 
+              key={post.id}
+              onClick={() => onNavigate(`/blog/${post.slug}`)}
+              className="bg-[#022c22] border border-[#22c55e]/20 rounded-2xl overflow-hidden hover:border-[#22c55e] transition duration-300 group cursor-pointer shadow-xl flex flex-col justify-between"
+            >
+              <div>
+                <div className="relative h-44 overflow-hidden bg-[#01140f]">
+                  <img 
+                    src={post.featured_image} 
+                    alt={post.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute top-3 left-3 bg-[#22c55e] text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider font-mono">
+                    {post.category}
+                  </div>
+                  <div className="absolute bottom-3 right-3 bg-slate-950/80 text-white text-[10px] px-2 py-0.5 rounded font-mono">
+                    {post.read_time || '4 min read'}
+                  </div>
+                </div>
+
+                <div className="p-5 space-y-2">
+                  <h3 className="text-base font-bold text-white group-hover:text-[#22c55e] transition line-clamp-2 leading-snug">
+                    {post.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                </div>
+              </div>
+
+              <div className="px-5 pb-5 pt-1 text-xs font-bold text-[#22c55e] flex items-center space-x-1 font-mono group-hover:translate-x-1 transition duration-200">
+                <span>Read Column</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 6. FEATURED STORY SECTION */}
+      {featuredPost && (
+        <section className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="bg-[#022c22] text-white border border-[#22c55e]/30 rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden relative">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <span className="inline-block bg-[#22c55e] text-slate-950 text-xs font-extrabold px-3 py-1 rounded-lg uppercase tracking-wider font-mono">
+                  Featured Story
+                </span>
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
+                  {featuredPost.title}
+                </h2>
+                <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">
+                  {featuredPost.meta_description || featuredPost.excerpt}
+                </p>
+                <div className="flex items-center space-x-4 pt-2 text-xs text-slate-400 font-mono">
+                  <span>By <strong className="text-white">{featuredPost.author}</strong></span>
+                  <span>•</span>
+                  <span>{new Date(featuredPost.created_at).toLocaleDateString()}</span>
+                </div>
+                <div className="pt-2">
+                  <button 
+                    onClick={() => onNavigate(`/blog/${featuredPost.slug}`)}
+                    className="bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-bold text-sm px-6 py-3 rounded-xl transition duration-150 flex items-center space-x-2 cursor-pointer shadow-lg font-mono uppercase"
+                  >
+                    <span>Read Full Story</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 relative h-64 sm:h-80 rounded-2xl overflow-hidden border border-[#22c55e]/30">
+                <img 
+                  src={featuredPost.featured_image} 
+                  alt={featuredPost.title} 
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            </div>
           </div>
         </section>
+      )}
 
+      {/* 7. LATEST VIDEOS SECTION */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between mb-6 border-b border-[#22c55e]/20 pb-3">
+          <div className="flex items-center space-x-2">
+            <Tv className="h-5 w-5 text-[#22c55e]" />
+            <h2 className="text-xl font-bold text-white tracking-wide font-mono uppercase">Match Highlights &amp; Video Telemetry</h2>
+          </div>
+        </div>
 
-        {/* ========================================================================= */}
-        {/* SECTION 8: LARGE INTERACTIVE VIDEO HIGHLIGHTS CAROUSEL */}
-        {/* ========================================================================= */}
-        <section className="mt-12 bg-[#022c22] border border-emerald-950 text-white rounded-3xl p-6 md:p-8" id="video-highlights-showcase">
-          <div className="max-w-3xl mb-6">
-            <span className="text-[#22c55e] font-mono text-xs font-bold tracking-widest uppercase flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22c55e]"></span>
-              </span>
-              THE SPORTS ROOM BROADCAST NETWORK
-            </span>
-            <h3 className="font-display font-black text-2xl lg:text-3xl text-white tracking-tight mt-1 uppercase">
-              EXCLUSIVE VIDEO INTERVIEWS & BREAKDOWNS
-            </h3>
-            <p className="text-slate-350 text-xs mt-2">
-              Click any related broadcast log on the right to dynamically stream our telemetry reviews and physical strategies.
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {videoPosts.map((post) => (
+            <div 
+              key={post.id}
+              onClick={() => onNavigate(`/blog/${post.slug}`)}
+              className="bg-[#022c22] border border-[#22c55e]/20 rounded-2xl overflow-hidden hover:border-[#22c55e] transition duration-300 group cursor-pointer shadow-xl"
+            >
+              <div className="relative h-48 bg-[#01140f]">
+                <img 
+                  src={post.featured_image} 
+                  alt={post.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition">
+                  <div className="w-12 h-12 rounded-full bg-[#22c55e] text-slate-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                    <Play className="h-5 w-5 fill-current ml-0.5" />
+                  </div>
+                </div>
+                <div className="absolute bottom-3 right-3 bg-slate-950/80 text-white text-[10px] px-2 py-0.5 rounded font-mono">
+                  Video
+                </div>
+              </div>
+
+              <div className="p-4">
+                <span className="text-[10px] font-bold text-[#22c55e] uppercase tracking-wider block mb-1 font-mono">
+                  {post.category}
+                </span>
+                <h3 className="text-sm font-bold text-white group-hover:text-[#22c55e] transition line-clamp-2 leading-snug">
+                  {post.title}
+                </h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 8. NEWSLETTER SECTION */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6 pt-2">
+        <div className="bg-[#022c22] text-white border border-[#22c55e]/30 rounded-3xl p-8 md:p-12 text-center max-w-4xl mx-auto space-y-6 shadow-2xl">
+          <div className="w-12 h-12 rounded-2xl bg-[#22c55e]/20 border border-[#22c55e]/40 text-[#22c55e] flex items-center justify-center mx-auto">
+            <Mail className="h-6 w-6" />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Subscribe To The TSR Dispatch</h2>
+            <p className="text-sm text-slate-300 max-w-xl mx-auto">
+              Get original expert opinions, mathematical tactical breakdowns, Formula 1 telemetry details, and cricket insider updates delivered straight to your inbox weekly.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-            {(() => {
-              const cleanActiveId = getYouTubeId(selectedVideoId);
-              return (
-                <div className="lg:col-span-2 flex flex-col justify-between">
-                  <div className="aspect-video bg-[#01140f] border border-emerald-850 rounded-2xl overflow-hidden relative shadow-2xl flex-grow">
-                    <iframe 
-                      src={`https://www.youtube.com/embed/${cleanActiveId}?autoplay=1&mute=1&playlist=${cleanActiveId}&loop=1&controls=1&modestbranding=1`}
-                      title="Exclusive Telemetry Analysis"
-                      className="w-full h-full object-cover"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
-                  </div>
-                  <div className="flex justify-between items-center mt-2.5 px-2 py-1.5 bg-[#01140f] border border-emerald-950/80 rounded-lg text-xs">
-                    <div className="flex items-center space-x-2 text-slate-305">
-                      <span className="h-2 w-2 rounded-full bg-[#22c55e] animate-ping"></span>
-                      <span>Video ID: <strong className="font-mono text-[#22c55e]">{cleanActiveId}</strong></span>
-                    </div>
-                    <a 
-                      href={`https://www.youtube.com/watch?v=${cleanActiveId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-black font-mono text-[10px] uppercase py-1 px-3 rounded flex items-center space-x-1 transition"
-                    >
-                      <span>Launch External Player ↗</span>
-                    </a>
-                  </div>
-                </div>
-              );
-            })()}
-            
-            <div className="space-y-3 flex flex-col justify-start">
-              <p className="font-mono text-xs text-[#22c55e] font-bold uppercase tracking-wider pb-1 border-b border-emerald-950/60">
-                Select Broadcast Log
-              </p>
-              
-              <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
-                {videoArticles.map((post) => {
-                  const currentId = getYouTubeId(post.video_url || '');
-                  const isActive = selectedVideoId === currentId;
-                  return (
-                    <div 
-                      key={post.id} 
-                      onClick={() => {
-                        if (post.video_url) {
-                          setSelectedVideoId(currentId);
-                        }
-                      }}
-                      className={`flex items-center space-x-3 p-3 rounded-xl cursor-pointer border transition duration-200 group ${
-                        isActive 
-                          ? 'bg-[#01140f]/90 border-[#22c55e] shadow-md shadow-[#22c55e]/10' 
-                          : 'border-emerald-950/40 hover:border-emerald-700 bg-emerald-950/10 hover:bg-[#01140f]/50'
-                      }`}
-                    >
-                      <div className="w-16 h-12 bg-slate-900 rounded-lg overflow-hidden relative shrink-0 border border-emerald-950">
-                        <img referrerPolicy="no-referrer" src={post.featured_image || ''} alt={post.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition" />
-                        <Play className={`absolute h-4 w-4 inset-0 m-auto fill-current transition ${isActive ? 'text-[#22c55e] scale-110' : 'text-slate-450 group-hover:text-white'}`} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[8px] font-mono font-bold text-[#22c55e] uppercase tracking-wider block">
-                          {post.category} Segment
-                        </span>
-                        <h4 className={`text-xs font-bold line-clamp-1 uppercase leading-snug mt-0.5 ${isActive ? 'text-[#22c55e]' : 'text-slate-200 group-hover:text-white'}`}>
-                          {post.title}
-                        </h4>
-                        <span 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onNavigate(`/blog/${post.slug}`);
-                          }}
-                          className="text-[9px] text-emerald-400 hover:text-[#22c55e] hover:underline font-mono uppercase font-bold mt-1 inline-block"
-                        >
-                          Read Editorial Breakdown →
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+          {subscribed ? (
+            <div className="bg-[#22c55e]/20 border border-[#22c55e]/50 text-[#22c55e] p-4 rounded-xl max-w-md mx-auto flex items-center justify-center space-x-2 text-sm font-bold font-mono">
+              <CheckCircle2 className="h-5 w-5 shrink-0" />
+              <span>Subscribed successfully to The Sports Room!</span>
             </div>
-          </div>
-
-
-        </section>
-
-
-        {/* ========================================================================= */}
-        {/* SECTION 9: CATEGORY QUICK LINKS TAXONOMY INDEX */}
-        {/* ========================================================================= */}
-        <section className="mt-12 border-t-2 border-[#022c22] pt-8" id="category-quicklinks">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <span className="text-[10px] font-mono font-bold text-emerald-800 bg-[#f0fdf4] py-0.5 px-2 rounded border border-emerald-955/10">
-              SPORT TAXONOMY NODES
-            </span>
-            <h3 className="font-display font-black text-xl text-slate-900 tracking-tight mt-2 uppercase">
-              SELECT YOUR SPORTING DESK
-            </h3>
-            <p className="text-xs text-slate-505 mt-1">
-              Explore dynamic directories, ICC standings, UEFA statistics clusters, and telemetry logs.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            {DB.getCategories().map((c) => (
-              <div
-                key={c.id}
-                onClick={() => onNavigate(`/sport/${c.slug}`)}
-                className="bg-white border border-slate-200 p-4 rounded-xl text-center cursor-pointer hover:border-[#22c55e] hover:shadow-md transition duration-150 flex flex-col items-center justify-center space-y-2 group shadow-xs"
-              >
-                <div className="bg-slate-100 p-2.5 rounded-full text-slate-800 group-hover:bg-[#f0fdf4] group-hover:text-[#22c55e] transition">
-                  <Compass className="h-5 w-5" />
-                </div>
-                <h4 className="font-display text-xs font-bold text-slate-900 uppercase">
-                  {c.name}
-                </h4>
-              </div>
-            ))}
-          </div>
-        </section>
-
-
-        {/* Mid-bottom AdSense Horizontal space */}
-        <AdSensePlaceholder slot="home-bottom-banner" format="horizontal" />
-
-
-        {/* ========================================================================= */}
-        {/* SECTION 9.5: PAKISTAN GEOGRAPHIC & MAJOR SPORTS COVERAGE ATLAS */}
-        {/* ========================================================================= */}
-        <section className="mt-10 bg-slate-50 border border-slate-200 rounded-3xl p-6 md:p-8 space-y-6" id="pakistan-major-sports-athletic-matrix">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
-            <div>
-              <span className="text-[#22c55e] font-mono text-xs font-bold tracking-widest uppercase flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-[#22c55e]"></span>
-                PAKISTAN SPORTS COVERAGE
-              </span>
-              <h3 className="font-display font-black text-xl md:text-2xl text-slate-900 tracking-tight uppercase mt-1">
-                MAJOR SPORTS EDITORIAL DESKS
-              </h3>
-            </div>
-            <div className="flex flex-wrap gap-2 text-[10px] font-mono font-bold">
-              <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-md">Lahore Desk</span>
-              <span className="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-md">Karachi Desk</span>
-              <span className="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md">Islamabad &amp; Rawalpindi</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            {/* Pakistan Cricket Analysis card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-xs hover:border-[#22c55e] transition group">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-[#22c55e] uppercase bg-[#f0fdf4] px-2 py-0.5 rounded border border-emerald-900/10">
-                  PCB / PSL TELEMETRY
-                </span>
-                <span className="text-[10px] font-mono text-slate-400">Gaddafi &amp; Pindi</span>
-              </div>
-              <h4 className="font-display font-extrabold text-slate-900 text-sm uppercase group-hover:text-[#22c55e] transition">
-                Cricket Seam &amp; Pitch Moisture Analysis
-              </h4>
-              <p className="text-slate-600 text-xs leading-relaxed">
-                Coverage of pitch conditions, moisture factors, seam mechanics, and player performance metrics across PSL and international tests featuring Shaheen Afridi, Naseem Shah, and Babar Azam.
-              </p>
-            </div>
-
-            {/* Pakistan Football Lyari card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-xs hover:border-indigo-600 transition group">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-indigo-700 uppercase bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/50">
-                  FOOTBALL &amp; SAFF
-                </span>
-                <span className="text-[10px] font-mono text-slate-400">Lyari &amp; National Roster</span>
-              </div>
-              <h4 className="font-display font-extrabold text-slate-900 text-sm uppercase group-hover:text-indigo-700 transition">
-                Grassroots Football &amp; Low Block Tactics
-              </h4>
-              <p className="text-slate-600 text-xs leading-relaxed">
-                Tracking player agility, youth development in Lyari, and national SAFF tournament strategy to analyze pass pathways and transition defense models.
-              </p>
-            </div>
-
-            {/* Field Hockey & Squash card */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-xs hover:border-amber-600 transition group">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-amber-700 uppercase bg-amber-50 px-2 py-0.5 rounded border border-amber-200/50">
-                  PHF HOCKEY &amp; SQUASH
-                </span>
-                <span className="text-[10px] font-mono text-slate-400">Islamabad &amp; Peshawar</span>
-              </div>
-              <h4 className="font-display font-extrabold text-slate-900 text-sm uppercase group-hover:text-amber-700 transition">
-                PHF Dragflicks &amp; Squash Geometry
-              </h4>
-              <p className="text-slate-600 text-xs leading-relaxed">
-                Evaluating penalty corner dragflick velocity, wrist biomechanics, and court geometry tracking emerging squash champions across Pakistan.
-              </p>
-            </div>
-          </div>
-        </section>
-
-
-        {/* SECTION 10: BOTTOM NEWSLETTER + FOOTER SECTOR COUPLING SUMMARY TEXT */}
-        <section className="mt-12 bg-[#f0fdf4] border border-[#22c55e]/15 p-6 md:p-8 rounded-2xl" id="final-seo-node">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            <div className="md:col-span-8 space-y-2">
-              <h3 className="font-display font-black text-sm text-[#022c22] uppercase tracking-wider">
-                EDITORIAL POLICY & GENERAL DATA COUPLERS
-              </h3>
-              <p className="text-xs leading-relaxed text-slate-600">
-                The Sports Room carries manual reporting indices across high-density markets in the ICC, UEFA, Formula 1, and NBA. Our coverage features structured schema markup representing detailed sport databases. We guarantee complete exemption from scraping loops and artificial slop.
-              </p>
-              <div className="flex flex-wrap gap-4 pt-2 text-[10px] font-semibold text-emerald-800 uppercase font-mono">
-                <span className="flex items-center space-x-1">
-                  <ShieldCheck className="h-3.5 w-3.5 text-[#22c55e]" />
-                  <span>Verified editorial platform</span>
-                </span>
-                <span>•</span>
-                <span>No scraping feeds</span>
-                <span>•</span>
-                <span>Human editorial analysis</span>
-              </div>
-            </div>
-            
-            <div className="md:col-span-4 shrink-0 text-left md:text-right border-t md:border-t-0 md:border-l border-[#22c55e]/25 pt-4 md:pt-0 md:pl-6">
-              <p className="text-[10px] font-mono text-slate-400 uppercase">Need reporting assistance?</p>
+          ) : (
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input 
+                type="email" 
+                required
+                placeholder="Enter editorial email address..."
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                className="bg-[#01140f] border border-[#22c55e]/30 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e] flex-grow placeholder-slate-400 font-sans"
+              />
               <button 
-                onClick={() => onNavigate('/contact-us')}
-                className="mt-2 bg-[#022c22] hover:bg-emerald-900 text-white font-mono text-[10px] px-4 py-2 rounded font-bold uppercase tracking-wider transition"
+                type="submit"
+                className="bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-bold text-sm px-6 py-3 rounded-xl transition shadow-lg shrink-0 font-mono uppercase"
               >
-                Submit Editorial Ticket
+                Join Dispatch
               </button>
-            </div>
-          </div>
-        </section>
-
-      </div>
+            </form>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

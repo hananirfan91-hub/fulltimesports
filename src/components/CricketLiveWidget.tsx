@@ -295,29 +295,29 @@ export default function CricketLiveWidget({ variant = 'full', onNavigate }: Cric
   // =========================================================================
   if (variant === 'banner') {
     return (
-      <div className="bg-[#022c22] border border-[#22c55e]/40 rounded-xl p-2.5 sm:p-3 text-white shadow-lg relative overflow-hidden">
+      <div className="bg-[#022c22] border border-emerald-900 rounded-2xl p-2.5 sm:p-3 text-white shadow-sm relative overflow-hidden">
         {/* Sleek Header Strip */}
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-900/80 pb-2 mb-2">
           <div className="flex items-center space-x-2">
-            <span className="bg-[#22c55e] text-slate-950 font-mono font-black text-[9px] px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
+            <span className="bg-[#22c55e] text-slate-950 font-mono font-black text-[9px] px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1 shadow-sm">
               <Radio className="h-3 w-3 animate-pulse" /> LIVE BANNER
             </span>
             <span className="font-display font-black text-xs sm:text-sm text-white uppercase tracking-tight">
-              Cricket Matches & Schedule
+              Cricket Matches &amp; Schedule
             </span>
           </div>
 
           <div className="flex items-center space-x-2">
-            <div className="flex bg-emerald-950/80 p-0.5 rounded-lg border border-emerald-800 text-[10px] font-mono font-bold">
+            <div className="flex bg-[#01140f] p-0.5 rounded-lg border border-emerald-900 text-[10px] font-mono font-bold">
               <button
                 onClick={() => setBannerTab('upcoming')}
-                className={`px-2.5 py-1 rounded transition ${bannerTab === 'upcoming' ? 'bg-[#22c55e] text-slate-950 font-black' : 'text-emerald-300 hover:text-white'}`}
+                className={`px-2.5 py-1 rounded transition ${bannerTab === 'upcoming' ? 'bg-[#22c55e] text-slate-950 font-black' : 'text-slate-300 hover:text-white'}`}
               >
                 Upcoming (2 Aug)
               </button>
               <button
                 onClick={() => setBannerTab('live')}
-                className={`px-2.5 py-1 rounded transition ${bannerTab === 'live' ? 'bg-[#22c55e] text-slate-950 font-black' : 'text-emerald-300 hover:text-white'}`}
+                className={`px-2.5 py-1 rounded transition ${bannerTab === 'live' ? 'bg-[#22c55e] text-slate-950 font-black' : 'text-slate-300 hover:text-white'}`}
               >
                 Live Scores
               </button>
@@ -325,10 +325,10 @@ export default function CricketLiveWidget({ variant = 'full', onNavigate }: Cric
 
             {onNavigate && (
               <button
-                onClick={() => onNavigate('/sport/cricket')}
-                className="bg-emerald-900/60 hover:bg-emerald-800 text-[#22c55e] border border-emerald-700/60 px-2.5 py-1 rounded text-[10px] font-mono font-bold flex items-center gap-1 transition"
+                onClick={() => onNavigate('/live-stream')}
+                className="bg-emerald-900/80 hover:bg-[#22c55e] hover:text-slate-950 text-[#22c55e] border border-emerald-700/60 px-3 py-1 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 transition shadow cursor-pointer"
               >
-                <span>Full Cricket Page</span>
+                <span>Full Live Center &amp; Matches</span>
                 <ChevronRight className="h-3 w-3" />
               </button>
             )}
@@ -413,23 +413,23 @@ export default function CricketLiveWidget({ variant = 'full', onNavigate }: Cric
   // Shows ALL matches (International & Leagues), Search Bar, & Comprehensive Detail
   // =========================================================================
   return (
-    <div className="bg-[#022c22] border border-[#22c55e]/30 rounded-2xl p-4 sm:p-5 text-white space-y-4 shadow-xl relative overflow-hidden">
+    <div className="bg-[#022c22] border border-emerald-900 rounded-2xl p-4 sm:p-5 text-white space-y-4 shadow-sm relative overflow-hidden">
       {/* Widget Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-emerald-900 pb-3 relative z-10">
         <div className="flex items-center space-x-3">
-          <div className="h-10 w-10 bg-gradient-to-br from-[#22c55e] to-emerald-600 text-slate-950 rounded-xl flex items-center justify-center font-bold font-display shadow-md shadow-[#22c55e]/20 shrink-0">
+          <div className="h-10 w-10 bg-[#22c55e] text-slate-950 rounded-xl flex items-center justify-center font-bold font-display shadow-sm shrink-0">
             <Radio className="h-5 w-5 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-[10px] font-mono font-bold text-[#22c55e] uppercase tracking-widest flex items-center gap-1">
                 <Flame className="h-3 w-3 text-amber-400 fill-amber-400" />
-                ALL INTERNATIONAL & LEAGUE MATCHES
+                ALL INTERNATIONAL &amp; LEAGUE MATCHES
               </span>
-              <span className="h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
+              <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping"></span>
             </div>
             <h2 className="font-display font-black text-xl sm:text-2xl text-white uppercase tracking-tight">
-              Cricket Live Center & Scoreboard
+              Cricket Live Center &amp; Scoreboard
             </h2>
           </div>
         </div>

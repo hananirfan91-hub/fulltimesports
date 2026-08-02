@@ -145,17 +145,17 @@ export default function App() {
 
     // Stable 404 fallback page matching TSR brand
     return (
-      <div className="max-w-xl mx-auto my-24 bg-white border rounded-2xl p-8 text-center space-y-4 shadow-sm" id="fallback-404-pane">
-        <span className="font-mono text-xs font-bold text-[#e11d48] uppercase tracking-widest block bg-rose-50/50 py-1 rounded w-fit mx-auto px-3">
+      <div className="max-w-xl mx-auto my-24 bg-[#022c22] border border-[#22c55e]/30 rounded-2xl p-8 text-center space-y-4 shadow-2xl" id="fallback-404-pane">
+        <span className="font-mono text-xs font-bold text-[#22c55e] uppercase tracking-widest block bg-[#01140f] py-1 rounded w-fit mx-auto px-3 border border-[#22c55e]/20">
           Error 404 Node Lost
         </span>
-        <h2 className="font-display font-black text-3xl uppercase tracking-tight text-slate-900">Desk Page Lost In Orbit</h2>
-        <p className="text-xs text-slate-500 leading-normal">
+        <h2 className="font-display font-black text-3xl uppercase tracking-tight text-white">Desk Page Lost In Orbit</h2>
+        <p className="text-xs text-slate-300 leading-normal">
           The sports registry or sitemap node you followed is no longer active inside our secondary database wrappers. Go back to Home to restore connection.
         </p>
         <button 
           onClick={() => handleNavigate('/')}
-          className="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-white font-mono font-bold text-[10px] py-2.5 px-6 rounded uppercase tracking-wider transition"
+          className="bg-[#22c55e] text-slate-950 font-mono font-bold text-[10px] py-2.5 px-6 rounded-lg uppercase tracking-wider transition hover:bg-[#34d399]"
         >
           Return to match center
         </button>
@@ -164,7 +164,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col justify-between" id="applet-frame">
+    <div className="min-h-screen bg-[#01140f] text-slate-100 font-sans flex flex-col justify-between" id="applet-frame">
       {/* Automated dynamic meta and JSON-LD seo generator */}
       <SEOMetaTags currentPath={currentPath} />
 

@@ -43,7 +43,7 @@ export default function Logo({ className = '', variant = 'full', size = 'md' }: 
         />
         <div className="flex flex-col text-left">
           <div className="flex items-baseline font-black tracking-tighter uppercase font-display text-white leading-none text-lg">
-            <span>THE SPORTS</span>
+            <span className="text-white">THE SPORTS</span>
             <span className="text-[#22c55e] ml-1">ROOM</span>
           </div>
           <span className="text-[7.5px] font-mono tracking-[0.25em] text-[#22c55e] font-bold uppercase mt-0.5 whitespace-nowrap">

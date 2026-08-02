@@ -39,6 +39,7 @@ if (typeof window !== 'undefined') {
     if (
       errorStr.includes('script error') ||
       errorStr.includes('websocket') ||
+      errorStr.includes('closed without opened') ||
       errorStr.includes('highperformanceformat') ||
       errorStr.includes('clickio')
     ) {
@@ -50,12 +51,14 @@ if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason;
     const errorStr = String(reason || '').toLowerCase();
-    const errorMsg = String(reason?.message || '').toLowerCase();
+    const errorMsg = String(reason?.message || reason?.reason || reason?.description || '').toLowerCase();
     if (
       errorStr.includes('websocket') || 
       errorStr.includes('script error') || 
+      errorStr.includes('closed without opened') ||
       errorMsg.includes('websocket') ||
-      errorMsg.includes('script error')
+      errorMsg.includes('script error') ||
+      errorMsg.includes('closed without opened')
     ) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -68,10 +71,12 @@ if (typeof window !== 'undefined') {
     if (
       errorMsg.includes('websocket') || 
       errorMsg.includes('script error') ||
+      errorMsg.includes('closed without opened') ||
       targetSrc.includes('highperformanceformat') ||
       targetSrc.includes('clickio') ||
       String(event.error?.message || '').toLowerCase().includes('websocket') ||
-      String(event.error?.message || '').toLowerCase().includes('script error')
+      String(event.error?.message || '').toLowerCase().includes('script error') ||
+      String(event.error?.message || '').toLowerCase().includes('closed without opened')
     ) {
       event.preventDefault();
       event.stopImmediatePropagation();

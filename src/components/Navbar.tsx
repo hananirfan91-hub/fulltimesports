@@ -86,9 +86,9 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
   const activeGeoName = GEO_COUNTRIES.find(c => c.code === activeGeo)?.name || 'Global';
 
   return (
-    <header className="sticky top-0 z-50 bg-[#022c22] border-b border-[#22c55e]/25 shadow-lg text-white" id="main-header">
+    <header className="sticky top-0 z-50 bg-[#01140f] border-b border-emerald-950 shadow-md text-white" id="main-header">
       {/* Editorial Utility Top bar */}
-      <div className="bg-[#01140f] text-slate-300 text-xs py-2 px-4 shadow-inner hidden md:block">
+      <div className="bg-[#022c22] text-slate-200 text-xs py-2 px-4 shadow-inner hidden md:block border-b border-emerald-950">
         <div className="max-w-7xl mx-auto flex justify-between items-center font-mono">
           <div className="flex items-center space-x-4">
             <span className="flex items-center text-[#22c55e] font-bold uppercase tracking-wider text-[10px]">
@@ -107,7 +107,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                 <span>{activeGeoName}</span>
                 <ChevronDown className="h-3 w-3" />
               </button>
-              
+
               <AnimatePresence>
                 {showGeoDropdown && (
                   <>
@@ -116,7 +116,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
-                      className="absolute right-0 mt-2 w-48 rounded bg-slate-900 text-white shadow-2xl border border-slate-800 z-20 py-1"
+                      className="absolute right-0 mt-2 w-48 rounded-xl bg-[#01140f] text-white shadow-2xl border border-emerald-900 z-20 py-1"
                     >
                       {GEO_COUNTRIES.map((country) => (
                         <button
@@ -125,7 +125,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                             onChangeGeo(country.code);
                             setShowGeoDropdown(false);
                           }}
-                          className={`w-full text-left px-4 py-2 text-xs hover:bg-slate-800 flex justify-between items-center transition duration-150 ${activeGeo === country.code ? 'font-bold text-[#22c55e]' : ''}`}
+                          className={`w-full text-left px-4 py-2 text-xs hover:bg-[#022c22] flex justify-between items-center transition duration-150 ${activeGeo === country.code ? 'font-bold text-[#22c55e]' : ''}`}
                         >
                           {country.name}
                         </button>
@@ -144,12 +144,12 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
         </div>
       </div>
 
-      {/* Main Bar */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+      {/* Main Navigation Bar */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
         {/* Brand Logo */}
         <div 
           onClick={() => onNavigate('/')} 
-          className="cursor-pointer flex items-center select-none active:scale-98 transition duration-150"
+          className="cursor-pointer flex items-center select-none active:scale-98 transition duration-150 shrink-0"
           id="logo-container"
         >
           <Logo variant="horizontal" />
@@ -157,26 +157,27 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
 
         {/* Central Desktop Nav */}
         <nav className="hidden lg:flex items-center space-x-6">
+          {/* 1. Home */}
           <button 
             onClick={() => onNavigate('/')} 
-            className={`font-display text-sm font-semibold tracking-wide uppercase transition duration-150 ${currentPath === '/' ? 'text-[#22c55e]' : 'text-slate-200 hover:text-[#22c55e]'}`}
+            className={`font-display text-sm font-bold tracking-wide uppercase transition duration-150 ${currentPath === '/' ? 'text-[#22c55e]' : 'text-slate-200 hover:text-[#22c55e]'}`}
           >
             Home
           </button>
 
-          {/* CRICKET DROPDOWN NAVIGATION MENU */}
+          {/* 2. Cricket Dropdown */}
           <div 
             className="relative"
             onMouseEnter={() => setShowCricketDropdown(true)}
             onMouseLeave={() => setShowCricketDropdown(false)}
           >
-            <button
+            <button 
               onClick={() => {
                 onNavigate('/sport/cricket');
                 setShowCricketDropdown(false);
               }}
-              className={`flex items-center space-x-1 font-display text-sm font-semibold tracking-wide uppercase transition duration-150 ${
-                currentPath.includes('cricket') || currentPath.includes('/topic/psl') || currentPath.includes('/topic/ipl') || currentPath === '/knowledge-hub'
+              className={`flex items-center space-x-1 font-display text-sm font-bold tracking-wide uppercase transition duration-150 ${
+                currentPath.includes('cricket') || currentPath.includes('/topic/psl') || currentPath.includes('/topic/ipl')
                   ? 'text-[#22c55e]'
                   : 'text-slate-200 hover:text-[#22c55e]'
               }`}
@@ -187,116 +188,55 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
 
             <AnimatePresence>
               {showCricketDropdown && (
-                <motion.div
+                <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute left-0 mt-2 w-72 rounded-2xl bg-[#01140f] shadow-2xl border border-[#22c55e]/30 z-50 p-3 font-sans text-xs space-y-2 text-white"
+                  className="absolute left-0 mt-2 w-72 rounded-2xl bg-[#01140f] shadow-2xl border border-emerald-900 z-50 p-3 font-sans text-xs space-y-2 text-slate-100"
                 >
-                  <div className="flex items-center justify-between pb-1.5 border-b border-emerald-950 px-1">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-emerald-900 px-1">
                     <span className="font-mono text-[10px] font-bold text-[#22c55e] uppercase tracking-wider">
                       🏏 Cricket Central Hub
                     </span>
                     <button 
                       onClick={() => { onNavigate('/sport/cricket'); setShowCricketDropdown(false); }}
-                      className="text-[10px] font-mono text-slate-300 hover:text-white underline"
+                      className="text-[10px] font-mono text-slate-400 hover:text-white underline"
                     >
                       View All
                     </button>
                   </div>
 
-                  {/* Top Priority: International Teams & Tournaments */}
                   <div className="space-y-1">
-                    <div className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest px-2 pt-1">
-                      ⭐ Top Priority: International
-                    </div>
                     <button
                       onClick={() => { onNavigate('/topic/pakistan-cricket'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#022c22] transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
                     >
                       <span>🇵🇰 Pakistan Cricket</span>
-                      <span className="text-[9px] font-mono text-emerald-400">Intl Team</span>
+                      <span className="text-[10px] text-[#22c55e] font-mono font-bold bg-emerald-950 border border-emerald-800 px-1.5 py-0.5 rounded">Live</span>
                     </button>
                     <button
                       onClick={() => { onNavigate('/topic/india-cricket'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#022c22] transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
                     >
                       <span>🇮🇳 India Cricket</span>
-                      <span className="text-[9px] font-mono text-emerald-400">Intl Team</span>
                     </button>
-                    <button
-                      onClick={() => { onNavigate('/topic/australia-cricket'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
-                    >
-                      <span>🇦🇺 Australia Cricket</span>
-                      <span className="text-[9px] font-mono text-emerald-400">Intl Team</span>
-                    </button>
-                    <button
-                      onClick={() => { onNavigate('/topic/england-cricket'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
-                    >
-                      <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 England Cricket</span>
-                      <span className="text-[9px] font-mono text-emerald-400">Intl Team</span>
-                    </button>
-                    <button
-                      onClick={() => { onNavigate('/topic/icc-cricket-world-cup'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
-                    >
-                      <span>🌍 ICC World Cup</span>
-                      <span className="text-[9px] font-mono text-emerald-400">ICC Event</span>
-                    </button>
-                    <button
-                      onClick={() => { onNavigate('/topic/icc-champions-trophy'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
-                    >
-                      <span>🏆 Champions Trophy</span>
-                      <span className="text-[9px] font-mono text-emerald-400">ICC Event</span>
-                    </button>
-                    <button
-                      onClick={() => { onNavigate('/topic/asia-cup'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
-                    >
-                      <span>🏏 Asia Cup</span>
-                      <span className="text-[9px] font-mono text-emerald-400">Intl Cup</span>
-                    </button>
-                    <button
-                      onClick={() => { onNavigate('/topic/icc-rankings'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
-                    >
-                      <span>📊 ICC Rankings</span>
-                      <span className="text-[9px] font-mono text-emerald-400">Official</span>
-                    </button>
-                  </div>
-
-                  {/* Domestic Leagues */}
-                  <div className="space-y-1 pt-1.5 border-t border-emerald-950">
-                    <div className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest px-2">
-                      ⚡ Famous Domestic T20 Leagues
-                    </div>
                     <button
                       onClick={() => { onNavigate('/topic/psl'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#022c22] transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
                     >
                       <span>⚡ PSL (Pakistan Super League)</span>
-                      <span className="text-[9px] font-mono text-amber-400">T20 League</span>
                     </button>
                     <button
                       onClick={() => { onNavigate('/topic/ipl'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-emerald-950/80 transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#022c22] transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
                     >
                       <span>🏆 IPL (Indian Premier League)</span>
-                      <span className="text-[9px] font-mono text-amber-400">T20 League</span>
                     </button>
-                  </div>
-
-                  {/* Knowledge Base */}
-                  <div className="pt-1.5 border-t border-emerald-950">
                     <button
-                      onClick={() => { onNavigate('/knowledge-hub'); setShowCricketDropdown(false); }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-800/80 hover:bg-emerald-900 transition flex items-center justify-between font-bold text-[#22c55e]"
+                      onClick={() => { onNavigate('/topic/icc-cricket-world-cup'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#022c22] transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
                     >
-                      <span>📚 Sports Science & Knowledge Hub</span>
-                      <span className="text-[9px] font-mono">Guides ↗</span>
+                      <span>🌍 World Cup &amp; Rankings</span>
                     </button>
                   </div>
                 </motion.div>
@@ -304,35 +244,40 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             </AnimatePresence>
           </div>
 
-          {/* Live Stream Button with Live Pulse Indicator */}
+          {/* 3. Live Page */}
           <button
             onClick={() => onNavigate('/live-stream')}
-            className={`flex items-center space-x-1.5 font-display text-sm font-bold tracking-wide uppercase transition duration-150 px-2.5 py-1 rounded-full border ${
+            className={`flex items-center space-x-1.5 font-display text-sm font-bold tracking-wide uppercase transition duration-150 px-3 py-1 rounded-full border ${
               currentPath === '/live-stream'
-                ? 'bg-rose-950 text-rose-400 border-rose-800'
-                : 'bg-[#01140f] text-slate-100 hover:text-[#22c55e] border-[#22c55e]/30 hover:border-[#22c55e]'
+                ? 'bg-[#22c55e] text-slate-950 border-[#22c55e] font-black shadow-md'
+                : 'bg-[#022c22] text-white hover:bg-[#22c55e] hover:text-slate-950 border-emerald-800'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-            <span>🎥 Live Stream</span>
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+            <span>Live Stream</span>
           </button>
 
-          {/* Other Categories */}
-          {categories.filter(c => c.slug !== 'cricket').slice(0, 4).map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onNavigate(`/sport/${cat.slug}`)}
-              className={`font-display text-sm font-semibold tracking-wide uppercase transition duration-150 ${currentPath === `/sport/${cat.slug}` ? 'text-[#22c55e]' : 'text-slate-200 hover:text-[#22c55e]'}`}
-            >
-              {cat.name}
-            </button>
-          ))}
+          {/* 4. Football */}
+          <button
+            onClick={() => onNavigate('/sport/football')}
+            className={`font-display text-sm font-bold tracking-wide uppercase transition duration-150 ${currentPath === '/sport/football' ? 'text-[#22c55e]' : 'text-slate-200 hover:text-[#22c55e]'}`}
+          >
+            Football
+          </button>
 
-          {/* More Categories Dropdown */}
+          {/* 5. Basketball */}
+          <button
+            onClick={() => onNavigate('/sport/basketball')}
+            className={`font-display text-sm font-bold tracking-wide uppercase transition duration-150 ${currentPath === '/sport/basketball' ? 'text-[#22c55e]' : 'text-slate-200 hover:text-[#22c55e]'}`}
+          >
+            Basketball
+          </button>
+
+          {/* 6. More Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center space-x-1 font-display text-sm font-semibold tracking-wide uppercase text-slate-200 hover:text-[#22c55e] focus:outline-none"
+              className="flex items-center space-x-1 font-display text-sm font-bold tracking-wide uppercase text-slate-200 hover:text-[#22c55e] focus:outline-none"
             >
               <span>More</span>
               <ChevronDown className="h-4 w-4" />
@@ -345,23 +290,25 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-3 w-56 rounded bg-[#01140f] shadow-xl border border-[#22c55e]/20 z-20 py-2 font-sans text-sm"
+                    className="absolute right-0 mt-3 w-56 rounded-2xl bg-[#01140f] shadow-2xl border border-emerald-900 z-20 py-2 font-sans text-sm text-slate-200 max-h-80 overflow-y-auto"
                   >
-                    <div className="px-3 py-1.5 text-xs text-slate-400 font-bold uppercase tracking-wider border-b border-emerald-950">
-                      Additional Sports
+                    <div className="px-3 py-1.5 text-xs text-slate-400 font-bold uppercase tracking-wider border-b border-emerald-900">
+                      Additional Sports Desks
                     </div>
-                    {categories.slice(5).map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => {
-                          onNavigate(`/sport/${cat.slug}`);
-                          setShowDropdown(false);
-                        }}
-                        className={`w-full text-left px-4 py-2 hover:bg-emerald-950/50 transition font-medium ${currentPath === `/sport/${cat.slug}` ? 'text-[#22c55e]' : 'text-slate-300'}`}
-                      >
-                        {cat.name}
-                      </button>
-                    ))}
+                    {categories
+                      .filter(c => !['cricket', 'football', 'basketball'].includes(c.slug))
+                      .map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => {
+                            onNavigate(`/sport/${cat.slug}`);
+                            setShowDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 hover:bg-[#022c22] transition font-medium ${currentPath === `/sport/${cat.slug}` ? 'text-[#22c55e] font-bold' : 'text-slate-200 hover:text-[#22c55e]'}`}
+                        >
+                          {cat.name}
+                        </button>
+                      ))}
                   </motion.div>
                 </>
               )}
@@ -382,7 +329,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               placeholder="Search news, tags, columns..."
               value={searchQuery}
               onChange={handleSearchChange}
-              className="block w-full pl-9 pr-4 py-1.5 bg-[#01140f] border border-[#22c55e]/15 rounded-full focus:outline-none focus:bg-[#022c22] focus:border-[#22c55e]/50 text-sm placeholder-slate-455 text-white transition"
+              className="block w-full pl-9 pr-4 py-1.5 bg-[#022c22] border border-emerald-900 rounded-full focus:outline-none focus:border-[#22c55e] text-sm placeholder-slate-400 text-white transition"
             />
             {/* Dynamic Dropdown Search Results */}
             <AnimatePresence>
@@ -393,9 +340,9 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute left-0 mt-2 w-[400px] bg-slate-900 border border-[#22c55e]/25 text-white rounded-lg shadow-2xl z-20 overflow-hidden divide-y divide-emerald-950"
+                    className="absolute left-0 mt-2 w-[400px] bg-[#01140f] border border-emerald-900 text-white rounded-2xl shadow-2xl z-20 overflow-hidden divide-y divide-emerald-950"
                   >
-                    <div className="px-4 py-2 bg-[#01140f] text-[10px] font-bold text-slate-405 uppercase tracking-widest flex justify-between">
+                    <div className="px-4 py-2 bg-[#022c22] text-[10px] font-bold text-[#22c55e] uppercase tracking-widest flex justify-between">
                       <span>Article Search Matches</span>
                       <span>{searchResults.length} found</span>
                     </div>
@@ -403,17 +350,17 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                       <div
                         key={post.id}
                         onClick={() => handleResultClick(post.slug)}
-                        className="p-3 hover:bg-slate-800 cursor-pointer transition flex space-x-3 items-center"
+                        className="p-3 hover:bg-[#022c22] cursor-pointer transition flex space-x-3 items-center"
                       >
                         <img 
                           referrerPolicy="no-referrer"
                           src={post.featured_image} 
                           alt={post.title} 
-                          className="w-12 h-12 object-cover rounded bg-slate-950 shrink-0 border border-emerald-900" 
+                          className="w-12 h-12 object-cover rounded-lg bg-[#01140f] shrink-0 border border-emerald-900" 
                         />
                         <div>
                           <span className="text-[10px] font-bold uppercase text-[#22c55e] tracking-wide">{post.category}</span>
-                          <h4 className="text-xs font-bold text-slate-200 line-clamp-1 leading-tight">{post.title}</h4>
+                          <h4 className="text-xs font-bold text-white line-clamp-1 leading-tight">{post.title}</h4>
                           <p className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">{post.author} • {new Date(post.created_at).toLocaleDateString()}</p>
                         </div>
                       </div>
@@ -424,18 +371,18 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             </AnimatePresence>
           </div>
 
-          {/* Favorite Trigger (Purely client UX visual placeholder) */}
-          <button onClick={() => onNavigate('/')} aria-label="Favorites" className="text-slate-400 hover:text-[#22c55e] p-1.5 rounded-full hover:bg-[#01140f] transition duration-150 select-none">
+          {/* Favorite Trigger */}
+          <button onClick={() => onNavigate('/')} aria-label="Favorites" className="text-slate-300 hover:text-[#22c55e] p-1.5 rounded-full hover:bg-[#022c22] transition duration-150 select-none">
             <Heart className="h-5 w-5" />
           </button>
 
           {/* Mobile menu trigger */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-            className="lg:hidden text-white p-1 bg-[#01140f] rounded border border-emerald-800 focus:outline-none"
+            className="lg:hidden text-white p-1.5 bg-[#022c22] rounded-lg border border-emerald-800 focus:outline-none"
             aria-label="Toggle Menu"
           >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileMenuOpen ? <X className="h-6 w-6 text-[#22c55e]" /> : <Menu className="h-6 w-6 text-white" />}
           </button>
         </div>
       </div>
@@ -447,7 +394,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-t border-emerald-900 bg-[#022c22] text-white"
+            className="lg:hidden border-t border-emerald-950 bg-[#01140f] text-white"
           >
             <div className="p-4 space-y-3">
               {/* Mobile Search */}
@@ -460,10 +407,10 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                   placeholder="Search articles, columns..."
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  className="block w-full pl-9 pr-4 py-2 bg-[#01140f] border border-[#22c55e]/15 rounded-md focus:outline-none focus:bg-[#022c22] text-sm transition text-white"
+                  className="block w-full pl-9 pr-4 py-2 bg-[#022c22] border border-emerald-900 rounded-xl focus:outline-none focus:border-[#22c55e] text-sm transition text-white placeholder-slate-400"
                 />
                 {searchResults.length > 0 && (
-                  <div className="absolute left-0 mt-1 w-full bg-slate-900 border border-emerald-950 rounded shadow-lg z-20 overflow-hidden divide-y divide-emerald-950">
+                  <div className="absolute left-0 mt-1 w-full bg-[#01140f] border border-emerald-900 rounded-xl shadow-lg z-20 overflow-hidden divide-y divide-emerald-950">
                     {searchResults.map((post) => (
                       <div
                         key={post.id}
@@ -471,9 +418,9 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                           handleResultClick(post.slug);
                           setMobileMenuOpen(false);
                         }}
-                        className="p-3 hover:bg-slate-800 cursor-pointer transition flex items-center space-x-2"
+                        className="p-3 hover:bg-[#022c22] cursor-pointer transition flex items-center space-x-2"
                       >
-                        <h5 className="text-xs font-bold text-slate-200 line-clamp-1">{post.title}</h5>
+                        <h5 className="text-xs font-bold text-white line-clamp-1">{post.title}</h5>
                       </div>
                     ))}
                   </div>
@@ -481,8 +428,8 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               </div>
 
               {/* Geo Grid inside mobile */}
-              <div className="bg-[#01140f] p-2.5 rounded-lg border border-emerald-950">
-                <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Regional Sport Focus</p>
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Regional Sport Focus</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   {GEO_COUNTRIES.map((c) => (
                     <button
@@ -491,7 +438,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                         onChangeGeo(c.code);
                         setMobileMenuOpen(false);
                       }}
-                      className={`text-left px-2 py-1.5 rounded transition ${activeGeo === c.code ? 'bg-[#22c55e] text-slate-950 font-bold' : 'hover:bg-emerald-900/50 text-slate-300'}`}
+                      className={`text-left px-2 py-1.5 rounded transition ${activeGeo === c.code ? 'bg-[#16a34a] text-white font-bold' : 'hover:bg-slate-200 text-slate-700'}`}
                     >
                       {c.name.split(' (')[0]}
                     </button>
@@ -500,14 +447,14 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               </div>
 
               {/* Main Links */}
-              <div className="space-y-2 text-slate-200 py-2 font-display text-sm font-semibold uppercase">
+              <div className="space-y-2 text-slate-800 py-2 font-display text-sm font-semibold uppercase">
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => {
                       onNavigate('/');
                       setMobileMenuOpen(false);
                     }}
-                    className="text-left py-2 border-b border-emerald-950 text-[#22c55e]"
+                    className="text-left py-2 border-b border-slate-200 text-[#16a34a] font-bold"
                   >
                     Home
                   </button>
@@ -516,14 +463,14 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                       onNavigate('/live-stream');
                       setMobileMenuOpen(false);
                     }}
-                    className="text-left py-2 border-b border-emerald-950 text-rose-400 font-bold flex items-center space-x-1"
+                    className="text-left py-2 border-b border-slate-200 text-rose-600 font-bold flex items-center space-x-1"
                   >
                     <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
                     <span>Live Stream</span>
                   </button>
                   <button
                     onClick={() => setMobileCricketOpen(!mobileCricketOpen)}
-                    className="text-left py-2 border-b border-emerald-950 flex items-center justify-between text-[#22c55e]"
+                    className="text-left py-2 border-b border-slate-200 flex items-center justify-between text-[#16a34a] font-bold"
                   >
                     <span>Cricket</span>
                     <ChevronDown className={`h-4 w-4 transform transition ${mobileCricketOpen ? 'rotate-180' : ''}`} />

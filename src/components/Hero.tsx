@@ -129,7 +129,7 @@ export default function Hero({ onNavigate }: HeroProps) {
 
         {/* ================= MIDDLE COLUMN: LIVE STREAM (Z-20) ================= */}
         <motion.div 
-          className="lg:col-span-3 bg-[#01140f] border border-emerald-900 rounded-2xl p-4 flex flex-col justify-between shadow-xl z-20"
+          className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl text-white z-20"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15 }}
@@ -137,10 +137,10 @@ export default function Hero({ onNavigate }: HeroProps) {
         >
           <div className="flex flex-col h-full justify-between">
             <div>
-              <span className="bg-slate-950 font-mono text-[9px] font-black tracking-widest text-[#22c55e] px-2.5 py-1.5 rounded w-fit mb-3 block border border-emerald-950 uppercase">
+              <span className="bg-slate-950 font-mono text-[9px] font-black tracking-widest text-[#22c55e] px-2.5 py-1.5 rounded w-fit mb-3 block border border-slate-800 uppercase">
                 TSR TV • Video Preview
               </span>
-              <div className="aspect-video bg-black rounded-xl overflow-hidden relative border border-emerald-950/40">
+              <div className="aspect-video bg-black rounded-xl overflow-hidden relative border border-slate-800">
                 <iframe 
                   src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&mute=1&playlist=${activeVideoId}&loop=1&controls=1&modestbranding=1`}
                   title="TSR Live Video Feed"
@@ -162,7 +162,7 @@ export default function Hero({ onNavigate }: HeroProps) {
                 </a>
               </div>
               <h3 className="text-white font-display font-black text-xs uppercase tracking-tight mt-4">
-                Strategy & Live Telemetry
+                Strategy &amp; Live Telemetry
               </h3>
               <p className="text-slate-300 text-[10px] leading-relaxed mt-1.5">
                 Monitoring ball speeds, strategic formulas, and professional coaching adjustments instantly.
@@ -170,7 +170,7 @@ export default function Hero({ onNavigate }: HeroProps) {
             </div>
             <button 
               onClick={() => onNavigate(`/blog/${featuredNews.slug}`)}
-              className="w-full mt-4 py-2.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] border border-emerald-950 text-white font-mono font-bold text-[9px] uppercase rounded-lg text-center transition tracking-widest cursor-pointer"
+              className="w-full mt-4 py-2.5 bg-[#16a34a] hover:bg-[#15803d] text-white font-mono font-bold text-[9px] uppercase rounded-lg text-center transition tracking-widest cursor-pointer shadow-sm"
             >
               Read Full Breakdown
             </button>
