@@ -96,13 +96,11 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
               The Sports Room | <span className="text-[#22c55e]">Sports Lounge</span>, Cricket News Today, Football &amp; F1 Analysis Blog
             </h1>
 
-            {/* Paragraph with focus keywords */}
+            {/* Paragraph with focus keywords - concise & punchy */}
             <p className="text-xs md:text-sm text-slate-300 leading-relaxed max-w-3xl">
-              Welcome to <strong>The Sports Room</strong>, your ultimate global <strong>sports editorial platform</strong> and digital <strong>sports lounge</strong>. 
-              We deliver premium <strong>human written sports content</strong>, featuring <strong>sports news today</strong>, <strong>cricket news today</strong>, 
-              <strong>pakistan sports news</strong>, and <strong>football news today</strong>. Follow our detailed <strong>cricket match analysis 2026</strong>, 
-              discover masterclasses on the biomechanics of <strong>babar azam batting technique</strong>, read up on <strong>world cup 2026 news</strong>, or 
-              launch your own profile on our <strong>free sports blog website</strong>. Our <strong>sports analysis blog</strong> uncovers the science behind athletic excellence across football, cricket, basketball, tennis, and Formula 1.
+              Welcome to <strong>The Sports Room</strong> — Pakistan’s premier human-written <strong>sports editorial platform</strong> &amp; <strong>sports lounge</strong>. 
+              Get live updates on <strong>cricket news today</strong>, <strong>pakistan sports news</strong>, <strong>football news today</strong>, 
+              <strong>babar azam batting technique</strong>, <strong>world cup 2026 news</strong>, and Formula 1 technical breakdowns.
             </p>
 
             {/* Internal links - Topical Mapping & Silo */}
@@ -802,74 +800,73 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
         {/* ========================================================================= */}
         {/* SECTION 9.5: PAKISTAN GEOGRAPHIC & MAJOR SPORTS COVERAGE ATLAS */}
         {/* ========================================================================= */}
-        <section className="mt-12 bg-slate-50 border border-slate-200 rounded-3xl p-6 md:p-8 space-y-8" id="pakistan-major-sports-athletic-matrix">
-          <div className="max-w-4xl space-y-2">
-            <span className="text-[#22c55e] font-mono text-xs font-bold tracking-widest uppercase flex items-center gap-1.5 matches-main-keyword">
-              <span className="h-2 w-2 rounded-full bg-[#22c55e]"></span>
-              GEOGRAPHIC TAXONOMY AUDIT
-            </span>
-            <h3 className="font-display font-black text-2xl lg:text-3xl text-slate-900 tracking-tight uppercase leading-tight">
-              THE SPORTS ROOM PAKISTAN COVERAGE OF ALL MAJOR SPORTS
-            </h3>
-            <p className="text-slate-600 text-xs md:text-sm leading-relaxed">
-              We operate localized athletic desks in Islamabad, Rawalpindi, Lahore, and Karachi to bring users the absolute highest quality mathematical, aerodynamic, and thermodynamic performance overlays covering Pakistan Super League, South Asian Football SAFF structures, international test matches, and PHF field hockey tournaments.
-            </p>
+        <section className="mt-10 bg-slate-50 border border-slate-200 rounded-3xl p-6 md:p-8 space-y-6" id="pakistan-major-sports-athletic-matrix">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+            <div>
+              <span className="text-[#22c55e] font-mono text-xs font-bold tracking-widest uppercase flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-[#22c55e]"></span>
+                PAKISTAN SPORTS COVERAGE
+              </span>
+              <h3 className="font-display font-black text-xl md:text-2xl text-slate-900 tracking-tight uppercase mt-1">
+                MAJOR SPORTS EDITORIAL DESKS
+              </h3>
+            </div>
+            <div className="flex flex-wrap gap-2 text-[10px] font-mono font-bold">
+              <span className="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-md">Lahore Desk</span>
+              <span className="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-md">Karachi Desk</span>
+              <span className="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md">Islamabad &amp; Rawalpindi</span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             {/* Pakistan Cricket Analysis card */}
-            <div className="bg-white border border-slate-150 p-6 rounded-2xl space-y-4 shadow-sm hover:border-[#22c55e] transition group">
-              <span className="text-[9px] font-mono font-bold text-[#22c55e] uppercase bg-[#f0fdf4] px-2.2 py-1.5 rounded w-fit block border border-emerald-900/10">
-                CRICKET DESK • PCB / PSL TELEMETRY
-              </span>
-              <h3 className="font-display font-extrabold text-slate-900 text-sm uppercase group-hover:text-[#22c55e] transition leading-tight">
-                Seam Mechanics &amp; Moisture Co-efficients
-              </h3>
-              <p className="text-slate-600 text-[11px] leading-relaxed font-sans">
-                Our Lahori analytics team monitors grass height and turf friction values directly from Gaddafi Stadium, explaining how pitch moisture decay dictates optimal seam angles for fast bowlers Naseem Shah, Shaheen Afridi, and Haris Rauf. By applying Magnus force formulas to ball rotation values, we evaluate why early evening dew points in Rawalpindi dramatically reduce ball traction, allowing T20 openers to increase their initial powerplay strike rate benchmarks.
-              </p>
-              <div className="pt-3 border-t border-slate-100 font-mono text-[9px] text-slate-450 uppercase flex justify-between">
-                <span>Rawalpindi dew indicator</span>
-                <span className="text-[#22c55e] font-bold">Active log</span>
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-xs hover:border-[#22c55e] transition group">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold text-[#22c55e] uppercase bg-[#f0fdf4] px-2 py-0.5 rounded border border-emerald-900/10">
+                  PCB / PSL TELEMETRY
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">Gaddafi &amp; Pindi</span>
               </div>
+              <h4 className="font-display font-extrabold text-slate-900 text-sm uppercase group-hover:text-[#22c55e] transition">
+                Cricket Seam &amp; Pitch Moisture Analysis
+              </h4>
+              <p className="text-slate-600 text-xs leading-relaxed">
+                Coverage of pitch conditions, moisture factors, seam mechanics, and player performance metrics across PSL and international tests featuring Shaheen Afridi, Naseem Shah, and Babar Azam.
+              </p>
             </div>
 
             {/* Pakistan Football Lyari card */}
-            <div className="bg-white border border-slate-150 p-6 rounded-2xl space-y-4 shadow-sm hover:border-[#22c55e] transition group">
-              <span className="text-[9px] font-mono font-bold text-indigo-700 uppercase bg-indigo-50 px-2.2 py-1.5 rounded w-fit block border border-indigo-200/50">
-                FOOTBALL DESK • LOCAL ROSTER PLOTS
-              </span>
-              <h3 className="font-display font-extrabold text-slate-900 text-sm uppercase group-hover:text-indigo-700 transition leading-tight">
-                Lyari Grassroots &amp; Tactical Low Blocks
-              </h3>
-              <p className="text-slate-600 text-[11px] leading-relaxed font-sans">
-                Karachi’s historic Lyari district—frequently celebrated as the spiritual heart of soccer within Pakistan—features compact, low-frictional sand environments that produce highly agile attackers possessing immense ball control. We map this localized agility factor against national SAFF Championship tactical models to analyze player sprint pathways and physical pass triangles that dismantle opponent high lines.
-              </p>
-              <div className="pt-3 border-t border-slate-100 font-mono text-[9px] text-slate-450 uppercase flex justify-between">
-                <span>Karachi sand coefficient</span>
-                <span className="text-[#22c55e] font-bold">Active log</span>
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-xs hover:border-indigo-600 transition group">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold text-indigo-700 uppercase bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/50">
+                  FOOTBALL &amp; SAFF
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">Lyari &amp; National Roster</span>
               </div>
+              <h4 className="font-display font-extrabold text-slate-900 text-sm uppercase group-hover:text-indigo-700 transition">
+                Grassroots Football &amp; Low Block Tactics
+              </h4>
+              <p className="text-slate-600 text-xs leading-relaxed">
+                Tracking player agility, youth development in Lyari, and national SAFF tournament strategy to analyze pass pathways and transition defense models.
+              </p>
             </div>
 
             {/* Field Hockey & Squash card */}
-            <div className="bg-white border border-slate-150 p-6 rounded-2xl space-y-4 shadow-sm hover:border-[#22c55e] transition group">
-              <span className="text-[9px] font-mono font-bold text-amber-700 uppercase bg-amber-50 px-2.2 py-1.5 rounded w-fit block border border-amber-200/50">
-                HOCKEY &amp; SQUASH DESK • PHF UPDATES
-              </span>
-              <h3 className="font-display font-extrabold text-slate-900 text-sm uppercase group-hover:text-amber-700 transition leading-tight">
-                PHF Drags &amp; Squash Wall Geometry
-              </h3>
-              <p className="text-slate-600 text-[11px] leading-relaxed font-sans">
-                Field hockey remains Pakistan's national pride, and our PHF tracking monitors the biomechanics of penalty corner dragflicks. We analyze wrist snap and angle velocities to establish why a dragflick at speeds exceeding 120km/h requires a specific low posture. Concurrently, our Squash Desk calculates collision physics and boast shot geometry to track emerging court champions in Islamabad and Peshawar.
-              </p>
-              <div className="pt-3 border-t border-slate-100 font-mono text-[9px] text-slate-450 uppercase flex justify-between">
-                <span>Squash angle metrics</span>
-                <span className="text-[#22c55e] font-bold">Active log</span>
+            <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-xs hover:border-amber-600 transition group">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold text-amber-700 uppercase bg-amber-50 px-2 py-0.5 rounded border border-amber-200/50">
+                  PHF HOCKEY &amp; SQUASH
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">Islamabad &amp; Peshawar</span>
               </div>
+              <h4 className="font-display font-extrabold text-slate-900 text-sm uppercase group-hover:text-amber-700 transition">
+                PHF Dragflicks &amp; Squash Geometry
+              </h4>
+              <p className="text-slate-600 text-xs leading-relaxed">
+                Evaluating penalty corner dragflick velocity, wrist biomechanics, and court geometry tracking emerging squash champions across Pakistan.
+              </p>
             </div>
           </div>
-
-
         </section>
 
 

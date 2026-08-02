@@ -2966,7 +2966,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
               <div>
                 <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
-                  StreamYard, YouTube, or Facebook Video URL / Embed String *
+                  Tamasha, StreamYard, YouTube, or Facebook Video URL / Embed String *
                 </label>
                 <input
                   type="text"
@@ -2985,11 +2985,11 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       embed_url: res.embedUrl || editingStream.embed_url
                     });
                   }}
-                  placeholder="https://streamyard.com/watch/... or https://www.youtube.com/watch?v=... or Facebook video link"
+                  placeholder="https://tamashaweb.com/live/... or streamyard.com/watch/... or youtube link"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
                 />
                 <p className="text-[11px] text-slate-500 mt-1 font-mono">
-                  Supported formats: StreamYard links (streamyard.com/watch/...), YouTube (full/shorts/live), Facebook videos, or raw iframe tags.
+                  Supported formats: Tamasha Live (tamashaweb.com), StreamYard, YouTube (live/shorts), Facebook videos, or raw iframe tags.
                 </p>
               </div>
 
@@ -2998,8 +2998,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                 <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl text-slate-200 font-mono text-[11px] space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-[#22c55e] font-bold">● Auto Detected Engine:</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold text-white ${editingStream.platform === 'youtube' ? 'bg-red-600' : editingStream.platform === 'streamyard' ? 'bg-teal-600' : 'bg-blue-600'}`}>
-                      {editingStream.platform === 'youtube' ? 'YouTube Live' : editingStream.platform === 'streamyard' ? 'StreamYard' : 'Facebook Live'}
+                    <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold text-white ${editingStream.platform === 'youtube' ? 'bg-red-600' : editingStream.platform === 'tamasha' ? 'bg-emerald-600' : editingStream.platform === 'streamyard' ? 'bg-teal-600' : 'bg-blue-600'}`}>
+                      {editingStream.platform === 'youtube' ? 'YouTube Live' : editingStream.platform === 'tamasha' ? 'Tamasha Live' : editingStream.platform === 'streamyard' ? 'StreamYard' : 'Facebook Live'}
                     </span>
                   </div>
                   <p className="text-slate-400 text-[10px] truncate">

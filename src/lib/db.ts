@@ -562,6 +562,28 @@ const SEED_STREAMS: LiveStreamItem[] = [
     updated_at: new Date().toISOString(),
     enable_chat: false,
     views: 3200
+  },
+  {
+    id: 'stream-6',
+    title: 'Tamasha Live Sports HD - Live Cricket & Football Coverage',
+    description: 'High-definition live sports stream powered by Tamasha Web. Watch seamless live cricket matches, PSL coverage, and international sports broadcasts.',
+    platform: 'tamasha',
+    video_url: 'https://tamashaweb.com/live/ten-sports-hd',
+    embed_url: 'https://tamashaweb.com/live/ten-sports-hd',
+    thumbnail: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
+    status: 'active',
+    is_featured: true,
+    match_name: 'PSL & International Live Stream',
+    team_one: 'Pakistan',
+    team_two: 'International XI',
+    tournament: 'Tamasha Live HD Broadcast',
+    stream_start: new Date(Date.now() - 3600000).toISOString(),
+    stream_end: new Date(Date.now() + 14400000).toISOString(),
+    created_by: 'Hanan Irfan',
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+    updated_at: new Date().toISOString(),
+    enable_chat: false,
+    views: 5400
   }
 ];
 

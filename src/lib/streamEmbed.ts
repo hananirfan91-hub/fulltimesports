@@ -4,7 +4,7 @@
 
 export interface UrlValidationResult {
   isValid: boolean;
-  platform: 'facebook' | 'youtube' | 'streamyard' | null;
+  platform: 'facebook' | 'youtube' | 'streamyard' | 'tamasha' | null;
   embedUrl: string;
   videoId?: string;
   error?: string;
@@ -21,13 +21,17 @@ const ALLOWED_DOMAINS = [
   'web.facebook.com',
   'fb.watch',
   'streamyard.com',
-  'www.streamyard.com'
+  'www.streamyard.com',
+  'tamashaweb.com',
+  'www.tamashaweb.com',
+  'tamasha.com.pk',
+  'www.tamasha.com.pk'
 ];
 
 /**
- * Validates if a URL belongs to allowed Facebook, YouTube, or StreamYard domains and returns converted embed URL
+ * Validates if a URL belongs to allowed Facebook, YouTube, StreamYard, or Tamasha domains and returns converted embed URL
  */
-export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: 'facebook' | 'youtube' | 'streamyard'): UrlValidationResult {
+export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: 'facebook' | 'youtube' | 'streamyard' | 'tamasha'): UrlValidationResult {
   if (!rawUrl || typeof rawUrl !== 'string') {
     return {
       isValid: false,
@@ -64,20 +68,43 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
         isValid: false,
         platform: null,
         embedUrl: '',
-        error: 'Security Error: Only official YouTube, Facebook, and StreamYard (streamyard.com) URLs are accepted.'
+        error: 'Security Error: Only official YouTube, Facebook, StreamYard, and Tamasha (tamashaweb.com) URLs are accepted.'
       };
     }
 
     // Determine Platform
-    let platform: 'facebook' | 'youtube' | 'streamyard' = 'youtube';
+    let platform: 'facebook' | 'youtube' | 'streamyard' | 'tamasha' = 'youtube';
     if (hostname.includes('facebook') || hostname.includes('fb.watch')) {
       platform = 'facebook';
     } else if (hostname.includes('streamyard')) {
       platform = 'streamyard';
+    } else if (hostname.includes('tamasha')) {
+      platform = 'tamasha';
     } else if (hostname.includes('youtube') || hostname.includes('youtu.be')) {
       platform = 'youtube';
     } else if (explicitPlatform) {
       platform = explicitPlatform;
+    }
+
+    // Convert Tamasha
+    if (platform === 'tamasha') {
+      let embedUrl = parsed.toString();
+      // Handle tamashaweb.com URLs (e.g. https://tamashaweb.com/live/ten-sports-hd or /watch/...)
+      if (parsed.pathname.startsWith('/live/') || parsed.pathname.startsWith('/watch/')) {
+        embedUrl = `https://tamashaweb.com${parsed.pathname}${parsed.search}`;
+      } else if (!embedUrl.includes('tamashaweb.com') && !embedUrl.includes('tamasha.com.pk')) {
+        embedUrl = `https://tamashaweb.com${parsed.pathname}${parsed.search}`;
+      }
+
+      const pathParts = parsed.pathname.split('/').filter(Boolean);
+      const streamId = pathParts.length > 0 ? pathParts[pathParts.length - 1] : 'tamasha-stream';
+
+      return {
+        isValid: true,
+        platform: 'tamasha',
+        embedUrl,
+        videoId: streamId
+      };
     }
 
     // Convert StreamYard
