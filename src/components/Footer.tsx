@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Facebook, Globe, Compass, CheckCircle2 } from 'lucide-react';
+import { Mail, Facebook, Compass, CheckCircle2 } from 'lucide-react';
 import { DB } from '../lib/db';
 import Logo from './Logo';
 
@@ -32,8 +32,7 @@ export default function Footer({ onNavigate }: FooterProps) {
     "logo": "https://images.unsplash.com/photo-1540747737956-378724044282?w=150",
     "sameAs": [
       "https://www.facebook.com/profile.php?id=61590649439504",
-      "https://www.tiktok.com/@pathan_x_babarian565",
-      "https://hanan56.vercel.app"
+      "https://www.tiktok.com/@pathan_x_babarian565"
     ],
     "publishingPrinciples": "https://thesportsroom.online/editorial-standards",
     "correctionPolicy": "https://thesportsroom.online/corrections"
@@ -61,10 +60,6 @@ export default function Footer({ onNavigate }: FooterProps) {
             <a href="https://www.tiktok.com/@pathan_x_babarian565" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition font-bold text-xs font-mono flex items-center gap-1.5" aria-label="TikTok">
               <span>🎵</span>
               <span>TikTok</span>
-            </a>
-            <a href="https://hanan56.vercel.app" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition font-bold text-xs font-mono flex items-center gap-1.5" aria-label="Hanan Irfan">
-              <Globe className="h-4 w-4 text-[#22c55e]" />
-              <span>Hanan Irfan</span>
             </a>
           </div>
         </div>

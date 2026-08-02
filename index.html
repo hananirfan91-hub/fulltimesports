@@ -10,12 +10,13 @@
         var str = String(msg || '').toLowerCase();
         if (
           !msg || 
-          str.includes('script error') || 
-          str.includes('websocket') || 
-          str.includes('closed without opened') || 
-          str.includes('invoke.js') || 
-          str.includes('highperformanceformat') ||
-          (url && url.includes('highperformanceformat'))
+          str.indexOf('script error') !== -1 || 
+          str.indexOf('websocket') !== -1 || 
+          str.indexOf('closed without opened') !== -1 || 
+          str.indexOf('invoke.js') !== -1 || 
+          str.indexOf('highperformanceformat') !== -1 ||
+          !url ||
+          (url && url.indexOf('highperformanceformat') !== -1)
         ) {
           return true; // Suppress cross-origin script error overlay in Vite & browser
         }
@@ -25,25 +26,32 @@
       window.addEventListener('unhandledrejection', function (e) {
         var reason = e.reason;
         var str = String(reason || e || '').toLowerCase();
-        if (str.includes('websocket') || str.includes('script error') || str.includes('closed without opened') || str.includes('invoke.js') || str.includes('highperformanceformat')) {
+        if (
+          str.indexOf('websocket') !== -1 || 
+          str.indexOf('script error') !== -1 || 
+          str.indexOf('closed without opened') !== -1 || 
+          str.indexOf('invoke.js') !== -1 || 
+          str.indexOf('highperformanceformat') !== -1
+        ) {
           e.preventDefault();
           e.stopImmediatePropagation();
         }
       }, true);
 
       window.addEventListener('error', function (e) {
-        var msg = String(e && e.message || '').toLowerCase();
+        var msg = String((e && e.message) || e || '').toLowerCase();
         var targetSrc = String((e && e.target && e.target.src) || '').toLowerCase();
         if (
-          msg.includes('script error') || 
-          msg.includes('websocket') || 
-          msg.includes('closed without opened') || 
-          msg.includes('invoke.js') ||
-          targetSrc.includes('highperformanceformat') ||
-          targetSrc.includes('invoke.js')
+          !e.message ||
+          msg.indexOf('script error') !== -1 || 
+          msg.indexOf('websocket') !== -1 || 
+          msg.indexOf('closed without opened') !== -1 || 
+          msg.indexOf('invoke.js') !== -1 ||
+          targetSrc.indexOf('highperformanceformat') !== -1 ||
+          targetSrc.indexOf('invoke.js') !== -1
         ) {
-          e.stopImmediatePropagation();
-          e.preventDefault();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          if (e.preventDefault) e.preventDefault();
           return true;
         }
       }, true);
