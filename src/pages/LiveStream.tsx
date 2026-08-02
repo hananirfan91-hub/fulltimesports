@@ -36,7 +36,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
 
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedPlatform, setSelectedPlatform] = useState<'all' | 'youtube' | 'facebook'>('all');
+  const [selectedPlatform, setSelectedPlatform] = useState<'all' | 'youtube' | 'facebook' | 'streamyard'>('all');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'upcoming' | 'ended'>('all');
 
   useEffect(() => {
@@ -168,7 +168,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                 <span>Live Sports Streaming</span>
               </h1>
               <p className="text-xs md:text-sm text-slate-300 max-w-3xl mt-1 leading-relaxed">
-                Watch official embedded Facebook Live and YouTube Live sports broadcasts directly on <strong className="text-[#22c55e]">The Sports Room</strong>. High-definition match streams for Cricket, Football, Formula 1, Tennis, and Basketball.
+                Watch official embedded StreamYard, YouTube Live, and Facebook Live sports broadcasts directly on <strong className="text-[#22c55e]">The Sports Room</strong>. High-definition match streams for Cricket, Football, Formula 1, Tennis, and Basketball.
               </p>
             </div>
 
@@ -181,6 +181,10 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
               <div className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 flex items-center space-x-2">
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
                 <span className="text-xs font-mono font-bold text-slate-200">Facebook Live</span>
+              </div>
+              <div className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 flex items-center space-x-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-teal-400"></div>
+                <span className="text-xs font-mono font-bold text-slate-200">StreamYard</span>
               </div>
             </div>
           </div>
@@ -218,6 +222,12 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                 className={`flex-1 py-1.5 rounded-lg text-center transition ${selectedPlatform === 'facebook' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
               >
                 Facebook
+              </button>
+              <button
+                onClick={() => setSelectedPlatform('streamyard')}
+                className={`flex-1 py-1.5 rounded-lg text-center transition ${selectedPlatform === 'streamyard' ? 'bg-teal-600 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
+              >
+                StreamYard
               </button>
             </div>
 
@@ -279,8 +289,8 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                   </span>
 
                   {/* Platform Tag */}
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase text-white ${activeStream.platform === 'youtube' ? 'bg-red-600' : 'bg-blue-600'}`}>
-                    {activeStream.platform === 'youtube' ? 'YouTube Live' : 'Facebook Live'}
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase text-white ${activeStream.platform === 'youtube' ? 'bg-red-600' : activeStream.platform === 'streamyard' ? 'bg-teal-600' : 'bg-blue-600'}`}>
+                    {activeStream.platform === 'youtube' ? 'YouTube Live' : activeStream.platform === 'streamyard' ? 'StreamYard' : 'Facebook Live'}
                   </span>
                 </div>
 
@@ -349,7 +359,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                     <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center space-y-3">
                       <div className="w-12 h-12 border-4 border-[#22c55e] border-t-transparent rounded-full animate-spin"></div>
                       <span className="font-mono text-xs text-slate-300 font-bold uppercase tracking-wider">
-                        Connecting to {activeStream.platform === 'youtube' ? 'YouTube Live Server' : 'Facebook Live Plugin'}...
+                        Connecting to {activeStream.platform === 'youtube' ? 'YouTube Live Server' : activeStream.platform === 'streamyard' ? 'StreamYard Broadcast Server' : 'Facebook Live Plugin'}...
                       </span>
                     </div>
                   )}
@@ -361,7 +371,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                     title={activeStream.title}
                     onLoad={() => setLoadingPlayer(false)}
                     className="w-full h-full border-0 rounded-2xl"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; camera; microphone"
                     allowFullScreen
                   ></iframe>
                 </div>
@@ -390,7 +400,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                       rel="noopener noreferrer"
                       className="inline-flex items-center space-x-1 text-slate-300 hover:text-[#22c55e] transition underline"
                     >
-                      <span>Open on {activeStream.platform === 'youtube' ? 'YouTube' : 'Facebook'}</span>
+                      <span>Open on {activeStream.platform === 'youtube' ? 'YouTube' : activeStream.platform === 'streamyard' ? 'StreamYard' : 'Facebook'}</span>
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
@@ -488,8 +498,8 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                         {/* Top Badges Overlay */}
                         <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
                           {/* Platform Badge */}
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase text-white shadow ${stream.platform === 'youtube' ? 'bg-red-600' : 'bg-blue-600'}`}>
-                            {stream.platform === 'youtube' ? 'YouTube' : 'Facebook'}
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase text-white shadow ${stream.platform === 'youtube' ? 'bg-red-600' : stream.platform === 'streamyard' ? 'bg-teal-600' : 'bg-blue-600'}`}>
+                            {stream.platform === 'youtube' ? 'YouTube' : stream.platform === 'streamyard' ? 'StreamYard' : 'Facebook'}
                           </span>
 
                           {/* Status Badge */}

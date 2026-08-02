@@ -540,6 +540,28 @@ const SEED_STREAMS: LiveStreamItem[] = [
     updated_at: new Date().toISOString(),
     enable_chat: true,
     views: 1200
+  },
+  {
+    id: 'stream-5',
+    title: 'StreamYard Live Sports Desk & Panel Discussion',
+    description: 'Live interactive panel discussion and match breakdown broadcasted directly via StreamYard studio.',
+    platform: 'streamyard',
+    video_url: 'https://streamyard.com/watch/demo-sports-room',
+    embed_url: 'https://streamyard.com/watch/demo-sports-room',
+    thumbnail: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&auto=format&fit=crop&q=80',
+    status: 'active',
+    is_featured: false,
+    match_name: 'Live Sports Desk & Fan Q&A',
+    team_one: 'Sports Desk',
+    team_two: 'Guest Analysts',
+    tournament: 'StreamYard Live Studio',
+    stream_start: new Date(Date.now() - 1800000).toISOString(),
+    stream_end: new Date(Date.now() + 7200000).toISOString(),
+    created_by: 'Hanan Irfan',
+    created_at: new Date(Date.now() - 1800000).toISOString(),
+    updated_at: new Date().toISOString(),
+    enable_chat: false,
+    views: 3200
   }
 ];
 

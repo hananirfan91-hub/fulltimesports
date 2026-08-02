@@ -110,7 +110,7 @@ export interface LiveStreamItem {
   id: string;
   title: string;
   description: string;
-  platform: 'facebook' | 'youtube';
+  platform: 'facebook' | 'youtube' | 'streamyard';
   video_url: string;
   embed_url: string;
   thumbnail?: string;

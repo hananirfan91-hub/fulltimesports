@@ -4,7 +4,7 @@
 
 export interface UrlValidationResult {
   isValid: boolean;
-  platform: 'facebook' | 'youtube' | null;
+  platform: 'facebook' | 'youtube' | 'streamyard' | null;
   embedUrl: string;
   videoId?: string;
   error?: string;
@@ -19,13 +19,15 @@ const ALLOWED_DOMAINS = [
   'www.facebook.com',
   'm.facebook.com',
   'web.facebook.com',
-  'fb.watch'
+  'fb.watch',
+  'streamyard.com',
+  'www.streamyard.com'
 ];
 
 /**
- * Validates if a URL belongs to allowed Facebook or YouTube domains and returns converted embed URL
+ * Validates if a URL belongs to allowed Facebook, YouTube, or StreamYard domains and returns converted embed URL
  */
-export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: 'facebook' | 'youtube'): UrlValidationResult {
+export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: 'facebook' | 'youtube' | 'streamyard'): UrlValidationResult {
   if (!rawUrl || typeof rawUrl !== 'string') {
     return {
       isValid: false,
@@ -62,18 +64,50 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
         isValid: false,
         platform: null,
         embedUrl: '',
-        error: 'Security Error: Only official YouTube (youtube.com, youtu.be) and Facebook (facebook.com, fb.watch) URLs are accepted.'
+        error: 'Security Error: Only official YouTube, Facebook, and StreamYard (streamyard.com) URLs are accepted.'
       };
     }
 
     // Determine Platform
-    let platform: 'facebook' | 'youtube' = 'youtube';
+    let platform: 'facebook' | 'youtube' | 'streamyard' = 'youtube';
     if (hostname.includes('facebook') || hostname.includes('fb.watch')) {
       platform = 'facebook';
+    } else if (hostname.includes('streamyard')) {
+      platform = 'streamyard';
     } else if (hostname.includes('youtube') || hostname.includes('youtu.be')) {
       platform = 'youtube';
     } else if (explicitPlatform) {
       platform = explicitPlatform;
+    }
+
+    // Convert StreamYard
+    if (platform === 'streamyard') {
+      const pathParts = parsed.pathname.split('/').filter(Boolean);
+      const streamId = pathParts.length > 0 ? pathParts[pathParts.length - 1] : '';
+
+      if (!streamId && !cleanUrl.includes('streamyard.com')) {
+        return {
+          isValid: false,
+          platform: 'streamyard',
+          embedUrl: '',
+          error: 'Could not extract valid StreamYard broadcast ID from the provided link.'
+        };
+      }
+
+      // Format clean embed URL (watch or embed or full raw streamyard link)
+      let embedUrl = parsed.toString();
+      if (parsed.pathname.startsWith('/watch/') || parsed.pathname.startsWith('/embed/')) {
+        embedUrl = `https://streamyard.com${parsed.pathname}${parsed.search}`;
+      } else if (streamId) {
+        embedUrl = `https://streamyard.com/watch/${streamId}`;
+      }
+
+      return {
+        isValid: true,
+        platform: 'streamyard',
+        embedUrl,
+        videoId: streamId
+      };
     }
 
     // Convert YouTube
