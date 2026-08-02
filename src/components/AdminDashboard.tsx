@@ -3,7 +3,7 @@ import {
   Users, LayoutGrid, FileText, FolderPlus, Trophy, Calendar, Image as ImageIcon, 
   Trash2, Edit3, Plus, Key, LogOut, CheckCircle, AlertTriangle, ShieldCheck, 
   Tag, Upload, CalendarClock, Globe, PlusCircle, ArrowUpRight, MessageSquare, Mail,
-  Radio, Tv, Video, Eye, Play, ExternalLink
+  Radio, Tv, Video, Eye, Play, ExternalLink, DollarSign
 } from 'lucide-react';
 import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, Subscriber, LiveStreamItem } from '../types';
 import { DB } from '../lib/db';
@@ -11,6 +11,7 @@ import { supabase } from '../lib/supabase';
 import { normalizeSlug } from '../lib/slugUtils';
 import { detectEntitiesInText } from '../lib/entityRegistry';
 import { validateAndConvertStreamUrl } from '../lib/streamEmbed';
+import ClickioAdWidget from './ClickioAdWidget';
 
 const alert = (msg: string) => {
   try {
@@ -38,7 +39,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'subscribers' | 'live_streams'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'subscribers' | 'live_streams' | 'clickio_ads'>('posts');
   
   // States
   const [posts, setPosts] = useState<Post[]>([]);
@@ -986,6 +987,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           <span>Live Streams ({liveStreams.length})</span>
         </button>
 
+        <button
+          onClick={() => setActiveTab('clickio_ads')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'clickio_ads' ? 'bg-blue-900 text-blue-200 border border-blue-700' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <DollarSign className="h-4 w-4 text-blue-400" />
+          <span>Clickio Ads (Report #185)</span>
+        </button>
+
         {currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
           <>
             <button
@@ -1879,6 +1888,11 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             </div>
           )}
         </div>
+      )}
+
+      {/* 11. CLICKIO MONETIZATION & REPORTING MODULE */}
+      {activeTab === 'clickio_ads' && (
+        <ClickioAdWidget />
       )}
 
 
