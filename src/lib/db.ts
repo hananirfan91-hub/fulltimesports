@@ -904,6 +904,15 @@ export class DB {
       return s;
     });
 
+    // Ensure all initial SEED_STREAMS exist in local storage for existing users
+    SEED_STREAMS.forEach(seed => {
+      const exists = streams.some(s => s.id === seed.id);
+      if (!exists) {
+        streams.push(seed);
+        updated = true;
+      }
+    });
+
     if (updated) {
       localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
     }
