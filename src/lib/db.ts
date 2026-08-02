@@ -565,25 +565,25 @@ const SEED_STREAMS: LiveStreamItem[] = [
   },
   {
     id: 'stream-6',
-    title: 'Tamasha Live Sports HD - Live Cricket & Football Coverage',
-    description: 'High-definition live sports stream powered by Tamasha Web. Watch seamless live cricket matches, PSL coverage, and international sports broadcasts.',
+    title: 'Pakistan vs West Indies Test Series 2026 - Live HD Stream',
+    description: 'Watch Pakistan vs West Indies Test Series 2026 live streaming in High Definition powered by Tamasha Web. Full match coverage, ball-by-ball action, and commentary.',
     platform: 'tamasha',
-    video_url: 'https://tamashaweb.com/live/ten-sports-hd',
-    embed_url: 'https://tamashaweb.com/live/ten-sports-hd',
+    video_url: 'https://tamashaweb.com/pakistan-vs-west-indies-test-series-2026',
+    embed_url: 'https://tamashaweb.com/pakistan-vs-west-indies-test-series-2026',
     thumbnail: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
     status: 'active',
     is_featured: true,
-    match_name: 'PSL & International Live Stream',
+    match_name: 'Pakistan vs West Indies Test Series 2026',
     team_one: 'Pakistan',
-    team_two: 'International XI',
-    tournament: 'Tamasha Live HD Broadcast',
+    team_two: 'West Indies',
+    tournament: 'PAK vs WI Test Series 2026',
     stream_start: new Date(Date.now() - 3600000).toISOString(),
     stream_end: new Date(Date.now() + 14400000).toISOString(),
     created_by: 'Hanan Irfan',
     created_at: new Date(Date.now() - 3600000).toISOString(),
     updated_at: new Date().toISOString(),
-    enable_chat: false,
-    views: 5400
+    enable_chat: true,
+    views: 8900
   }
 ];
 
