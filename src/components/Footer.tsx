@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Facebook, Twitter, Instagram, Youtube, Compass, CheckCircle2 } from 'lucide-react';
+import { Mail, Facebook, Globe, Compass, CheckCircle2 } from 'lucide-react';
 import { DB } from '../lib/db';
 import Logo from './Logo';
 
@@ -31,9 +31,9 @@ export default function Footer({ onNavigate }: FooterProps) {
     "url": "https://thesportsroom.online",
     "logo": "https://images.unsplash.com/photo-1540747737956-378724044282?w=150",
     "sameAs": [
-      "https://www.facebook.com/HananIrfan001",
-      "https://twitter.com/thesportsroom",
-      "https://instagram.com/thesportsroom"
+      "https://www.facebook.com/profile.php?id=61590649439504",
+      "https://www.tiktok.com/@pathan_x_babarian565",
+      "https://hanan56.vercel.app"
     ],
     "publishingPrinciples": "https://thesportsroom.online/editorial-standards",
     "correctionPolicy": "https://thesportsroom.online/corrections"
@@ -53,12 +53,19 @@ export default function Footer({ onNavigate }: FooterProps) {
           <p className="text-xs leading-relaxed text-slate-400">
             The Sports Room is a premium sports news platform providing real-time live scores, match breakdowns, player insights, and breaking global sports coverage.
           </p>
-          <div className="flex space-x-3 pt-2">
-            <a href="https://www.facebook.com/HananIrfan001" target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition" aria-label="Facebook"><Facebook className="h-4 w-4" /></a>
-            <a href="https://x.com/hananirfan91" target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition" aria-label="Twitter"><Twitter className="h-4 w-4" /></a>
-            <a href="https://instagram.com/fts_pakistan" target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition" aria-label="Instagram"><Instagram className="h-4 w-4" /></a>
-            <a href="https://youtube.com/@thesportsroom" target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition" aria-label="YouTube"><Youtube className="h-4 w-4" /></a>
-            <a href="https://tiktok.com/@thesportsroom" target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition font-bold text-xs flex items-center justify-center w-8 h-8" aria-label="TikTok">🎵</a>
+          <div className="flex items-center space-x-3 pt-2">
+            <a href="https://www.facebook.com/profile.php?id=61590649439504" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition flex items-center justify-center gap-1.5 text-xs font-mono font-bold" aria-label="Facebook">
+              <Facebook className="h-4 w-4 text-[#22c55e]" />
+              <span>Facebook</span>
+            </a>
+            <a href="https://www.tiktok.com/@pathan_x_babarian565" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition font-bold text-xs font-mono flex items-center gap-1.5" aria-label="TikTok">
+              <span>🎵</span>
+              <span>TikTok</span>
+            </a>
+            <a href="https://hanan56.vercel.app" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition font-bold text-xs font-mono flex items-center gap-1.5" aria-label="Hanan Irfan">
+              <Globe className="h-4 w-4 text-[#22c55e]" />
+              <span>Hanan Irfan</span>
+            </a>
           </div>
         </div>
 

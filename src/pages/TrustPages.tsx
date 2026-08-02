@@ -194,16 +194,15 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                     </p>
                   </div>
                   
-                  {/* Twitter / Creative Mockup link */}
+                  {/* Hanan Irfan Portfolio Link */}
                   <a 
-                    href="https://x.com/hananirfan91/status/2053516986357891294" 
+                    href="https://hanan56.vercel.app" 
                     target="_blank" 
-                    referrerPolicy="no-referrer"
                     rel="noopener noreferrer" 
                     className="bg-[#01140f] hover:bg-[#22c55e] text-[#22c55e] hover:text-[#022c22] font-mono text-[10px] uppercase font-extrabold tracking-widest px-4 py-3 rounded-lg border border-[#22c55e]/30 flex items-center space-x-1.5 shrink-0 transition shadow-inner self-start md:self-auto"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    <span>View Hanan Irfan Tweet Photo</span>
+                    <span>Hanan Irfan Portfolio (hanan56.vercel.app)</span>
                   </a>
                 </div>
 
