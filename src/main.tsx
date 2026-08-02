@@ -34,15 +34,28 @@ if (typeof window !== 'undefined') {
     originalError.apply(console, args);
   };
 
+  window.onerror = function (msg) {
+    const errorStr = String(msg || '').toLowerCase();
+    if (
+      errorStr.includes('script error') ||
+      errorStr.includes('websocket') ||
+      errorStr.includes('highperformanceformat') ||
+      errorStr.includes('clickio')
+    ) {
+      return true; // Suppress cross-origin script error overlay
+    }
+    return false;
+  };
+
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason;
-    const errorStr = String(reason || '');
-    const errorMsg = reason?.message || '';
+    const errorStr = String(reason || '').toLowerCase();
+    const errorMsg = String(reason?.message || '').toLowerCase();
     if (
-      errorStr.toLowerCase().includes('websocket') || 
-      errorStr.toLowerCase().includes('script error') || 
-      errorMsg.toLowerCase().includes('websocket') ||
-      errorMsg.toLowerCase().includes('script error')
+      errorStr.includes('websocket') || 
+      errorStr.includes('script error') || 
+      errorMsg.includes('websocket') ||
+      errorMsg.includes('script error')
     ) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -50,12 +63,15 @@ if (typeof window !== 'undefined') {
   });
 
   window.addEventListener('error', (event) => {
-    const errorMsg = event.message || '';
+    const errorMsg = String(event.message || '').toLowerCase();
+    const targetSrc = String((event.target as HTMLElement)?.getAttribute?.('src') || '').toLowerCase();
     if (
-      errorMsg.toLowerCase().includes('websocket') || 
-      errorMsg.toLowerCase().includes('script error') ||
-      event.error?.message?.toLowerCase().includes('websocket') ||
-      event.error?.message?.toLowerCase().includes('script error')
+      errorMsg.includes('websocket') || 
+      errorMsg.includes('script error') ||
+      targetSrc.includes('highperformanceformat') ||
+      targetSrc.includes('clickio') ||
+      String(event.error?.message || '').toLowerCase().includes('websocket') ||
+      String(event.error?.message || '').toLowerCase().includes('script error')
     ) {
       event.preventDefault();
       event.stopImmediatePropagation();

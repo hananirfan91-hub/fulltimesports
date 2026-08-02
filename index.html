@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <script>
+      // Global error suppression for 3rd-party cross-origin ad scripts & HMR
+      window.onerror = function (msg) {
+        if (msg && String(msg).toLowerCase().includes('script error')) {
+          return true; // Suppress cross-origin script error overlay
+        }
+      };
+      window.addEventListener('error', function (e) {
+        if (e && e.message && String(e.message).toLowerCase().includes('script error')) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }
+      }, true);
+    </script>
     <!-- Performance Optimization Preconnects -->
     <link rel="preconnect" href="https://www.highperformanceformat.com" crossorigin />
     <link rel="dns-prefetch" href="https://www.highperformanceformat.com" />
