@@ -178,8 +178,8 @@ export default function Hero({ onNavigate }: HeroProps) {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch min-h-[520px]">
           
           {/* ================= LEFT SIDE (65% width on desktop) ================= */}
-          <div className="md:col-span-7 lg:col-span-8 flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
+          <div className="md:col-span-7 lg:col-span-8 flex flex-col justify-center space-y-4">
+            <div className="space-y-3">
               
               {/* TOP BADGE WITH ANIMATED PULSE */}
               <div className="inline-flex items-center space-x-2 bg-[#022c22]/90 border border-[#22c55e]/40 px-3.5 py-1.5 rounded-full backdrop-blur-md shadow-md">
@@ -227,7 +227,7 @@ export default function Hero({ onNavigate }: HeroProps) {
             </div>
 
             {/* ================= THREE INTERACTIVE SERVICE CARDS ================= */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
               
               {/* CARD 1: LIVE MATCH STREAMS */}
               <motion.div
