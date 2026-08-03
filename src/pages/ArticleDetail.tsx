@@ -570,25 +570,25 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
           )}
 
           {/* Sub-author card strip */}
-          <div className="p-4 bg-slate-50 border border-slate-200/60 rounded-xl flex items-center justify-between font-mono text-xs text-slate-505">
-            <div className="flex items-center space-x-2">
-              <div className="bg-[#022c22] text-[#22c55e] font-black h-8 w-8 rounded-full flex items-center justify-center text-sm border-2 border-[#22c55e]">
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
+            <div className="flex items-center space-x-3">
+              <div className="bg-[#022c22] text-[#22c55e] font-black h-9 w-9 rounded-full flex items-center justify-center text-sm border-2 border-[#22c55e] shrink-0">
                 {post.author[0].toUpperCase()}
               </div>
               <div>
-                <span className="font-bold text-slate-900">BY: {post.author.toUpperCase()}</span>
-                <span className="block text-[10px] text-slate-400">SENIOR SPORT EDITORIAL BOARD</span>
+                <span className="font-bold text-slate-900 block text-xs">BY: {post.author.toUpperCase()}</span>
+                <span className="block text-[10px] text-slate-500 font-medium">SENIOR SPORT EDITORIAL BOARD</span>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <span className="flex items-center space-x-1">
-                <Clock className="h-3.5 w-3.5 text-slate-400" />
-                <span>{readTimeMinutes} min read</span>
+            <div className="flex items-center space-x-3 font-semibold">
+              <span className="flex items-center space-x-1.5 bg-white border border-slate-200/80 text-slate-900 px-3 py-1.5 rounded-lg shadow-2xs">
+                <Clock className="h-4 w-4 text-emerald-600" />
+                <span className="text-slate-800 font-bold">{readTimeMinutes} min read</span>
               </span>
-              <span className="flex items-center space-x-1">
-                <Eye className="h-4 w-4 text-slate-400" />
-                <span>{post.views} views</span>
+              <span className="flex items-center space-x-1.5 bg-white border border-slate-200/80 text-slate-900 px-3 py-1.5 rounded-lg shadow-2xs">
+                <Eye className="h-4 w-4 text-emerald-600" />
+                <span className="text-slate-800 font-bold">{post.views} views</span>
               </span>
             </div>
           </div>
