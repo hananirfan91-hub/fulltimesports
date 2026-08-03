@@ -2004,7 +2004,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         required
                         value={editingPost.title || ''}
                         onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm font-semibold focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                         placeholder="e.g. Masterclass: Mechanics of rotation jump serve in Volleyball"
                       />
                     </div>
@@ -2015,7 +2015,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       <select
                         value={editingPost.category || 'football'}
                         onChange={(e) => setEditingPost({ ...editingPost, category: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#22c55e] text-slate-800 font-medium"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#22c55e] text-slate-900 font-medium"
                       >
                         {categories.map(c => (
                           <option key={c.id} value={c.id}>{c.name}</option>
@@ -2033,7 +2033,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         type="text"
                         value={editingPost.slug || ''}
                         onChange={(e) => setEditingPost({ ...editingPost, slug: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                         placeholder="custom-article-slug"
                       />
                     </div>
@@ -2044,7 +2044,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       <select
                         value={editingPost.type || 'news'}
                         onChange={(e) => setEditingPost({ ...editingPost, type: e.target.value as 'news' | 'blog' })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#22c55e] text-slate-800"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#22c55e] text-slate-900 font-medium"
                       >
                         <option value="news">News Article (Standard Editorial)</option>
                         <option value="blog">Blog Column (In-Depth Opinion & Tactical Analysis)</option>
@@ -2058,7 +2058,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         type="text"
                         value={editingPost.author || ''}
                         onChange={(e) => setEditingPost({ ...editingPost, author: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                       />
                     </div>
                   </div>
@@ -2073,7 +2073,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         required
                         value={editingPost.featured_image || ''}
                         onChange={(e) => setEditingPost({ ...editingPost, featured_image: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                         placeholder="https://images.unsplash.com/..."
                       />
                       <div className="flex gap-1.5 mt-2 overflow-x-auto pb-1">
@@ -2097,7 +2097,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         type="text"
                         value={editingPost.video_url || ''}
                         onChange={(e) => setEditingPost({ ...editingPost, video_url: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                         placeholder="e.g. H9T9e03d_jE"
                       />
                     </div>
@@ -2305,7 +2305,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       rows={14}
                       value={editingPost.content || ''}
                       onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
-                      className="w-full bg-slate-50 border-x border-b border-slate-200 rounded-b-lg p-4 text-sm focus:outline-none focus:bg-white focus:border-[#22c55e] font-sans leading-relaxed"
+                      className="w-full bg-slate-50 border-x border-b border-slate-200 rounded-b-lg p-4 text-sm font-sans text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#22c55e] leading-relaxed"
                       placeholder="Write your full article analysis body here... Use the toolbar above to add bold text, headings (H2/H3/H4), images, links, quotes, and tables!"
                     />
 
@@ -2368,7 +2368,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         type="text"
                         value={editingPost.subheading || ''}
                         onChange={(e) => setEditingPost({ ...editingPost, subheading: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                         placeholder="e.g. Tactical Breakdown of Front-Foot Drive Execution"
                       />
                     </div>
@@ -2416,7 +2416,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       type="text"
                       value={editingPost.meta_title || ''}
                       onChange={(e) => setEditingPost({ ...editingPost, meta_title: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                       placeholder="Leave blank to use main article title"
                     />
                   </div>
@@ -2430,7 +2430,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         type="text"
                         value={editingPost.focus_keyword || ''}
                         onChange={(e) => setEditingPost({ ...editingPost, focus_keyword: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                         placeholder="e.g. Babar Azam cover drive technique"
                       />
                     </div>
@@ -2443,7 +2443,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         type="text"
                         value={tempTags}
                         onChange={(e) => setTempTags(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                         placeholder="e.g. cricket, Pakistan, biomechanics"
                       />
                     </div>
@@ -2460,7 +2460,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       rows={3}
                       value={editingPost.meta_description || ''}
                       onChange={(e) => setEditingPost({ ...editingPost, meta_description: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:border-[#22c55e]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                       placeholder="High-converting 150-word index snippet for Google Search..."
                       maxLength={160}
                     />
@@ -2475,7 +2475,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         type="url"
                         value={editingPost.canonical_url || ''}
                         onChange={(e) => setEditingPost({ ...editingPost, canonical_url: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                         placeholder="https://thesportsroom.online/blog/..."
                       />
                     </div>
@@ -2487,7 +2487,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       <select
                         value={editingPost.schema_type || 'NewsArticle'}
                         onChange={(e) => setEditingPost({ ...editingPost, schema_type: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#22c55e] bg-white"
                       >
                         <option value="NewsArticle">NewsArticle</option>
                         <option value="BlogPosting">BlogPosting</option>
@@ -2504,7 +2504,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       <select
                         value={editingPost.meta_robots || 'index, follow'}
                         onChange={(e) => setEditingPost({ ...editingPost, meta_robots: e.target.value })}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-900 focus:outline-none focus:border-[#22c55e] bg-white"
                       >
                         <option value="index, follow">index, follow (Default)</option>
                         <option value="noindex, follow">noindex, follow</option>
@@ -2534,7 +2534,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       rows={4}
                       value={editingPost.geo_summary || ''}
                       onChange={(e) => setEditingPost({ ...editingPost, geo_summary: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-sm focus:outline-none focus:border-[#22c55e]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                       placeholder="Write a concise 3-4 sentence factual summary containing key numbers, quotes, and conclusions. LLMs pick this up directly for AI Overviews..."
                     />
                   </div>
@@ -2547,7 +2547,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       type="text"
                       value={tempEntities}
                       onChange={(e) => setTempEntities(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm font-mono focus:outline-none focus:border-[#22c55e]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2 text-sm font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                       placeholder="e.g. Babar Azam, Cover Drive, PCB, Rotation Biomechanics, Gaddafi Stadium"
                     />
                     <p className="text-[10px] text-slate-500 mt-1">
@@ -2575,7 +2575,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       rows={3}
                       value={editingPost.aeo_direct_answer || ''}
                       onChange={(e) => setEditingPost({ ...editingPost, aeo_direct_answer: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-sm focus:outline-none focus:border-[#22c55e]"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#22c55e] focus:bg-white"
                       placeholder="Directly answer the primary question of this article in 40-60 clear words. This gets pulled for Position-Zero snippets!"
                     />
                   </div>
