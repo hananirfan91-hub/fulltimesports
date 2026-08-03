@@ -610,6 +610,7 @@ export class DB {
         author: p.author || 'FTS Desk',
         author_email: p.author_email || '',
         created_at: p.created_at || new Date().toISOString(),
+        updated_at: p.updated_at || new Date().toISOString(),
         is_featured: Boolean(p.is_featured),
         is_trending: Boolean(p.is_trending),
         type: p.type === 'blog' ? 'blog' : 'news',
@@ -689,6 +690,7 @@ export class DB {
       author: String(p.author || 'FTS Desk'),
       author_email: String(p.author_email || ''),
       created_at: String(p.created_at || new Date().toISOString()),
+      updated_at: p.updated_at ? String(p.updated_at) : undefined,
       is_featured: Boolean(p.is_featured),
       is_trending: Boolean(p.is_trending),
       type: p.type === 'blog' ? 'blog' : 'news',
@@ -744,12 +746,12 @@ export class DB {
           // Merge remote and local posts into a unified collection keyed strictly by ID
           const postsMap = new Map<string, Post>();
 
-          // Fill map with remote items
+          // Fill map with remote items first (canonical source of truth from Supabase)
           parsedRemote.forEach((rp: Post) => {
             if (rp.id) postsMap.set(rp.id, rp);
           });
 
-          // Overlay local items (preserving local edits or newly authored posts)
+          // Overlay local items ONLY IF they do not exist in Supabase or if locally updated STRICTLY newer
           const unsyncedToPush: Post[] = [];
           localPosts.forEach((lp: Post) => {
             if (!lp.id) return;
@@ -759,10 +761,11 @@ export class DB {
               unsyncedToPush.push(lp);
             } else {
               // Compare timestamps if both exist
-              const existingTime = new Date(existing.created_at).getTime() || 0;
-              const localTime = new Date(lp.created_at).getTime() || 0;
-              if (localTime >= existingTime) {
+              const existingTime = new Date(existing.updated_at || existing.created_at).getTime() || 0;
+              const localTime = new Date(lp.updated_at || lp.created_at).getTime() || 0;
+              if (lp.updated_at && localTime > existingTime) {
                 postsMap.set(lp.id, lp);
+                unsyncedToPush.push(lp);
               }
             }
           });
@@ -1148,7 +1151,7 @@ export class DB {
     const index = posts.findIndex(p => p.id === id || normalizeSlug(p.id) === cleanId || normalizeSlug(p.slug) === cleanId);
     if (index === -1) throw new Error('Post not found in database registry');
     
-    const nextFields = { ...updatedFields };
+    const nextFields = { ...updatedFields, updated_at: new Date().toISOString() };
     if (nextFields.category) {
       nextFields.category = nextFields.category.toLowerCase().trim();
     }

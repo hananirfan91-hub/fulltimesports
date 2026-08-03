@@ -11,7 +11,15 @@ interface HeroProps {
 
 export default function Hero({ onNavigate }: HeroProps) {
   // Fetch active dynamically from local DB
-  const allPosts = DB.getPosts();
+  const [allPosts, setAllPosts] = useState<Post[]>(() => DB.getPosts());
+
+  useEffect(() => {
+    const handleSync = () => {
+      setAllPosts(DB.getPosts());
+    };
+    window.addEventListener('fts_db_sync', handleSync);
+    return () => window.removeEventListener('fts_db_sync', handleSync);
+  }, []);
 
   // Find Featured News (Left Panel)
   const featuredNews = allPosts.find(p => p.is_featured) || allPosts[0];

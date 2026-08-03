@@ -11,6 +11,7 @@ export interface Post {
   author: string;
   author_email?: string; // Track who wrote the article
   created_at: string;
+  updated_at?: string;
   is_featured: boolean;
   is_trending: boolean;
   type: 'news' | 'blog'; // To distinguish for Hero or styling
