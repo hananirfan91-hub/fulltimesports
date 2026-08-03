@@ -663,6 +663,7 @@ export class DB {
         const { error: legacyError } = await supabase.from('fts_posts').upsert(legacyPayloads);
         if (legacyError) {
           console.error("Supabase legacy post upsert error:", legacyError);
+          throw new Error(legacyError.message || "Supabase database rejected article insert/update. Please run the SQL schema script in Supabase SQL Editor.");
         }
       }
     }
@@ -710,7 +711,9 @@ export class DB {
       schema_type: p.schema_type || 'NewsArticle',
       meta_robots: p.meta_robots || 'index, follow',
     };
-    return ensureFullSeoGeoAeo(basePost);
+    const fullPost = ensureFullSeoGeoAeo(basePost);
+    (fullPost as any).is_synced = true;
+    return fullPost;
   }
 
   static async syncFromSupabase() {
@@ -731,7 +734,7 @@ export class DB {
         }
       }
 
-      // 2. Sync Posts with robust bi-directional merge
+      // 2. Sync Posts with robust bi-directional merge and deletion sync
       const { data: remotePosts, error: postError } = await supabase.from('fts_posts').select('*');
       if (postError) {
         console.error("Supabase fetch posts error:", postError);
@@ -740,23 +743,36 @@ export class DB {
         const parsedRemote = remotePosts.map(p => this.parseRemotePost(p));
 
         if (parsedRemote.length === 0 && localPosts.length > 0) {
-          // Empty remote database, seed Supabase with local items
-          await this.safeUpsertPosts(localPosts);
+          // If remote database has 0 posts and local DB has unsynced posts, seed remote DB once
+          const unsyncedSeed = localPosts.filter(p => !(p as any).is_synced);
+          if (unsyncedSeed.length > 0) {
+            await this.safeUpsertPosts(unsyncedSeed);
+            unsyncedSeed.forEach(p => (p as any).is_synced = true);
+            localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(localPosts));
+          }
         } else {
-          // Merge remote and local posts into a unified collection keyed strictly by ID
+          // Build canonical map from Supabase
           const postsMap = new Map<string, Post>();
 
-          // Fill map with remote items first (canonical source of truth from Supabase)
           parsedRemote.forEach((rp: Post) => {
-            if (rp.id) postsMap.set(rp.id, rp);
+            if (rp.id) {
+              (rp as any).is_synced = true;
+              postsMap.set(rp.id, rp);
+            }
           });
 
-          // Overlay local items ONLY IF they do not exist in Supabase or if locally updated STRICTLY newer
           const unsyncedToPush: Post[] = [];
           localPosts.forEach((lp: Post) => {
             if (!lp.id) return;
             const existing = postsMap.get(lp.id);
             if (!existing) {
+              // If this local post was previously synced from Supabase, but is now absent from remotePosts,
+              // it means an admin deleted it from the database! Do NOT resurrect it locally.
+              if ((lp as any).is_synced) {
+                return;
+              }
+              // If it was newly written locally and not yet synced to Supabase, push it now!
+              (lp as any).is_synced = true;
               postsMap.set(lp.id, lp);
               unsyncedToPush.push(lp);
             } else {
@@ -764,6 +780,7 @@ export class DB {
               const existingTime = new Date(existing.updated_at || existing.created_at).getTime() || 0;
               const localTime = new Date(lp.updated_at || lp.created_at).getTime() || 0;
               if (lp.updated_at && localTime > existingTime) {
+                (lp as any).is_synced = true;
                 postsMap.set(lp.id, lp);
                 unsyncedToPush.push(lp);
               }
@@ -883,11 +900,27 @@ export class DB {
     // Start background sync from Supabase database
     this.syncFromSupabase();
 
-    // Auto-sync periodically and on window focus for cross-browser synchronization
-    if (typeof window !== 'undefined' && !(window as any)._fts_sync_interval) {
+    // Setup Supabase Realtime listener for live instant cross-browser updates
+    if (typeof window !== 'undefined' && !(window as any)._fts_supabase_channel) {
+      try {
+        (window as any)._fts_supabase_channel = supabase
+          .channel('fts_posts_realtime_channel')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'fts_posts' },
+            (payload) => {
+              console.log('Realtime DB update received for fts_posts:', payload);
+              this.syncFromSupabase();
+            }
+          )
+          .subscribe();
+      } catch (err) {
+        console.warn("Supabase Realtime subscription notice:", err);
+      }
+
       (window as any)._fts_sync_interval = setInterval(() => {
         this.syncFromSupabase();
-      }, 15000);
+      }, 10000);
 
       window.addEventListener('focus', () => {
         this.syncFromSupabase();
@@ -1136,8 +1169,9 @@ export class DB {
     // Sync with Supabase
     try {
       await this.safeUpsertPosts([newPost]);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Supabase insertPost sync error:", err);
+      throw err;
     }
 
     newPost.is_draft ? null : this.updateSitemapRegistry();
@@ -1186,8 +1220,9 @@ export class DB {
     // Sync with Supabase
     try {
       await this.safeUpsertPosts([updatedPost]);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Supabase updatePost sync error:", err);
+      throw err;
     }
 
     this.updateSitemapRegistry();
@@ -1196,15 +1231,21 @@ export class DB {
 
   static async deletePost(id: string) {
     const posts = this.getAdminAllPosts();
-    const filtered = posts.filter(p => p.id !== id && p.slug !== id);
+    const cleanId = normalizeSlug(id);
+    const filtered = posts.filter(p => p.id !== id && p.slug !== id && normalizeSlug(p.id) !== cleanId && normalizeSlug(p.slug) !== cleanId);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
     this.updateSitemapRegistry();
 
-    // Async sync with Supabase
+    // Async sync deletion with Supabase database
     try {
-      const { error } = await supabase.from('fts_posts').delete().eq('id', id);
-      if (error) console.error("Supabase delete fts_posts error:", error);
+      const { error: err1 } = await supabase.from('fts_posts').delete().eq('id', id);
+      if (err1) {
+        console.warn("Supabase delete fts_posts by id notice:", err1.message);
+      }
+      if (cleanId) {
+        await supabase.from('fts_posts').delete().eq('slug', cleanId);
+      }
     } catch (err) {
       console.error("Supabase deletePost exception:", err);
     }

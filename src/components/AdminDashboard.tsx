@@ -3,7 +3,7 @@ import {
   Users, LayoutGrid, FileText, FolderPlus, Trophy, Calendar, Image as ImageIcon, 
   Trash2, Edit3, Plus, Key, LogOut, CheckCircle, AlertTriangle, ShieldCheck, 
   Tag, Upload, CalendarClock, Globe, PlusCircle, ArrowUpRight, MessageSquare, Mail,
-  Radio, Tv, Video, Eye, Play, ExternalLink
+  Radio, Tv, Video, Eye, Play, ExternalLink, RefreshCw
 } from 'lucide-react';
 import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, Subscriber, LiveStreamItem } from '../types';
 import { DB } from '../lib/db';
@@ -58,6 +58,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
   // Editing Forms States
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<Partial<Post> | null>(null);
   const [tempTags, setTempTags] = useState('');
   const [tempEntities, setTempEntities] = useState('');
@@ -112,11 +113,20 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [profileUpdateMsg, setProfileUpdateMsg] = useState('');
   const [profileUpdateError, setProfileUpdateError] = useState('');
 
-  // Load database content on mount
+  // Load database content on mount and attach sync listener
   useEffect(() => {
     setCurrentAdmin(DB.getCurrentAdmin());
     setAdmins(DB.getAdmins());
     refreshData();
+
+    const handleDBSync = () => {
+      refreshData();
+    };
+
+    window.addEventListener('fts_db_sync', handleDBSync);
+    return () => {
+      window.removeEventListener('fts_db_sync', handleDBSync);
+    };
   }, []);
 
   useEffect(() => {
@@ -582,9 +592,9 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     }, 30);
   };
 
-  const handleDeletePost = (id: string) => {
+  const handleDeletePost = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this editorial article?")) {
-      DB.deletePost(id);
+      await DB.deletePost(id);
       refreshData();
     }
   };
@@ -1041,15 +1051,45 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       {/* 1. POSTS COLUMN */}
       {activeTab === 'posts' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-display font-extrabold text-lg text-slate-900">EDITORIAL ARTICLES PORTAL</h3>
-            <button 
-              onClick={openNewPost}
-              className="bg-[#022c22] border border-[#22c55e]/30 hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] text-xs font-mono font-bold tracking-wider uppercase px-4 py-2 rounded-lg flex items-center space-x-1.5 transition"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Compose Analysis</span>
-            </button>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+            <div>
+              <h3 className="font-display font-extrabold text-lg text-slate-900">EDITORIAL ARTICLES PORTAL</h3>
+              <p className="text-xs text-slate-500 font-sans">Manage articles, cloud database sync, and SEO publishing</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await DB.syncFromSupabase();
+                    refreshData();
+                    alert("✅ Successfully synced local storage and Supabase cloud database!");
+                  } catch (err: any) {
+                    alert("⚠️ Sync issue: " + (err?.message || "Check Supabase credentials."));
+                  }
+                }}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-mono font-bold uppercase px-3.5 py-2 rounded-lg border border-slate-300 transition flex items-center space-x-1.5"
+                title="Force refresh & sync articles from Supabase"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                <span>Sync Cloud DB</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSqlModalOpen(true)}
+                className="bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-mono font-bold uppercase px-3.5 py-2 rounded-lg transition flex items-center space-x-1.5"
+                title="View Supabase SQL Table Setup & Fix Script"
+              >
+                <span>⚡ Supabase Fix SQL</span>
+              </button>
+              <button 
+                onClick={openNewPost}
+                className="bg-[#022c22] border border-[#22c55e]/30 hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] text-xs font-mono font-bold tracking-wider uppercase px-4 py-2 rounded-lg flex items-center space-x-1.5 transition"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Compose Analysis</span>
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -2661,7 +2701,196 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </div>
       )}
 
-      {/* B. CATEGORY MODAL */}
+      {/* A2. SUPABASE SQL SETUP MODAL */}
+      {isSqlModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-3xl w-full p-6 shadow-2xl space-y-4 relative">
+            <div className="flex justify-between items-center border-b pb-3">
+              <div>
+                <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded uppercase">
+                  Supabase Database Setup
+                </span>
+                <h3 className="font-display font-black text-lg text-slate-900 uppercase mt-1">
+                  Cross-Device Article Database Fix (SQL Editor)
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsSqlModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 font-bold text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              If new articles are created on your browser but don't show up on other devices or Google profiles, it means your Supabase database table <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_posts</code> is either missing RLS insert permissions or missing column fields.
+            </p>
+
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+              <h4 className="font-mono text-xs font-bold text-slate-800 uppercase mb-2">Instructions:</h4>
+              <ol className="list-decimal list-inside text-xs text-slate-600 space-y-1 font-sans">
+                <li>Go to your <strong className="text-slate-900">Supabase Dashboard</strong> (supabase.com).</li>
+                <li>Click on <strong className="text-slate-900">SQL Editor</strong> in the left menu.</li>
+                <li>Click <strong className="text-slate-900">New Query</strong>, paste the script below, and click <strong className="text-emerald-700">Run</strong>!</li>
+              </ol>
+            </div>
+
+            <div className="relative">
+              <textarea
+                readOnly
+                rows={10}
+                value={`-- 1. Create or Update fts_posts table for cross-device sync
+CREATE TABLE IF NOT EXISTS public.fts_posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  content TEXT,
+  category TEXT DEFAULT 'cricket',
+  tags TEXT[],
+  featured_image TEXT,
+  video_url TEXT,
+  author TEXT DEFAULT 'FTS Desk',
+  author_email TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  is_featured BOOLEAN DEFAULT FALSE,
+  is_trending BOOLEAN DEFAULT FALSE,
+  type TEXT DEFAULT 'news',
+  scheduled_for TEXT,
+  is_draft BOOLEAN DEFAULT FALSE,
+  heading_tag TEXT DEFAULT 'h1',
+  subheading TEXT,
+  meta_title TEXT,
+  meta_description TEXT,
+  focus_keyword TEXT,
+  canonical_url TEXT,
+  geo_summary TEXT,
+  geo_entities TEXT[],
+  aeo_direct_answer TEXT,
+  aeo_faq JSONB,
+  schema_type TEXT DEFAULT 'NewsArticle',
+  meta_robots TEXT DEFAULT 'index, follow',
+  views BIGINT DEFAULT 0
+);
+
+-- 2. Add missing columns if table already exists
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS is_draft BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS heading_tag TEXT DEFAULT 'h1';
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS subheading TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS meta_title TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS meta_description TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS focus_keyword TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS canonical_url TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS geo_summary TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS geo_entities TEXT[];
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS aeo_direct_answer TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS aeo_faq JSONB;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS schema_type TEXT DEFAULT 'NewsArticle';
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS meta_robots TEXT DEFAULT 'index, follow';
+
+-- 3. Enable RLS and grant public read/write access
+ALTER TABLE public.fts_posts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read access" ON public.fts_posts;
+DROP POLICY IF EXISTS "Allow public insert access" ON public.fts_posts;
+DROP POLICY IF EXISTS "Allow public update access" ON public.fts_posts;
+DROP POLICY IF EXISTS "Allow public delete access" ON public.fts_posts;
+
+CREATE POLICY "Allow public read access" ON public.fts_posts FOR SELECT USING (true);
+CREATE POLICY "Allow public insert access" ON public.fts_posts FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update access" ON public.fts_posts FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete access" ON public.fts_posts FOR DELETE USING (true);
+
+GRANT ALL ON TABLE public.fts_posts TO anon, authenticated, service_role;`}
+                className="w-full bg-slate-900 text-emerald-400 font-mono text-xs p-3.5 rounded-xl leading-relaxed focus:outline-none"
+              />
+            </div>
+
+            <div className="flex justify-between items-center pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const sqlText = `-- 1. Create or Update fts_posts table for cross-device sync
+CREATE TABLE IF NOT EXISTS public.fts_posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  content TEXT,
+  category TEXT DEFAULT 'cricket',
+  tags TEXT[],
+  featured_image TEXT,
+  video_url TEXT,
+  author TEXT DEFAULT 'FTS Desk',
+  author_email TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  is_featured BOOLEAN DEFAULT FALSE,
+  is_trending BOOLEAN DEFAULT FALSE,
+  type TEXT DEFAULT 'news',
+  scheduled_for TEXT,
+  is_draft BOOLEAN DEFAULT FALSE,
+  heading_tag TEXT DEFAULT 'h1',
+  subheading TEXT,
+  meta_title TEXT,
+  meta_description TEXT,
+  focus_keyword TEXT,
+  canonical_url TEXT,
+  geo_summary TEXT,
+  geo_entities TEXT[],
+  aeo_direct_answer TEXT,
+  aeo_faq JSONB,
+  schema_type TEXT DEFAULT 'NewsArticle',
+  meta_robots TEXT DEFAULT 'index, follow',
+  views BIGINT DEFAULT 0
+);
+
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS is_draft BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS heading_tag TEXT DEFAULT 'h1';
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS subheading TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS meta_title TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS meta_description TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS focus_keyword TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS canonical_url TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS geo_summary TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS geo_entities TEXT[];
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS aeo_direct_answer TEXT;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS aeo_faq JSONB;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS schema_type TEXT DEFAULT 'NewsArticle';
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS meta_robots TEXT DEFAULT 'index, follow';
+
+ALTER TABLE public.fts_posts ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read access" ON public.fts_posts;
+DROP POLICY IF EXISTS "Allow public insert access" ON public.fts_posts;
+DROP POLICY IF EXISTS "Allow public update access" ON public.fts_posts;
+DROP POLICY IF EXISTS "Allow public delete access" ON public.fts_posts;
+
+CREATE POLICY "Allow public read access" ON public.fts_posts FOR SELECT USING (true);
+CREATE POLICY "Allow public insert access" ON public.fts_posts FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public update access" ON public.fts_posts FOR UPDATE USING (true);
+CREATE POLICY "Allow public delete access" ON public.fts_posts FOR DELETE USING (true);
+
+GRANT ALL ON TABLE public.fts_posts TO anon, authenticated, service_role;`;
+                  navigator.clipboard.writeText(sqlText);
+                  alert("📋 SQL Fix Script copied to clipboard! Paste it into Supabase SQL Editor.");
+                }}
+                className="bg-[#022c22] hover:bg-[#034434] text-[#22c55e] border border-emerald-800 font-mono text-xs font-bold px-4 py-2 rounded-lg transition"
+              >
+                📋 Copy SQL Script
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsSqlModalOpen(false)}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg transition"
+              >
+                Close Window
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {isCategoryModalOpen && editingCategory && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
           <div className="bg-white border rounded-xl max-w-lg w-full p-6 shadow-2xl">
