@@ -800,51 +800,57 @@ export class DB {
       }
 
       // 3. Sync Rankings
-      const { data: rankings, error: rankError } = await supabase.from('fts_rankings').select('*');
-      if (rankError) {
-        console.error("Supabase fetch rankings error:", rankError);
-      } else if (rankings) {
-        if (rankings.length > 0) {
+      try {
+        const { data: rankings, error: rankError } = await supabase.from('fts_rankings').select('*');
+        if (rankError) {
+          console.warn("Supabase fetch rankings notice:", rankError.message);
+        } else if (rankings && rankings.length > 0) {
           localStorage.setItem(STORAGE_KEYS.RANKINGS, JSON.stringify(rankings));
         } else {
           const localRankings = this.getRankings();
           if (localRankings.length > 0) {
             const { error: rankUpsertErr } = await supabase.from('fts_rankings').upsert(localRankings);
-            if (rankUpsertErr) console.error("Supabase rankings upsert error:", rankUpsertErr);
+            if (rankUpsertErr) console.warn("Supabase rankings upsert notice:", rankUpsertErr.message);
           }
         }
+      } catch (e) {
+        console.warn("Supabase rankings fetch exception:", e);
       }
 
       // 4. Sync Fixtures
-      const { data: fixtures, error: fixError } = await supabase.from('fts_fixtures').select('*');
-      if (fixError) {
-        console.error("Supabase fetch fixtures error:", fixError);
-      } else if (fixtures) {
-        if (fixtures.length > 0) {
+      try {
+        const { data: fixtures, error: fixError } = await supabase.from('fts_fixtures').select('*');
+        if (fixError) {
+          console.warn("Supabase fetch fixtures notice:", fixError.message);
+        } else if (fixtures && fixtures.length > 0) {
           localStorage.setItem(STORAGE_KEYS.FIXTURES, JSON.stringify(fixtures));
         } else {
           const localFixtures = this.getFixtures();
           if (localFixtures.length > 0) {
             const { error: fixUpsertErr } = await supabase.from('fts_fixtures').upsert(localFixtures);
-            if (fixUpsertErr) console.error("Supabase fixtures upsert error:", fixUpsertErr);
+            if (fixUpsertErr) console.warn("Supabase fixtures upsert notice:", fixUpsertErr.message);
           }
         }
+      } catch (e) {
+        console.warn("Supabase fixtures fetch exception:", e);
       }
 
       // 5. Sync Media
-      const { data: media, error: mediaError } = await supabase.from('fts_media').select('*');
-      if (mediaError) {
-        console.error("Supabase fetch media error:", mediaError);
-      } else if (media) {
-        if (media.length > 0) {
+      try {
+        const { data: media, error: mediaError } = await supabase.from('fts_media').select('*');
+        if (mediaError) {
+          console.warn("Supabase fetch media notice:", mediaError.message);
+        } else if (media && media.length > 0) {
           localStorage.setItem(STORAGE_KEYS.MEDIA, JSON.stringify(media));
         } else {
           const localMedia = this.getMedia();
           if (localMedia.length > 0) {
             const { error: mediaUpsertErr } = await supabase.from('fts_media').upsert(localMedia);
-            if (mediaUpsertErr) console.error("Supabase media upsert error:", mediaUpsertErr);
+            if (mediaUpsertErr) console.warn("Supabase media upsert notice:", mediaUpsertErr.message);
           }
         }
+      } catch (e) {
+        console.warn("Supabase media fetch exception:", e);
       }
 
       // 6. Sync Live Streams
@@ -1622,7 +1628,20 @@ export class DB {
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     try {
-      const { error } = await supabase.from('fts_hero_config').upsert([{ id: 'hero_main_config', ...updated }]);
+      const heroPayload = {
+        id: 'hero_main_config',
+        enabled: updated.enabled,
+        live_badge_text: updated.liveBadgeText,
+        heading: updated.heading,
+        subtitle: updated.subtitle,
+        background_video_url: updated.backgroundVideoUrl,
+        background_image_url: updated.backgroundImageUrl,
+        overlay_opacity: updated.overlayOpacity,
+        overlay_blur: updated.overlayBlur,
+        hero_height: updated.heroHeight,
+        updated_at: updated.updated_at
+      };
+      const { error } = await supabase.from('fts_hero_config').upsert([heroPayload]);
       if (error) console.warn("Supabase saveHeroConfig notice:", error.message);
     } catch (err) {
       console.warn("Supabase hero_config upsert exception:", err);
@@ -1709,38 +1728,34 @@ export class DB {
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     try {
-      // Upsert with normalized keys for compatibility with snake_case and camelCase Supabase schemas
-      const dbPayload = {
+      // Upsert pure snake_case payload for Supabase fts_fan_polls table
+      const dbPayload: any = {
         id: updatedPoll.id,
-        matchName: updatedPoll.matchName,
         match_name: updatedPoll.matchName,
         question: updatedPoll.question,
-        teamA: updatedPoll.teamA,
         team_a: updatedPoll.teamA,
-        teamALogo: updatedPoll.teamALogo,
         team_a_logo: updatedPoll.teamALogo,
-        teamAVotes: updatedPoll.teamAVotes,
         team_a_votes: updatedPoll.teamAVotes,
-        teamB: updatedPoll.teamB,
         team_b: updatedPoll.teamB,
-        teamBLogo: updatedPoll.teamBLogo,
         team_b_logo: updatedPoll.teamBLogo,
-        teamBVotes: updatedPoll.teamBVotes,
         team_b_votes: updatedPoll.teamBVotes,
-        enableDraw: updatedPoll.enableDraw,
         enable_draw: updatedPoll.enableDraw,
-        drawVotes: updatedPoll.drawVotes,
         draw_votes: updatedPoll.drawVotes,
         status: updatedPoll.status,
-        totalVotes: updatedPoll.totalVotes,
         total_votes: updatedPoll.totalVotes,
-        votedUserIds: updatedPoll.votedUserIds,
         voted_user_ids: updatedPoll.votedUserIds,
         created_at: updatedPoll.created_at || new Date().toISOString(),
         updated_at: updatedPoll.updated_at
       };
 
-      const { error } = await supabase.from('fts_fan_polls').upsert([dbPayload]);
+      let { error } = await supabase.from('fts_fan_polls').upsert([dbPayload]);
+      if (error && (error.message?.includes('draw_votes') || error.message?.includes('enable_draw'))) {
+        // Fallback for legacy Supabase tables missing draw columns
+        delete dbPayload.draw_votes;
+        delete dbPayload.enable_draw;
+        const fallbackRes = await supabase.from('fts_fan_polls').upsert([dbPayload]);
+        error = fallbackRes.error;
+      }
       if (error) console.warn("Supabase saveFanPoll notice:", error.message);
     } catch (err) {
       console.warn("Supabase saveFanPoll exception:", err);
