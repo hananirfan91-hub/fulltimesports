@@ -174,71 +174,71 @@ export default function Hero({ onNavigate }: HeroProps) {
       </div>
 
       {/* ================= HERO CONTENT CONTAINER ================= */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch min-h-[520px]">
+      <section className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 py-6 md:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-stretch min-h-[480px]">
           
           {/* ================= LEFT SIDE (65% width on desktop) ================= */}
           <div className="md:col-span-7 lg:col-span-8 flex flex-col justify-center space-y-4">
             <div className="space-y-3">
               
               {/* TOP BADGE WITH ANIMATED PULSE */}
-              <div className="inline-flex items-center space-x-2 bg-[#022c22]/90 border border-[#22c55e]/40 px-3.5 py-1.5 rounded-full backdrop-blur-md shadow-md">
-                <span className="relative flex h-2.5 w-2.5">
+              <div className="inline-flex items-center space-x-2 bg-[#022c22]/90 border border-[#22c55e]/40 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full backdrop-blur-md shadow-md max-w-full">
+                <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-red-500"></span>
                 </span>
-                <span className="font-mono text-[10px] md:text-xs font-black tracking-widest text-emerald-300 uppercase">
+                <span className="font-mono text-[9px] sm:text-xs font-black tracking-wider sm:tracking-widest text-emerald-300 uppercase truncate">
                   {heroConfig.liveBadgeText || '🔴 LIVE STREAMS • DAILY NEWS • TACTICAL METRICS'}
                 </span>
               </div>
 
               {/* MAIN HEADING H1 */}
-              <h1 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-white tracking-tight leading-tight uppercase drop-shadow-md">
+              <h1 className="font-display font-extrabold text-lg sm:text-2xl lg:text-3xl text-white tracking-tight leading-snug sm:leading-tight uppercase drop-shadow-md">
                 {heroConfig.heading || 'The Sports Room | Live Match Streams, Sports News Today & Tactical Analysis'}
               </h1>
 
               {/* SUBTITLE H2 */}
-              <h2 className="font-sans text-xs sm:text-sm md:text-base text-slate-200 leading-relaxed max-w-[700px] drop-shadow">
+              <h2 className="font-sans text-xs sm:text-sm md:text-base text-slate-200 leading-normal sm:leading-relaxed max-w-[700px] drop-shadow">
                 {heroConfig.subtitle || 'Watch every live match stream, read breaking sports news today, and dive deep into real-time telemetry and tactical breakdowns. The Sports Room brings you complete, high-precision coverage across Football, Cricket, Formula 1, and the NBA.'}
               </h2>
 
               {/* 2 CTA BUTTONS */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2">
                 <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => onNavigate('/live-stream')}
-                  className="px-5 py-2.5 bg-[#22c55e] hover:bg-emerald-400 text-[#01140f] font-mono font-extrabold text-xs uppercase rounded-xl shadow-lg shadow-emerald-900/40 border border-emerald-300 flex items-center space-x-2 transition cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-[#22c55e] hover:bg-emerald-400 text-[#01140f] font-mono font-extrabold text-xs uppercase rounded-xl shadow-lg shadow-emerald-900/40 border border-emerald-300 flex items-center justify-center space-x-2 transition cursor-pointer min-h-[44px]"
                 >
-                  <Play className="h-4 w-4 fill-current" />
+                  <Play className="h-4 w-4 fill-current shrink-0" />
                   <span>Watch Live Streams</span>
                 </motion.button>
 
                 <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => onNavigate('/sport/cricket')}
-                  className="px-5 py-2.5 bg-[#022c22]/90 hover:bg-[#022c22] text-white hover:text-[#22c55e] font-mono font-bold text-xs uppercase rounded-xl border border-[#22c55e]/40 hover:border-[#22c55e] shadow-lg backdrop-blur-md flex items-center space-x-2 transition cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-[#022c22]/90 hover:bg-[#022c22] text-white hover:text-[#22c55e] font-mono font-bold text-xs uppercase rounded-xl border border-[#22c55e]/40 hover:border-[#22c55e] shadow-lg backdrop-blur-md flex items-center justify-center space-x-2 transition cursor-pointer min-h-[44px]"
                 >
                   <span>Explore Sports News</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 shrink-0" />
                 </motion.button>
               </div>
             </div>
 
             {/* ================= THREE INTERACTIVE SERVICE CARDS ================= */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5 pt-1">
               
               {/* CARD 1: LIVE MATCH STREAMS */}
               <motion.div
                 onClick={() => onNavigate('/live-stream')}
                 whileHover={{ y: -4 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="bg-[#022c22]/90 hover:bg-[#022c22] border border-[#22c55e]/30 hover:border-[#22c55e] rounded-2xl p-4 cursor-pointer shadow-xl transition-colors duration-200 backdrop-blur-md group"
+                className="bg-[#022c22]/90 hover:bg-[#022c22] border border-[#22c55e]/30 hover:border-[#22c55e] rounded-2xl p-3 sm:p-4 cursor-pointer shadow-xl transition-colors duration-200 backdrop-blur-md group"
               >
-                <div className="flex items-center space-x-2.5 mb-1.5">
-                  <div className="p-2 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] group-hover:scale-110 transition duration-200">
-                    <Tv className="h-4 w-4" />
+                <div className="flex items-center space-x-2.5 mb-1 sm:mb-1.5">
+                  <div className="p-1.5 sm:p-2 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] group-hover:scale-110 transition duration-200 shrink-0">
+                    <Tv className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
                   <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
                     📺 Live Match Streams
@@ -254,11 +254,11 @@ export default function Hero({ onNavigate }: HeroProps) {
                 onClick={() => onNavigate('/sport/cricket')}
                 whileHover={{ y: -4 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="bg-[#022c22]/90 hover:bg-[#022c22] border border-[#22c55e]/30 hover:border-[#22c55e] rounded-2xl p-4 cursor-pointer shadow-xl transition-colors duration-200 backdrop-blur-md group"
+                className="bg-[#022c22]/90 hover:bg-[#022c22] border border-[#22c55e]/30 hover:border-[#22c55e] rounded-2xl p-3 sm:p-4 cursor-pointer shadow-xl transition-colors duration-200 backdrop-blur-md group"
               >
-                <div className="flex items-center space-x-2.5 mb-1.5">
-                  <div className="p-2 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] group-hover:scale-110 transition duration-200">
-                    <Newspaper className="h-4 w-4" />
+                <div className="flex items-center space-x-2.5 mb-1 sm:mb-1.5">
+                  <div className="p-1.5 sm:p-2 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] group-hover:scale-110 transition duration-200 shrink-0">
+                    <Newspaper className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
                   <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
                     📰 Sports News Today
@@ -274,11 +274,11 @@ export default function Hero({ onNavigate }: HeroProps) {
                 onClick={() => onNavigate('/sport/f1')}
                 whileHover={{ y: -4 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="bg-[#022c22]/90 hover:bg-[#022c22] border border-[#22c55e]/30 hover:border-[#22c55e] rounded-2xl p-4 cursor-pointer shadow-xl transition-colors duration-200 backdrop-blur-md group"
+                className="bg-[#022c22]/90 hover:bg-[#022c22] border border-[#22c55e]/30 hover:border-[#22c55e] rounded-2xl p-3 sm:p-4 cursor-pointer shadow-xl transition-colors duration-200 backdrop-blur-md group"
               >
-                <div className="flex items-center space-x-2.5 mb-1.5">
-                  <div className="p-2 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] group-hover:scale-110 transition duration-200">
-                    <BarChart3 className="h-4 w-4" />
+                <div className="flex items-center space-x-2.5 mb-1 sm:mb-1.5">
+                  <div className="p-1.5 sm:p-2 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] group-hover:scale-110 transition duration-200 shrink-0">
+                    <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
                   <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
                     📊 Tactical Breakdowns
@@ -298,7 +298,7 @@ export default function Hero({ onNavigate }: HeroProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-[#022c22]/95 border border-[#22c55e]/40 rounded-3xl p-5 md:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4"
+              className="bg-[#022c22]/95 border border-[#22c55e]/40 rounded-3xl p-4 sm:p-6 shadow-2xl backdrop-blur-xl text-white space-y-3.5"
               id="hero-fan-poll-card"
             >
               {/* Poll Header */}
