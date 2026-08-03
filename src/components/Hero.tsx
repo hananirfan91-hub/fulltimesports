@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Trophy, CheckCircle2, Tv, Newspaper, BarChart3, Radio, Play, ArrowRight } from 'lucide-react';
 import { Post, HeroConfig, FanPoll } from '../types';
 import { DB } from '../lib/db';
+import { supabase } from '../lib/supabase';
 import { getYouTubeId } from '../lib/videoUtils';
 
 interface HeroProps {
@@ -43,7 +44,37 @@ export default function Hero({ onNavigate }: HeroProps) {
 
     handleSync();
     window.addEventListener('fts_db_sync', handleSync);
-    return () => window.removeEventListener('fts_db_sync', handleSync);
+
+    // Subscribe to Supabase Realtime for instant fan poll updates across all active sessions
+    const pollSubscription = supabase
+      .channel('fts_fan_polls_hero_realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'fts_fan_polls' },
+        (payload) => {
+          if (payload.new) {
+            const updatedPoll = DB.parseRemotePoll(payload.new);
+            const localPolls = DB.getFanPolls();
+            const idx = localPolls.findIndex(p => p.id === updatedPoll.id);
+            if (idx >= 0) {
+              localPolls[idx] = updatedPoll;
+            } else {
+              localPolls.unshift(updatedPoll);
+            }
+            localStorage.setItem('fts_fan_polls', JSON.stringify(localPolls));
+
+            if (updatedPoll.status === 'active') {
+              setActivePoll(updatedPoll);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      window.removeEventListener('fts_db_sync', handleSync);
+      supabase.removeChannel(pollSubscription);
+    };
   }, []);
 
   useEffect(() => {

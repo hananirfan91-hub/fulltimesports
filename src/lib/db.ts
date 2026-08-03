@@ -867,7 +867,20 @@ export class DB {
       try {
         const { data: remoteHero } = await supabase.from('fts_hero_config').select('*').limit(1);
         if (remoteHero && remoteHero.length > 0) {
-          localStorage.setItem(STORAGE_KEYS.HERO_CONFIG, JSON.stringify(remoteHero[0]));
+          const h = remoteHero[0];
+          const parsedHero: HeroConfig = {
+            enabled: Boolean(h.enabled ?? true),
+            liveBadgeText: h.liveBadgeText || h.live_badge_text || '',
+            heading: h.heading || '',
+            subtitle: h.subtitle || '',
+            backgroundVideoUrl: h.backgroundVideoUrl || h.background_video_url || '',
+            backgroundImageUrl: h.backgroundImageUrl || h.background_image_url || '',
+            overlayOpacity: Number(h.overlayOpacity ?? h.overlay_opacity ?? 0.65),
+            overlayBlur: Number(h.overlayBlur ?? h.overlay_blur ?? 2),
+            heroHeight: h.heroHeight || h.hero_height || 'medium',
+            updated_at: h.updated_at || new Date().toISOString()
+          };
+          localStorage.setItem(STORAGE_KEYS.HERO_CONFIG, JSON.stringify(parsedHero));
         }
       } catch (e) {
         console.warn("Supabase hero config fetch notice:", e);
@@ -877,11 +890,14 @@ export class DB {
       try {
         const { data: remotePolls } = await supabase.from('fts_fan_polls').select('*');
         if (remotePolls && remotePolls.length > 0) {
-          localStorage.setItem(STORAGE_KEYS.FAN_POLLS, JSON.stringify(remotePolls));
+          const parsedPolls = remotePolls.map(p => DB.parseRemotePoll(p));
+          localStorage.setItem(STORAGE_KEYS.FAN_POLLS, JSON.stringify(parsedPolls));
         } else {
           const localPolls = this.getFanPolls();
           if (localPolls.length > 0) {
-            await supabase.from('fts_fan_polls').upsert(localPolls);
+            for (const poll of localPolls) {
+              await this.saveFanPoll(poll);
+            }
           }
         }
       } catch (e) {
@@ -937,6 +953,14 @@ export class DB {
             { event: '*', schema: 'public', table: 'fts_posts' },
             (payload) => {
               console.log('Realtime DB update received for fts_posts:', payload);
+              this.syncFromSupabase();
+            }
+          )
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'fts_fan_polls' },
+            (payload) => {
+              console.log('Realtime DB update received for fts_fan_polls:', payload);
               this.syncFromSupabase();
             }
           )
@@ -1607,6 +1631,35 @@ export class DB {
   }
 
   // FAN POLL MANAGEMENT
+  static parseRemotePoll(p: any): FanPoll {
+    const safeArray = (v: any) => {
+      if (Array.isArray(v)) return v;
+      if (typeof v === 'string' && v.trim()) {
+        try { return JSON.parse(v); } catch { return [v]; }
+      }
+      return [];
+    };
+
+    return {
+      id: String(p.id || `poll-${Date.now()}`),
+      matchName: String(p.matchName || p.match_name || ''),
+      question: String(p.question || ''),
+      teamA: String(p.teamA || p.team_a || ''),
+      teamALogo: String(p.teamALogo || p.team_a_logo || ''),
+      teamAVotes: Number(p.teamAVotes ?? p.team_a_votes ?? 0),
+      teamB: String(p.teamB || p.team_b || ''),
+      teamBLogo: String(p.teamBLogo || p.team_b_logo || ''),
+      teamBVotes: Number(p.teamBVotes ?? p.team_b_votes ?? 0),
+      enableDraw: Boolean(p.enableDraw ?? p.enable_draw ?? true),
+      drawVotes: Number(p.drawVotes ?? p.draw_votes ?? 0),
+      status: (p.status === 'scheduled' || p.status === 'ended') ? p.status : 'active',
+      totalVotes: Number(p.totalVotes ?? p.total_votes ?? 0),
+      votedUserIds: safeArray(p.votedUserIds || p.voted_user_ids),
+      created_at: p.created_at ? String(p.created_at) : new Date().toISOString(),
+      updated_at: p.updated_at ? String(p.updated_at) : new Date().toISOString(),
+    };
+  }
+
   static DEFAULT_POLL: FanPoll = {
     id: 'poll-champions-trophy-1',
     matchName: 'ICC Champions Trophy 2026 • India vs Australia',
@@ -1630,7 +1683,7 @@ export class DB {
     if (!data) return [this.DEFAULT_POLL];
     try {
       const list = JSON.parse(data);
-      return Array.isArray(list) && list.length > 0 ? list : [this.DEFAULT_POLL];
+      return Array.isArray(list) && list.length > 0 ? list.map(p => this.parseRemotePoll(p)) : [this.DEFAULT_POLL];
     } catch {
       return [this.DEFAULT_POLL];
     }
@@ -1656,7 +1709,38 @@ export class DB {
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     try {
-      const { error } = await supabase.from('fts_fan_polls').upsert([updatedPoll]);
+      // Upsert with normalized keys for compatibility with snake_case and camelCase Supabase schemas
+      const dbPayload = {
+        id: updatedPoll.id,
+        matchName: updatedPoll.matchName,
+        match_name: updatedPoll.matchName,
+        question: updatedPoll.question,
+        teamA: updatedPoll.teamA,
+        team_a: updatedPoll.teamA,
+        teamALogo: updatedPoll.teamALogo,
+        team_a_logo: updatedPoll.teamALogo,
+        teamAVotes: updatedPoll.teamAVotes,
+        team_a_votes: updatedPoll.teamAVotes,
+        teamB: updatedPoll.teamB,
+        team_b: updatedPoll.teamB,
+        teamBLogo: updatedPoll.teamBLogo,
+        team_b_logo: updatedPoll.teamBLogo,
+        teamBVotes: updatedPoll.teamBVotes,
+        team_b_votes: updatedPoll.teamBVotes,
+        enableDraw: updatedPoll.enableDraw,
+        enable_draw: updatedPoll.enableDraw,
+        drawVotes: updatedPoll.drawVotes,
+        draw_votes: updatedPoll.drawVotes,
+        status: updatedPoll.status,
+        totalVotes: updatedPoll.totalVotes,
+        total_votes: updatedPoll.totalVotes,
+        votedUserIds: updatedPoll.votedUserIds,
+        voted_user_ids: updatedPoll.votedUserIds,
+        created_at: updatedPoll.created_at || new Date().toISOString(),
+        updated_at: updatedPoll.updated_at
+      };
+
+      const { error } = await supabase.from('fts_fan_polls').upsert([dbPayload]);
       if (error) console.warn("Supabase saveFanPoll notice:", error.message);
     } catch (err) {
       console.warn("Supabase saveFanPoll exception:", err);
