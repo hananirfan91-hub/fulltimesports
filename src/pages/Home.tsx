@@ -7,7 +7,6 @@ import {
 import { Post, FixtureItem } from '../types';
 import { DB } from '../lib/db';
 import Hero from '../components/Hero';
-import CricketLiveWidget from '../components/CricketLiveWidget';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
 
 interface HomeProps {
@@ -77,11 +76,6 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
       
       {/* 1. HERO SECTION (3D Editorial Board) */}
       <Hero onNavigate={onNavigate} />
-
-      {/* 2. CRICKET LIVE SCOREBOARD WIDGET (Compact Featured Banner) */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6">
-        <CricketLiveWidget variant="banner" onNavigate={onNavigate} />
-      </section>
 
       {/* EDITORIAL POLICY BANNER CARD (Mint green card matching screenshot) */}
       <section className="max-w-7xl mx-auto px-4 md:px-6">

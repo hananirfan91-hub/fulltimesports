@@ -6,7 +6,6 @@ import { Post } from '../types';
 import { DB } from '../lib/db';
 import { findEntityBySlug, ENTITIES_REGISTRY, detectEntitiesInText, EntityDefinition } from '../lib/entityRegistry';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
-import CricketLiveWidget from '../components/CricketLiveWidget';
 
 interface TopicHubProps {
   topicSlug: string;
@@ -212,11 +211,6 @@ export default function TopicHub({ topicSlug, onNavigate }: TopicHubProps) {
           ))}
         </div>
       </div>
-
-      {/* RAPIDAPI CRICKET LIVE WIDGET FOR CRICKET HUB PAGES */}
-      {entity.category === 'cricket' && (
-        <CricketLiveWidget />
-      )}
 
       <AdSensePlaceholder slot="topic-top-banner" format="horizontal" />
 

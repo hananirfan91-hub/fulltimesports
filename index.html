@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <script>
-      // Global error suppression for 3rd-party cross-origin ad scripts, WebSocket failures & HMR
+      // Global error suppression for WebSocket failures & HMR
       (function() {
         function shouldSuppress(msg, url) {
           var str = String(msg || '').toLowerCase();
@@ -15,13 +15,7 @@
             str === 'script error.' ||
             str.indexOf('script error') !== -1 || 
             str.indexOf('websocket') !== -1 || 
-            str.indexOf('closed without opened') !== -1 || 
-            str.indexOf('invoke.js') !== -1 || 
-            str.indexOf('highperformanceformat') !== -1 ||
-            str.indexOf('effectivecpmnetwork') !== -1 ||
-            u.indexOf('highperformanceformat') !== -1 ||
-            u.indexOf('effectivecpmnetwork') !== -1 ||
-            u.indexOf('invoke.js') !== -1
+            str.indexOf('closed without opened') !== -1
           ) {
             return true;
           }
@@ -30,7 +24,7 @@
 
         window.onerror = function (msg, url, lineNo, columnNo, error) {
           if (shouldSuppress(msg, url)) {
-            return true; // Suppress cross-origin script error overlay in Vite & browser
+            return true;
           }
           return false;
         };
@@ -41,10 +35,7 @@
           if (
             str.indexOf('websocket') !== -1 || 
             str.indexOf('script error') !== -1 || 
-            str.indexOf('closed without opened') !== -1 || 
-            str.indexOf('invoke.js') !== -1 || 
-            str.indexOf('highperformanceformat') !== -1 ||
-            str.indexOf('effectivecpmnetwork') !== -1
+            str.indexOf('closed without opened') !== -1
           ) {
             e.preventDefault();
             e.stopImmediatePropagation();
@@ -53,17 +44,12 @@
 
         window.addEventListener('error', function (e) {
           var msg = String((e && e.message) || e || '').toLowerCase();
-          var targetSrc = String((e && e.target && e.target.src) || '').toLowerCase();
           if (
             !e.message ||
             msg === 'script error.' ||
             msg.indexOf('script error') !== -1 || 
             msg.indexOf('websocket') !== -1 || 
-            msg.indexOf('closed without opened') !== -1 || 
-            msg.indexOf('invoke.js') !== -1 ||
-            targetSrc.indexOf('highperformanceformat') !== -1 ||
-            targetSrc.indexOf('effectivecpmnetwork') !== -1 ||
-            targetSrc.indexOf('invoke.js') !== -1
+            msg.indexOf('closed without opened') !== -1
           ) {
             if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             if (e.preventDefault) e.preventDefault();
@@ -72,41 +58,10 @@
         }, true);
       })();
     </script>
-
-    <!-- Third-Party Ad Scripts loaded safely with error handling -->
-    <script>
-      (function() {
-        function loadScriptSafely(src, async, dataAttr) {
-          try {
-            var s = document.createElement('script');
-            s.type = 'text/javascript';
-            if (async) s.async = true;
-            if (dataAttr) s.setAttribute('data-cfasync', 'false');
-            s.src = src;
-            s.onerror = function(err) {
-              if (err && err.stopPropagation) err.stopPropagation();
-            };
-            document.head.appendChild(s);
-          } catch(e) {}
-        }
-        
-        loadScriptSafely("https://pl30645725.effectivecpmnetwork.com/6a/27/f9/6a27f908df3214c935fb49aa30614582.js", false);
-        loadScriptSafely("https://pl30645987.effectivecpmnetwork.com/d916b23d30b5c79a424a799c1e716139/invoke.js", true, true);
-
-       
-          loadScriptSafely("https://www.highperformanceformat.com/3dee918f000996016bd8f9a136b5049b/invoke.js", true);
-        } catch(e) {}
-      })();
-    </script>
     <!-- Performance Optimization Preconnects -->
-    <link rel="preconnect" href="https://www.highperformanceformat.com" crossorigin />
-    <link rel="dns-prefetch" href="https://www.highperformanceformat.com" />
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
     <link rel="dns-prefetch" href="https://images.unsplash.com" />
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
-
-<script src="https://pl30645725.effectivecpmnetwork.com/6a/27/f9/6a27f908df3214c935fb49aa30614582.js"></script>
-
 
 
     <!-- Google tag (gtag.js) -->
@@ -210,7 +165,6 @@
     <meta name="theme-color" content="#01140f" />
   </head>
   <body class="bg-[#01140f] text-slate-100 antialiased selection:bg-[#22c55e] selection:text-[#022c22]">
-    <div id="container-d916b23d30b5c79a424a799c1e716139"></div>
     <div id="root">
       <!-- Static Raw Content Fallback for Web Crawlers & AI Agent Parsers Prior to React Hydration -->
       <header role="banner" aria-label="The Sports Room Header">

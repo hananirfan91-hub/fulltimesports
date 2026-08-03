@@ -7,7 +7,6 @@ import { Post, Category, RankingItem, FixtureItem } from '../types';
 import { DB } from '../lib/db';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
 import { SPORT_TACTICAL_MANUALS } from '../data/sportManuals';
-import CricketLiveWidget from '../components/CricketLiveWidget';
 
 interface SportCategoryProps {
   categorySlug: string;
@@ -287,11 +286,6 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
             </button>
           </div>
         </div>
-      )}
-
-      {/* RAPIDAPI CRICKET LIVE CENTER WIDGET - SHOWS ALL MATCHES & DETAILED FEEDS */}
-      {category.slug.toLowerCase() === 'cricket' && (
-        <CricketLiveWidget variant="full" />
       )}
 
       {isShareAlertOpen && (
