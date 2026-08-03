@@ -5,7 +5,7 @@ import {
   Tag, Upload, CalendarClock, Globe, PlusCircle, ArrowUpRight, MessageSquare, Mail,
   Radio, Tv, Video, Eye, Play, ExternalLink, RefreshCw
 } from 'lucide-react';
-import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, Subscriber, LiveStreamItem } from '../types';
+import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, Subscriber, LiveStreamItem, HeroConfig, FanPoll } from '../types';
 import { DB } from '../lib/db';
 import { supabase } from '../lib/supabase';
 import { normalizeSlug } from '../lib/slugUtils';
@@ -38,7 +38,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'subscribers' | 'live_streams'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'subscribers' | 'live_streams' | 'fan_polls'>('posts');
   
   // States
   const [posts, setPosts] = useState<Post[]>([]);
@@ -50,6 +50,13 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [tickets, setTickets] = useState<TicketMessage[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [liveStreams, setLiveStreams] = useState<LiveStreamItem[]>([]);
+
+  // Hero Config & Fan Poll states
+  const [heroConfigState, setHeroConfigState] = useState<HeroConfig>(() => DB.getHeroConfig());
+  const [fanPolls, setFanPolls] = useState<FanPoll[]>(() => DB.getFanPolls());
+  const [editingPoll, setEditingPoll] = useState<Partial<FanPoll> | null>(null);
+  const [isPollModalOpen, setIsPollModalOpen] = useState<boolean>(false);
+  const [heroSavedMsg, setHeroSavedMsg] = useState<boolean>(false);
 
   // Live Streams Form State
   const [editingStream, setEditingStream] = useState<Partial<LiveStreamItem> | null>(null);
@@ -157,6 +164,61 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setTickets(DB.getTickets());
     setSubscribers(DB.getSubscribers());
     setLiveStreams(DB.getLiveStreams());
+    setHeroConfigState(DB.getHeroConfig());
+    setFanPolls(DB.getFanPolls());
+  };
+
+  // HERO CONFIG HANDLERS
+  const handleSaveHeroSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await DB.saveHeroConfig(heroConfigState);
+    setHeroSavedMsg(true);
+    setTimeout(() => setHeroSavedMsg(false), 3000);
+    refreshData();
+  };
+
+  // FAN POLL HANDLERS
+  const openNewPoll = () => {
+    setEditingPoll({
+      id: `poll-${Date.now()}`,
+      matchName: 'ICC Champions Trophy 2026 • India vs Australia',
+      question: "Which team is going to win today's match?",
+      teamA: 'India',
+      teamALogo: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=120&q=80',
+      teamAVotes: 0,
+      teamB: 'Australia',
+      teamBLogo: 'https://images.unsplash.com/photo-1512719991214-e0055a98d2b9?auto=format&fit=crop&w=120&q=80',
+      teamBVotes: 0,
+      enableDraw: true,
+      drawVotes: 0,
+      status: 'active',
+      totalVotes: 0,
+      votedUserIds: [],
+    });
+    setIsPollModalOpen(true);
+  };
+
+  const handleSavePoll = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPoll || !editingPoll.matchName || !editingPoll.question) return;
+    await DB.saveFanPoll(editingPoll as FanPoll);
+    setIsPollModalOpen(false);
+    setEditingPoll(null);
+    refreshData();
+  };
+
+  const handleResetPollVotes = async (pollId: string) => {
+    if (confirm("Reset all vote tallies for this poll to zero?")) {
+      await DB.resetFanPollVotes(pollId);
+      refreshData();
+    }
+  };
+
+  const handleDeletePoll = async (pollId: string) => {
+    if (confirm("Delete this fan poll completely?")) {
+      await DB.deleteFanPoll(pollId);
+      refreshData();
+    }
   };
 
   // LIVE STREAMS CRUD HANDLERS
@@ -996,6 +1058,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           <span>Live Streams ({liveStreams.length})</span>
         </button>
 
+        <button
+          onClick={() => setActiveTab('fan_polls')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'fan_polls' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <Trophy className="h-4 w-4 text-amber-500" />
+          <span>Fan Polls ({fanPolls.length})</span>
+        </button>
+
         {currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
           <>
             <button
@@ -1439,33 +1509,184 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </div>
       )}
 
-      {/* 6. HOMEPAGE PORTAL MANAGER COLUMN */}
+      {/* 6. HERO SECTION MANAGER PANEL */}
       {activeTab === 'homepage' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <h3 className="font-display font-extrabold text-lg text-slate-900 mb-2">HOMEPAGE GRID CONTROL</h3>
-          <p className="text-xs text-slate-500 mb-6">Assign editorial priority rankings to dictate cards stacking in the 3D Hero layout immediately.</p>
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-8">
+          <div>
+            <div className="flex items-center justify-between border-b pb-4 mb-4">
+              <div>
+                <span className="bg-[#022c22] text-[#22c55e] font-mono text-[10px] font-bold px-2.5 py-1 rounded-md uppercase">
+                  Hero Manager
+                </span>
+                <h3 className="font-display font-black text-xl text-slate-900 uppercase tracking-tight mt-1">
+                  Homepage Hero Section Controls
+                </h3>
+              </div>
+              {heroSavedMsg && (
+                <span className="bg-emerald-100 text-[#022c22] font-mono text-xs font-bold px-3 py-1.5 rounded-lg border border-emerald-300 animate-pulse">
+                  ✓ Hero Settings Saved!
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-slate-500">
+              Customize the live hero background media, overlay opacity, badge text, headings, and select featured articles.
+            </p>
+          </div>
 
+          {/* Hero Form */}
+          <form onSubmit={handleSaveHeroSettings} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Hero Section Status
+                </label>
+                <select
+                  value={heroConfigState.enabled ? 'true' : 'false'}
+                  onChange={(e) => setHeroConfigState({ ...heroConfigState, enabled: e.target.value === 'true' })}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800"
+                >
+                  <option value="true">Enabled (Visible on Homepage)</option>
+                  <option value="false">Disabled (Hidden)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Live Top Badge Text
+                </label>
+                <input
+                  type="text"
+                  value={heroConfigState.liveBadgeText || ''}
+                  onChange={(e) => setHeroConfigState({ ...heroConfigState, liveBadgeText: e.target.value })}
+                  placeholder="🔴 LIVE STREAMS • DAILY NEWS • TACTICAL METRICS"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                Main Hero Heading (H1)
+              </label>
+              <input
+                type="text"
+                value={heroConfigState.heading || ''}
+                onChange={(e) => setHeroConfigState({ ...heroConfigState, heading: e.target.value })}
+                placeholder="The Sports Room | Live Match Streams, Sports News Today & Tactical Analysis"
+                className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                Hero Subtitle (H2)
+              </label>
+              <textarea
+                rows={2}
+                value={heroConfigState.subtitle || ''}
+                onChange={(e) => setHeroConfigState({ ...heroConfigState, subtitle: e.target.value })}
+                placeholder="Watch every live match stream, read breaking sports news today, and dive deep into real-time telemetry..."
+                className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Background Video URL Override (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={heroConfigState.backgroundVideoUrl || ''}
+                  onChange={(e) => setHeroConfigState({ ...heroConfigState, backgroundVideoUrl: e.target.value })}
+                  placeholder="https://www.youtube.com/watch?v=... or MP4/HLS link"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-mono focus:outline-none"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">
+                  If set, plays this video as Hero background. Leave empty to auto-play media from the Featured Article.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Background Image URL Override (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={heroConfigState.backgroundImageUrl || ''}
+                  onChange={(e) => setHeroConfigState({ ...heroConfigState, backgroundImageUrl: e.target.value })}
+                  placeholder="https://images.unsplash.com/photo-..."
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Dark Overlay Opacity: {heroConfigState.overlayOpacity ?? 0.65}
+                </label>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="0.95"
+                  step="0.05"
+                  value={heroConfigState.overlayOpacity ?? 0.65}
+                  onChange={(e) => setHeroConfigState({ ...heroConfigState, overlayOpacity: parseFloat(e.target.value) })}
+                  className="w-full accent-[#22c55e]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Overlay Blur: {heroConfigState.overlayBlur ?? 2}px
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="10"
+                  step="1"
+                  value={heroConfigState.overlayBlur ?? 2}
+                  onChange={(e) => setHeroConfigState({ ...heroConfigState, overlayBlur: parseInt(e.target.value, 10) })}
+                  className="w-full accent-[#22c55e]"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="submit"
+                className="px-6 py-2.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] font-mono font-bold text-xs uppercase rounded-xl border border-emerald-900 shadow-md transition cursor-pointer"
+              >
+                Save Hero Settings
+              </button>
+            </div>
+          </form>
+
+          {/* Featured Article Picker */}
           <div className="space-y-4">
-            <h4 className="font-mono text-xs font-bold text-slate-500 uppercase pb-1.5 border-b border-slate-200">Featured Breaking News slot (Left Hero Card)</h4>
+            <h4 className="font-mono text-xs font-bold text-slate-600 uppercase pb-1.5 border-b border-slate-200">
+              Featured Breaking News Slot (Select Featured Article for Background Media)
+            </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {posts.map((post) => (
-                <div key={post.id} className="border border-slate-200 rounded-lg p-3 flex justify-between items-center bg-slate-50">
+                <div key={post.id} className="border border-slate-200 rounded-xl p-3 flex justify-between items-center bg-slate-50 hover:bg-white transition">
                   <div className="flex items-center space-x-3 overflow-hidden">
-                    <img referrerPolicy="no-referrer" src={post.featured_image} alt="" className="w-10 h-10 object-cover rounded" />
+                    <img referrerPolicy="no-referrer" src={post.featured_image} alt="" className="w-10 h-10 object-cover rounded-lg" />
                     <div className="overflow-hidden">
                       <h5 className="font-bold text-slate-800 text-xs line-clamp-1 uppercase">{post.title}</h5>
-                      <span className="text-[9px] text-slate-450 uppercase">{post.category}</span>
+                      <span className="text-[9px] text-slate-450 uppercase">{post.category} • {post.video_url ? '🎥 Has Video' : '🖼️ Image'}</span>
                     </div>
                   </div>
                   <div>
                     {post.is_featured ? (
-                      <span className="bg-rose-50 border border-rose-300 text-rose-700 font-mono text-[9px] font-bold px-2 py-1 rounded">
-                        ★ DISPLAYED ACTIVE
+                      <span className="bg-rose-50 border border-rose-300 text-rose-700 font-mono text-[9px] font-bold px-2 py-1 rounded-md uppercase">
+                        ★ ACTIVE FEATURED
                       </span>
                     ) : (
                       <button 
                         onClick={() => handleToggleHeroFeature(post.id)}
-                        className="bg-slate-900 text-white font-mono text-[9px] hover:bg-slate-800 py-1 px-2.5 rounded transition"
+                        className="bg-slate-900 text-white font-mono text-[9px] hover:bg-[#022c22] hover:text-[#22c55e] py-1 px-2.5 rounded-md transition cursor-pointer"
                       >
                         SET FEATURED
                       </button>
@@ -1475,15 +1696,17 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               ))}
             </div>
 
-            <h4 className="font-mono text-xs font-bold text-slate-500 uppercase pb-1.5 border-b border-slate-200 mt-8">Set Trending Posts state (Slide Carousel options)</h4>
+            <h4 className="font-mono text-xs font-bold text-slate-600 uppercase pb-1.5 border-b border-slate-200 mt-8">
+              Trending Articles Carousel State
+            </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {posts.map((post) => (
-                <div key={post.id} className="border border-slate-200 rounded-lg p-3 flex justify-between items-center bg-slate-50">
+                <div key={post.id} className="border border-slate-200 rounded-xl p-3 flex justify-between items-center bg-slate-50">
                   <div className="flex items-center space-x-3 overflow-hidden">
-                    <img referrerPolicy="no-referrer" src={post.featured_image} alt="" className="w-10 h-10 object-cover rounded" />
+                    <img referrerPolicy="no-referrer" src={post.featured_image} alt="" className="w-10 h-10 object-cover rounded-lg" />
                     <div className="overflow-hidden">
                       <h5 className="font-bold text-slate-800 text-xs line-clamp-1 uppercase">{post.title}</h5>
-                      <span className="text-[9px] text-slate-450 uppercase">{post.category} • {post.type}</span>
+                      <span className="text-[9px] text-slate-450 uppercase">{post.category}</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -1491,14 +1714,116 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       type="checkbox" 
                       checked={post.is_trending} 
                       onChange={(e) => handleToggleTrendingFlag(post.id, e.target.checked)}
-                      className="cursor-pointer h-4 w-4 text-[#e11d48] border-slate-300 rounded focus:ring-[#e11d48]"
+                      className="cursor-pointer h-4 w-4 text-[#22c55e] border-slate-300 rounded focus:ring-[#22c55e]"
                       id={`trending-${post.id}`}
                     />
-                    <label htmlFor={`trending-${post.id}`} className="text-xs text-slate-600 font-medium">Trending</label>
+                    <label htmlFor={`trending-${post.id}`} className="text-xs text-slate-600 font-medium cursor-pointer">Trending</label>
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 7. FAN POLL MANAGER PANEL */}
+      {activeTab === 'fan_polls' && (
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+          <div className="flex justify-between items-center border-b pb-4">
+            <div>
+              <span className="bg-[#022c22] text-[#22c55e] font-mono text-[10px] font-bold px-2.5 py-1 rounded-md uppercase">
+                Fan Poll Manager
+              </span>
+              <h3 className="font-display font-black text-xl text-slate-900 uppercase tracking-tight mt-1">
+                Match Prediction Polls
+              </h3>
+            </div>
+            <button
+              onClick={openNewPoll}
+              className="px-4 py-2.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] font-mono font-bold text-xs uppercase rounded-xl border border-emerald-950 transition flex items-center space-x-2 cursor-pointer shadow-md"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Create New Fan Poll</span>
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 text-[10px] font-mono font-bold text-slate-400 uppercase">
+                  <th className="pb-3 px-3">Match Event</th>
+                  <th className="pb-3 px-3">Question</th>
+                  <th className="pb-3 px-3">Team A</th>
+                  <th className="pb-3 px-3">Team B</th>
+                  <th className="pb-3 px-3">Draw</th>
+                  <th className="pb-3 px-3 text-center">Total Votes</th>
+                  <th className="pb-3 px-3 text-center">Status</th>
+                  <th className="pb-3 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-sans text-xs">
+                {fanPolls.map((poll) => {
+                  const total = poll.totalVotes || 0;
+                  const pA = total > 0 ? Math.round((poll.teamAVotes / total) * 100) : 0;
+                  const pB = total > 0 ? Math.round((poll.teamBVotes / total) * 100) : 0;
+                  const pDraw = (poll.enableDraw && total > 0) ? Math.max(0, 100 - pA - pB) : 0;
+
+                  return (
+                    <tr key={poll.id} className="hover:bg-slate-50 transition">
+                      <td className="py-3 px-3 font-bold text-slate-800">{poll.matchName}</td>
+                      <td className="py-3 px-3 text-slate-600 line-clamp-1 max-w-xs">{poll.question}</td>
+                      <td className="py-3 px-3 font-mono font-bold text-emerald-700">
+                        {poll.teamA} ({poll.teamAVotes} - {pA}%)
+                      </td>
+                      <td className="py-3 px-3 font-mono font-bold text-emerald-600">
+                        {poll.teamB} ({poll.teamBVotes} - {pB}%)
+                      </td>
+                      <td className="py-3 px-3 font-mono text-slate-500">
+                        {poll.enableDraw ? `${poll.drawVotes || 0} (${pDraw}%)` : 'Disabled'}
+                      </td>
+                      <td className="py-3 px-3 text-center font-mono font-extrabold text-slate-900">
+                        {total.toLocaleString()}
+                      </td>
+                      <td className="py-3 px-3 text-center font-mono">
+                        {poll.status === 'active' ? (
+                          <span className="bg-emerald-100 text-[#022c22] font-bold text-[10px] px-2 py-0.5 rounded uppercase border border-emerald-300">
+                            ● Active
+                          </span>
+                        ) : poll.status === 'scheduled' ? (
+                          <span className="bg-amber-100 text-amber-800 font-bold text-[10px] px-2 py-0.5 rounded uppercase">
+                            Scheduled
+                          </span>
+                        ) : (
+                          <span className="bg-slate-100 text-slate-500 font-bold text-[10px] px-2 py-0.5 rounded uppercase">
+                            Ended
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-3 text-right space-x-1">
+                        <button
+                          onClick={() => { setEditingPoll(poll); setIsPollModalOpen(true); }}
+                          className="px-2 py-1 text-[11px] font-mono border border-slate-200 hover:border-slate-800 text-slate-700 rounded bg-white"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleResetPollVotes(poll.id)}
+                          className="px-2 py-1 text-[11px] font-mono border border-amber-200 text-amber-700 hover:bg-amber-50 rounded bg-white"
+                        >
+                          Reset
+                        </button>
+                        <button
+                          onClick={() => handleDeletePoll(poll.id)}
+                          className="px-2 py-1 text-[11px] font-mono border border-rose-200 text-rose-600 hover:bg-rose-50 rounded bg-white"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
@@ -3403,6 +3728,162 @@ GRANT ALL ON TABLE public.fts_posts TO anon, authenticated, service_role;`;
                   className="text-xs px-6 py-2.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] font-mono font-bold uppercase rounded-xl border border-emerald-950 shadow-md transition"
                 >
                   Save & Publish Live Stream
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* FAN POLL MANAGEMENT MODAL */}
+      {isPollModalOpen && editingPoll && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white border rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div>
+                <span className="bg-[#022c22] text-[#22c55e] font-mono text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                  Fan Poll Manager
+                </span>
+                <h3 className="font-display font-black text-xl text-slate-900 uppercase tracking-tight mt-1">
+                  {editingPoll.id ? 'Edit Match Fan Poll' : 'Create Fan Poll'}
+                </h3>
+              </div>
+              <button onClick={() => setIsPollModalOpen(false)} className="text-slate-400 hover:text-slate-700 font-bold text-sm">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePoll} className="space-y-4 font-sans text-xs">
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Match / Tournament Event Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editingPoll.matchName || ''}
+                  onChange={(e) => setEditingPoll({ ...editingPoll, matchName: e.target.value })}
+                  placeholder="e.g. ICC Champions Trophy 2026 • India vs Australia"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                  Poll Prediction Question *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editingPoll.question || ''}
+                  onChange={(e) => setEditingPoll({ ...editingPoll, question: e.target.value })}
+                  placeholder="Which team is going to win today's match?"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Team A Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingPoll.teamA || ''}
+                    onChange={(e) => setEditingPoll({ ...editingPoll, teamA: e.target.value })}
+                    placeholder="India"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Team A Flag / Logo Image URL
+                  </label>
+                  <input
+                    type="text"
+                    value={editingPoll.teamALogo || ''}
+                    onChange={(e) => setEditingPoll({ ...editingPoll, teamALogo: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Team B Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingPoll.teamB || ''}
+                    onChange={(e) => setEditingPoll({ ...editingPoll, teamB: e.target.value })}
+                    placeholder="Australia"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Team B Flag / Logo Image URL
+                  </label>
+                  <input
+                    type="text"
+                    value={editingPoll.teamBLogo || ''}
+                    onChange={(e) => setEditingPoll({ ...editingPoll, teamBLogo: e.target.value })}
+                    placeholder="https://..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Enable Draw Option
+                  </label>
+                  <select
+                    value={editingPoll.enableDraw ? 'true' : 'false'}
+                    onChange={(e) => setEditingPoll({ ...editingPoll, enableDraw: e.target.value === 'true' })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none font-bold"
+                  >
+                    <option value="true">Yes (Enable Draw / Tie option)</option>
+                    <option value="false">No (Team A vs Team B only)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Poll Active Status
+                  </label>
+                  <select
+                    value={editingPoll.status || 'active'}
+                    onChange={(e) => setEditingPoll({ ...editingPoll, status: e.target.value as any })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none font-bold"
+                  >
+                    <option value="active">● Active (Live on Homepage Hero)</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="ended">Ended</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => setIsPollModalOpen(false)}
+                  className="text-xs px-4 py-2 text-slate-600 font-mono font-bold uppercase hover:bg-slate-100 rounded-xl transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="text-xs px-6 py-2.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] font-mono font-bold uppercase rounded-xl border border-emerald-950 shadow-md transition"
+                >
+                  Save Fan Poll
                 </button>
               </div>
             </form>

@@ -135,3 +135,37 @@ export interface SearchFilter {
   category: string;
   type: string;
 }
+
+export interface HeroConfig {
+  enabled: boolean;
+  liveBadgeText: string;
+  heading: string;
+  subtitle: string;
+  featuredArticleId?: string;
+  backgroundVideoUrl?: string;
+  backgroundImageUrl?: string;
+  overlayOpacity: number;
+  overlayBlur: number;
+  heroHeight: 'auto' | 'compact' | 'medium' | 'tall';
+  updated_at?: string;
+}
+
+export interface FanPoll {
+  id: string;
+  matchName: string;
+  question: string;
+  teamA: string;
+  teamALogo?: string;
+  teamAVotes: number;
+  teamB: string;
+  teamBLogo?: string;
+  teamBVotes: number;
+  enableDraw: boolean;
+  drawVotes: number;
+  status: 'active' | 'scheduled' | 'ended';
+  scheduledFor?: string;
+  totalVotes: number;
+  votedUserIds?: string[];
+  created_at: string;
+  updated_at?: string;
+}

@@ -1,4 +1,4 @@
-import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber, LiveStreamItem } from '../types';
+import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber, LiveStreamItem, HeroConfig, FanPoll } from '../types';
 import { supabase } from './supabase';
 import { normalizeSlug } from './slugUtils';
 import { ensureFullSeoGeoAeo } from './seoGenerator';
@@ -45,6 +45,8 @@ const STORAGE_KEYS = {
   TICKETS: 'fts_tickets',
   SUBSCRIBERS: 'fts_subscribers',
   LIVE_STREAMS: 'fts_live_streams',
+  HERO_CONFIG: 'fts_hero_config',
+  FAN_POLLS: 'fts_fan_polls',
 };
 
 // Seed Categories
@@ -861,6 +863,31 @@ export class DB {
         }
       }
 
+      // 7. Sync Hero Config
+      try {
+        const { data: remoteHero } = await supabase.from('fts_hero_config').select('*').limit(1);
+        if (remoteHero && remoteHero.length > 0) {
+          localStorage.setItem(STORAGE_KEYS.HERO_CONFIG, JSON.stringify(remoteHero[0]));
+        }
+      } catch (e) {
+        console.warn("Supabase hero config fetch notice:", e);
+      }
+
+      // 8. Sync Fan Polls
+      try {
+        const { data: remotePolls } = await supabase.from('fts_fan_polls').select('*');
+        if (remotePolls && remotePolls.length > 0) {
+          localStorage.setItem(STORAGE_KEYS.FAN_POLLS, JSON.stringify(remotePolls));
+        } else {
+          const localPolls = this.getFanPolls();
+          if (localPolls.length > 0) {
+            await supabase.from('fts_fan_polls').upsert(localPolls);
+          }
+        }
+      } catch (e) {
+        console.warn("Supabase fan polls fetch notice:", e);
+      }
+
       // Broadcast update across listening views
       window.dispatchEvent(new CustomEvent('fts_db_sync'));
     } catch (e) {
@@ -1537,6 +1564,158 @@ export class DB {
     supabase.from('fts_subscribers').delete().eq('id', id).then(({ error }) => {
       if (error) console.warn("Supabase delete fts_subscribers error:", error);
     });
+  }
+
+  // HERO CONFIG MANAGEMENT
+  static DEFAULT_HERO_CONFIG: HeroConfig = {
+    enabled: true,
+    liveBadgeText: '🔴 LIVE STREAMS • DAILY NEWS • TACTICAL METRICS',
+    heading: 'The Sports Room | Live Match Streams, Sports News Today & Tactical Analysis',
+    subtitle: 'Watch every live match stream, read breaking sports news today, and dive deep into real-time telemetry and tactical breakdowns. The Sports Room brings you complete, high-precision coverage across Football, Cricket, Formula 1, and the NBA.',
+    overlayOpacity: 0.65,
+    overlayBlur: 2,
+    heroHeight: 'medium',
+  };
+
+  static getHeroConfig(): HeroConfig {
+    const data = localStorage.getItem(STORAGE_KEYS.HERO_CONFIG);
+    if (!data) return this.DEFAULT_HERO_CONFIG;
+    try {
+      return { ...this.DEFAULT_HERO_CONFIG, ...JSON.parse(data) };
+    } catch {
+      return this.DEFAULT_HERO_CONFIG;
+    }
+  }
+
+  static async saveHeroConfig(config: Partial<HeroConfig>): Promise<HeroConfig> {
+    const current = this.getHeroConfig();
+    const updated: HeroConfig = {
+      ...current,
+      ...config,
+      updated_at: new Date().toISOString()
+    };
+    localStorage.setItem(STORAGE_KEYS.HERO_CONFIG, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    try {
+      const { error } = await supabase.from('fts_hero_config').upsert([{ id: 'hero_main_config', ...updated }]);
+      if (error) console.warn("Supabase saveHeroConfig notice:", error.message);
+    } catch (err) {
+      console.warn("Supabase hero_config upsert exception:", err);
+    }
+    return updated;
+  }
+
+  // FAN POLL MANAGEMENT
+  static DEFAULT_POLL: FanPoll = {
+    id: 'poll-champions-trophy-1',
+    matchName: 'ICC Champions Trophy 2026 • India vs Australia',
+    question: "Which team is going to win today's match?",
+    teamA: 'India',
+    teamALogo: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=120&q=80',
+    teamAVotes: 1840,
+    teamB: 'Australia',
+    teamBLogo: 'https://images.unsplash.com/photo-1512719991214-e0055a98d2b9?auto=format&fit=crop&w=120&q=80',
+    teamBVotes: 1120,
+    enableDraw: true,
+    drawVotes: 140,
+    status: 'active',
+    totalVotes: 3100,
+    votedUserIds: [],
+    created_at: new Date().toISOString()
+  };
+
+  static getFanPolls(): FanPoll[] {
+    const data = localStorage.getItem(STORAGE_KEYS.FAN_POLLS);
+    if (!data) return [this.DEFAULT_POLL];
+    try {
+      const list = JSON.parse(data);
+      return Array.isArray(list) && list.length > 0 ? list : [this.DEFAULT_POLL];
+    } catch {
+      return [this.DEFAULT_POLL];
+    }
+  }
+
+  static getActivePoll(): FanPoll {
+    const polls = this.getFanPolls();
+    return polls.find(p => p.status === 'active') || polls[0] || this.DEFAULT_POLL;
+  }
+
+  static async saveFanPoll(poll: FanPoll): Promise<FanPoll> {
+    const polls = this.getFanPolls();
+    const index = polls.findIndex(p => p.id === poll.id);
+    const updatedPoll = { ...poll, updated_at: new Date().toISOString() };
+
+    if (index >= 0) {
+      polls[index] = updatedPoll;
+    } else {
+      polls.unshift(updatedPoll);
+    }
+
+    localStorage.setItem(STORAGE_KEYS.FAN_POLLS, JSON.stringify(polls));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    try {
+      const { error } = await supabase.from('fts_fan_polls').upsert([updatedPoll]);
+      if (error) console.warn("Supabase saveFanPoll notice:", error.message);
+    } catch (err) {
+      console.warn("Supabase saveFanPoll exception:", err);
+    }
+    return updatedPoll;
+  }
+
+  static async voteFanPoll(pollId: string, option: 'teamA' | 'draw' | 'teamB', userKey: string): Promise<FanPoll> {
+    const polls = this.getFanPolls();
+    const poll = polls.find(p => p.id === pollId) || this.getActivePoll();
+
+    const votedList = Array.isArray(poll.votedUserIds) ? poll.votedUserIds : [];
+    if (votedList.includes(userKey)) {
+      return poll;
+    }
+
+    const updatedPoll: FanPoll = {
+      ...poll,
+      teamAVotes: option === 'teamA' ? poll.teamAVotes + 1 : poll.teamAVotes,
+      teamBVotes: option === 'teamB' ? poll.teamBVotes + 1 : poll.teamBVotes,
+      drawVotes: option === 'draw' ? poll.drawVotes + 1 : poll.drawVotes,
+      totalVotes: poll.totalVotes + 1,
+      votedUserIds: [...votedList, userKey],
+      updated_at: new Date().toISOString()
+    };
+
+    return this.saveFanPoll(updatedPoll);
+  }
+
+  static async resetFanPollVotes(pollId: string): Promise<FanPoll | null> {
+    const polls = this.getFanPolls();
+    const poll = polls.find(p => p.id === pollId);
+    if (!poll) return null;
+
+    const resetPoll: FanPoll = {
+      ...poll,
+      teamAVotes: 0,
+      teamBVotes: 0,
+      drawVotes: 0,
+      totalVotes: 0,
+      votedUserIds: [],
+      updated_at: new Date().toISOString()
+    };
+
+    return this.saveFanPoll(resetPoll);
+  }
+
+  static async deleteFanPoll(pollId: string) {
+    const polls = this.getFanPolls();
+    const filtered = polls.filter(p => p.id !== pollId);
+    localStorage.setItem(STORAGE_KEYS.FAN_POLLS, JSON.stringify(filtered));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    try {
+      const { error } = await supabase.from('fts_fan_polls').delete().eq('id', pollId);
+      if (error) console.warn("Supabase delete fts_fan_polls error:", error.message);
+    } catch (err) {
+      console.warn("Supabase deleteFanPoll exception:", err);
+    }
   }
 }
 

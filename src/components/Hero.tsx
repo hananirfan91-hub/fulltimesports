@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, TrendingUp, ChevronRight, BookOpen, Clock, Award } from 'lucide-react';
-import { Post } from '../types';
+import { Trophy, CheckCircle2, Tv, Newspaper, BarChart3, Radio, Play, ArrowRight } from 'lucide-react';
+import { Post, HeroConfig, FanPoll } from '../types';
 import { DB } from '../lib/db';
 import { getYouTubeId } from '../lib/videoUtils';
 
@@ -9,283 +9,461 @@ interface HeroProps {
   onNavigate: (path: string) => void;
 }
 
+// Generate browser fingerprint / user key for single-vote tracking
+function getVoterKey(): string {
+  if (typeof window === 'undefined') return 'anon-voter';
+  let key = localStorage.getItem('fts_voter_key');
+  if (!key) {
+    key = `voter_${Math.random().toString(36).substring(2, 10)}_${Date.now()}`;
+    localStorage.setItem('fts_voter_key', key);
+  }
+  return key;
+}
+
 export default function Hero({ onNavigate }: HeroProps) {
-  // Fetch active dynamically from local DB
+  const [heroConfig, setHeroConfig] = useState<HeroConfig>(() => DB.getHeroConfig());
   const [allPosts, setAllPosts] = useState<Post[]>(() => DB.getPosts());
+  const [activePoll, setActivePoll] = useState<FanPoll>(() => DB.getActivePoll());
+  const [hasVoted, setHasVoted] = useState<boolean>(false);
+  const [selectedOption, setSelectedOption] = useState<'teamA' | 'draw' | 'teamB' | null>(null);
+  const [voteSubmittedMsg, setVoteSubmittedMsg] = useState<boolean>(false);
 
   useEffect(() => {
     const handleSync = () => {
+      setHeroConfig(DB.getHeroConfig());
       setAllPosts(DB.getPosts());
+      const poll = DB.getActivePoll();
+      setActivePoll(poll);
+
+      const voterKey = getVoterKey();
+      if (poll && Array.isArray(poll.votedUserIds) && poll.votedUserIds.includes(voterKey)) {
+        setHasVoted(true);
+      }
     };
+
+    handleSync();
     window.addEventListener('fts_db_sync', handleSync);
     return () => window.removeEventListener('fts_db_sync', handleSync);
   }, []);
 
-  // Find Featured News (Left Panel)
-  const featuredNews = allPosts.find(p => p.is_featured) || allPosts[0];
-
-  // Find news posts for Carousel (excluding featuredNews if possible, or selecting next news)
-  const newsPosts = allPosts.filter(p => p.id !== featuredNews?.id && p.type === 'news');
-  const carouselPool = newsPosts.length >= 2 ? newsPosts : allPosts.slice(1, 4);
-
-  // We need exactly 2 news cards for the Right Panel Carousel
-  // We can cycle them out of the carouselPool
-  const [carouselIndex, setCarouselIndex] = useState(0);
-  
-  // Continuous scroll ticker for blog cards (Need exactly 2 blog posts)
-  const blogPosts = allPosts.filter(p => p.type === 'blog').slice(0, 2);
-  const finalBlogPosts = blogPosts.length === 2 ? blogPosts : allPosts.filter(p => p.category === 'football' || p.category === 'esports');
-
-  // Parallax tracking values (using local state to avoid performance bottleneck)
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Auto rotate carousel every 6 seconds
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCarouselIndex((prev) => (prev + 2) % carouselPool.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, [carouselPool.length]);
+    const voterKey = getVoterKey();
+    if (activePoll && Array.isArray(activePoll.votedUserIds) && activePoll.votedUserIds.includes(voterKey)) {
+      setHasVoted(true);
+    } else {
+      setHasVoted(false);
+    }
+  }, [activePoll]);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5; // range -0.5 to 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5; // range -0.5 to 0.5
-    setMousePos({ x, y });
+  if (heroConfig.enabled === false) {
+    return null;
+  }
+
+  // Determine Featured Article
+  const featuredArticle = (heroConfig.featuredArticleId
+    ? allPosts.find(p => p.id === heroConfig.featuredArticleId)
+    : null) || allPosts.find(p => p.is_featured) || allPosts[0];
+
+  // Determine Background Media
+  const videoUrl = heroConfig.backgroundVideoUrl || featuredArticle?.video_url || '';
+  const imageUrl = heroConfig.backgroundImageUrl || featuredArticle?.featured_image || 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1600&q=80';
+
+  // Video embed helper
+  const youtubeId = videoUrl ? getYouTubeId(videoUrl, '') : '';
+  const isDirectMp4 = videoUrl ? /\.(mp4|webm|m3u8)(\?.*)?$/i.test(videoUrl) : false;
+
+  // Vote Handler
+  const handleVote = async (option: 'teamA' | 'draw' | 'teamB') => {
+    if (hasVoted || !activePoll) return;
+    const voterKey = getVoterKey();
+    setSelectedOption(option);
+    const updated = await DB.voteFanPoll(activePoll.id, option, voterKey);
+    setActivePoll(updated);
+    setHasVoted(true);
+    setVoteSubmittedMsg(true);
   };
 
-  const handleMouseLeave = () => {
-    setMousePos({ x: 0, y: 0 });
+  // Percentages Calculation
+  const totalVotes = activePoll?.totalVotes || 0;
+  const teamAPercent = totalVotes > 0 ? Math.round((activePoll.teamAVotes / totalVotes) * 100) : 0;
+  const teamBPercent = totalVotes > 0 ? Math.round((activePoll.teamBVotes / totalVotes) * 100) : 0;
+  const drawPercent = (activePoll?.enableDraw && totalVotes > 0) 
+    ? Math.max(0, 100 - teamAPercent - teamBPercent) 
+    : 0;
+
+  // JSON-LD Structured Data Schema
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SportsOrganization",
+        "name": "The Sports Room",
+        "url": "https://thesportsroom.org",
+        "logo": "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=200&q=80",
+        "description": "High-precision live match streams, sports news, and tactical telemetry across Football, Cricket, F1, and Basketball."
+      },
+      {
+        "@type": "SportsEvent",
+        "name": activePoll?.matchName || "Live Match Day Broadcast",
+        "startDate": new Date().toISOString(),
+        "competitor": [
+          { "@type": "SportsTeam", "name": activePoll?.teamA || "Team A" },
+          { "@type": "SportsTeam", "name": activePoll?.teamB || "Team B" }
+        ]
+      },
+      {
+        "@type": "BroadcastEvent",
+        "name": "The Sports Room Live Match Telemetry Stream",
+        "isLiveBroadcast": true,
+        "video": videoUrl || "https://thesportsroom.org/live-stream"
+      }
+    ]
   };
-
-  // Safe checks
-  if (!featuredNews) return <div className="h-44 bg-slate-100 animate-pulse"></div>;
-
-  // Active items in the carousel (2 at a time)
-  const carouselItem1 = carouselPool[carouselIndex % carouselPool.length];
-  const carouselItem2 = carouselPool[(carouselIndex + 1) % carouselPool.length];
-
-  // Video embed (YouTube highlight from primary featured card or stable fallback)
-  const activeVideoId = getYouTubeId(featuredNews.video_url || 'H9T9e03d_jE');
 
   return (
-    <section 
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="max-w-7xl mx-auto px-4 md:px-6 py-6 overflow-hidden relative select-none"
-      id="layered-hero-section"
-    >
-      <div className="font-mono text-[10px] md:text-xs font-bold text-[#22c55e] uppercase tracking-widest flex items-center mb-4 space-x-1">
-        <TrendingUp className="h-4 w-4 animate-bounce" />
-        <span>3D Layered Editorial Board • Live Coverage</span>
-      </div>      {/* Grid Layout conforming to Left panel, Right panel, Floating video block */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 relative min-h-[480px]">
-        
-        {/* ================= LEFT PANEL =================
-            PRIMARY FEATURE: HIGHEST Z-LAYER (Z-20) */}
-        <motion.div 
-          onClick={() => onNavigate(`/blog/${featuredNews.slug}`)}
-          className="lg:col-span-6 md:col-span-2 bg-[#022c22] border border-emerald-950 rounded-2xl overflow-hidden relative group cursor-pointer shadow-xl z-20 min-h-[380px] flex flex-col justify-end"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          whileHover={{ y: -5, shadow: "0 25px 50px -12px rgba(0,0,0,0.5)" }}
-          style={{
-            transform: `perspective(1000px) rotateY(${mousePos.x * 2}deg) rotateX(${mousePos.y * -2}deg)`
-          }}
-        >
-          {/* Cover image with zoom and proper gradient overlay layering */}
-          <img 
-            referrerPolicy="no-referrer"
-            src={featuredNews.featured_image} 
-            alt={featuredNews.image_alt || `${featuredNews.title} - The Sports Room Sports Lounge Analysis`} 
-            className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-700 z-0"
-            fetchPriority="high"
-            decoding="async"
-            width={800}
-            height={500}
+    <header className="relative w-full overflow-hidden select-none bg-[#01140f]" id="hero-main-header">
+      {/* Structured SEO Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
+      {/* ================= HERO BACKGROUND MEDIA ================= */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden z-0 pointer-events-none transform-gpu">
+        {youtubeId ? (
+          <div className="absolute inset-0 w-full h-full scale-125 md:scale-110">
+            <iframe
+              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${youtubeId}&playsinline=1&modestbranding=1&enablejsapi=1&rel=0`}
+              title="Hero Background Stream"
+              className="w-full h-full object-cover pointer-events-none opacity-80"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </div>
+        ) : isDirectMp4 ? (
+          <video
+            src={videoUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover transform-gpu pointer-events-none"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-[#01140f]/80 to-transparent z-10"></div>
+        ) : (
+          <img
+            src={imageUrl}
+            alt={featuredArticle?.title || "Hero Background"}
+            className="absolute inset-0 w-full h-full object-cover transform-gpu pointer-events-none"
+            loading="eager"
+            referrerPolicy="no-referrer"
+          />
+        )}
 
-          {/* Article detail overlay */}
-          <div className="absolute bottom-0 inset-x-0 p-6 md:p-8 z-20 flex flex-col justify-end h-full">
-            <span className="bg-[#22c55e] text-slate-950 font-mono text-[10px] font-black tracking-widest uppercase px-3 py-1 rounded w-fit mb-3 flex items-center space-x-1.5 border border-emerald-950">
-              <Award className="h-3 w-3" />
-              <span>{featuredNews.category} BREAKING</span>
-            </span>
-            <h3 className="font-display text-xl md:text-2xl font-extrabold text-white tracking-tight leading-tight uppercase group-hover:text-[#22c55e] transition line-clamp-3">
-              {featuredNews.title}
-            </h3>
-            <p className="text-slate-200 text-xs mt-3 line-clamp-2 leading-relaxed">
-              {featuredNews.meta_description || featuredNews.content.slice(0, 150) + "..."}
-            </p>
-            
-            <div className="flex items-center space-x-6 mt-5 pt-4 border-t border-emerald-900/50 font-mono text-[10px] text-[#22c55e]/90">
-              <span>BY: {featuredNews.author.toUpperCase()}</span>
-              <span>•</span>
-              <span className="flex items-center space-x-1">
-                <Clock className="h-3.5 w-3.5" />
-                <span>{new Date(featuredNews.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} EST</span>
-              </span>
-            </div>
-          </div>
-        </motion.div>
+        {/* Dark Overlay for Text Readability & Slight Blur */}
+        <div
+          className="absolute inset-0 bg-[#01140f] transition-opacity duration-300 transform-gpu"
+          style={{
+            opacity: heroConfig.overlayOpacity ?? 0.65,
+            backdropFilter: `blur(${heroConfig.overlayBlur ?? 2}px)`,
+            WebkitBackdropFilter: `blur(${heroConfig.overlayBlur ?? 2}px)`
+          }}
+        />
 
+        {/* Gradient vignette for seamless visual integration with website canvas */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#01140f] via-transparent to-[#01140f]/60 pointer-events-none" />
+      </div>
 
-        {/* ================= MIDDLE COLUMN: LIVE STREAM (Z-20) ================= */}
-        <motion.div 
-          className="lg:col-span-3 bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between shadow-xl text-white z-20"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          whileHover={{ y: -5 }}
-        >
-          <div className="flex flex-col h-full justify-between">
-            <div>
-              <span className="bg-slate-950 font-mono text-[9px] font-black tracking-widest text-[#22c55e] px-2.5 py-1.5 rounded w-fit mb-3 block border border-slate-800 uppercase">
-                TSR TV • Video Preview
-              </span>
-              <div className="aspect-video bg-black rounded-xl overflow-hidden relative border border-slate-800">
-                <iframe 
-                  src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&mute=1&playlist=${activeVideoId}&loop=1&controls=1&modestbranding=1`}
-                  title="TSR Live Video Feed"
-                  className="w-full h-full object-cover opacity-90"
-                  loading="lazy"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
+      {/* ================= HERO CONTENT CONTAINER ================= */}
+      <section className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch min-h-[520px]">
+          
+          {/* ================= LEFT SIDE (65% width on desktop) ================= */}
+          <div className="md:col-span-7 lg:col-span-8 flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              
+              {/* TOP BADGE WITH ANIMATED PULSE */}
+              <div className="inline-flex items-center space-x-2 bg-[#022c22]/90 border border-[#22c55e]/40 px-3.5 py-1.5 rounded-full backdrop-blur-md shadow-md">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                </span>
+                <span className="font-mono text-[10px] md:text-xs font-black tracking-widest text-emerald-300 uppercase">
+                  {heroConfig.liveBadgeText || '🔴 LIVE STREAMS • DAILY NEWS • TACTICAL METRICS'}
+                </span>
               </div>
-              <div className="flex justify-between items-center mt-1.5 px-0.5">
-                <span className="text-[9px] font-mono text-slate-400">Interactive Player Active</span>
-                <a 
-                  href={`https://www.youtube.com/watch?v=${activeVideoId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[9px] font-mono text-[#22c55e] hover:underline"
+
+              {/* MAIN HEADING H1 */}
+              <h1 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-white tracking-tight leading-tight uppercase drop-shadow-md">
+                {heroConfig.heading || 'The Sports Room | Live Match Streams, Sports News Today & Tactical Analysis'}
+              </h1>
+
+              {/* SUBTITLE H2 */}
+              <h2 className="font-sans text-xs sm:text-sm md:text-base text-slate-200 leading-relaxed max-w-[700px] drop-shadow">
+                {heroConfig.subtitle || 'Watch every live match stream, read breaking sports news today, and dive deep into real-time telemetry and tactical breakdowns. The Sports Room brings you complete, high-precision coverage across Football, Cricket, Formula 1, and the NBA.'}
+              </h2>
+
+              {/* 2 CTA BUTTONS */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => onNavigate('/live-stream')}
+                  className="px-5 py-2.5 bg-[#22c55e] hover:bg-emerald-400 text-[#01140f] font-mono font-extrabold text-xs uppercase rounded-xl shadow-lg shadow-emerald-900/40 border border-emerald-300 flex items-center space-x-2 transition cursor-pointer"
                 >
-                  Stream on YT ↗
-                </a>
+                  <Play className="h-4 w-4 fill-current" />
+                  <span>Watch Live Streams</span>
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => onNavigate('/sport/cricket')}
+                  className="px-5 py-2.5 bg-[#022c22]/90 hover:bg-[#022c22] text-white hover:text-[#22c55e] font-mono font-bold text-xs uppercase rounded-xl border border-[#22c55e]/40 hover:border-[#22c55e] shadow-lg backdrop-blur-md flex items-center space-x-2 transition cursor-pointer"
+                >
+                  <span>Explore Sports News</span>
+                  <ArrowRight className="h-4 w-4" />
+                </motion.button>
               </div>
-              <h3 className="text-white font-display font-black text-xs uppercase tracking-tight mt-4">
-                Strategy &amp; Live Telemetry
-              </h3>
-              <p className="text-slate-300 text-[10px] leading-relaxed mt-1.5">
-                Monitoring ball speeds, strategic formulas, and professional coaching adjustments instantly.
-              </p>
             </div>
-            <button 
-              onClick={() => onNavigate(`/blog/${featuredNews.slug}`)}
-              className="w-full mt-4 py-2.5 bg-[#16a34a] hover:bg-[#15803d] text-white font-mono font-bold text-[9px] uppercase rounded-lg text-center transition tracking-widest cursor-pointer shadow-sm"
-            >
-              Read Full Breakdown
-            </button>
+
+            {/* ================= THREE INTERACTIVE SERVICE CARDS ================= */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+              
+              {/* CARD 1: LIVE MATCH STREAMS */}
+              <motion.div
+                onClick={() => onNavigate('/live-stream')}
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="bg-[#022c22]/90 hover:bg-[#022c22] border border-[#22c55e]/30 hover:border-[#22c55e] rounded-2xl p-4 cursor-pointer shadow-xl transition-colors duration-200 backdrop-blur-md group"
+              >
+                <div className="flex items-center space-x-2.5 mb-1.5">
+                  <div className="p-2 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] group-hover:scale-110 transition duration-200">
+                    <Tv className="h-4 w-4" />
+                  </div>
+                  <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
+                    📺 Live Match Streams
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  High-definition, real-time broadcasts and action feeds.
+                </p>
+              </motion.div>
+
+              {/* CARD 2: SPORTS NEWS TODAY */}
+              <motion.div
+                onClick={() => onNavigate('/sport/cricket')}
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="bg-[#022c22]/90 hover:bg-[#022c22] border border-[#22c55e]/30 hover:border-[#22c55e] rounded-2xl p-4 cursor-pointer shadow-xl transition-colors duration-200 backdrop-blur-md group"
+              >
+                <div className="flex items-center space-x-2.5 mb-1.5">
+                  <div className="p-2 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] group-hover:scale-110 transition duration-200">
+                    <Newspaper className="h-4 w-4" />
+                  </div>
+                  <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
+                    📰 Sports News Today
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  Rapid updates, transfer news, and daily headlines.
+                </p>
+              </motion.div>
+
+              {/* CARD 3: TACTICAL BREAKDOWNS */}
+              <motion.div
+                onClick={() => onNavigate('/sport/f1')}
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="bg-[#022c22]/90 hover:bg-[#022c22] border border-[#22c55e]/30 hover:border-[#22c55e] rounded-2xl p-4 cursor-pointer shadow-xl transition-colors duration-200 backdrop-blur-md group"
+              >
+                <div className="flex items-center space-x-2.5 mb-1.5">
+                  <div className="p-2 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/30 text-[#22c55e] group-hover:scale-110 transition duration-200">
+                    <BarChart3 className="h-4 w-4" />
+                  </div>
+                  <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
+                    📊 Tactical Breakdowns
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  Biomechanics, pitch heatmaps, player analytics, and F1 telemetry.
+                </p>
+              </motion.div>
+
+            </div>
           </div>
-        </motion.div>
 
-
-        {/* ================= RIGHT PANEL =================
-            STACKED CAROUSEL: SMOOTH ANIMATED FLOW (Z-10) */}
-        <div className="lg:col-span-3 flex flex-col justify-between space-y-4">
-          <div className="flex justify-between items-center px-1 font-mono text-[10px] text-slate-500 font-bold uppercase">
-            <span>Trending Feed</span>
-            <span>Carousel Rotate</span>
-          </div>
-
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key={carouselIndex}
-              className="flex flex-col space-y-3"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
+          {/* ================= RIGHT SIDE: FAN POLL CARD ================= */}
+          <div className="md:col-span-5 lg:col-span-4 flex flex-col justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
+              className="bg-[#022c22]/95 border border-[#22c55e]/40 rounded-3xl p-5 md:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4"
+              id="hero-fan-poll-card"
             >
-              {[carouselItem1, carouselItem2].map((item, idx) => {
-                if (!item) return null;
-                return (
+              {/* Poll Header */}
+              <div className="flex items-center justify-between border-b border-[#22c55e]/20 pb-3">
+                <div className="flex items-center space-x-2">
+                  <Trophy className="h-5 w-5 text-[#22c55e] animate-pulse" />
+                  <span className="font-mono font-black text-xs uppercase tracking-widest text-[#22c55e]">
+                    🏆 Match Prediction
+                  </span>
+                </div>
+                <span className="bg-emerald-950/80 text-emerald-400 font-mono text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-emerald-800">
+                  LIVE POLL
+                </span>
+              </div>
+
+              {/* Match Title & Question */}
+              <div>
+                <p className="font-mono text-[10px] text-slate-400 uppercase tracking-wider mb-1 truncate">
+                  {activePoll?.matchName || "ICC Champions Trophy 2026 • Live Feature"}
+                </p>
+                <h3 className="font-display font-extrabold text-base text-white leading-snug">
+                  {activePoll?.question || "Which team is going to win today's match?"}
+                </h3>
+              </div>
+
+              {/* Thank You Banner upon Voting */}
+              <AnimatePresence>
+                {voteSubmittedMsg && (
                   <motion.div
-                    key={item.id}
-                    onClick={() => onNavigate(`/blog/${item.slug}`)}
-                    className="bg-white border border-slate-200 hover:border-[#22c55e] p-3 rounded-xl flex items-center space-x-3 cursor-pointer shadow-sm group hover:shadow-md transition"
-                    whileHover={{ scale: 1.02, x: 3 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="bg-[#22c55e]/20 border border-[#22c55e]/50 text-[#22c55e] px-3.5 py-2 rounded-xl flex items-center space-x-2 font-mono text-xs font-bold"
                   >
-                    <div className="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden shrink-0 relative border border-slate-100">
-                      <img 
-                        referrerPolicy="no-referrer"
-                        src={item.featured_image} 
-                        alt={item.image_alt || `${item.title} - The Sports Room Sports Analysis`} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition"
-                        loading="lazy"
-                        decoding="async"
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-[#22c55e]" />
+                    <span>Thanks for voting! Predictions updated live.</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Poll Options / Live Progress Bars */}
+              <div className="space-y-3 pt-1">
+                {/* Team A Option */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs font-mono font-bold">
+                    <span className="flex items-center space-x-2 text-white">
+                      {activePoll?.teamALogo ? (
+                        <img
+                          src={activePoll.teamALogo}
+                          alt={activePoll.teamA}
+                          className="w-5 h-5 rounded-full object-cover border border-slate-700 shrink-0"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <span className="w-5 h-5 rounded-full bg-emerald-700 text-white text-[10px] flex items-center justify-center font-bold">
+                          {activePoll?.teamA?.[0] || 'A'}
+                        </span>
+                      )}
+                      <span>{activePoll?.teamA || 'Team A'}</span>
+                    </span>
+                    <span className="text-[#22c55e]">{teamAPercent}%</span>
+                  </div>
+
+                  {!hasVoted ? (
+                    <button
+                      onClick={() => handleVote('teamA')}
+                      className="w-full py-2 px-3 bg-[#01140f] hover:bg-[#22c55e]/20 border border-[#22c55e]/40 hover:border-[#22c55e] text-slate-200 hover:text-white font-mono text-xs font-bold rounded-xl transition cursor-pointer text-left flex items-center justify-between"
+                    >
+                      <span>Vote {activePoll?.teamA}</span>
+                      <Radio className="h-3.5 w-3.5 text-slate-500" />
+                    </button>
+                  ) : (
+                    <div className="w-full bg-[#01140f] rounded-full h-3.5 overflow-hidden border border-emerald-950 p-0.5">
+                      <motion.div
+                        className="bg-[#22c55e] h-full rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${teamAPercent}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                       />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-[8px] font-mono font-bold text-[#22c55e] uppercase tracking-widest">{item.category}</span>
-                      <h3 className="font-display text-xs font-bold text-slate-900 leading-snug line-clamp-2 uppercase mt-0.5 group-hover:text-[#22c55e] transition">
-                        {item.title}
-                      </h3>
-                      <div className="flex items-center space-x-2 mt-1.5 text-[9px] text-slate-400 font-mono">
-                        <span className="truncate">{item.author}</span>
-                      </div>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-[#22c55e] transition shrink-0" />
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-      </div>
-
-      {/* ================= BOTTOM STRIP (BLOGS) ================= */}
-      <div className="mt-8 pt-4 border-t border-slate-200" id="editorial-columns-strip">
-        <div className="flex justify-between items-center mb-3 px-1 font-mono text-[10px] text-slate-500 font-bold uppercase">
-          <span className="flex items-center space-x-1">
-            <BookOpen className="h-3.5 w-3.5 text-[#22c55e]" />
-            <span>TSR Editorial Columns & Blogs</span>
-          </span>
-          <span>Sliding Loop Slider</span>
-        </div>
-
-        {/* Ticker Stage */}
-        <div className="relative overflow-hidden w-full bg-[#f0fdf4]/60 border border-[#22c55e]/15 rounded-xl p-3">
-          <div className="ticker-animate flex space-x-6">
-            {/* Repeat items to create authentic seamless infinite loop */}
-            {[...finalBlogPosts, ...finalBlogPosts, ...finalBlogPosts].map((blog, idx) => {
-              if (!blog) return null;
-              return (
-                <div 
-                  key={`${blog.id}-${idx}`}
-                  onClick={() => onNavigate(`/blog/${blog.slug}`)}
-                  className="w-80 md:w-96 bg-white border border-slate-150 p-3 rounded-lg shrink-0 flex items-center space-x-3 cursor-pointer hover:border-[#22c55e] shadow-sm hover:shadow transition group"
-                >
-                  <img 
-                    referrerPolicy="no-referrer"
-                    src={blog.featured_image} 
-                    alt={blog.image_alt || `${blog.title} - The Sports Room Editorial Column`} 
-                    className="w-14 h-14 object-cover rounded-lg bg-slate-100 shrink-0" 
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div className="overflow-hidden">
-                    <span className="text-[8px] font-mono font-bold text-slate-400 uppercase tracking-widest leading-none block">
-                      {blog.category} Opinion column • {blog.author}
-                    </span>
-                    <h4 className="font-display text-xs font-bold text-slate-800 line-clamp-2 uppercase mt-1 leading-tight group-hover:text-[#22c55e] transition">
-                      {blog.title}
-                    </h4>
-                  </div>
+                  )}
                 </div>
-              );
-            })}
+
+                {/* Draw Option (if enabled) */}
+                {activePoll?.enableDraw && (
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-xs font-mono font-bold">
+                      <span className="text-slate-300">Draw / Tie</span>
+                      <span className="text-amber-400">{drawPercent}%</span>
+                    </div>
+
+                    {!hasVoted ? (
+                      <button
+                        onClick={() => handleVote('draw')}
+                        className="w-full py-2 px-3 bg-[#01140f] hover:bg-amber-500/20 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-white font-mono text-xs font-bold rounded-xl transition cursor-pointer text-left flex items-center justify-between"
+                      >
+                        <span>Vote Draw</span>
+                        <Radio className="h-3.5 w-3.5 text-slate-500" />
+                      </button>
+                    ) : (
+                      <div className="w-full bg-[#01140f] rounded-full h-3.5 overflow-hidden border border-emerald-950 p-0.5">
+                        <motion.div
+                          className="bg-amber-400 h-full rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${drawPercent}%` }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Team B Option */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs font-mono font-bold">
+                    <span className="flex items-center space-x-2 text-white">
+                      {activePoll?.teamBLogo ? (
+                        <img
+                          src={activePoll.teamBLogo}
+                          alt={activePoll.teamB}
+                          className="w-5 h-5 rounded-full object-cover border border-slate-700 shrink-0"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <span className="w-5 h-5 rounded-full bg-blue-700 text-white text-[10px] flex items-center justify-center font-bold">
+                          {activePoll?.teamB?.[0] || 'B'}
+                        </span>
+                      )}
+                      <span>{activePoll?.teamB || 'Team B'}</span>
+                    </span>
+                    <span className="text-emerald-400">{teamBPercent}%</span>
+                  </div>
+
+                  {!hasVoted ? (
+                    <button
+                      onClick={() => handleVote('teamB')}
+                      className="w-full py-2 px-3 bg-[#01140f] hover:bg-[#22c55e]/20 border border-[#22c55e]/40 hover:border-[#22c55e] text-slate-200 hover:text-white font-mono text-xs font-bold rounded-xl transition cursor-pointer text-left flex items-center justify-between"
+                    >
+                      <span>Vote {activePoll?.teamB}</span>
+                      <Radio className="h-3.5 w-3.5 text-slate-500" />
+                    </button>
+                  ) : (
+                    <div className="w-full bg-[#01140f] rounded-full h-3.5 overflow-hidden border border-emerald-950 p-0.5">
+                      <motion.div
+                        className="bg-emerald-400 h-full rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${teamBPercent}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Total Votes Footer */}
+              <div className="pt-2 border-t border-[#22c55e]/20 flex items-center justify-between font-mono text-[10px] text-slate-400">
+                <span>Total Votes: {totalVotes.toLocaleString()}</span>
+                {hasVoted && <span className="text-[#22c55e] font-bold">✓ Voted</span>}
+              </div>
+
+            </motion.div>
           </div>
+
         </div>
-      </div>
-    </section>
+      </section>
+    </header>
   );
 }
