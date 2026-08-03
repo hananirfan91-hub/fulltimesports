@@ -882,6 +882,17 @@ export class DB {
     
     // Start background sync from Supabase database
     this.syncFromSupabase();
+
+    // Auto-sync periodically and on window focus for cross-browser synchronization
+    if (typeof window !== 'undefined' && !(window as any)._fts_sync_interval) {
+      (window as any)._fts_sync_interval = setInterval(() => {
+        this.syncFromSupabase();
+      }, 15000);
+
+      window.addEventListener('focus', () => {
+        this.syncFromSupabase();
+      });
+    }
   }
 
   // LIVE STREAMS MODULE
