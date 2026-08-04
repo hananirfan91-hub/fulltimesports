@@ -200,7 +200,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "url": origin,
           "logo": `${origin}/logo-preview.png`,
           "sameAs": [
-            "https://www.facebook.com/HananIrfan001",
+            "https://www.facebook.com/profile.php?id=61592459862127",
             "https://twitter.com/thesportsroom"
           ],
           "address": {

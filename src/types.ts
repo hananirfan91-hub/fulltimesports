@@ -49,6 +49,8 @@ export interface AdminUser {
   email: string;
   role: string;
   password?: string; // To allow password-based login and signups
+  is_approved?: boolean;
+  is_writer?: boolean;
 }
 
 export interface MediaItem {

@@ -805,11 +805,31 @@ export class DB {
         if (rankError) {
           console.warn("Supabase fetch rankings notice:", rankError.message);
         } else if (rankings && rankings.length > 0) {
-          localStorage.setItem(STORAGE_KEYS.RANKINGS, JSON.stringify(rankings));
+          const formattedRankings = rankings.map((r: any) => ({
+            id: String(r.id),
+            sport: String(r.sport || 'cricket'),
+            categoryName: String(r.category_name || r.categoryName || 'Rankings'),
+            rank: Number(r.rank) || 1,
+            name: String(r.name || ''),
+            country: r.country ? String(r.country) : undefined,
+            points: String(r.points || '0'),
+            extra: r.extra ? String(r.extra) : undefined,
+          }));
+          localStorage.setItem(STORAGE_KEYS.RANKINGS, JSON.stringify(formattedRankings));
         } else {
           const localRankings = this.getRankings();
           if (localRankings.length > 0) {
-            const { error: rankUpsertErr } = await supabase.from('fts_rankings').upsert(localRankings);
+            const dbRankings = localRankings.map(r => ({
+              id: r.id,
+              sport: r.sport,
+              category_name: r.categoryName || (r as any).category_name || 'Rankings',
+              rank: r.rank,
+              name: r.name,
+              country: r.country || '',
+              points: r.points,
+              extra: r.extra || ''
+            }));
+            const { error: rankUpsertErr } = await supabase.from('fts_rankings').upsert(dbRankings);
             if (rankUpsertErr) console.warn("Supabase rankings upsert notice:", rankUpsertErr.message);
           }
         }
@@ -892,22 +912,54 @@ export class DB {
         console.warn("Supabase hero config fetch notice:", e);
       }
 
-      // 8. Sync Fan Polls
+      // 8. Sync Registered Writers & Users (fts_users)
       try {
-        const { data: remotePolls } = await supabase.from('fts_fan_polls').select('*');
-        if (remotePolls && remotePolls.length > 0) {
-          const parsedPolls = remotePolls.map(p => DB.parseRemotePoll(p));
-          localStorage.setItem(STORAGE_KEYS.FAN_POLLS, JSON.stringify(parsedPolls));
+        const { data: remoteUsers, error: usersErr } = await supabase.from('fts_users').select('*');
+        if (usersErr) {
+          console.warn("Supabase fetch users notice:", usersErr.message);
+        } else if (remoteUsers && remoteUsers.length > 0) {
+          const parsedUsers: AdminUser[] = remoteUsers.map((u: any) => ({
+            id: String(u.id),
+            name: String(u.name || 'Writer'),
+            email: String(u.email || '').toLowerCase().trim(),
+            role: String(u.role || 'Sports Writer'),
+            password: u.password ? String(u.password) : undefined,
+            is_approved: u.email?.toLowerCase() === 'hananirfan91@gmail.com' ? true : Boolean(u.is_approved),
+            is_writer: Boolean(u.is_writer ?? true)
+          }));
+          
+          // Ensure main admin is always present and approved
+          if (!parsedUsers.some(u => u.email.toLowerCase() === 'hananirfan91@gmail.com')) {
+            parsedUsers.unshift({
+              id: 'admin-super',
+              name: 'Hanan Irfan',
+              email: 'hananirfan91@gmail.com',
+              role: 'Super Admin',
+              password: 'hanan@2007.',
+              is_approved: true,
+              is_writer: true
+            });
+          }
+
+          localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(parsedUsers));
         } else {
-          const localPolls = this.getFanPolls();
-          if (localPolls.length > 0) {
-            for (const poll of localPolls) {
-              await this.saveFanPoll(poll);
-            }
+          const localUsers = this.getAdmins();
+          if (localUsers.length > 0) {
+            const dbUsers = localUsers.map(u => ({
+              id: u.id,
+              name: u.name,
+              email: u.email.toLowerCase().trim(),
+              role: u.role,
+              is_approved: u.email.toLowerCase() === 'hananirfan91@gmail.com' ? true : Boolean(u.is_approved),
+              is_writer: true,
+              created_at: new Date().toISOString()
+            }));
+            const { error: userUpsertErr } = await supabase.from('fts_users').upsert(dbUsers);
+            if (userUpsertErr) console.warn("Supabase users upsert notice:", userUpsertErr.message);
           }
         }
       } catch (e) {
-        console.warn("Supabase fan polls fetch notice:", e);
+        console.warn("Supabase users fetch exception:", e);
       }
 
       // Broadcast update across listening views
@@ -1465,16 +1517,105 @@ export class DB {
     });
   }
 
-  // ADMINS
+  // ADMINS & WRITERS MANAGEMENT
   static getAdmins(): AdminUser[] {
     const data = localStorage.getItem(STORAGE_KEYS.ADMINS);
-    return data ? JSON.parse(data) : [];
+    let list: AdminUser[] = data ? JSON.parse(data) : [];
+    
+    // Always guarantee Hanan Irfan super admin is present and approved
+    const superIdx = list.findIndex(a => a.email.toLowerCase() === 'hananirfan91@gmail.com');
+    if (superIdx < 0) {
+      list.unshift({
+        id: 'admin-super',
+        name: 'Hanan Irfan',
+        email: 'hananirfan91@gmail.com',
+        role: 'Super Admin',
+        password: 'hanan@2007.',
+        is_approved: true,
+        is_writer: true
+      });
+      localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(list));
+    } else {
+      list[superIdx].is_approved = true;
+      list[superIdx].is_writer = true;
+      list[superIdx].role = 'Super Admin';
+    }
+
+    return list;
   }
 
   static registerAdmin(admin: AdminUser) {
     const list = this.getAdmins();
-    list.push(admin);
+    const isSuper = admin.email.toLowerCase() === 'hananirfan91@gmail.com';
+    const newAdmin: AdminUser = {
+      ...admin,
+      email: admin.email.toLowerCase().trim(),
+      is_approved: isSuper ? true : Boolean(admin.is_approved),
+      is_writer: true
+    };
+
+    const idx = list.findIndex(a => a.email.toLowerCase() === newAdmin.email.toLowerCase());
+    if (idx >= 0) {
+      list[idx] = { ...list[idx], ...newAdmin };
+    } else {
+      list.push(newAdmin);
+    }
     localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(list));
+
+    // Async sync to Supabase
+    supabase.from('fts_users').upsert([{
+      id: newAdmin.id,
+      name: newAdmin.name,
+      email: newAdmin.email,
+      role: newAdmin.role,
+      is_approved: newAdmin.is_approved,
+      is_writer: true,
+      created_at: new Date().toISOString()
+    }]).then(({ error }) => {
+      if (error) console.warn("Supabase insert fts_users notice:", error.message);
+    });
+  }
+
+  static approveWriter(email: string) {
+    const list = this.getAdmins();
+    const target = list.find(a => a.email.toLowerCase() === email.toLowerCase());
+    if (target) {
+      target.is_approved = true;
+      target.is_writer = true;
+      localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(list));
+      window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+      supabase.from('fts_users').update({ is_approved: true, is_writer: true }).eq('email', email.toLowerCase()).then(({ error }) => {
+        if (error) console.warn("Supabase approveWriter notice:", error.message);
+      });
+    }
+  }
+
+  static revokeWriter(email: string) {
+    if (email.toLowerCase() === 'hananirfan91@gmail.com') return; // Cannot revoke Super Admin
+    const list = this.getAdmins();
+    const target = list.find(a => a.email.toLowerCase() === email.toLowerCase());
+    if (target) {
+      target.is_approved = false;
+      localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(list));
+      window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+      supabase.from('fts_users').update({ is_approved: false }).eq('email', email.toLowerCase()).then(({ error }) => {
+        if (error) console.warn("Supabase revokeWriter notice:", error.message);
+      });
+    }
+  }
+
+  static deleteUser(id: string, email: string) {
+    if (email.toLowerCase() === 'hananirfan91@gmail.com') return;
+    const list = this.getAdmins();
+    const filtered = list.filter(a => a.email.toLowerCase() !== email.toLowerCase() && a.id !== id);
+    localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(filtered));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    supabase.from('fts_users').delete().eq('email', email.toLowerCase()).then(({ error }) => {
+      if (error) console.warn("Supabase deleteUser notice:", error.message);
+    });
   }
 
   static getCurrentAdmin(): AdminUser | null {

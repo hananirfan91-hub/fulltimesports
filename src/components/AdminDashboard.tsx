@@ -545,6 +545,10 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
   // POST CRUD
   const openNewPost = () => {
+    if (currentAdmin?.email.toLowerCase() !== 'hananirfan91@gmail.com' && !currentAdmin?.is_approved) {
+      alert("⚠️ Writer Approval Pending: Your email (" + (currentAdmin?.email || '') + ") is awaiting approval by the Main Admin (hananirfan91@gmail.com). You cannot write or publish articles until approved.");
+      return;
+    }
     setEditingPost({
       title: '',
       heading_tag: 'h1',
@@ -1058,16 +1062,15 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           <span>Live Streams ({liveStreams.length})</span>
         </button>
 
-        <button
-          onClick={() => setActiveTab('fan_polls')}
-          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'fan_polls' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
-        >
-          <Trophy className="h-4 w-4 text-amber-500" />
-          <span>Fan Polls ({fanPolls.length})</span>
-        </button>
-
         {currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
           <>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'users' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
+            >
+              <ShieldCheck className="h-4 w-4 text-[#22c55e]" />
+              <span>Writers & Approvals ({admins.length})</span>
+            </button>
             <button
               onClick={() => setActiveTab('categories')}
               className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'categories' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
@@ -1090,20 +1093,12 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               <span>Hero Control</span>
             </button>
             <button
-              onClick={() => setActiveTab('tickets')}
-              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'tickets' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              <MessageSquare className="h-4 w-4" />
-              <span>Inbound Tickets ({tickets.length})</span>
-            </button>
-             <button
               onClick={() => setActiveTab('subscribers')}
               className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'subscribers' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
             >
               <Mail className="h-4 w-4" />
               <span>Subscribers ({subscribers.length})</span>
             </button>
-
           </>
         )}
 
@@ -2107,6 +2102,132 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </div>
       )}
 
+      {/* WRITERS & APPROVALS MODULE */}
+      {activeTab === 'users' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="bg-[#022c22] text-[#22c55e] border border-emerald-800 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded uppercase">
+                  ADMIN CONTROL PANEL • TABLE: fts_users
+                </span>
+              </div>
+              <h3 className="font-display font-extrabold text-xl text-slate-900 mt-1 uppercase">
+                WRITERS & USER APPROVAL MANAGEMENT
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Review registered emails, grant writer publishing access, or manage roles across the website.
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono font-bold text-xs px-3 py-1.5 rounded-xl uppercase">
+                Approved Writers: {admins.filter(a => a.is_approved || a.email.toLowerCase() === 'hananirfan91@gmail.com').length} / {admins.length}
+              </span>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-slate-600 text-sm">
+              <thead>
+                <tr className="bg-slate-50 text-slate-550 border-b border-slate-200 font-mono text-[11px] uppercase text-left">
+                  <th className="py-3 px-4">Writer Name & Email</th>
+                  <th className="py-3 px-4">Role</th>
+                  <th className="py-3 px-4">Approval Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {admins.map((user) => {
+                  const isMainAdmin = user.email.toLowerCase() === 'hananirfan91@gmail.com';
+                  const isApproved = isMainAdmin || user.is_approved === true;
+                  return (
+                    <tr key={user.id} className="hover:bg-slate-50 transition">
+                      <td className="py-3.5 px-4 font-sans">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-9 h-9 rounded-full font-mono font-bold text-xs flex items-center justify-center ${isMainAdmin ? 'bg-[#022c22] text-[#22c55e]' : 'bg-slate-200 text-slate-700'}`}>
+                            {user.name.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <span className="font-bold text-slate-900 text-xs block">
+                              {user.name} {isMainAdmin && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono ml-1">MAIN ADMIN</span>}
+                            </span>
+                            <span className="text-[11px] font-mono text-slate-500 block">
+                              {user.email}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono text-xs font-bold text-slate-700">
+                        {user.role || 'Sports Writer'}
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono text-xs">
+                        {isApproved ? (
+                          <span className="bg-[#f0fdf4] text-emerald-700 border border-[#22c55e]/30 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase inline-flex items-center space-x-1">
+                            <CheckCircle className="h-3 w-3 text-[#22c55e]" />
+                            <span>Approved Writer</span>
+                          </span>
+                        ) : (
+                          <span className="bg-amber-50 text-amber-800 border border-amber-300 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase inline-flex items-center space-x-1">
+                            <AlertTriangle className="h-3 w-3 text-amber-600" />
+                            <span>Pending Admin Approval</span>
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right space-x-2">
+                        {!isMainAdmin && (
+                          <>
+                            {!isApproved ? (
+                              <button
+                                onClick={() => {
+                                  DB.approveWriter(user.email);
+                                  refreshData();
+                                  alert(`✅ Writer "${user.email}" approved successfully! They can now compose articles and blogs.`);
+                                }}
+                                className="px-3 py-1.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] border border-emerald-950 text-xs font-mono font-bold uppercase rounded-lg transition shadow-xs cursor-pointer"
+                              >
+                                Approve Writer
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => {
+                                  DB.revokeWriter(user.email);
+                                  refreshData();
+                                  alert(`⚠️ Access revoked for "${user.email}".`);
+                                }}
+                                className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-mono font-bold uppercase rounded-lg transition cursor-pointer"
+                              >
+                                Revoke Approval
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to remove user "${user.email}"?`)) {
+                                  DB.deleteUser(user.id, user.email);
+                                  refreshData();
+                                }
+                              }}
+                              className="p-1.5 border border-slate-200 hover:border-red-500 rounded text-slate-500 hover:text-red-600 transition bg-white cursor-pointer"
+                              title="Delete Writer Account"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* 10. LIVE STREAMS MODULE */}
       {activeTab === 'live_streams' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
@@ -3029,76 +3150,194 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       {/* A2. SUPABASE SQL SETUP MODAL */}
       {isSqlModalOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white border border-slate-200 rounded-2xl max-w-3xl w-full p-6 shadow-2xl space-y-4 relative">
-            <div className="flex justify-between items-center border-b pb-3">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-4xl w-full p-6 shadow-2xl space-y-4 relative max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center border-b pb-3 shrink-0">
               <div>
-                <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded uppercase">
-                  Supabase Database Setup
+                <span className="text-[10px] font-mono font-bold bg-[#022c22] text-[#22c55e] border border-emerald-800 px-2.5 py-0.5 rounded uppercase">
+                  FULL DATABASE SQL ENGINE
                 </span>
                 <h3 className="font-display font-black text-lg text-slate-900 uppercase mt-1">
-                  Cross-Device Article Database Fix (SQL Editor)
+                  Complete PostgreSQL Database Script (Run in SQL Editor)
                 </h3>
               </div>
               <button
                 onClick={() => setIsSqlModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold text-lg"
+                className="text-slate-400 hover:text-slate-600 font-bold text-lg cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
-              If new articles are created on your browser but don't show up on other devices or Google profiles, it means your Supabase database table <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_posts</code> is either missing RLS insert permissions or missing column fields.
+            <p className="text-xs text-slate-600 leading-relaxed shrink-0">
+              This complete script creates all tables (<code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_posts</code>, <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_categories</code>, <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_rankings</code>, <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_fixtures</code>, <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_media</code>, <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_subscribers</code>, <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_live_streams</code>, <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_hero_config</code>, <code className="bg-slate-100 font-mono text-slate-900 px-1 py-0.5 rounded">fts_users</code>), adds all required SEO/GEO/AEO columns, sets up RLS security policies, and registers the Super Admin.
             </p>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-              <h4 className="font-mono text-xs font-bold text-slate-800 uppercase mb-2">Instructions:</h4>
-              <ol className="list-decimal list-inside text-xs text-slate-600 space-y-1 font-sans">
-                <li>Go to your <strong className="text-slate-900">Supabase Dashboard</strong> (supabase.com).</li>
-                <li>Click on <strong className="text-slate-900">SQL Editor</strong> in the left menu.</li>
-                <li>Click <strong className="text-slate-900">New Query</strong>, paste the script below, and click <strong className="text-emerald-700">Run</strong>!</li>
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 shrink-0">
+              <h4 className="font-mono text-xs font-bold text-slate-800 uppercase mb-1">How to execute in Supabase SQL Editor:</h4>
+              <ol className="list-decimal list-inside text-xs text-slate-600 space-y-0.5 font-sans">
+                <li>Copy the complete PostgreSQL script below or click <strong>"Copy Full SQL Code"</strong>.</li>
+                <li>Go to your <strong>Supabase Dashboard</strong> → <strong>SQL Editor</strong>.</li>
+                <li>Click <strong>New Query</strong>, paste the script, and click <strong>Run</strong>!</li>
               </ol>
             </div>
 
-            <div className="relative">
+            <div className="relative flex-1 min-h-[250px] overflow-hidden">
               <textarea
                 readOnly
-                rows={10}
-                value={`-- 1. Create or Update fts_posts table for cross-device sync
+                rows={12}
+                value={`-- ====================================================================
+-- FULL TIME SPORTS (THE SPORTS ROOM) COMPLETE POSTGRESQL DATABASE SCHEMA
+-- Target Environment: Supabase / PostgreSQL SQL Editor
+-- Completely fixes Egress limits & type conflicts for tags (JSONB / text[])
+-- ====================================================================
+
 CREATE TABLE IF NOT EXISTS public.fts_posts (
-  id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  slug TEXT NOT NULL,
-  content TEXT,
-  category TEXT DEFAULT 'cricket',
-  tags TEXT[],
-  featured_image TEXT,
-  video_url TEXT,
-  author TEXT DEFAULT 'FTS Desk',
-  author_email TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  is_featured BOOLEAN DEFAULT FALSE,
-  is_trending BOOLEAN DEFAULT FALSE,
-  type TEXT DEFAULT 'news',
-  scheduled_for TEXT,
-  is_draft BOOLEAN DEFAULT FALSE,
-  heading_tag TEXT DEFAULT 'h1',
-  subheading TEXT,
-  meta_title TEXT,
-  meta_description TEXT,
-  focus_keyword TEXT,
-  canonical_url TEXT,
-  geo_summary TEXT,
-  geo_entities TEXT[],
-  aeo_direct_answer TEXT,
-  aeo_faq JSONB,
-  schema_type TEXT DEFAULT 'NewsArticle',
-  meta_robots TEXT DEFAULT 'index, follow',
-  views BIGINT DEFAULT 0
+    id VARCHAR(128) PRIMARY KEY,
+    title TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    content TEXT NOT NULL,
+    category VARCHAR(64) NOT NULL DEFAULT 'cricket',
+    tags JSONB DEFAULT '[]'::jsonb,
+    featured_image TEXT,
+    image_alt TEXT,
+    video_url TEXT,
+    author TEXT NOT NULL DEFAULT 'Hanan Irfan',
+    author_email TEXT DEFAULT 'hananirfan91@gmail.com',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    is_featured BOOLEAN DEFAULT FALSE,
+    is_trending BOOLEAN DEFAULT FALSE,
+    type VARCHAR(32) NOT NULL DEFAULT 'news',
+    scheduled_for TEXT DEFAULT '',
+    meta_description TEXT DEFAULT '',
+    views INT DEFAULT 0,
+    is_draft BOOLEAN DEFAULT FALSE,
+    heading_tag VARCHAR(16) DEFAULT 'h1',
+    subheading TEXT DEFAULT '',
+    meta_title TEXT DEFAULT '',
+    focus_keyword TEXT DEFAULT '',
+    canonical_url TEXT DEFAULT '',
+    geo_summary TEXT DEFAULT '',
+    geo_entities JSONB DEFAULT '[]'::jsonb,
+    aeo_direct_answer TEXT DEFAULT '',
+    aeo_faq JSONB DEFAULT '[]'::jsonb,
+    schema_type VARCHAR(64) DEFAULT 'NewsArticle',
+    meta_robots VARCHAR(64) DEFAULT 'index, follow'
 );
 
--- 2. Add missing columns if table already exists
+-- Safely convert existing tags / geo_entities columns to JSONB if they were created as text[] or array
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND udt_name = '_text'
+    ) THEN
+        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE jsonb USING to_jsonb(tags);
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND udt_name = '_text'
+    ) THEN
+        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE jsonb USING to_jsonb(geo_entities);
+    END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.fts_categories (
+    id VARCHAR(64) PRIMARY KEY,
+    name VARCHAR(128) NOT NULL,
+    slug VARCHAR(128) NOT NULL UNIQUE,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_rankings (
+    id VARCHAR(128) PRIMARY KEY,
+    sport VARCHAR(64) NOT NULL,
+    category_name VARCHAR(255) NOT NULL,
+    categoryname VARCHAR(255),
+    rank INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    country VARCHAR(128),
+    points TEXT NOT NULL,
+    extra TEXT
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_fixtures (
+    id VARCHAR(128) PRIMARY KEY,
+    sport VARCHAR(64) NOT NULL,
+    team1 VARCHAR(255) NOT NULL,
+    team1_logo TEXT,
+    team2 VARCHAR(255) NOT NULL,
+    team2_logo TEXT,
+    date VARCHAR(64) NOT NULL,
+    time VARCHAR(64) NOT NULL,
+    venue VARCHAR(255),
+    status VARCHAR(32) NOT NULL DEFAULT 'upcoming',
+    score VARCHAR(128),
+    stage VARCHAR(128)
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_media (
+    id VARCHAR(128) PRIMARY KEY,
+    file_url TEXT NOT NULL,
+    type VARCHAR(32) NOT NULL DEFAULT 'image',
+    title VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_subscribers (
+    id VARCHAR(128) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_live_streams (
+    id VARCHAR(128) PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    platform VARCHAR(64) NOT NULL DEFAULT 'youtube',
+    video_url TEXT NOT NULL,
+    embed_url TEXT NOT NULL,
+    thumbnail TEXT,
+    status VARCHAR(32) NOT NULL DEFAULT 'active',
+    is_featured BOOLEAN DEFAULT FALSE,
+    match_name VARCHAR(255),
+    team_one VARCHAR(128),
+    team_two VARCHAR(128),
+    tournament VARCHAR(255),
+    stream_start TIMESTAMPTZ,
+    stream_end TIMESTAMPTZ,
+    created_by VARCHAR(128),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    enable_chat BOOLEAN DEFAULT TRUE,
+    views INT DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_hero_config (
+    id VARCHAR(64) PRIMARY KEY DEFAULT 'hero_main_config',
+    enabled BOOLEAN DEFAULT TRUE,
+    live_badge_text TEXT,
+    heading TEXT,
+    subtitle TEXT,
+    background_video_url TEXT,
+    background_image_url TEXT,
+    overlay_opacity NUMERIC DEFAULT 0.65,
+    overlay_blur NUMERIC DEFAULT 2,
+    hero_height VARCHAR(32) DEFAULT 'medium',
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_users (
+    id VARCHAR(128) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    role VARCHAR(128) NOT NULL DEFAULT 'Sports Writer',
+    password TEXT,
+    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
+    is_writer BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS is_draft BOOLEAN DEFAULT FALSE;
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS heading_tag TEXT DEFAULT 'h1';
@@ -3114,60 +3353,188 @@ ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS aeo_faq JSONB;
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS schema_type TEXT DEFAULT 'NewsArticle';
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS meta_robots TEXT DEFAULT 'index, follow';
 
--- 3. Enable RLS and grant public read/write access
+ALTER TABLE public.fts_rankings ADD COLUMN IF NOT EXISTS category_name VARCHAR(255) DEFAULT 'Rankings';
+ALTER TABLE public.fts_rankings ADD COLUMN IF NOT EXISTS categoryname VARCHAR(255) DEFAULT 'Rankings';
+
 ALTER TABLE public.fts_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_rankings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_fixtures ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_subscribers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_live_streams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_hero_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_users ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read access" ON public.fts_posts;
-DROP POLICY IF EXISTS "Allow public insert access" ON public.fts_posts;
-DROP POLICY IF EXISTS "Allow public update access" ON public.fts_posts;
-DROP POLICY IF EXISTS "Allow public delete access" ON public.fts_posts;
+DROP POLICY IF EXISTS "Public select posts" ON public.fts_posts;
+DROP POLICY IF EXISTS "Public insert posts" ON public.fts_posts;
+DROP POLICY IF EXISTS "Public update posts" ON public.fts_posts;
+DROP POLICY IF EXISTS "Public delete posts" ON public.fts_posts;
 
-CREATE POLICY "Allow public read access" ON public.fts_posts FOR SELECT USING (true);
-CREATE POLICY "Allow public insert access" ON public.fts_posts FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public update access" ON public.fts_posts FOR UPDATE USING (true);
-CREATE POLICY "Allow public delete access" ON public.fts_posts FOR DELETE USING (true);
+CREATE POLICY "Public select posts" ON public.fts_posts FOR SELECT USING (true);
+CREATE POLICY "Public insert posts" ON public.fts_posts FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public update posts" ON public.fts_posts FOR UPDATE USING (true);
+CREATE POLICY "Public delete posts" ON public.fts_posts FOR DELETE USING (true);
 
-GRANT ALL ON TABLE public.fts_posts TO anon, authenticated, service_role;`}
-                className="w-full bg-slate-900 text-emerald-400 font-mono text-xs p-3.5 rounded-xl leading-relaxed focus:outline-none"
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+
+INSERT INTO public.fts_users (id, name, email, role, password, is_approved, is_writer)
+VALUES ('admin-super', 'Hanan Irfan', 'hananirfan91@gmail.com', 'Super Admin', 'hanan@2007.', TRUE, TRUE)
+ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = 'Super Admin';`}
+                className="w-full h-full bg-slate-950 text-emerald-400 font-mono text-xs p-4 rounded-xl leading-relaxed focus:outline-none overflow-y-auto"
               />
             </div>
 
-            <div className="flex justify-between items-center pt-2">
+            <div className="flex justify-between items-center pt-2 shrink-0">
               <button
                 type="button"
                 onClick={() => {
-                  const sqlText = `-- 1. Create or Update fts_posts table for cross-device sync
+                  const sqlText = `-- FULL TIME SPORTS COMPLETE SCHEMA
 CREATE TABLE IF NOT EXISTS public.fts_posts (
-  id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  slug TEXT NOT NULL,
-  content TEXT,
-  category TEXT DEFAULT 'cricket',
-  tags TEXT[],
-  featured_image TEXT,
-  video_url TEXT,
-  author TEXT DEFAULT 'FTS Desk',
-  author_email TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  is_featured BOOLEAN DEFAULT FALSE,
-  is_trending BOOLEAN DEFAULT FALSE,
-  type TEXT DEFAULT 'news',
-  scheduled_for TEXT,
-  is_draft BOOLEAN DEFAULT FALSE,
-  heading_tag TEXT DEFAULT 'h1',
-  subheading TEXT,
-  meta_title TEXT,
-  meta_description TEXT,
-  focus_keyword TEXT,
-  canonical_url TEXT,
-  geo_summary TEXT,
-  geo_entities TEXT[],
-  aeo_direct_answer TEXT,
-  aeo_faq JSONB,
-  schema_type TEXT DEFAULT 'NewsArticle',
-  meta_robots TEXT DEFAULT 'index, follow',
-  views BIGINT DEFAULT 0
+    id VARCHAR(128) PRIMARY KEY,
+    title TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    content TEXT NOT NULL,
+    category VARCHAR(64) NOT NULL DEFAULT 'cricket',
+    tags JSONB DEFAULT '[]'::jsonb,
+    featured_image TEXT,
+    image_alt TEXT,
+    video_url TEXT,
+    author TEXT NOT NULL DEFAULT 'Hanan Irfan',
+    author_email TEXT DEFAULT 'hananirfan91@gmail.com',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    is_featured BOOLEAN DEFAULT FALSE,
+    is_trending BOOLEAN DEFAULT FALSE,
+    type VARCHAR(32) NOT NULL DEFAULT 'news',
+    scheduled_for TEXT DEFAULT '',
+    meta_description TEXT DEFAULT '',
+    views INT DEFAULT 0,
+    is_draft BOOLEAN DEFAULT FALSE,
+    heading_tag VARCHAR(16) DEFAULT 'h1',
+    subheading TEXT DEFAULT '',
+    meta_title TEXT DEFAULT '',
+    focus_keyword TEXT DEFAULT '',
+    canonical_url TEXT DEFAULT '',
+    geo_summary TEXT DEFAULT '',
+    geo_entities JSONB DEFAULT '[]'::jsonb,
+    aeo_direct_answer TEXT DEFAULT '',
+    aeo_faq JSONB DEFAULT '[]'::jsonb,
+    schema_type VARCHAR(64) DEFAULT 'NewsArticle',
+    meta_robots VARCHAR(64) DEFAULT 'index, follow'
+);
+
+-- Safely convert existing tags / geo_entities columns to JSONB if they were created as text[] or array
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND udt_name = '_text'
+    ) THEN
+        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE jsonb USING to_jsonb(tags);
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND udt_name = '_text'
+    ) THEN
+        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE jsonb USING to_jsonb(geo_entities);
+    END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.fts_categories (
+    id VARCHAR(64) PRIMARY KEY,
+    name VARCHAR(128) NOT NULL,
+    slug VARCHAR(128) NOT NULL UNIQUE,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_rankings (
+    id VARCHAR(128) PRIMARY KEY,
+    sport VARCHAR(64) NOT NULL,
+    category_name VARCHAR(255) NOT NULL,
+    categoryname VARCHAR(255),
+    rank INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    country VARCHAR(128),
+    points TEXT NOT NULL,
+    extra TEXT
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_fixtures (
+    id VARCHAR(128) PRIMARY KEY,
+    sport VARCHAR(64) NOT NULL,
+    team1 VARCHAR(255) NOT NULL,
+    team1_logo TEXT,
+    team2 VARCHAR(255) NOT NULL,
+    team2_logo TEXT,
+    date VARCHAR(64) NOT NULL,
+    time VARCHAR(64) NOT NULL,
+    venue VARCHAR(255),
+    status VARCHAR(32) NOT NULL DEFAULT 'upcoming',
+    score VARCHAR(128),
+    stage VARCHAR(128)
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_media (
+    id VARCHAR(128) PRIMARY KEY,
+    file_url TEXT NOT NULL,
+    type VARCHAR(32) NOT NULL DEFAULT 'image',
+    title VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_subscribers (
+    id VARCHAR(128) PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_live_streams (
+    id VARCHAR(128) PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT,
+    platform VARCHAR(64) NOT NULL DEFAULT 'youtube',
+    video_url TEXT NOT NULL,
+    embed_url TEXT NOT NULL,
+    thumbnail TEXT,
+    status VARCHAR(32) NOT NULL DEFAULT 'active',
+    is_featured BOOLEAN DEFAULT FALSE,
+    match_name VARCHAR(255),
+    team_one VARCHAR(128),
+    team_two VARCHAR(128),
+    tournament VARCHAR(255),
+    stream_start TIMESTAMPTZ,
+    stream_end TIMESTAMPTZ,
+    created_by VARCHAR(128),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    enable_chat BOOLEAN DEFAULT TRUE,
+    views INT DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_hero_config (
+    id VARCHAR(64) PRIMARY KEY DEFAULT 'hero_main_config',
+    enabled BOOLEAN DEFAULT TRUE,
+    live_badge_text TEXT,
+    heading TEXT,
+    subtitle TEXT,
+    background_video_url TEXT,
+    background_image_url TEXT,
+    overlay_opacity NUMERIC DEFAULT 0.65,
+    overlay_blur NUMERIC DEFAULT 2,
+    hero_height VARCHAR(32) DEFAULT 'medium',
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.fts_users (
+    id VARCHAR(128) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    role VARCHAR(128) NOT NULL DEFAULT 'Sports Writer',
+    password TEXT,
+    is_approved BOOLEAN NOT NULL DEFAULT FALSE,
+    is_writer BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
@@ -3185,30 +3552,45 @@ ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS aeo_faq JSONB;
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS schema_type TEXT DEFAULT 'NewsArticle';
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS meta_robots TEXT DEFAULT 'index, follow';
 
+ALTER TABLE public.fts_rankings ADD COLUMN IF NOT EXISTS category_name VARCHAR(255) DEFAULT 'Rankings';
+ALTER TABLE public.fts_rankings ADD COLUMN IF NOT EXISTS categoryname VARCHAR(255) DEFAULT 'Rankings';
+
 ALTER TABLE public.fts_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_rankings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_fixtures ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_subscribers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_live_streams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_hero_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fts_users ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read access" ON public.fts_posts;
-DROP POLICY IF EXISTS "Allow public insert access" ON public.fts_posts;
-DROP POLICY IF EXISTS "Allow public update access" ON public.fts_posts;
-DROP POLICY IF EXISTS "Allow public delete access" ON public.fts_posts;
+DROP POLICY IF EXISTS "Public select posts" ON public.fts_posts;
+DROP POLICY IF EXISTS "Public insert posts" ON public.fts_posts;
+DROP POLICY IF EXISTS "Public update posts" ON public.fts_posts;
+DROP POLICY IF EXISTS "Public delete posts" ON public.fts_posts;
 
-CREATE POLICY "Allow public read access" ON public.fts_posts FOR SELECT USING (true);
-CREATE POLICY "Allow public insert access" ON public.fts_posts FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public update access" ON public.fts_posts FOR UPDATE USING (true);
-CREATE POLICY "Allow public delete access" ON public.fts_posts FOR DELETE USING (true);
+CREATE POLICY "Public select posts" ON public.fts_posts FOR SELECT USING (true);
+CREATE POLICY "Public insert posts" ON public.fts_posts FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public update posts" ON public.fts_posts FOR UPDATE USING (true);
+CREATE POLICY "Public delete posts" ON public.fts_posts FOR DELETE USING (true);
 
-GRANT ALL ON TABLE public.fts_posts TO anon, authenticated, service_role;`;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
+
+INSERT INTO public.fts_users (id, name, email, role, password, is_approved, is_writer)
+VALUES ('admin-super', 'Hanan Irfan', 'hananirfan91@gmail.com', 'Super Admin', 'hanan@2007.', TRUE, TRUE)
+ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = 'Super Admin';`;
                   navigator.clipboard.writeText(sqlText);
-                  alert("📋 SQL Fix Script copied to clipboard! Paste it into Supabase SQL Editor.");
+                  alert("📋 Complete PostgreSQL Database Script copied to clipboard!");
                 }}
-                className="bg-[#022c22] hover:bg-[#034434] text-[#22c55e] border border-emerald-800 font-mono text-xs font-bold px-4 py-2 rounded-lg transition"
+                className="bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] border border-emerald-950 font-mono text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer shadow-sm"
               >
-                📋 Copy SQL Script
+                📋 Copy Full PostgreSQL Code
               </button>
               <button
                 type="button"
                 onClick={() => setIsSqlModalOpen(false)}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg transition"
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
               >
                 Close Window
               </button>
