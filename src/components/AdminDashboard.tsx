@@ -3188,16 +3188,21 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                 value={`-- ====================================================================
 -- FULL TIME SPORTS (THE SPORTS ROOM) COMPLETE POSTGRESQL DATABASE SCHEMA
 -- Target Environment: Supabase / PostgreSQL SQL Editor
--- Completely fixes Egress limits & type conflicts for tags (JSONB / text[])
+-- Schema Type: TEXT[] for tags & geo_entities (Fully Egress Optimized)
 -- ====================================================================
 
+-- 1. Enable Required Extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+
+-- 2. EDITORIAL POSTS TABLE (fts_posts)
 CREATE TABLE IF NOT EXISTS public.fts_posts (
     id VARCHAR(128) PRIMARY KEY,
     title TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
     content TEXT NOT NULL,
     category VARCHAR(64) NOT NULL DEFAULT 'cricket',
-    tags JSONB DEFAULT '[]'::jsonb,
+    tags TEXT[] DEFAULT '{}',
     featured_image TEXT,
     image_alt TEXT,
     video_url TEXT,
@@ -3218,29 +3223,35 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     focus_keyword TEXT DEFAULT '',
     canonical_url TEXT DEFAULT '',
     geo_summary TEXT DEFAULT '',
-    geo_entities JSONB DEFAULT '[]'::jsonb,
+    geo_entities TEXT[] DEFAULT '{}',
     aeo_direct_answer TEXT DEFAULT '',
     aeo_faq JSONB DEFAULT '[]'::jsonb,
     schema_type VARCHAR(64) DEFAULT 'NewsArticle',
     meta_robots VARCHAR(64) DEFAULT 'index, follow'
 );
 
--- Safely convert existing tags / geo_entities columns to JSONB if they were created as text[] or array
+-- Safely convert existing tags / geo_entities columns to TEXT[] if they were created as jsonb or other types
 DO $$
 BEGIN
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND udt_name = '_text'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND data_type = 'jsonb'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE jsonb USING to_jsonb(tags);
+        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE text[] USING (
+            SELECT ARRAY(SELECT jsonb_array_elements_text(tags))
+        );
     END IF;
 
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND udt_name = '_text'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND data_type = 'jsonb'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE jsonb USING to_jsonb(geo_entities);
+        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE text[] USING (
+            SELECT ARRAY(SELECT jsonb_array_elements_text(geo_entities))
+        );
     END IF;
+EXCEPTION WHEN OTHERS THEN
+    NULL;
 END $$;
 
 CREATE TABLE IF NOT EXISTS public.fts_categories (
@@ -3396,7 +3407,7 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     slug TEXT NOT NULL UNIQUE,
     content TEXT NOT NULL,
     category VARCHAR(64) NOT NULL DEFAULT 'cricket',
-    tags JSONB DEFAULT '[]'::jsonb,
+    tags TEXT[] DEFAULT '{}',
     featured_image TEXT,
     image_alt TEXT,
     video_url TEXT,
@@ -3417,29 +3428,35 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     focus_keyword TEXT DEFAULT '',
     canonical_url TEXT DEFAULT '',
     geo_summary TEXT DEFAULT '',
-    geo_entities JSONB DEFAULT '[]'::jsonb,
+    geo_entities TEXT[] DEFAULT '{}',
     aeo_direct_answer TEXT DEFAULT '',
     aeo_faq JSONB DEFAULT '[]'::jsonb,
     schema_type VARCHAR(64) DEFAULT 'NewsArticle',
     meta_robots VARCHAR(64) DEFAULT 'index, follow'
 );
 
--- Safely convert existing tags / geo_entities columns to JSONB if they were created as text[] or array
+-- Safely convert existing tags / geo_entities columns to TEXT[] if they were created as jsonb or other types
 DO $$
 BEGIN
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND udt_name = '_text'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND data_type = 'jsonb'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE jsonb USING to_jsonb(tags);
+        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE text[] USING (
+            SELECT ARRAY(SELECT jsonb_array_elements_text(tags))
+        );
     END IF;
 
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND udt_name = '_text'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND data_type = 'jsonb'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE jsonb USING to_jsonb(geo_entities);
+        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE text[] USING (
+            SELECT ARRAY(SELECT jsonb_array_elements_text(geo_entities))
+        );
     END IF;
+EXCEPTION WHEN OTHERS THEN
+    NULL;
 END $$;
 
 CREATE TABLE IF NOT EXISTS public.fts_categories (

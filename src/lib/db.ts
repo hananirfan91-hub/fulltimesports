@@ -671,11 +671,19 @@ export class DB {
     }
   }
 
+  private static lastSyncTimestamp = 0;
+  private static CACHE_TTL_MS = 5 * 60 * 1000; // 5-minute cache window to eliminate unnecessary Supabase egress
+
   static parseRemotePost(p: any): Post {
     const safeArrayParse = (val: any) => {
       if (Array.isArray(val)) return val;
       if (typeof val === 'string' && val.trim()) {
-        try { return JSON.parse(val); } catch { return [val]; }
+        const trimmed = val.trim();
+        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+          // Parse PostgreSQL text[] representation e.g. {"cricket news", "wrist spin tactics"}
+          return trimmed.slice(1, -1).split(',').map(s => s.trim().replace(/^"/, '').replace(/"$/, ''));
+        }
+        try { return JSON.parse(trimmed); } catch { return [trimmed]; }
       }
       return [];
     };
@@ -718,7 +726,14 @@ export class DB {
     return fullPost;
   }
 
-  static async syncFromSupabase() {
+  static async syncFromSupabase(force = false) {
+    const now = Date.now();
+    // Cache check: Skip remote queries if data was synced within 5-10 minutes unless explicitly forced
+    if (!force && now - DB.lastSyncTimestamp < DB.CACHE_TTL_MS) {
+      return;
+    }
+    DB.lastSyncTimestamp = now;
+
     try {
       // 1. Sync Categories
       const { data: categories, error: catError } = await supabase.from('fts_categories').select('*');
@@ -736,8 +751,30 @@ export class DB {
         }
       }
 
-      // 2. Sync Posts with robust bi-directional merge and deletion sync
-      const { data: remotePosts, error: postError } = await supabase.from('fts_posts').select('*');
+      // 2. Sync Posts with Egress Optimization: Fetch 20 posts with fallback for column safety
+      let remotePosts: any[] | null = null;
+      let postError: any = null;
+
+      const { data: summaryData, error: summaryErr } = await supabase
+        .from('fts_posts')
+        .select('id, title, slug, category, tags, featured_image, image_alt, video_url, author, author_email, created_at, updated_at, is_featured, is_trending, type, meta_description, views, is_draft')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (summaryErr) {
+        // Fallback to select('*') if explicit column selection fails due to missing optional schema fields
+        const { data: fallbackData, error: fallbackErr } = await supabase
+          .from('fts_posts')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(20);
+
+        remotePosts = fallbackData;
+        postError = fallbackErr;
+      } else {
+        remotePosts = summaryData;
+      }
+
       if (postError) {
         console.error("Supabase fetch posts error:", postError);
       } else if (remotePosts) {
@@ -778,6 +815,11 @@ export class DB {
               postsMap.set(lp.id, lp);
               unsyncedToPush.push(lp);
             } else {
+              // Preserve full content if local post already fetched full article body
+              if (lp.content && lp.content.length > (existing.content || '').length) {
+                existing.content = lp.content;
+              }
+
               // Compare timestamps if both exist
               const existingTime = new Date(existing.updated_at || existing.created_at).getTime() || 0;
               const localTime = new Date(lp.updated_at || lp.created_at).getTime() || 0;
@@ -1028,13 +1070,18 @@ export class DB {
       }
 
       (window as any)._fts_sync_interval = setInterval(() => {
-        this.syncFromSupabase();
-      }, 10000);
+        this.syncFromSupabase(false);
+      }, 300000); // 5-minute cache interval to prevent egress overuse
 
       window.addEventListener('focus', () => {
-        this.syncFromSupabase();
+        this.syncFromSupabase(false);
       });
     }
+  }
+
+  // Get Top 10 Posts for Homepage Egress Limits
+  static getHomePosts(): Post[] {
+    return this.getPosts().slice(0, 10);
   }
 
   // LIVE STREAMS MODULE

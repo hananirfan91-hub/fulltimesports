@@ -1,7 +1,7 @@
 -- ====================================================================
 -- FULL TIME SPORTS (THE SPORTS ROOM) COMPLETE POSTGRESQL DATABASE SCHEMA
 -- Target Environment: Supabase / PostgreSQL SQL Editor
--- Completely fixes Egress limits & type conflicts for tags (JSONB / text[])
+-- Schema Type: TEXT[] for tags & geo_entities (Fully Egress Optimized)
 -- ====================================================================
 
 -- 1. Enable Required Extensions
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     slug TEXT NOT NULL UNIQUE,
     content TEXT NOT NULL,
     category VARCHAR(64) NOT NULL DEFAULT 'cricket',
-    tags JSONB DEFAULT '[]'::jsonb,
+    tags TEXT[] DEFAULT '{}',
     featured_image TEXT,
     image_alt TEXT,
     video_url TEXT,
@@ -36,32 +36,39 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     focus_keyword TEXT DEFAULT '',
     canonical_url TEXT DEFAULT '',
     geo_summary TEXT DEFAULT '',
-    geo_entities JSONB DEFAULT '[]'::jsonb,
+    geo_entities TEXT[] DEFAULT '{}',
     aeo_direct_answer TEXT DEFAULT '',
     aeo_faq JSONB DEFAULT '[]'::jsonb,
     schema_type VARCHAR(64) DEFAULT 'NewsArticle',
     meta_robots VARCHAR(64) DEFAULT 'index, follow'
 );
 
--- Safely convert existing tags / geo_entities columns to JSONB if they were created as text[] or array
+-- Safely convert existing tags / geo_entities columns to TEXT[] if they were created as jsonb or other types
 DO $$
 BEGIN
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND udt_name = '_text'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND data_type = 'jsonb'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE jsonb USING to_jsonb(tags);
+        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE text[] USING (
+            SELECT ARRAY(SELECT jsonb_array_elements_text(tags))
+        );
     END IF;
 
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND udt_name = '_text'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND data_type = 'jsonb'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE jsonb USING to_jsonb(geo_entities);
+        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE text[] USING (
+            SELECT ARRAY(SELECT jsonb_array_elements_text(geo_entities))
+        );
     END IF;
+EXCEPTION WHEN OTHERS THEN
+    -- Fallback in case table or column state differs
+    NULL;
 END $$;
 
--- Performance & Egress Indexes
+-- Performance & Egress Optimization Indexes
 CREATE INDEX IF NOT EXISTS idx_fts_posts_slug ON public.fts_posts(slug);
 CREATE INDEX IF NOT EXISTS idx_fts_posts_category ON public.fts_posts(category);
 CREATE INDEX IF NOT EXISTS idx_fts_posts_created_at ON public.fts_posts(created_at DESC);
@@ -179,7 +186,7 @@ CREATE TABLE IF NOT EXISTS public.fts_users (
 
 CREATE INDEX IF NOT EXISTS idx_fts_users_email ON public.fts_users(email);
 
--- Ensure all required columns exist on fts_posts in case table already existed
+-- Ensure all required columns exist on fts_posts
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS is_draft BOOLEAN DEFAULT FALSE;
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS heading_tag TEXT DEFAULT 'h1';
@@ -226,7 +233,7 @@ INSERT INTO public.fts_users (id, name, email, role, password, is_approved, is_w
 VALUES ('admin-super', 'Hanan Irfan', 'hananirfan91@gmail.com', 'Super Admin', 'hanan@2007.', TRUE, TRUE)
 ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = 'Super Admin';
 
--- Seed Initial Editorial Articles with JSONB tags (Prevents type cast error 42804)
+-- Seed Initial Editorial Articles using TEXT[] for tags (Fixes 42804 Error)
 INSERT INTO public.fts_posts (
     id, title, slug, content, category, tags, featured_image, video_url, author, author_email, created_at, is_featured, is_trending, type, meta_description, views
 ) VALUES 
@@ -240,7 +247,7 @@ In modern T20 cricket, middle overs (overs 7–15) were traditionally governed b
 
 Enter the mechanical evolution of the modern leg-spinner. Modern wrist spin utilizes aggressive seam angles, higher revolutions per minute (RPM), and disguised topspin deliveries to force mis-hits.',
     'cricket',
-    '["cricket news", "wrist spin tactics", "T20 powerplay", "ICC rankings"]'::jsonb,
+    ARRAY['cricket news', 'wrist spin tactics', 'T20 powerplay', 'ICC rankings'],
     'https://images.unsplash.com/photo-1531415080290-b9b6e27967b8?w=1200&auto=format&fit=crop&q=80',
     'jfKfPfyJRdk',
     'Hanan Irfan',
@@ -262,7 +269,7 @@ The traditional role of fullbacks pushing wide along the touchline has undergone
 
 This positional movement creates a numerical midfield overload, neutralizing opponent pressing traps and granting creative freedom to wingers.',
     'football',
-    '["football tactics", "Champions League", "tactical breakdown", "Premier League"]'::jsonb,
+    ARRAY['football tactics', 'Champions League', 'tactical breakdown', 'Premier League'],
     'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&auto=format&fit=crop&q=80',
     '21X5lGlDOfg',
     'Hanan Irfan',

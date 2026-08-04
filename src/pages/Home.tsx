@@ -31,8 +31,8 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
     }
 
     const loadData = () => {
-      const allPosts = DB.getPosts();
-      setPosts(allPosts);
+      const homePosts = DB.getHomePosts(); // Max 10 posts on homepage for egress optimization
+      setPosts(homePosts);
       setFixtures(DB.getFixtures());
     };
 
