@@ -31,7 +31,7 @@ export default function Footer({ onNavigate }: FooterProps) {
     "url": "https://thesportsroom.online",
     "logo": "https://images.unsplash.com/photo-1540747737956-378724044282?w=150",
     "sameAs": [
-      "https://www.facebook.com/profile.php?id=61590649439504",
+      "https://www.facebook.com/profile.php?id=61592459862127",
       "https://www.tiktok.com/@pathan_x_babarian565"
     ],
     "publishingPrinciples": "https://thesportsroom.online/editorial-standards",
@@ -53,7 +53,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             The Sports Room is a premium sports news platform providing real-time live scores, match breakdowns, player insights, and breaking global sports coverage.
           </p>
           <div className="flex items-center space-x-3 pt-2">
-            <a href="https://www.facebook.com/profile.php?id=61590649439504" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition flex items-center justify-center gap-1.5 text-xs font-mono font-bold" aria-label="Facebook">
+            <a href="https://www.facebook.com/profile.php?id=61592459862127" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition flex items-center justify-center gap-1.5 text-xs font-mono font-bold" aria-label="Facebook">
               <Facebook className="h-4 w-4 text-[#22c55e]" />
               <span>Facebook</span>
             </a>
