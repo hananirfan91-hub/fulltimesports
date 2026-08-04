@@ -333,14 +333,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           id: 'admin-3',
           name: 'Hanan Irfan',
           email: 'hananirfan91@gmail.com',
-          role: 'Super Admin'
+          role: 'Super Admin',
+          is_approved: true,
+          is_writer: true
         };
 
-        // Try dynamically registering profile and signing up in the background
+        // Dynamically register user into fts_users and local DB
         try {
-          await supabase.from('fts_profiles').upsert([
-            { id: adminUser.id, name: adminUser.name, email: adminUser.email, role: adminUser.role, password: loginPassword }
-          ]);
+          DB.registerAdmin(adminUser);
           await supabase.auth.signUp({
             email: emailLower,
             password: loginPassword,
@@ -370,7 +370,9 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           id: authData.user.id,
           name: meta.name || authData.user.email?.split('@')[0] || 'Contributor',
           email: authData.user.email || emailLower,
-          role: meta.role || 'Contributor'
+          role: meta.role || 'Contributor',
+          is_approved: emailLower === 'hananirfan91@gmail.com',
+          is_writer: true
         };
 
         DB.setCurrentAdmin(adminUser);
@@ -381,28 +383,31 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         return;
       }
 
-      // 3. Fallback: Lookup in fts_profiles table
-      const { data: profileList, error: profError } = await supabase
-        .from('fts_profiles')
+      // 3. Fallback: Lookup in fts_users table
+      const { data: userList, error: userError } = await supabase
+        .from('fts_users')
         .select('*')
-        .eq('email', emailLower)
-        .eq('password', loginPassword);
+        .eq('email', emailLower);
 
-      if (!profError && profileList && profileList.length > 0) {
-        const found = profileList[0];
-        const adminUser: AdminUser = {
-          id: found.id || `user-${Date.now()}`,
-          name: found.name,
-          email: found.email,
-          role: found.role
-        };
+      if (!userError && userList && userList.length > 0) {
+        const found = userList[0];
+        if (!found.password || found.password === loginPassword) {
+          const adminUser: AdminUser = {
+            id: found.id || `user-${Date.now()}`,
+            name: found.name,
+            email: found.email,
+            role: found.role,
+            is_approved: emailLower === 'hananirfan91@gmail.com' ? true : Boolean(found.is_approved),
+            is_writer: Boolean(found.is_writer ?? true)
+          };
 
-        DB.setCurrentAdmin(adminUser);
-        setCurrentAdmin(adminUser);
-        setLoginPassword('');
-        setTimeout(() => refreshData(), 100);
-        setIsSigningIn(false);
-        return;
+          DB.setCurrentAdmin(adminUser);
+          setCurrentAdmin(adminUser);
+          setLoginPassword('');
+          setTimeout(() => refreshData(), 100);
+          setIsSigningIn(false);
+          return;
+        }
       }
 
       setLoginError(authError?.message || 'Invalid email or password. Please try again.');
@@ -434,21 +439,22 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       const roleSelected = emailLower === 'hananirfan91@gmail.com' ? 'Super Admin' : signupRole;
       const newUserId = `user-${Date.now()}`;
+      const isApproved = emailLower === 'hananirfan91@gmail.com';
 
-      // 1. Try writing profile to public profiles table first
-      const { error: profError } = await supabase.from('fts_profiles').insert([{
+      const newlyRegisteredData: AdminUser = {
         id: newUserId,
         name: signupName.trim(),
         email: emailLower,
         role: roleSelected,
-        password: signupPassword
-      }]);
+        password: signupPassword,
+        is_approved: isApproved,
+        is_writer: true
+      };
 
-      if (profError) {
-        console.warn("Supabase profiles insert warn:", profError);
-      }
+      // 1. Write user to local storage AND sync to Supabase fts_users table
+      DB.registerAdmin(newlyRegisteredData);
 
-      // 2. Try registering on Supabase Auth
+      // 2. Register on Supabase Auth (non-blocking)
       try {
         const { error: authError } = await supabase.auth.signUp({
           email: emailLower,
@@ -465,14 +471,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         console.warn("Non-blocking auth signup error:", authErr);
       }
 
-      // 3. Log them in automatically
-      const newlyRegisteredData: AdminUser = {
-        id: newUserId,
-        name: signupName.trim(),
-        email: emailLower,
-        role: roleSelected
-      };
-
+      // 3. Set current logged in admin
       DB.setCurrentAdmin(newlyRegisteredData);
       setCurrentAdmin(newlyRegisteredData);
 
@@ -518,17 +517,23 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       DB.setCurrentAdmin(updatedUser);
       setCurrentAdmin(updatedUser);
 
-      // 2. Sync to Supabase
+      // 2. Sync to Supabase fts_users table
       const { error: syncError } = await supabase
-        .from('fts_profiles')
+        .from('fts_users')
         .upsert([
           { 
             id: currentAdmin.id, 
             name: profileName.trim(), 
             email: currentAdmin.email, 
-            role: profileRole 
+            role: profileRole,
+            is_approved: currentAdmin.is_approved,
+            is_writer: true
           }
         ], { onConflict: 'email' });
+
+      if (syncError) {
+        console.warn("Supabase users sync warning:", syncError);
+      }
 
       if (syncError) {
         console.warn("Supabase profiles sync warning:", syncError);
@@ -3233,25 +3238,43 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
 -- Safely convert existing tags / geo_entities columns to TEXT[] if they were created as jsonb or other types
 DO $$
 BEGIN
+    -- 1. Convert tags column to text[] if it exists and is not text[]
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND data_type = 'jsonb'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND udt_name != '_text'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE text[] USING (
-            SELECT ARRAY(SELECT jsonb_array_elements_text(tags))
-        );
+        BEGIN
+            EXECUTE 'ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE text[] USING (
+                CASE 
+                    WHEN tags IS NULL THEN ''{}''::text[]
+                    WHEN pg_typeof(tags)::text = ''jsonb'' THEN (SELECT COALESCE(array_agg(x), ''{}''::text[]) FROM jsonb_array_elements_text(tags) t(x))
+                    ELSE translate(tags::text, ''[]"'', ''{}'')::text[]
+                END
+            )';
+        EXCEPTION WHEN OTHERS THEN
+            EXECUTE 'ALTER TABLE public.fts_posts DROP COLUMN IF EXISTS tags';
+            EXECUTE 'ALTER TABLE public.fts_posts ADD COLUMN tags TEXT[] DEFAULT ''{}''';
+        END;
     END IF;
 
+    -- 2. Convert geo_entities column to text[] if it exists and is not text[]
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND data_type = 'jsonb'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND udt_name != '_text'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE text[] USING (
-            SELECT ARRAY(SELECT jsonb_array_elements_text(geo_entities))
-        );
+        BEGIN
+            EXECUTE 'ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE text[] USING (
+                CASE 
+                    WHEN geo_entities IS NULL THEN ''{}''::text[]
+                    WHEN pg_typeof(geo_entities)::text = ''jsonb'' THEN (SELECT COALESCE(array_agg(x), ''{}''::text[]) FROM jsonb_array_elements_text(geo_entities) t(x))
+                    ELSE translate(geo_entities::text, ''[]"'', ''{}'')::text[]
+                END
+            )';
+        EXCEPTION WHEN OTHERS THEN
+            EXECUTE 'ALTER TABLE public.fts_posts DROP COLUMN IF EXISTS geo_entities';
+            EXECUTE 'ALTER TABLE public.fts_posts ADD COLUMN geo_entities TEXT[] DEFAULT ''{}''';
+        END;
     END IF;
-EXCEPTION WHEN OTHERS THEN
-    NULL;
 END $$;
 
 CREATE TABLE IF NOT EXISTS public.fts_categories (
@@ -3438,25 +3461,43 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
 -- Safely convert existing tags / geo_entities columns to TEXT[] if they were created as jsonb or other types
 DO $$
 BEGIN
+    -- 1. Convert tags column to text[] if it exists and is not text[]
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND data_type = 'jsonb'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND udt_name != '_text'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE text[] USING (
-            SELECT ARRAY(SELECT jsonb_array_elements_text(tags))
-        );
+        BEGIN
+            EXECUTE 'ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE text[] USING (
+                CASE 
+                    WHEN tags IS NULL THEN ''{}''::text[]
+                    WHEN pg_typeof(tags)::text = ''jsonb'' THEN (SELECT COALESCE(array_agg(x), ''{}''::text[]) FROM jsonb_array_elements_text(tags) t(x))
+                    ELSE translate(tags::text, ''[]"'', ''{}'')::text[]
+                END
+            )';
+        EXCEPTION WHEN OTHERS THEN
+            EXECUTE 'ALTER TABLE public.fts_posts DROP COLUMN IF EXISTS tags';
+            EXECUTE 'ALTER TABLE public.fts_posts ADD COLUMN tags TEXT[] DEFAULT ''{}''';
+        END;
     END IF;
 
+    -- 2. Convert geo_entities column to text[] if it exists and is not text[]
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND data_type = 'jsonb'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND udt_name != '_text'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE text[] USING (
-            SELECT ARRAY(SELECT jsonb_array_elements_text(geo_entities))
-        );
+        BEGIN
+            EXECUTE 'ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE text[] USING (
+                CASE 
+                    WHEN geo_entities IS NULL THEN ''{}''::text[]
+                    WHEN pg_typeof(geo_entities)::text = ''jsonb'' THEN (SELECT COALESCE(array_agg(x), ''{}''::text[]) FROM jsonb_array_elements_text(geo_entities) t(x))
+                    ELSE translate(geo_entities::text, ''[]"'', ''{}'')::text[]
+                END
+            )';
+        EXCEPTION WHEN OTHERS THEN
+            EXECUTE 'ALTER TABLE public.fts_posts DROP COLUMN IF EXISTS geo_entities';
+            EXECUTE 'ALTER TABLE public.fts_posts ADD COLUMN geo_entities TEXT[] DEFAULT ''{}''';
+        END;
     END IF;
-EXCEPTION WHEN OTHERS THEN
-    NULL;
 END $$;
 
 CREATE TABLE IF NOT EXISTS public.fts_categories (

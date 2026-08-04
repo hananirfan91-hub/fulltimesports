@@ -46,26 +46,43 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
 -- Safely convert existing tags / geo_entities columns to TEXT[] if they were created as jsonb or other types
 DO $$
 BEGIN
+    -- 1. Convert tags column to text[] if it exists and is not text[]
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND data_type = 'jsonb'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'tags' AND udt_name != '_text'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE text[] USING (
-            SELECT ARRAY(SELECT jsonb_array_elements_text(tags))
-        );
+        BEGIN
+            EXECUTE 'ALTER TABLE public.fts_posts ALTER COLUMN tags TYPE text[] USING (
+                CASE 
+                    WHEN tags IS NULL THEN ''{}''::text[]
+                    WHEN pg_typeof(tags)::text = ''jsonb'' THEN (SELECT COALESCE(array_agg(x), ''{}''::text[]) FROM jsonb_array_elements_text(tags) t(x))
+                    ELSE translate(tags::text, ''[]"'', ''{}'')::text[]
+                END
+            )';
+        EXCEPTION WHEN OTHERS THEN
+            EXECUTE 'ALTER TABLE public.fts_posts DROP COLUMN IF EXISTS tags';
+            EXECUTE 'ALTER TABLE public.fts_posts ADD COLUMN tags TEXT[] DEFAULT ''{}''';
+        END;
     END IF;
 
+    -- 2. Convert geo_entities column to text[] if it exists and is not text[]
     IF EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND data_type = 'jsonb'
+        WHERE table_schema = 'public' AND table_name = 'fts_posts' AND column_name = 'geo_entities' AND udt_name != '_text'
     ) THEN
-        ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE text[] USING (
-            SELECT ARRAY(SELECT jsonb_array_elements_text(geo_entities))
-        );
+        BEGIN
+            EXECUTE 'ALTER TABLE public.fts_posts ALTER COLUMN geo_entities TYPE text[] USING (
+                CASE 
+                    WHEN geo_entities IS NULL THEN ''{}''::text[]
+                    WHEN pg_typeof(geo_entities)::text = ''jsonb'' THEN (SELECT COALESCE(array_agg(x), ''{}''::text[]) FROM jsonb_array_elements_text(geo_entities) t(x))
+                    ELSE translate(geo_entities::text, ''[]"'', ''{}'')::text[]
+                END
+            )';
+        EXCEPTION WHEN OTHERS THEN
+            EXECUTE 'ALTER TABLE public.fts_posts DROP COLUMN IF EXISTS geo_entities';
+            EXECUTE 'ALTER TABLE public.fts_posts ADD COLUMN geo_entities TEXT[] DEFAULT ''{}''';
+        END;
     END IF;
-EXCEPTION WHEN OTHERS THEN
-    -- Fallback in case table or column state differs
-    NULL;
 END $$;
 
 -- Performance & Egress Optimization Indexes
