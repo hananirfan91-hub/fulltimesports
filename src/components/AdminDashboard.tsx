@@ -1067,45 +1067,41 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           <span>Live Streams ({liveStreams.length})</span>
         </button>
 
-        {currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
-          <>
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'users' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              <ShieldCheck className="h-4 w-4 text-[#22c55e]" />
-              <span>Writers & Approvals ({admins.length})</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('categories')}
-              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'categories' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              <FolderPlus className="h-4 w-4" />
-              <span>Categories ({categories.length})</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('media')}
-              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'media' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              <ImageIcon className="h-4 w-4" />
-              <span>Media Library</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('homepage')}
-              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'homepage' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              <LayoutGrid className="h-4 w-4" />
-              <span>Hero Control</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('subscribers')}
-              className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'subscribers' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              <Mail className="h-4 w-4" />
-              <span>Subscribers ({subscribers.length})</span>
-            </button>
-          </>
-        )}
+        <button
+          onClick={() => setActiveTab('users')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'users' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <ShieldCheck className="h-4 w-4 text-[#22c55e]" />
+          <span>Writers & Approvals ({admins.length})</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'categories' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <FolderPlus className="h-4 w-4" />
+          <span>Categories ({categories.length})</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('media')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'media' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <ImageIcon className="h-4 w-4" />
+          <span>Media Library</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('homepage')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'homepage' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <LayoutGrid className="h-4 w-4" />
+          <span>Hero Control</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('subscribers')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'subscribers' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <Mail className="h-4 w-4" />
+          <span>Subscribers ({subscribers.length})</span>
+        </button>
 
         <button
           onClick={() => setActiveTab('profile')}
@@ -1290,7 +1286,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
 
       {/* 2. CATEGORIES COLUMN */}
-      {activeTab === 'categories' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+      {activeTab === 'categories' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-display font-extrabold text-lg text-slate-900">MANAGE SPORTS CATEGORIES</h3>
@@ -1334,7 +1330,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 3. RANKINGS PANEL */}
-      {activeTab === 'rankings' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+      {activeTab === 'rankings' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <div>
@@ -1387,7 +1383,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 4. FIXTURES PANEL */}
-      {activeTab === 'fixtures' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+      {activeTab === 'fixtures' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <div>
@@ -1453,7 +1449,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 5. MEDIA LIBRARY PANEL */}
-      {activeTab === 'media' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+      {activeTab === 'media' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
           <h3 className="font-display font-extrabold text-lg text-slate-900 mb-2">MEDIA DIGITAL STORAGE</h3>
           <p className="text-xs text-slate-500 mb-6">
@@ -1510,7 +1506,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 6. HERO SECTION MANAGER PANEL */}
-      {activeTab === 'homepage' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+      {activeTab === 'homepage' && (
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-8">
           <div>
             <div className="flex items-center justify-between border-b pb-4 mb-4">
@@ -1985,7 +1981,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 7. TICKETS PANEL */}
-      {activeTab === 'tickets' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+      {activeTab === 'tickets' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-fade-in" id="admin-tickets-panel">
           <div className="flex border-b pb-4 mb-6 justify-between items-center flex-wrap gap-2">
             <div>
@@ -2049,7 +2045,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 8. SUBSCRIBERS PANEL */}
-      {activeTab === 'subscribers' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+      {activeTab === 'subscribers' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-fade-in" id="admin-subscribers-panel">
           <div className="flex border-b pb-4 mb-6 justify-between items-center flex-wrap gap-2">
             <div>
@@ -2108,7 +2104,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* WRITERS & APPROVALS MODULE */}
-      {activeTab === 'users' && currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' && (
+      {activeTab === 'users' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div>

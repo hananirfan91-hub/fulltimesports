@@ -751,23 +751,21 @@ export class DB {
         }
       }
 
-      // 2. Sync Posts with Egress Optimization: Fetch 20 posts with fallback for column safety
+      // 2. Sync Posts: Fetch all posts with fallback for column safety
       let remotePosts: any[] | null = null;
       let postError: any = null;
 
       const { data: summaryData, error: summaryErr } = await supabase
         .from('fts_posts')
         .select('id, title, slug, category, tags, featured_image, image_alt, video_url, author, author_email, created_at, updated_at, is_featured, is_trending, type, meta_description, views, is_draft')
-        .order('created_at', { ascending: false })
-        .limit(20);
+        .order('created_at', { ascending: false });
 
       if (summaryErr) {
         // Fallback to select('*') if explicit column selection fails due to missing optional schema fields
         const { data: fallbackData, error: fallbackErr } = await supabase
           .from('fts_posts')
           .select('*')
-          .order('created_at', { ascending: false })
-          .limit(20);
+          .order('created_at', { ascending: false });
 
         remotePosts = fallbackData;
         postError = fallbackErr;
@@ -800,17 +798,19 @@ export class DB {
             }
           });
 
+          // Always ensure default seed posts across all sports are retained if absent from remote
+          SEED_POSTS.forEach(dp => {
+            if (!postsMap.has(dp.id)) {
+              postsMap.set(dp.id, dp);
+            }
+          });
+
           const unsyncedToPush: Post[] = [];
           localPosts.forEach((lp: Post) => {
             if (!lp.id) return;
             const existing = postsMap.get(lp.id);
             if (!existing) {
-              // If this local post was previously synced from Supabase, but is now absent from remotePosts,
-              // it means an admin deleted it from the database! Do NOT resurrect it locally.
-              if ((lp as any).is_synced) {
-                return;
-              }
-              // If it was newly written locally and not yet synced to Supabase, push it now!
+              // If this local post was newly written locally and not yet synced to Supabase, push it now!
               (lp as any).is_synced = true;
               postsMap.set(lp.id, lp);
               unsyncedToPush.push(lp);
@@ -1243,7 +1243,20 @@ export class DB {
   static getAdminAllPosts(): Post[] {
     // Admins can see all posts, even future scheduled ones
     const data = localStorage.getItem(STORAGE_KEYS.POSTS);
-    const posts = data ? JSON.parse(data) : [];
+    let posts: Post[] = data ? JSON.parse(data) : [];
+    let updated = false;
+
+    SEED_POSTS.forEach(dp => {
+      if (!posts.some(p => p.id === dp.id || p.slug === dp.slug)) {
+        posts.push(dp);
+        updated = true;
+      }
+    });
+
+    if (updated || !data) {
+      localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+    }
+
     return posts.sort((a: Post, b: Post) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
 
@@ -1608,6 +1621,7 @@ export class DB {
       list.push(newAdmin);
     }
     localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     // Async sync to Supabase
     supabase.from('fts_users').upsert([{
