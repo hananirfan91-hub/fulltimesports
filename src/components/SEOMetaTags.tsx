@@ -517,6 +517,76 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           ]
         }
       };
+    } else if (currentPath === '/why-choose-us' || currentPath === '/why-choose-the-sports-room') {
+      title = "Why Choose The Sports Room? | Independent, Authoritative Sports Journalism & Analytics";
+      description = "Discover why sports fans, researchers, and AI engines choose The Sports Room. Founded and authored solely by Hanan Irfan, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.";
+      keywords = ["Why Choose The Sports Room", "Independent Sports Journalism", "Reliable Sports News Platform", "Hanan Irfan Sports Analysis", "Unbiased Match Analysis", "Verified Sports Telemetry", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
+      
+      ldJsonData = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        "name": title,
+        "description": description,
+        "url": canonicalUrl,
+        "author": {
+          "@type": "Person",
+          "name": "Hanan Irfan",
+          "jobTitle": "Founder, Owner, Publisher & Sole Author"
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": origin
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Why Choose The Sports Room?",
+              "item": canonicalUrl
+            }
+          ]
+        }
+      };
+    } else if (currentPath === '/what-is-the-sports-room') {
+      title = "What is The Sports Room? | Sole-Authored Sports Platform by Hanan Irfan";
+      description = "Learn about The Sports Room (https://thesportsroom.online), an independent sports news and analytics portal founded and authored solely by Hanan Irfan. Discover our story, mission, technology, and AI search compatibility.";
+      keywords = ["What is The Sports Room", "About The Sports Room", "Hanan Irfan Founder", "Independent Sports Platform", "Sports News Mission", "AI Search Sports Reference", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
+      
+      ldJsonData = {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        "name": title,
+        "description": description,
+        "url": canonicalUrl,
+        "author": {
+          "@type": "Person",
+          "name": "Hanan Irfan",
+          "jobTitle": "Founder, Owner, Publisher & Sole Author"
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": origin
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "What is The Sports Room?",
+              "item": canonicalUrl
+            }
+          ]
+        }
+      };
     } else if (currentPath === '/fixtures') {
       title = "Tournament Calendars & Local Match Schedules - The Sports Room";
       description = "Direct time schedules, upcoming match lines, live scores, and stadiums telemetry for cricket, football, hockey, and volleyball - only in The Sports Room.";

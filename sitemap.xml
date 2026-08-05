@@ -6,6 +6,16 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://thesportsroom.online/why-choose-us</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/what-is-the-sports-room</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
     <loc>https://thesportsroom.online/about-us</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
@@ -79,6 +89,176 @@
     <loc>https://thesportsroom.online/sport/volleyball</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/babar-azam</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/shaheen-afridi</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/mohammad-rizwan</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/sufyan-muqeem</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/naseem-shah</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/pakistan-cricket</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/india-cricket</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/australia-cricket</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/england-cricket</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/psl</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/ipl</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/icc-champions-trophy</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/asia-cup</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/icc-cricket-world-cup</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/lionel-messi</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/cristiano-ronaldo</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/champions-league</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/premier-league</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/max-verstappen</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/real-madrid</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/topic/barcelona</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/annabel-sutherland-sunrisers-leeds-vs-london-spirit-the-hundred-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/abdullah-shafique-century-pakistan-vs-west-indies-2nd-test-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/west-indies-vs-pakistan-2nd-test-day-2-west-indies-all-out-344</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/auqib-nabi-replaces-jasprit-bumrah-sri-lanka-test-series</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/west-indies-vs-pakistan-2nd-test-day-1-port-of-spain</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/guyana-amazon-warriors-back-to-back-gsl-champions-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/greatest-xi-of-all-time</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/powerplay-rules-in-t20-odi-cricket</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/pakistan-probable-playing-xi-vs-west-indies-2nd-test-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/shanto-confident-bangladesh-can-upset-australia-test-series</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/best-ipl-batsman</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/best-psl-batsman</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/sufyan-muqeem-speaks-out-on-pakistan-administered-kashmir</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thesportsroom.online/blog/fifa-world-cup-2026-guide-schedule-teams-venues</loc>
@@ -206,17 +386,47 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://thesportsroom.online/blog/sufyan-muqeem-speaks-out-on-pakistan-administered-kashmir</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://thesportsroom.online/blog/pakistan-battling-australia-series-decider</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://thesportsroom.online/blog/pakistan-probable-playing-xi-vs-west-indies-2nd-test-2026</loc>
+    <loc>https://thesportsroom.online/blog/spin-renaissance-t20-cricket-analysis</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/tactical-extinction-classical-fullbacks-inverted-pivot</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/analytical-obsession-nba-midrange-efficiency</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/aerodynamics-f1-ground-effect-engineering-upgrades</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/esports-franchise-economics-paradox-valuations</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/science-lateral-tennis-footwork-clay-sliding</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/strategic-analysis-hockey-penalty-corner-dragflick</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/rotational-mechanics-volleyball-serve-aerodynamics-float-jump</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

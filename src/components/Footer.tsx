@@ -108,8 +108,18 @@ export default function Footer({ onNavigate }: FooterProps) {
               </button>
             </li>
             <li>
+              <button onClick={() => onNavigate('/what-is-the-sports-room')} className="text-slate-400 hover:text-[#22c55e] transition font-semibold text-emerald-400">
+                What is The Sports Room?
+              </button>
+            </li>
+            <li>
+              <button onClick={() => onNavigate('/why-choose-us')} className="text-slate-400 hover:text-[#22c55e] transition font-semibold text-emerald-400">
+                Why Choose The Sports Room?
+              </button>
+            </li>
+            <li>
               <button onClick={() => onNavigate('/about-us')} className="text-slate-400 hover:text-[#22c55e] transition">
-                About The Sports Room
+                About Founder Hanan Irfan
               </button>
             </li>
             <li>

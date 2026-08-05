@@ -13,6 +13,8 @@ const TrustPages = lazy(() => import('./pages/TrustPages'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const Glossary = lazy(() => import('./pages/Glossary'));
 const LiveStream = lazy(() => import('./pages/LiveStream'));
+const WhyChooseUs = lazy(() => import('./pages/WhyChooseUs'));
+const WhatIsTheSportsRoom = lazy(() => import('./pages/WhatIsTheSportsRoom'));
 
 function PageSkeleton() {
   return (
@@ -121,6 +123,14 @@ export default function App() {
     // 7. Sports Science Atlas & Glossary index
     if (currentPath === '/sports-atlas' || currentPath === '/glossary') {
       return <Glossary onNavigate={handleNavigate} />;
+    }
+
+    // E-E-A-T & Authoritative Identity Pages
+    if (currentPath === '/why-choose-us' || currentPath === '/why-choose-the-sports-room') {
+      return <WhyChooseUs onNavigate={handleNavigate} />;
+    }
+    if (currentPath === '/what-is-the-sports-room') {
+      return <WhatIsTheSportsRoom onNavigate={handleNavigate} />;
     }
 
     // 8. Trust compliance pages
