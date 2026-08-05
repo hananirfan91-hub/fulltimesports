@@ -32,7 +32,8 @@ export default function Footer({ onNavigate }: FooterProps) {
     "logo": "https://images.unsplash.com/photo-1540747737956-378724044282?w=150",
     "sameAs": [
       "https://www.facebook.com/profile.php?id=61592459862127",
-      "https://www.tiktok.com/@pathan_x_babarian565"
+      "https://www.tiktok.com/@pathan_x_babarian565",
+      "https://www.pinterest.com/thesportsroomonline"
     ],
     "publishingPrinciples": "https://thesportsroom.online/editorial-standards",
     "correctionPolicy": "https://thesportsroom.online/corrections"
@@ -52,7 +53,7 @@ export default function Footer({ onNavigate }: FooterProps) {
           <p className="text-xs leading-relaxed text-slate-400">
             The Sports Room is a premium sports news platform providing real-time live scores, match breakdowns, player insights, and breaking global sports coverage.
           </p>
-          <div className="flex items-center space-x-3 pt-2">
+          <div className="flex flex-wrap items-center gap-2 pt-2">
             <a href="https://www.facebook.com/profile.php?id=61592459862127" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition flex items-center justify-center gap-1.5 text-xs font-mono font-bold" aria-label="Facebook">
               <Facebook className="h-4 w-4 text-[#22c55e]" />
               <span>Facebook</span>
@@ -60,6 +61,10 @@ export default function Footer({ onNavigate }: FooterProps) {
             <a href="https://www.tiktok.com/@pathan_x_babarian565" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition font-bold text-xs font-mono flex items-center gap-1.5" aria-label="TikTok">
               <span>🎵</span>
               <span>TikTok</span>
+            </a>
+            <a href="https://www.pinterest.com/thesportsroomonline" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-[#022c22] border border-emerald-900 text-slate-300 hover:text-[#22c55e] hover:border-[#22c55e] transition font-bold text-xs font-mono flex items-center gap-1.5" aria-label="Pinterest">
+              <span>📌</span>
+              <span>Pinterest</span>
             </a>
           </div>
         </div>
