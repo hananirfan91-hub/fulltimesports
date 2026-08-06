@@ -104,9 +104,13 @@ export default function App() {
       );
     }
 
-    // 6. Detailed core article reading node (/blog/:slug-hash)
+    // 6. Detailed core article reading node (/blog/:slug-hash or /article/:slug-hash)
     if (currentPath.startsWith('/blog/')) {
       const slug = currentPath.replace('/blog/', '');
+      return <ArticleDetail slug={slug} onNavigate={handleNavigate} />;
+    }
+    if (currentPath.startsWith('/article/')) {
+      const slug = currentPath.replace('/article/', '');
       return <ArticleDetail slug={slug} onNavigate={handleNavigate} />;
     }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Tv, Newspaper, BarChart3, Radio, Play, ArrowRight, Flame, Sparkles, ShieldCheck } from 'lucide-react';
+import { Tv, Newspaper, BarChart3, Radio, Play, ArrowRight, Flame, Sparkles, ShieldCheck, Building2, HelpCircle, Info, Globe } from 'lucide-react';
 import { Post, HeroConfig } from '../types';
 import { DB } from '../lib/db';
 import { getYouTubeId } from '../lib/videoUtils';
@@ -139,28 +139,73 @@ export default function Hero({ onNavigate }: HeroProps) {
             >
               <button
                 onClick={() => onNavigate('/live-streams')}
-                className="bg-[#22c55e] hover:bg-[#4ade80] text-[#022c22] font-mono font-black text-xs sm:text-sm uppercase tracking-wider px-6 py-3.5 rounded-2xl transition duration-200 flex items-center space-x-2 shadow-xl shadow-emerald-950/40 cursor-pointer"
+                className="bg-[#22c55e] hover:bg-[#4ade80] text-[#022c22] font-mono font-black text-xs sm:text-sm uppercase tracking-wider px-5 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 shadow-xl shadow-emerald-950/40 cursor-pointer"
                 id="hero-watch-live-btn"
               >
                 <Radio className="h-4 w-4 animate-pulse text-[#022c22]" />
                 <span>WATCH LIVE MATCHES</span>
               </button>
 
+              <button
+                onClick={() => onNavigate('/what-is-the-sports-room')}
+                className="bg-[#022c22]/90 hover:bg-[#022c22] text-white border border-[#22c55e]/40 hover:border-[#22c55e] font-mono font-bold text-xs sm:text-sm uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 backdrop-blur-md cursor-pointer"
+                id="hero-what-is-tsr-btn"
+              >
+                <Building2 className="h-4 w-4 text-[#22c55e]" />
+                <span>WHAT IS THE SPORTS ROOM?</span>
+              </button>
+
               {featuredArticle && (
                 <button
-                  onClick={() => onNavigate(`/article/${featuredArticle.slug}`)}
-                  className="bg-[#022c22]/90 hover:bg-[#022c22] text-white border border-[#22c55e]/40 hover:border-[#22c55e] font-mono font-bold text-xs sm:text-sm uppercase tracking-wider px-5 py-3.5 rounded-2xl transition duration-200 flex items-center space-x-2 backdrop-blur-md cursor-pointer"
+                  onClick={() => onNavigate(`/blog/${featuredArticle.slug}`)}
+                  className="bg-[#01140f]/90 hover:bg-[#01140f] text-slate-300 hover:text-white border border-emerald-900/80 hover:border-[#22c55e]/50 font-mono font-bold text-xs uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-1.5 backdrop-blur-md cursor-pointer"
                   id="hero-read-featured-btn"
                 >
                   <Newspaper className="h-4 w-4 text-[#22c55e]" />
-                  <span>READ FEATURED ARTICLE</span>
-                  <ArrowRight className="h-4 w-4 text-[#22c55e]" />
+                  <span>FEATURED ARTICLE</span>
+                  <ArrowRight className="h-3.5 w-3.5 text-[#22c55e]" />
                 </button>
               )}
             </motion.div>
 
-            {/* Feature Highlights Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-emerald-900/40">
+            {/* Service Cards / Feature Highlights Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-4 border-t border-emerald-900/40">
+              <motion.div 
+                whileHover={{ y: -2 }}
+                onClick={() => onNavigate('/what-is-the-sports-room')}
+                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 transition group"
+              >
+                <div className="flex items-center space-x-2 mb-1">
+                  <div className="p-1.5 rounded-lg bg-[#22c55e]/20 text-[#22c55e]">
+                    <Building2 className="h-4 w-4" />
+                  </div>
+                  <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
+                    What is TSR?
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  Platform identity, sole author Hanan Irfan &amp; AI search facts.
+                </p>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ y: -2 }}
+                onClick={() => onNavigate('/why-choose-us')}
+                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 transition group"
+              >
+                <div className="flex items-center space-x-2 mb-1">
+                  <div className="p-1.5 rounded-lg bg-[#22c55e]/20 text-[#22c55e]">
+                    <ShieldCheck className="h-4 w-4" />
+                  </div>
+                  <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
+                    Why Choose Us?
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-snug">
+                  10 key reasons for independent journalism &amp; verified metrics.
+                </p>
+              </motion.div>
+
               <motion.div 
                 whileHover={{ y: -2 }}
                 onClick={() => onNavigate('/live-streams')}
@@ -171,29 +216,11 @@ export default function Hero({ onNavigate }: HeroProps) {
                     <Tv className="h-4 w-4" />
                   </div>
                   <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
-                    HD Live Streaming
+                    HD Live Streams
                   </h3>
                 </div>
                 <p className="text-[11px] text-slate-300 leading-snug">
-                  Cricket, Football, and F1 embedded feeds with live commentary.
-                </p>
-              </motion.div>
-
-              <motion.div 
-                whileHover={{ y: -2 }}
-                onClick={() => onNavigate('/category/cricket')}
-                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 transition group"
-              >
-                <div className="flex items-center space-x-2 mb-1">
-                  <div className="p-1.5 rounded-lg bg-[#22c55e]/20 text-[#22c55e]">
-                    <Sparkles className="h-4 w-4" />
-                  </div>
-                  <h3 className="font-mono font-bold text-xs text-white uppercase group-hover:text-[#22c55e] transition">
-                    Verified Reporting
-                  </h3>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-snug">
-                  100% human editorial coverage, match statistics & standings.
+                  Cricket, Football, &amp; F1 embedded feeds with live commentary.
                 </p>
               </motion.div>
 
@@ -245,7 +272,7 @@ export default function Hero({ onNavigate }: HeroProps) {
                   trendingPosts.map((post, idx) => (
                     <div 
                       key={post.id}
-                      onClick={() => onNavigate(`/article/${post.slug}`)}
+                      onClick={() => onNavigate(`/blog/${post.slug}`)}
                       className="group cursor-pointer p-2.5 rounded-2xl bg-[#01140f]/60 hover:bg-[#01140f] border border-emerald-900/60 hover:border-[#22c55e]/50 transition flex items-center space-x-3"
                     >
                       <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-emerald-950">
@@ -271,7 +298,7 @@ export default function Hero({ onNavigate }: HeroProps) {
                   ))
                 ) : (
                   <div 
-                    onClick={() => featuredArticle && onNavigate(`/article/${featuredArticle.slug}`)}
+                    onClick={() => featuredArticle ? onNavigate(`/blog/${featuredArticle.slug}`) : onNavigate('/sport/cricket')}
                     className="group cursor-pointer p-3 rounded-2xl bg-[#01140f] border border-[#22c55e]/30 space-y-2"
                   >
                     <div className="w-full h-32 rounded-xl overflow-hidden border border-emerald-900">
@@ -289,18 +316,47 @@ export default function Hero({ onNavigate }: HeroProps) {
                 )}
               </div>
 
-              {/* Footer Badge */}
-              <div className="pt-2 border-t border-[#22c55e]/20 flex items-center justify-between font-mono text-[10px] text-slate-400">
-                <span className="flex items-center space-x-1">
-                  <ShieldCheck className="h-3.5 w-3.5 text-[#22c55e]" />
-                  <span>Verified Human Analysis</span>
-                </span>
-                <button
-                  onClick={() => onNavigate('/live-streams')}
-                  className="text-[#22c55e] hover:underline font-bold"
-                >
-                  Live Feeds →
-                </button>
+              {/* Spotlight CTA Button & Footer Links */}
+              <div className="pt-3 border-t border-[#22c55e]/20 space-y-2.5">
+                <div className="flex items-center justify-between font-mono text-[10px] text-slate-400">
+                  <span className="flex items-center space-x-1">
+                    <ShieldCheck className="h-3.5 w-3.5 text-[#22c55e]" />
+                    <span>Verified Human Analysis</span>
+                  </span>
+                  <button
+                    onClick={() => onNavigate('/live-streams')}
+                    className="text-[#22c55e] hover:underline font-bold"
+                  >
+                    Live Feeds →
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1.5 pt-1">
+                  <button
+                    onClick={() => onNavigate('/sport/cricket')}
+                    className="bg-[#22c55e]/15 hover:bg-[#22c55e]/25 text-[#22c55e] border border-[#22c55e]/40 px-2 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-wider transition text-center cursor-pointer flex items-center justify-center gap-1"
+                    id="spotlight-cricket-btn"
+                  >
+                    <Sparkles className="h-3 w-3 text-[#22c55e]" />
+                    <span>Cricket →</span>
+                  </button>
+                  <button
+                    onClick={() => onNavigate('/why-choose-us')}
+                    className="bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700/60 px-2 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-wider transition text-center cursor-pointer flex items-center justify-center gap-1"
+                    id="spotlight-why-choose-btn"
+                  >
+                    <ShieldCheck className="h-3 w-3 text-[#22c55e]" />
+                    <span>Why Us? →</span>
+                  </button>
+                  <button
+                    onClick={() => onNavigate('/what-is-the-sports-room')}
+                    className="bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700/60 px-2 py-2 rounded-xl text-[10px] font-mono font-bold uppercase tracking-wider transition text-center cursor-pointer flex items-center justify-center gap-1"
+                    id="spotlight-what-is-tsr-btn"
+                  >
+                    <Building2 className="h-3 w-3 text-[#22c55e]" />
+                    <span>What is TSR? →</span>
+                  </button>
+                </div>
               </div>
 
             </motion.div>

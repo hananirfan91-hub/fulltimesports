@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   Play, Eye, Flame, ArrowRight, CheckCircle2,
-  Clock, Tv, Mail, Sparkles, TrendingUp, BookOpen, Compass
+  Clock, Tv, Mail, Sparkles, TrendingUp, BookOpen, Compass,
+  Building2, ShieldCheck
 } from 'lucide-react';
 import { Post, FixtureItem } from '../types';
 import { DB } from '../lib/db';
@@ -99,13 +100,29 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
             </div>
           </div>
           <div className="shrink-0 space-y-2 text-right w-full md:w-auto">
-            <span className="block text-[9px] font-mono text-slate-500 uppercase tracking-widest">NEED REPORTING ASSISTANCE?</span>
-            <button 
-              onClick={() => onNavigate('/contact-us')}
-              className="w-full md:w-auto px-5 py-2.5 bg-[#022c22] hover:bg-[#01140f] text-white font-mono font-bold text-xs uppercase rounded-lg tracking-wider transition shadow-md cursor-pointer border border-emerald-900"
-            >
-              SUBMIT EDITORIAL TICKET
-            </button>
+            <span className="block text-[9px] font-mono text-slate-500 uppercase tracking-widest">PORTAL VERIFICATION &amp; TICKETS</span>
+            <div className="flex flex-col sm:flex-row md:flex-col gap-2">
+              <button 
+                onClick={() => onNavigate('/what-is-the-sports-room')}
+                className="w-full px-4 py-2 bg-[#022c22] hover:bg-[#01140f] text-white font-mono font-bold text-xs uppercase rounded-lg tracking-wider transition shadow-md cursor-pointer border border-emerald-900 flex items-center justify-center gap-1.5"
+              >
+                <Building2 className="h-3.5 w-3.5 text-[#22c55e]" />
+                <span>WHAT IS TSR?</span>
+              </button>
+              <button 
+                onClick={() => onNavigate('/why-choose-us')}
+                className="w-full px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white font-mono font-bold text-xs uppercase rounded-lg tracking-wider transition shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-300" />
+                <span>WHY CHOOSE US?</span>
+              </button>
+              <button 
+                onClick={() => onNavigate('/contact-us')}
+                className="w-full px-4 py-2 bg-slate-900 hover:bg-slate-950 text-slate-300 font-mono font-bold text-[11px] uppercase rounded-lg tracking-wider transition shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>EDITORIAL TICKET</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
