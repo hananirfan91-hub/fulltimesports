@@ -905,7 +905,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       required
                       value={signupName}
                       onChange={(e) => setSignupName(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 font-medium focus:outline-none transition"
                       placeholder="e.g. Liam Sterling"
                     />
                   </div>
@@ -917,7 +917,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       required
                       value={signupEmail}
                       onChange={(e) => setSignupEmail(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 font-medium focus:outline-none transition"
                       placeholder="e.g. liam@sportsmail.com"
                     />
                   </div>
@@ -927,7 +927,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                     <select
                       value={signupRole}
                       onChange={(e) => setSignupRole(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition text-slate-700"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 font-medium focus:outline-none transition"
                     >
                       <option value="Football Columnist">Football Columnist</option>
                       <option value="Cricket Commentator">Cricket Commentator</option>
@@ -945,7 +945,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       required
                       value={signupPassword}
                       onChange={(e) => setSignupPassword(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm focus:outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-2.5 text-sm text-slate-900 font-medium focus:outline-none transition"
                       placeholder="••••••••"
                     />
                   </div>
@@ -974,7 +974,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       required
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-3 text-sm focus:outline-none transition font-sans"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-3 text-sm text-slate-900 font-medium focus:outline-none transition font-sans"
                       placeholder="e.g. editor@thesportsroom.com"
                     />
                   </div>
@@ -986,7 +986,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       required
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-3 text-sm focus:outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 focus:border-[#22c55e] focus:bg-white rounded-xl px-4 py-3 text-sm text-slate-900 font-medium focus:outline-none transition"
                       placeholder="••••••••"
                     />
                   </div>

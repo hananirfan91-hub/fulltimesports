@@ -95,11 +95,17 @@
   margin: 1.5rem 0;
 }
 
-/* Layout Utilities */
+/* Layout Utilities & Form Inputs */
 input, textarea, select {
-  color: inherit;
+  color: #0f172a;
+  caret-color: #22c55e;
 }
 
+input::placeholder, textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* ChatBot Specific Input Overrides */
 .chatbot-input {
   color: #ffffff !important;
   caret-color: #22c55e !important;
@@ -109,8 +115,38 @@ input, textarea, select {
   color: #94a3b8 !important;
 }
 
-input::placeholder, textarea::placeholder {
-  color: #64748b;
+/* ADMIN PANEL & LOGIN INPUT FONT COLORS */
+#admin-login-sec input,
+#admin-login-sec textarea,
+#admin-login-sec select,
+#admin-panel-container input,
+#admin-panel-container textarea,
+#admin-panel-container select,
+.admin-dashboard-panel input,
+.admin-dashboard-panel textarea,
+.admin-dashboard-panel select,
+.admin-input {
+  color: #0f172a !important; /* Sharp, deep dark slate font color for maximum contrast */
+  caret-color: #22c55e !important;
+  font-weight: 500;
+}
+
+/* Placeholder font color in Admin Panel */
+#admin-login-sec input::placeholder,
+#admin-login-sec textarea::placeholder,
+#admin-panel-container input::placeholder,
+#admin-panel-container textarea::placeholder,
+.admin-dashboard-panel input::placeholder,
+.admin-dashboard-panel textarea::placeholder {
+  color: #64748b !important;
+  font-weight: 400;
+}
+
+/* Dark background input fields inside Admin Panel (e.g. read-only SQL editor, dark inputs) */
+#admin-panel-container textarea[readonly],
+#admin-panel-container input.bg-slate-900,
+#admin-panel-container textarea.bg-slate-900 {
+  color: #f8fafc !important;
 }
 
 .line-clamp-3 {
