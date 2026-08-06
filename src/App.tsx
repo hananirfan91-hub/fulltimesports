@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import SEOMetaTags from './components/SEOMetaTags';
+import { ChatBot } from './components/ChatBot';
 import { DB } from './lib/db';
 
 // Lazy load non-homepage route chunks to optimize initial JS payload and eliminate unused JS on mobile FCP/LCP
@@ -196,6 +197,9 @@ export default function App() {
           {renderActiveView()}
         </Suspense>
       </main>
+
+      {/* AI Voice Assistant ChatBot */}
+      <ChatBot onNavigate={handleNavigate} />
 
       {/* Structured Footer */}
       <Footer onNavigate={handleNavigate} />

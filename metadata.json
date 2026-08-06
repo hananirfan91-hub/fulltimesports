@@ -1,6 +1,6 @@
 {
   "name": "The Sports Room",
   "description": "Premium sports media platform delivering tactical analysis, in-depth editorial columns, match breakdowns, and comprehensive coverage across global sports.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

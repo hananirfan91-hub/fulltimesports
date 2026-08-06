@@ -97,11 +97,20 @@
 
 /* Layout Utilities */
 input, textarea, select {
-  color: #0f172a !important;
+  color: inherit;
+}
+
+.chatbot-input {
+  color: #ffffff !important;
+  caret-color: #22c55e !important;
+}
+
+.chatbot-input::placeholder {
+  color: #94a3b8 !important;
 }
 
 input::placeholder, textarea::placeholder {
-  color: #64748b !important;
+  color: #64748b;
 }
 
 .line-clamp-3 {
