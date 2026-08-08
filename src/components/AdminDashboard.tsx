@@ -51,6 +51,22 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [liveStreams, setLiveStreams] = useState<LiveStreamItem[]>([]);
 
+  // Subscriber Inbox & Broadcast States
+  const [selectedSubForInbox, setSelectedSubForInbox] = useState<Subscriber | null>(null);
+  const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
+  const [broadcastTitle, setBroadcastTitle] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [broadcastType, setBroadcastType] = useState<'update' | 'notification' | 'newsletter' | 'alert'>('update');
+  const [broadcastLink, setBroadcastLink] = useState('');
+  const [broadcastSuccessMsg, setBroadcastSuccessMsg] = useState('');
+  const [subscriberSearchQuery, setSubscriberSearchQuery] = useState('');
+
+  const [directMsgTitle, setDirectMsgTitle] = useState('');
+  const [directMsgBody, setDirectMsgBody] = useState('');
+  const [directMsgType, setDirectMsgType] = useState<'update' | 'notification' | 'newsletter' | 'alert'>('update');
+  const [directMsgLink, setDirectMsgLink] = useState('');
+  const [directMsgSuccess, setDirectMsgSuccess] = useState('');
+
   // Hero Config & Fan Poll states
   const [heroConfigState, setHeroConfigState] = useState<HeroConfig>(() => DB.getHeroConfig());
   const [fanPolls, setFanPolls] = useState<FanPoll[]>(() => DB.getFanPolls());
@@ -2167,57 +2183,411 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       {/* 8. SUBSCRIBERS PANEL */}
       {activeTab === 'subscribers' && (
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-fade-in" id="admin-subscribers-panel">
-          <div className="flex border-b pb-4 mb-6 justify-between items-center flex-wrap gap-2">
+          <div className="flex border-b pb-4 mb-6 justify-between items-center flex-wrap gap-4">
             <div>
-              <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase">Newsletter Subscribers</h3>
-              <p className="text-xs text-slate-500">Manage emails registered from newsletter subscription widgets</p>
+              <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase flex items-center gap-2">
+                <Mail className="h-5 w-5 text-[#22c55e]" />
+                <span>Subscriber & Inbox Management</span>
+              </h3>
+              <p className="text-xs text-slate-500">View registered subscriber emails, assign inbox messages, and broadcast live notifications & updates.</p>
             </div>
-            <span className="bg-emerald-100 text-[#022c22] border border-emerald-200 font-mono font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider">
-              Total Subscribers: {subscribers.length}
-            </span>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => {
+                  setBroadcastSuccessMsg('');
+                  setIsBroadcastModalOpen(true);
+                }}
+                className="bg-[#022c22] hover:bg-[#034434] text-[#22c55e] border border-[#22c55e]/40 font-mono font-bold text-xs px-4 py-2 rounded-xl flex items-center space-x-2 transition shadow-sm uppercase tracking-wider"
+              >
+                <Bell className="h-4 w-4" />
+                <span>Broadcast Update to All</span>
+              </button>
+
+              <span className="bg-emerald-100 text-[#022c22] border border-emerald-200 font-mono font-bold text-xs px-3 py-2 rounded-xl uppercase tracking-wider">
+                Total Subscribers: {subscribers.length}
+              </span>
+            </div>
+          </div>
+
+          {/* Search bar */}
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Search subscribers by email address..."
+              value={subscriberSearchQuery}
+              onChange={(e) => setSubscriberSearchQuery(e.target.value)}
+              className="w-full max-w-md bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-sans focus:outline-none focus:border-[#22c55e] text-slate-800"
+            />
           </div>
 
           {subscribers.length === 0 ? (
             <div className="text-center py-12 bg-slate-50 border border-dashed rounded-2xl">
               <Mail className="h-10 w-10 text-slate-400 mx-auto mb-3" />
               <p className="text-sm font-semibold text-slate-700">No email subscribers registered yet.</p>
-              <p className="text-xs text-slate-450 mt-1">When users type their email to subscribe, they will be registered here.</p>
+              <p className="text-xs text-slate-400 mt-1">When users type their email to subscribe on the homepage or footer, they will appear here instantly.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-slate-600 text-sm">
                 <thead>
                   <tr className="bg-slate-50 text-slate-550 border-b border-slate-200 font-mono text-[11px] uppercase text-left">
-                    <th className="py-3 px-4">Registration Email</th>
-                    <th className="py-3 px-4">Subscription Date & Time</th>
+                    <th className="py-3 px-4">Subscriber Email</th>
+                    <th className="py-3 px-4">Joined Date</th>
+                    <th className="py-3 px-4">Assigned Inbox</th>
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {subscribers.map((sub) => (
-                    <tr key={sub.id} className="hover:bg-slate-50 transition">
-                      <td className="py-3 px-4 font-semibold text-slate-900 font-sans">{sub.email}</td>
-                      <td className="py-3 px-4 text-slate-500 font-mono text-xs">
-                        {new Date(sub.created_at).toLocaleString()}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => {
-                            if (confirm("Are you sure you want to remove this subscriber?")) {
-                              DB.deleteSubscriber(sub.id);
-                              refreshData();
-                            }
-                          }}
-                          className="p-1 px-2.5 border border-slate-200 hover:border-red-655 rounded text-slate-600 hover:text-red-155 transition bg-white"
-                          title="Delete Subscriber"
-                        >
-                          <Trash2 className="h-3.5 w-3.5 shrink-0" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {subscribers
+                    .filter(sub => sub.email.toLowerCase().includes(subscriberSearchQuery.toLowerCase()))
+                    .map((sub) => {
+                      const inboxCount = sub.inbox?.length || 0;
+                      const unreadCount = sub.inbox?.filter(m => !m.read).length || 0;
+
+                      return (
+                        <tr key={sub.id} className="hover:bg-slate-50 transition">
+                          <td className="py-3 px-4 font-semibold text-slate-900 font-sans">
+                            <div className="flex items-center space-x-2">
+                              <span className="w-7 h-7 rounded-full bg-emerald-100 text-[#022c22] font-mono text-xs font-bold flex items-center justify-center shrink-0 uppercase">
+                                {sub.email.charAt(0)}
+                              </span>
+                              <div>
+                                <p className="text-sm font-bold text-slate-900">{sub.email}</p>
+                                {sub.name && <p className="text-[11px] text-slate-400">{sub.name}</p>}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-slate-500 font-mono text-xs">
+                            {new Date(sub.created_at).toLocaleString()}
+                          </td>
+                          <td className="py-3 px-4">
+                            <button
+                              onClick={() => {
+                                setSelectedSubForInbox(sub);
+                                setDirectMsgSuccess('');
+                              }}
+                              className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-mono font-bold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-[#022c22] border border-slate-200 transition"
+                            >
+                              <Inbox className="h-3.5 w-3.5 text-[#22c55e]" />
+                              <span>{inboxCount} Message{inboxCount !== 1 ? 's' : ''}</span>
+                              {unreadCount > 0 && (
+                                <span className="bg-emerald-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-sans">
+                                  {unreadCount} new
+                                </span>
+                              )}
+                            </button>
+                          </td>
+                          <td className="py-3 px-4 text-right space-x-2">
+                            <button
+                              onClick={() => {
+                                setSelectedSubForInbox(sub);
+                                setDirectMsgSuccess('');
+                              }}
+                              className="px-3 py-1 bg-emerald-50 text-[#022c22] border border-emerald-200 hover:bg-[#022c22] hover:text-[#22c55e] rounded-lg text-xs font-mono font-bold transition"
+                            >
+                              Send Message
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to remove subscriber ${sub.email}?`)) {
+                                  DB.deleteSubscriber(sub.id);
+                                  refreshData();
+                                }
+                              }}
+                              className="p-1.5 border border-slate-200 hover:border-red-300 rounded-lg text-slate-500 hover:text-red-600 transition bg-white"
+                              title="Delete Subscriber"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 shrink-0" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* BROADCAST NOTIFICATION MODAL */}
+          {isBroadcastModalOpen && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-[#01140f] border border-[#22c55e]/40 text-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-scale-up">
+                <div className="flex justify-between items-center border-b border-emerald-900 pb-3">
+                  <div className="flex items-center space-x-2">
+                    <Bell className="h-5 w-5 text-[#22c55e]" />
+                    <h3 className="font-display font-extrabold text-base text-white uppercase tracking-wider">Broadcast Update to All Subscribers</h3>
+                  </div>
+                  <button onClick={() => setIsBroadcastModalOpen(false)} className="text-slate-400 hover:text-white">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {broadcastSuccessMsg && (
+                  <div className="bg-[#22c55e]/20 border border-[#22c55e]/60 text-[#22c55e] p-3 rounded-xl text-xs font-mono font-bold flex items-center space-x-2">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    <span>{broadcastSuccessMsg}</span>
+                  </div>
+                )}
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!broadcastTitle || !broadcastMessage) return;
+
+                    const count = DB.broadcastNotificationToSubscribers({
+                      title: broadcastTitle,
+                      message: broadcastMessage,
+                      type: broadcastType,
+                      link: broadcastLink || undefined
+                    });
+
+                    setBroadcastSuccessMsg(`Success! Delivered update to ${count} subscribers' inboxes.`);
+                    setBroadcastTitle('');
+                    setBroadcastMessage('');
+                    setBroadcastLink('');
+                    refreshData();
+
+                    setTimeout(() => {
+                      setIsBroadcastModalOpen(false);
+                      setBroadcastSuccessMsg('');
+                    }, 2000);
+                  }}
+                  className="space-y-4 text-xs font-sans"
+                >
+                  <div>
+                    <label className="block text-slate-300 font-mono font-bold mb-1 uppercase text-[10px]">Notification Type</label>
+                    <select
+                      value={broadcastType}
+                      onChange={(e) => setBroadcastType(e.target.value as any)}
+                      className="w-full bg-[#022c22] border border-[#22c55e]/30 text-white rounded-xl px-3 py-2 focus:outline-none focus:border-[#22c55e]"
+                    >
+                      <option value="update">Editorial Update</option>
+                      <option value="notification">Breaking News Notification</option>
+                      <option value="alert">🔴 Live Match Stream Alert</option>
+                      <option value="newsletter">Weekly Dispatch Newsletter</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-mono font-bold mb-1 uppercase text-[10px]">Update Title</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 🔴 LIVE: India vs Australia Ashes Test Day 3 Coverage"
+                      value={broadcastTitle}
+                      onChange={(e) => setBroadcastTitle(e.target.value)}
+                      className="w-full bg-[#022c22] border border-[#22c55e]/30 text-white rounded-xl px-3 py-2 focus:outline-none focus:border-[#22c55e]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-mono font-bold mb-1 uppercase text-[10px]">Notification Message</label>
+                    <textarea
+                      required
+                      rows={3}
+                      placeholder="Write brief notification text sent directly to subscribers' inbox..."
+                      value={broadcastMessage}
+                      onChange={(e) => setBroadcastMessage(e.target.value)}
+                      className="w-full bg-[#022c22] border border-[#22c55e]/30 text-white rounded-xl p-3 focus:outline-none focus:border-[#22c55e]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-mono font-bold mb-1 uppercase text-[10px]">Action Link (Optional URL or Path)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. /sport/cricket or /topic/ipl"
+                      value={broadcastLink}
+                      onChange={(e) => setBroadcastLink(e.target.value)}
+                      className="w-full bg-[#022c22] border border-[#22c55e]/30 text-white rounded-xl px-3 py-2 focus:outline-none focus:border-[#22c55e]"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsBroadcastModalOpen(false)}
+                      className="px-4 py-2 border border-slate-700 text-slate-300 hover:text-white rounded-xl font-mono text-xs font-bold"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2 bg-[#22c55e] hover:bg-[#34d399] text-slate-950 rounded-xl font-mono text-xs font-bold uppercase tracking-wider shadow-lg"
+                    >
+                      Send Broadcast ({subscribers.length} Recipients)
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* INDIVIDUAL SUBSCRIBER INBOX MODAL */}
+          {selectedSubForInbox && (
+            <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-[#01140f] border border-[#22c55e]/40 text-white rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto animate-scale-up">
+                <div className="flex justify-between items-center border-b border-emerald-900 pb-3">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <Inbox className="h-5 w-5 text-[#22c55e]" />
+                      <h3 className="font-display font-extrabold text-base text-white uppercase tracking-wider">Subscriber Inbox: {selectedSubForInbox.email}</h3>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Joined: {new Date(selectedSubForInbox.created_at).toLocaleString()}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedSubForInbox(null);
+                      setDirectMsgSuccess('');
+                    }}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {directMsgSuccess && (
+                  <div className="bg-[#22c55e]/20 border border-[#22c55e]/60 text-[#22c55e] p-3 rounded-xl text-xs font-mono font-bold flex items-center space-x-2">
+                    <CheckCircle2 className="h-4 w-4 shrink-0" />
+                    <span>{directMsgSuccess}</span>
+                  </div>
+                )}
+
+                {/* Form to send direct inbox message */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!directMsgTitle || !directMsgBody) return;
+
+                    const updatedSub = DB.updateSubscriberInbox(selectedSubForInbox.id, {
+                      title: directMsgTitle,
+                      message: directMsgBody,
+                      type: directMsgType,
+                      link: directMsgLink || undefined
+                    });
+
+                    if (updatedSub) {
+                      setSelectedSubForInbox({ ...updatedSub });
+                    }
+                    setDirectMsgSuccess(`Message successfully assigned to ${selectedSubForInbox.email}'s inbox!`);
+                    setDirectMsgTitle('');
+                    setDirectMsgBody('');
+                    setDirectMsgLink('');
+                    refreshData();
+                  }}
+                  className="bg-[#022c22] border border-[#22c55e]/30 rounded-xl p-4 space-y-3"
+                >
+                  <h4 className="font-mono font-bold text-xs text-[#22c55e] uppercase tracking-wider">Assign Direct Message / Notification</h4>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <label className="block text-slate-300 font-mono font-bold mb-1 uppercase text-[10px]">Message Title</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Exclusive Match Breakdown & Video Highlight"
+                        value={directMsgTitle}
+                        onChange={(e) => setDirectMsgTitle(e.target.value)}
+                        className="w-full bg-[#01140f] border border-[#22c55e]/30 text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#22c55e]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-300 font-mono font-bold mb-1 uppercase text-[10px]">Type</label>
+                      <select
+                        value={directMsgType}
+                        onChange={(e) => setDirectMsgType(e.target.value as any)}
+                        className="w-full bg-[#01140f] border border-[#22c55e]/30 text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#22c55e]"
+                      >
+                        <option value="update">Update</option>
+                        <option value="notification">Notification</option>
+                        <option value="alert">Live Stream Alert</option>
+                        <option value="newsletter">Newsletter</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-mono font-bold mb-1 uppercase text-[10px]">Message Body</label>
+                    <textarea
+                      required
+                      rows={2}
+                      placeholder="Enter update details for this subscriber..."
+                      value={directMsgBody}
+                      onChange={(e) => setDirectMsgBody(e.target.value)}
+                      className="w-full bg-[#01140f] border border-[#22c55e]/30 text-white rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#22c55e]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-mono font-bold mb-1 uppercase text-[10px]">Optional Link</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. /sport/football"
+                      value={directMsgLink}
+                      onChange={(e) => setDirectMsgLink(e.target.value)}
+                      className="w-full bg-[#01140f] border border-[#22c55e]/30 text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#22c55e]"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-bold font-mono text-xs py-2 rounded-lg uppercase tracking-wider transition"
+                  >
+                    Assign Message to Inbox
+                  </button>
+                </form>
+
+                {/* List of current inbox messages */}
+                <div className="space-y-3">
+                  <h4 className="font-mono font-bold text-xs text-slate-300 uppercase tracking-wider">Current Inbox Contents ({selectedSubForInbox.inbox?.length || 0})</h4>
+
+                  {!selectedSubForInbox.inbox || selectedSubForInbox.inbox.length === 0 ? (
+                    <p className="text-xs text-slate-400 italic">No messages in this subscriber's inbox yet.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedSubForInbox.inbox.map((msg) => (
+                        <div key={msg.id} className="bg-[#022c22]/60 border border-[#22c55e]/20 rounded-xl p-3 flex justify-between items-start gap-3">
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2">
+                              <span className="bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/40 font-mono text-[10px] px-2 py-0.5 rounded font-bold uppercase">
+                                {msg.type || 'update'}
+                              </span>
+                              <span className="text-[11px] text-slate-400 font-mono">{new Date(msg.sent_at).toLocaleString()}</span>
+                              {msg.read ? (
+                                <span className="text-[10px] text-emerald-400 font-mono">✓ Read</span>
+                              ) : (
+                                <span className="text-[10px] text-amber-400 font-mono">● Unread</span>
+                              )}
+                            </div>
+                            <h5 className="font-bold text-sm text-white">{msg.title}</h5>
+                            <p className="text-xs text-slate-300">{msg.message}</p>
+                            {msg.link && (
+                              <a href={msg.link} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-[#22c55e] hover:underline font-mono">
+                                View Link →
+                              </a>
+                            )}
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              DB.deleteSubscriberMessage(selectedSubForInbox.id, msg.id);
+                              const list = DB.getSubscribers();
+                              const updated = list.find(s => s.id === selectedSubForInbox.id);
+                              if (updated) setSelectedSubForInbox({ ...updated });
+                              refreshData();
+                            }}
+                            className="p-1 text-slate-400 hover:text-red-400 transition"
+                            title="Delete message from subscriber's inbox"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>

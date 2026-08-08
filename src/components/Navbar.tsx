@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Search, Trophy, Calendar, Globe, ChevronDown, User, Heart } from 'lucide-react';
+import { Menu, X, Search, Trophy, Calendar, Globe, ChevronDown, User, Heart, Inbox, Bell, Mail, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DB } from '../lib/db';
 import Logo from './Logo';
@@ -28,7 +28,30 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
   const [showGeoDropdown, setShowGeoDropdown] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [upcomingMatchLine, setUpcomingMatchLine] = useState("Upcoming Matches In 2 Hours");
+
+  // Subscriber Inbox Modal States
+  const [showInboxModal, setShowInboxModal] = useState(false);
+  const [subEmailInput, setSubEmailInput] = useState(() => localStorage.getItem('tsr_subscriber_email') || '');
+  const [activeSub, setActiveSub] = useState(() => {
+    const saved = localStorage.getItem('tsr_subscriber_email');
+    return saved ? DB.getSubscriberByEmail(saved) : null;
+  });
+
   const categories = DB.getCategories();
+
+  React.useEffect(() => {
+    const syncInbox = () => {
+      const saved = localStorage.getItem('tsr_subscriber_email') || subEmailInput;
+      if (saved) {
+        setActiveSub(DB.getSubscriberByEmail(saved));
+      }
+    };
+    syncInbox();
+    window.addEventListener('fts_db_sync', syncInbox);
+    return () => window.removeEventListener('fts_db_sync', syncInbox);
+  }, [subEmailInput]);
+
+  const unreadCount = activeSub?.inbox?.filter(m => !m.read).length || 0;
 
   React.useEffect(() => {
     const updateLine = () => {
@@ -136,6 +159,20 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               </AnimatePresence>
             </div>
             
+            <button
+              onClick={() => setShowInboxModal(true)}
+              className="relative flex items-center space-x-1.5 text-slate-200 hover:text-[#22c55e] transition font-mono font-bold bg-[#022c22] border border-[#22c55e]/30 px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider"
+              title="My Subscriber Inbox & Latest Updates"
+            >
+              <Inbox className="h-3.5 w-3.5 text-[#22c55e]" />
+              <span>Inbox</span>
+              {unreadCount > 0 && (
+                <span className="bg-[#22c55e] text-slate-950 font-sans font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center shrink-0">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
             <button onClick={() => onNavigate('/admin')} className="flex items-center space-x-1 text-slate-950 hover:bg-[#34d399] transition font-bold bg-[#22c55e] px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider font-mono">
               <User className="h-3 w-3" />
               <span>Create Account</span>
@@ -529,6 +566,16 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               <div className="pt-2 border-t border-emerald-950 flex flex-col space-y-2 font-medium text-xs text-slate-300">
                 <button
                   onClick={() => {
+                    setShowInboxModal(true);
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full text-center py-2 bg-[#022c22] text-[#22c55e] border border-[#22c55e]/40 hover:bg-[#034434] rounded font-bold tracking-wider transition uppercase flex items-center justify-center space-x-2"
+                >
+                  <Inbox className="h-4 w-4" />
+                  <span>Subscriber Inbox ({unreadCount} New)</span>
+                </button>
+                <button
+                  onClick={() => {
                     onNavigate('/admin');
                     setMobileMenuOpen(false);
                   }}
@@ -539,6 +586,129 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               </div>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* SUBSCRIBER INBOX & NOTIFICATIONS MODAL */}
+      <AnimatePresence>
+        {showInboxModal && (
+          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-[#01140f] border border-[#22c55e]/40 text-white rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto"
+            >
+              <div className="flex justify-between items-center border-b border-emerald-900 pb-3">
+                <div className="flex items-center space-x-2">
+                  <Inbox className="h-5 w-5 text-[#22c55e]" />
+                  <h3 className="font-display font-extrabold text-base text-white uppercase tracking-wider">Subscriber Inbox & Notifications</h3>
+                </div>
+                <button onClick={() => setShowInboxModal(false)} className="text-slate-400 hover:text-white">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Email selector / verify bar */}
+              <div className="bg-[#022c22] border border-[#22c55e]/30 rounded-xl p-3 space-y-2">
+                <label className="block font-mono text-[10px] text-slate-300 font-bold uppercase">Subscribed Email Address</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="email"
+                    placeholder="Enter your subscribed email address..."
+                    value={subEmailInput}
+                    onChange={(e) => setSubEmailInput(e.target.value)}
+                    className="flex-1 bg-[#01140f] border border-[#22c55e]/30 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#22c55e]"
+                  />
+                  <button
+                    onClick={() => {
+                      if (subEmailInput) {
+                        const emailNorm = subEmailInput.trim().toLowerCase();
+                        localStorage.setItem('tsr_subscriber_email', emailNorm);
+                        let found = DB.getSubscriberByEmail(emailNorm);
+                        if (!found) {
+                          found = DB.insertSubscriber(emailNorm);
+                        }
+                        setActiveSub(found);
+                      }
+                    }}
+                    className="bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-mono font-bold text-xs px-3 py-1.5 rounded-lg uppercase tracking-wider transition shrink-0"
+                  >
+                    Check Inbox
+                  </button>
+                </div>
+                {activeSub && (
+                  <p className="text-[11px] text-[#22c55e] font-mono flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    <span>Connected as <strong>{activeSub.email}</strong> ({activeSub.inbox?.length || 0} messages)</span>
+                  </p>
+                )}
+              </div>
+
+              {/* Inbox Message List */}
+              <div className="space-y-3">
+                {!activeSub || !activeSub.inbox || activeSub.inbox.length === 0 ? (
+                  <div className="text-center py-8 bg-[#022c22]/40 rounded-xl border border-dashed border-emerald-900">
+                    <Mail className="h-8 w-8 text-slate-500 mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-slate-300">No inbox notifications for this email yet.</p>
+                    <p className="text-[11px] text-slate-400 mt-1">Enter your subscribed email above to access your personal inbox and breaking match alerts.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {activeSub.inbox.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={`p-3.5 rounded-xl border transition ${
+                          msg.read 
+                            ? 'bg-[#022c22]/30 border-emerald-950/60 opacity-80' 
+                            : 'bg-[#022c22] border-[#22c55e]/50 shadow-md'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start gap-2 mb-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/40 font-mono text-[10px] px-2 py-0.5 rounded font-bold uppercase">
+                              {msg.type || 'update'}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              {new Date(msg.sent_at).toLocaleString()}
+                            </span>
+                          </div>
+
+                          {!msg.read && (
+                            <button
+                              onClick={() => {
+                                DB.markSubscriberMessageRead(activeSub.email, msg.id);
+                                const updated = DB.getSubscriberByEmail(activeSub.email);
+                                if (updated) setActiveSub({ ...updated });
+                              }}
+                              className="text-[10px] font-mono text-[#22c55e] hover:underline"
+                            >
+                              Mark Read
+                            </button>
+                          )}
+                        </div>
+
+                        <h4 className="font-bold text-sm text-white">{msg.title}</h4>
+                        <p className="text-xs text-slate-300 mt-1 leading-relaxed">{msg.message}</p>
+
+                        {msg.link && (
+                          <div className="mt-2.5 pt-2 border-t border-emerald-900/60 flex justify-between items-center">
+                            <a
+                              href={msg.link}
+                              onClick={() => setShowInboxModal(false)}
+                              className="inline-flex items-center text-xs font-mono font-bold text-[#22c55e] hover:underline"
+                            >
+                              View Live Match / Article →
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </header>

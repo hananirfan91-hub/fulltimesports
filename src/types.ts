@@ -103,10 +103,22 @@ export interface TicketMessage {
   created_at: string;
 }
 
+export interface SubscriberInboxMessage {
+  id: string;
+  title: string;
+  message: string;
+  sent_at: string;
+  read?: boolean;
+  type?: 'update' | 'notification' | 'newsletter' | 'alert';
+  link?: string;
+}
+
 export interface Subscriber {
   id: string;
   email: string;
+  name?: string;
   created_at: string;
+  inbox?: SubscriberInboxMessage[];
 }
 
 export interface LiveStreamItem {

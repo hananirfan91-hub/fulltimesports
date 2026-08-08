@@ -1,4 +1,4 @@
-import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber, LiveStreamItem, HeroConfig, FanPoll } from '../types';
+import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber, SubscriberInboxMessage, LiveStreamItem, HeroConfig, FanPoll } from '../types';
 import { supabase } from './supabase';
 import { normalizeSlug } from './slugUtils';
 import { ensureFullSeoGeoAeo } from './seoGenerator';
@@ -1045,6 +1045,55 @@ export class DB {
         console.warn("Supabase users fetch exception:", e);
       }
 
+      // 9. Sync Newsletter Subscribers & Inboxes (fts_subscribers)
+      try {
+        const { data: remoteSubs, error: subsErr } = await supabase.from('fts_subscribers').select('*');
+        if (!subsErr && remoteSubs) {
+          const localSubs = this.getSubscribers();
+          const subsMap = new Map<string, Subscriber>();
+
+          remoteSubs.forEach((s: any) => {
+            let parsedInbox: SubscriberInboxMessage[] = [];
+            if (Array.isArray(s.inbox)) {
+              parsedInbox = s.inbox;
+            } else if (typeof s.inbox === 'string') {
+              try { parsedInbox = JSON.parse(s.inbox); } catch (e) { parsedInbox = []; }
+            }
+            const emailKey = String(s.email || '').toLowerCase().trim();
+            if (emailKey) {
+              subsMap.set(emailKey, {
+                id: String(s.id || `sub-${Date.now()}`),
+                email: emailKey,
+                name: s.name ? String(s.name) : emailKey.split('@')[0],
+                created_at: s.created_at || new Date().toISOString(),
+                inbox: parsedInbox
+              });
+            }
+          });
+
+          // Merge any local subscribers that haven't synced yet
+          localSubs.forEach((ls) => {
+            const key = ls.email.toLowerCase().trim();
+            if (!subsMap.has(key)) {
+              subsMap.set(key, ls);
+              // Push local to Supabase
+              supabase.from('fts_subscribers').upsert([{
+                id: ls.id,
+                email: ls.email,
+                name: ls.name || ls.email.split('@')[0],
+                created_at: ls.created_at,
+                inbox: ls.inbox || []
+              }]).then();
+            }
+          });
+
+          const mergedSubs = Array.from(subsMap.values());
+          localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(mergedSubs));
+        }
+      } catch (e) {
+        console.warn("Supabase subscribers fetch exception:", e);
+      }
+
       // Broadcast update across listening views
       window.dispatchEvent(new CustomEvent('fts_db_sync'));
     } catch (e) {
@@ -1817,26 +1866,170 @@ export class DB {
     return data ? JSON.parse(data) : [];
   }
 
-  static insertSubscriber(email: string): Subscriber {
+  static getSubscriberByEmail(email: string): Subscriber | null {
+    if (!email) return null;
     const list = this.getSubscribers();
-    const emailNorm = email.trim();
-    const existing = list.find(s => s.email.toLowerCase() === emailNorm.toLowerCase());
-    if (existing) return existing;
+    return list.find(s => s.email.toLowerCase() === email.toLowerCase().trim()) || null;
+  }
+
+  static insertSubscriber(email: string, name?: string): Subscriber {
+    const list = this.getSubscribers();
+    const emailNorm = email.trim().toLowerCase();
+    
+    // Store in browser local storage
+    try { localStorage.setItem('tsr_subscriber_email', emailNorm); } catch (e) {}
+
+    const existing = list.find(s => s.email.toLowerCase() === emailNorm);
+    if (existing) {
+      if (name && !existing.name) {
+        existing.name = name;
+        localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(list));
+        window.dispatchEvent(new CustomEvent('fts_db_sync'));
+      }
+      return existing;
+    }
+
+    const defaultWelcomeMsg: SubscriberInboxMessage = {
+      id: `msg-${Date.now()}`,
+      title: 'Welcome to The Sports Room Dispatch!',
+      message: 'Thank you for subscribing! You have been assigned an official TSR Subscriber Inbox. The editorial team will send breaking sports notifications, live match stream links, and exclusive updates directly to this inbox.',
+      sent_at: new Date().toISOString(),
+      read: false,
+      type: 'update'
+    };
 
     const newSub: Subscriber = {
       id: `sub-${Date.now()}`,
       email: emailNorm,
-      created_at: new Date().toISOString()
+      name: name || emailNorm.split('@')[0],
+      created_at: new Date().toISOString(),
+      inbox: [defaultWelcomeMsg]
     };
+
     list.unshift(newSub);
     localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
-    // Attempt to sync with Supabase
-    supabase.from('fts_subscribers').insert([newSub]).then(({ error }) => {
-      if (error) console.warn("Supabase insert fts_subscribers notice:", error.message);
+    // Sync with Supabase fts_subscribers
+    supabase.from('fts_subscribers').upsert([{
+      id: newSub.id,
+      email: newSub.email,
+      name: newSub.name,
+      created_at: newSub.created_at,
+      inbox: newSub.inbox
+    }]).then(({ error }) => {
+      if (error) console.warn("Supabase upsert fts_subscribers notice:", error?.message);
     });
 
     return newSub;
+  }
+
+  static updateSubscriberInbox(subscriberId: string, msg: Omit<SubscriberInboxMessage, 'id' | 'sent_at'>): Subscriber | null {
+    const list = this.getSubscribers();
+    const sub = list.find(s => s.id === subscriberId);
+    if (!sub) return null;
+
+    if (!sub.inbox) sub.inbox = [];
+    const newMsg: SubscriberInboxMessage = {
+      ...msg,
+      id: `msg-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      sent_at: new Date().toISOString(),
+      read: false
+    };
+
+    sub.inbox.unshift(newMsg);
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    // Sync with Supabase
+    supabase.from('fts_subscribers').upsert([{
+      id: sub.id,
+      email: sub.email,
+      name: sub.name,
+      created_at: sub.created_at,
+      inbox: sub.inbox
+    }]).then(({ error }) => {
+      if (error) console.warn("Supabase update inbox notice:", error?.message);
+    });
+
+    return sub;
+  }
+
+  static broadcastNotificationToSubscribers(msg: Omit<SubscriberInboxMessage, 'id' | 'sent_at'>): number {
+    const list = this.getSubscribers();
+    if (list.length === 0) return 0;
+
+    const now = new Date().toISOString();
+    let count = 0;
+
+    const updatedList = list.map(sub => {
+      const inbox = sub.inbox || [];
+      const newMsg: SubscriberInboxMessage = {
+        ...msg,
+        id: `msg-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+        sent_at: now,
+        read: false
+      };
+      count++;
+      return {
+        ...sub,
+        inbox: [newMsg, ...inbox]
+      };
+    });
+
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(updatedList));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    // Sync all updated subscribers to Supabase
+    const dbPayload = updatedList.map(s => ({
+      id: s.id,
+      email: s.email,
+      name: s.name,
+      created_at: s.created_at,
+      inbox: s.inbox
+    }));
+
+    supabase.from('fts_subscribers').upsert(dbPayload).then(({ error }) => {
+      if (error) console.warn("Supabase broadcast subscribers notice:", error?.message);
+    });
+
+    return count;
+  }
+
+  static deleteSubscriberMessage(subscriberId: string, messageId: string) {
+    const list = this.getSubscribers();
+    const sub = list.find(s => s.id === subscriberId);
+    if (!sub || !sub.inbox) return;
+
+    sub.inbox = sub.inbox.filter(m => m.id !== messageId);
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    supabase.from('fts_subscribers').upsert([{
+      id: sub.id,
+      email: sub.email,
+      name: sub.name,
+      created_at: sub.created_at,
+      inbox: sub.inbox
+    }]).then();
+  }
+
+  static markSubscriberMessageRead(email: string, messageId: string) {
+    const list = this.getSubscribers();
+    const sub = list.find(s => s.email.toLowerCase() === email.toLowerCase().trim());
+    if (!sub || !sub.inbox) return;
+
+    sub.inbox = sub.inbox.map(m => m.id === messageId ? { ...m, read: true } : m);
+    localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    supabase.from('fts_subscribers').upsert([{
+      id: sub.id,
+      email: sub.email,
+      name: sub.name,
+      created_at: sub.created_at,
+      inbox: sub.inbox
+    }]).then();
   }
 
   static deleteTicket(id: string) {
