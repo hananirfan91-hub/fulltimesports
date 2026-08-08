@@ -3771,7 +3771,7 @@ CREATE TABLE IF NOT EXISTS public.fts_categories (
 );
 
 CREATE TABLE IF NOT EXISTS public.fts_rankings (
-    id VARCHAR(128) PRIMARY KEY,
+    id VARCHAR(64) PRIMARY KEY,
     sport VARCHAR(64) NOT NULL,
     category_name VARCHAR(255) NOT NULL,
     categoryname VARCHAR(255),
@@ -3807,8 +3807,13 @@ CREATE TABLE IF NOT EXISTS public.fts_media (
 CREATE TABLE IF NOT EXISTS public.fts_subscribers (
     id VARCHAR(128) PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255),
+    inbox JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.fts_subscribers ADD COLUMN IF NOT EXISTS name VARCHAR(255);
+ALTER TABLE public.fts_subscribers ADD COLUMN IF NOT EXISTS inbox JSONB DEFAULT '[]'::jsonb;
 
 CREATE TABLE IF NOT EXISTS public.fts_live_streams (
     id VARCHAR(128) PRIMARY KEY,
@@ -4030,8 +4035,13 @@ CREATE TABLE IF NOT EXISTS public.fts_media (
 CREATE TABLE IF NOT EXISTS public.fts_subscribers (
     id VARCHAR(128) PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255),
+    inbox JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.fts_subscribers ADD COLUMN IF NOT EXISTS name VARCHAR(255);
+ALTER TABLE public.fts_subscribers ADD COLUMN IF NOT EXISTS inbox JSONB DEFAULT '[]'::jsonb;
 
 CREATE TABLE IF NOT EXISTS public.fts_live_streams (
     id VARCHAR(128) PRIMARY KEY,
