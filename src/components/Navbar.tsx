@@ -159,19 +159,21 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               </AnimatePresence>
             </div>
             
-            <button
-              onClick={() => setShowInboxModal(true)}
-              className="relative flex items-center space-x-1.5 text-slate-200 hover:text-[#22c55e] transition font-mono font-bold bg-[#022c22] border border-[#22c55e]/30 px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider"
-              title="My Subscriber Inbox & Latest Updates"
-            >
-              <Inbox className="h-3.5 w-3.5 text-[#22c55e]" />
-              <span>Inbox</span>
-              {unreadCount > 0 && (
-                <span className="bg-[#22c55e] text-slate-950 font-sans font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center shrink-0">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
+            {activeSub && (
+              <button
+                onClick={() => setShowInboxModal(true)}
+                className="relative flex items-center space-x-1.5 text-slate-200 hover:text-[#22c55e] transition font-mono font-bold bg-[#022c22] border border-[#22c55e]/30 px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider animate-fade-in"
+                title="My Subscriber Inbox & Latest Updates"
+              >
+                <Inbox className="h-3.5 w-3.5 text-[#22c55e]" />
+                <span>Inbox</span>
+                {unreadCount > 0 && (
+                  <span className="bg-[#22c55e] text-slate-950 font-sans font-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center shrink-0">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+            )}
 
             <button onClick={() => onNavigate('/admin')} className="flex items-center space-x-1 text-slate-950 hover:bg-[#34d399] transition font-bold bg-[#22c55e] px-2.5 py-0.5 rounded text-[11px] uppercase tracking-wider font-mono">
               <User className="h-3 w-3" />
@@ -564,16 +566,18 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
 
               {/* Utility shortcuts */}
               <div className="pt-2 border-t border-emerald-950 flex flex-col space-y-2 font-medium text-xs text-slate-300">
-                <button
-                  onClick={() => {
-                    setShowInboxModal(true);
-                    setMobileMenuOpen(false);
-                  }}
-                  className="w-full text-center py-2 bg-[#022c22] text-[#22c55e] border border-[#22c55e]/40 hover:bg-[#034434] rounded font-bold tracking-wider transition uppercase flex items-center justify-center space-x-2"
-                >
-                  <Inbox className="h-4 w-4" />
-                  <span>Subscriber Inbox ({unreadCount} New)</span>
-                </button>
+                {activeSub && (
+                  <button
+                    onClick={() => {
+                      setShowInboxModal(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-center py-2 bg-[#022c22] text-[#22c55e] border border-[#22c55e]/40 hover:bg-[#034434] rounded font-bold tracking-wider transition uppercase flex items-center justify-center space-x-2"
+                  >
+                    <Inbox className="h-4 w-4" />
+                    <span>Subscriber Inbox ({unreadCount} New)</span>
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     onNavigate('/admin');
