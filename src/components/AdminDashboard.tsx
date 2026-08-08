@@ -1021,6 +1021,105 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     );
   }
 
+  const isSuperAdmin = currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' || currentAdmin?.email.toLowerCase() === 'urwahfarooq303@gmail.com';
+
+  if (!isSuperAdmin) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-10" id="user-profile-portal">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-6 mb-6">
+            <div className="flex items-center space-x-4">
+              <div className="h-16 w-16 rounded-full bg-emerald-100 text-[#022c22] font-display font-black text-2xl flex items-center justify-center border-2 border-[#22c55e]">
+                {currentAdmin.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="bg-slate-100 text-slate-700 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded">
+                    Member Account
+                  </span>
+                  <span className="bg-amber-100 text-amber-800 text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded">
+                    Reader Profile
+                  </span>
+                </div>
+                <h2 className="font-display font-black text-2xl text-slate-900 tracking-tight mt-1">
+                  {currentAdmin.name}
+                </h2>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">{currentAdmin.email}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 w-full md:w-auto">
+              <button
+                onClick={() => onNavigate('/')}
+                className="flex-1 md:flex-initial bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold uppercase px-4 py-2.5 rounded-xl border border-emerald-950 transition flex items-center justify-center space-x-1.5 shadow-sm"
+              >
+                <span>Browse Website Content</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono font-bold uppercase px-4 py-2.5 rounded-xl border border-slate-200 transition flex items-center justify-center space-x-1"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 mb-6 font-sans leading-relaxed">
+            <strong className="block font-bold text-amber-950 mb-1">🔒 Admin Panel Restricted:</strong>
+            Administrative controls, editorial article publishing, hero section customization, and CMS operations are strictly restricted to primary lead administrators (<code className="font-mono bg-amber-100 px-1 rounded font-bold">hananirfan91@gmail.com</code> and <code className="font-mono bg-amber-100 px-1 rounded font-bold">urwahfarooq303@gmail.com</code>). You can browse all public sports articles, match scores, and live hubs across the platform.
+          </div>
+
+          {/* User Profile Form */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-5">
+            <h3 className="font-display font-bold text-slate-900 text-sm uppercase tracking-wider mb-3">User Profile Information</h3>
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              {profileUpdateMsg && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs font-medium">
+                  {profileUpdateMsg}
+                </div>
+              )}
+              {profileUpdateError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 text-xs font-medium">
+                  {profileUpdateError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">Display Name</label>
+                <input
+                  type="text"
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  className="w-full bg-white border border-slate-300 focus:border-[#22c55e] rounded-lg px-3.5 py-2 text-sm text-slate-900 font-medium focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">Email Address (Read Only)</label>
+                <input
+                  type="email"
+                  disabled
+                  value={currentAdmin.email}
+                  className="w-full bg-slate-200 border border-slate-300 rounded-lg px-3.5 py-2 text-sm text-slate-600 font-mono cursor-not-allowed"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isUpdatingProfile}
+                className="bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-white text-xs font-mono font-bold uppercase px-5 py-2.5 rounded-lg border border-emerald-950 transition shadow-sm disabled:opacity-50"
+              >
+                {isUpdatingProfile ? 'Saving...' : 'Update Profile Name'}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-6" id="admin-panel-container">
       {/* Admin Header bar */}
