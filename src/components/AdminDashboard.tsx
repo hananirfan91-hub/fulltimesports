@@ -388,7 +388,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       // Restrict access to only these 2 authorized emails
       if (emailLower !== 'hananirfan91@gmail.com' && emailLower !== 'urwahfarooq303@gmail.com') {
-        setLoginError('Access Restricted: Admin panel and editorial control is strictly limited to authorized administration accounts (hananirfan91@gmail.com and urwahfarooq303@gmail.com).');
+        setLoginError('Access Restricted: Admin panel and editorial control is strictly limited to authorized administration accounts.');
         setIsSigningIn(false);
         return;
       }
@@ -1068,7 +1068,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
           <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 mb-6 font-sans leading-relaxed">
             <strong className="block font-bold text-amber-950 mb-1">🔒 Admin Panel Restricted:</strong>
-            Administrative controls, editorial article publishing, hero section customization, and CMS operations are strictly restricted to primary lead administrators (<code className="font-mono bg-amber-100 px-1 rounded font-bold">hananirfan91@gmail.com</code> and <code className="font-mono bg-amber-100 px-1 rounded font-bold">urwahfarooq303@gmail.com</code>). You can browse all public sports articles, match scores, and live hubs across the platform.
+            Administrative controls, editorial article publishing, hero section customization, and CMS operations are strictly restricted to primary lead administrators. You can browse all public sports articles, match scores, and live hubs across the platform.
           </div>
 
           {/* User Profile Form */}
