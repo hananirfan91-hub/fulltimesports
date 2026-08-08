@@ -221,6 +221,13 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                       <span>🇮🇳 India Cricket</span>
                     </button>
                     <button
+                      onClick={() => { onNavigate('/topic/cricket-world-cup-2027'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-800/80 hover:bg-[#022c22] transition flex items-center justify-between font-bold text-white hover:text-[#22c55e]"
+                    >
+                      <span>🌍 Cricket World Cup 2027</span>
+                      <span className="text-[10px] text-amber-300 font-mono font-bold bg-amber-950/80 border border-amber-700/60 px-1.5 py-0.5 rounded">2027</span>
+                    </button>
+                    <button
                       onClick={() => { onNavigate('/topic/psl'); setShowCricketDropdown(false); }}
                       className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-[#022c22] transition flex items-center justify-between font-medium text-slate-200 hover:text-[#22c55e]"
                     >
@@ -483,6 +490,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                     <div className="grid grid-cols-2 gap-1.5 text-slate-200 font-medium">
                       <button onClick={() => { onNavigate('/topic/pakistan-cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🇵🇰 Pakistan</button>
                       <button onClick={() => { onNavigate('/topic/india-cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🇮🇳 India</button>
+                      <button onClick={() => { onNavigate('/topic/cricket-world-cup-2027'); setMobileMenuOpen(false); }} className="text-left p-1.5 text-[#22c55e] font-bold">🌍 CWC 2027</button>
                       <button onClick={() => { onNavigate('/topic/australia-cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🇦🇺 Australia</button>
                       <button onClick={() => { onNavigate('/topic/england-cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</button>
                       <button onClick={() => { onNavigate('/topic/icc-cricket-world-cup'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🌍 World Cup</button>

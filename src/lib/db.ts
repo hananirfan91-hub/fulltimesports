@@ -77,6 +77,46 @@ const SEED_MEDIA: MediaItem[] = [
 // High-quality Editorial Posts Seeding
 const SEED_POSTS: Post[] = [
   {
+    id: 'post-cricket-cwc-2027',
+    title: 'ICC Cricket World Cup 2027: 14-Team Expanded Format, African Host Venues & Qualification Roadmaps',
+    slug: 'cricket-world-cup-2027-expanded-format-venues-qualification',
+    content: `### The Grand Return of the 14-Team ODI World Cup in Southern Africa
+
+The 14th edition of the flagship Men's ICC Cricket World Cup is scheduled to take place in October and November 2027, co-hosted across three African nations: **South Africa, Zimbabwe, and Namibia**. 
+
+Marking a major structural expansion from the 10-team round-robin format used in 2019 and 2023, the 2027 World Cup reinstates the popular **14-team format** last seen during the memorable 2011 and 2015 tournaments.
+
+| Tournament Parameter | 2023 World Cup (India) | 2027 World Cup (SA, ZIM, NAM) |
+| :--- | :--- | :--- |
+| **Participating Nations** | 10 Teams | **14 Teams** |
+| **Tournament Format** | Single Round-Robin | **2 Groups of 7 -> Super Sixes -> Semi-Finals** |
+| **Total Matches** | 48 Matches | **54 Matches** |
+| **Automatic Qualifiers** | Hosts + Top 8 ODI Ranking | **Co-hosts (SA, ZIM) + Top 8 ICC ODI Rankings** |
+
+#### Tactical Conditions Across High-Veldt & Coastal African Pitches
+
+Host venues across South Africa (including Wanderers Johannesburg, SuperSport Park Centurion, Kingsmead Durban, and Newlands Cape Town), Harrare Sports Club in Zimbabwe, and Wanderers Cricket Ground in Windhoek present contrasting pitch characteristics:
+
+1. **High Altitude Pace & Bounce (Gauteng High-Veldt)**: At Centurion and Johannesburg, thin air combined with hard clay surfaces yields extra seam movement and high ball speed, favoring fast bowlers with steep bounce.
+2. **Coastal Swing & Drift (Cape Town & Durban)**: Coastal humidity and sea breezes provide lateral swing with the new white ball, challenging top-order batters in morning sessions.
+3. **Spin Assistance in Harare & Windhoek**: Dry afternoon surfaces in Harare and Windhoek offer slower grip and turn, rewarding disciplined wrist-spinners.
+
+#### Qualification Pathways and Team Projections
+
+The qualification route guarantees direct entries for co-hosts **South Africa** and **Zimbabwe** (subject to ICC full-member criteria), alongside the **top 8 teams in the official ICC ODI Team Rankings** as of the cutoff date. The remaining 4 slots will be decided through global World Cup Qualifier play-offs, giving associate powerhouses and emerging nations a direct platform to compete on cricket's largest stage.`,
+    category: 'cricket',
+    tags: ['cricket world cup 2027', 'cwc 2027', 'icc cricket world cup', 'cricket news', 'south africa 2027', 'zimbabwe cricket', 'namibia cricket', 'world cup schedule'],
+    featured_image: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
+    video_url: '6p8bV_G7u20',
+    author: 'Hanan Irfan',
+    created_at: '2026-08-01T10:00:00Z',
+    is_featured: false,
+    is_trending: true,
+    type: 'news',
+    views: 2890,
+    meta_description: 'Detailed tactical preview, host venues breakdown, and qualification roadmap for the 14-team ICC Cricket World Cup 2027 in South Africa, Zimbabwe, and Namibia.'
+  },
+  {
     id: 'post-cricket-1',
     title: 'The Great Spin Renaissance: How Wrist Spinners Are Rewriting T20 Tactical Manuals',
     slug: 'spin-renaissance-t20-cricket-analysis',

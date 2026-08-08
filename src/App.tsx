@@ -126,6 +126,10 @@ export default function App() {
       return <TopicHub topicSlug="knowledge-hub" onNavigate={handleNavigate} />;
     }
 
+    if (currentPath === '/cricket-world-cup-2027') {
+      return <TopicHub topicSlug="cricket-world-cup-2027" onNavigate={handleNavigate} />;
+    }
+
     // 7. Sports Science Atlas & Glossary index
     if (currentPath === '/sports-atlas' || currentPath === '/glossary') {
       return <Glossary onNavigate={handleNavigate} />;

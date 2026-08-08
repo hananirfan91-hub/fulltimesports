@@ -48,6 +48,7 @@ export const ENTITIES_REGISTRY: EntityDefinition[] = [
   { name: 'SA20', type: 'competition', category: 'cricket', slug: 'sa20', aliases: ['SA20 League'] },
   { name: 'ILT20', type: 'competition', category: 'cricket', slug: 'ilt20' },
   { name: 'The Hundred', type: 'competition', category: 'cricket', slug: 'the-hundred' },
+  { name: 'Cricket World Cup 2027', type: 'competition', category: 'cricket', slug: 'cricket-world-cup-2027', aliases: ['CWC 2027', 'World Cup 2027', '2027 World Cup', 'ICC World Cup 2027', 'ICC Cricket World Cup 2027', 'South Africa 2027'], description: 'Complete editorial coverage, schedules, qualifications, venues in South Africa, Zimbabwe, and Namibia, and match analysis for the ICC Cricket World Cup 2027.' },
   { name: 'ICC Cricket World Cup', type: 'competition', category: 'cricket', slug: 'icc-cricket-world-cup', aliases: ['World Cup', 'ODI World Cup'] },
   { name: 'ICC Champions Trophy', type: 'competition', category: 'cricket', slug: 'icc-champions-trophy', aliases: ['Champions Trophy'] },
   { name: 'ICC T20 World Cup', type: 'competition', category: 'cricket', slug: 'icc-t20-world-cup', aliases: ['T20 World Cup'] },

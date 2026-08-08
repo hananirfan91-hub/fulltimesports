@@ -50,6 +50,8 @@ async function getSitemapXML(host: string): Promise<string> {
   // Core static URLs
   const coreUrls = [
     { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0" },
+    { loc: `${baseUrl}/topic/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9" },
+    { loc: `${baseUrl}/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9" },
     { loc: `${baseUrl}/author/hanan-irfan`, changefreq: "daily", priority: "0.9" },
     { loc: `${baseUrl}/why-choose-us`, changefreq: "weekly", priority: "0.8" },
     { loc: `${baseUrl}/what-is-the-sports-room`, changefreq: "weekly", priority: "0.8" },
@@ -378,6 +380,36 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
         <h1 class="text-3xl font-bold text-white mb-2">Hanan Irfan - Editorial Director &amp; Founder</h1>
         <p class="text-emerald-400 font-mono text-xs mb-4">The Sports Room (https://thesportsroom.online)</p>
         <p class="text-sm text-slate-300 leading-relaxed">Hanan Irfan is the Sole Editorial Director, Lead Sports Analyst, and Founder of The Sports Room. He writes un-scraped, human-authored sports journalism covering cricket seam biomechanics, football pressing tactics, and Formula 1 ground effect aerodynamics.</p>
+      </section>
+    `;
+  } else if (cleanPath.startsWith("/topic/") || cleanPath === "/cricket-world-cup-2027") {
+    const topicSlug = cleanPath === "/cricket-world-cup-2027" ? "cricket-world-cup-2027" : cleanPath.replace("/topic/", "");
+    const topicTitle = topicSlug === "cricket-world-cup-2027" ? "Cricket World Cup 2027" : topicSlug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    
+    title = `${topicTitle} | Schedule, Teams, Analysis & Coverage - The Sports Room`;
+    description = `Comprehensive editorial coverage, tournament schedules, qualifications, host venues, and team breakdowns for ${topicTitle} on The Sports Room.`;
+    keywords = `${topicTitle}, ${topicTitle} schedule, ${topicTitle} teams, ${topicTitle} news, ${topicTitle} analysis, The Sports Room`;
+    
+    jsonLdData = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "@id": `${canonicalUrl}#topic-hub`,
+      "name": `${topicTitle} Editorial Hub`,
+      "description": description,
+      "url": canonicalUrl,
+      "publisher": {
+        "@type": "Organization",
+        "name": "The Sports Room",
+        "url": baseUrl
+      }
+    };
+
+    preRenderedBody = `
+      <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
+        <nav class="text-xs text-emerald-400 mb-4 font-mono"><a href="/">Home</a> &gt; <a href="/sport/cricket">Cricket</a> &gt; <span>${topicTitle}</span></nav>
+        <h1 class="text-3xl font-bold text-white mb-2">${topicTitle} - Editorial Central Hub</h1>
+        <p class="text-emerald-400 font-mono text-xs mb-4">The Sports Room (https://thesportsroom.online)</p>
+        <p class="text-sm text-slate-300 leading-relaxed">Follow complete coverage, match schedules, host venue updates (South Africa, Zimbabwe, Namibia), team qualification pathways, and deep tactical analysis for ${topicTitle} by Hanan Irfan.</p>
       </section>
     `;
   }
