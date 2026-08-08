@@ -15,6 +15,35 @@ interface HomeProps {
   activeGeo: string;
 }
 
+const sortPostsByGeo = (postsList: Post[], geoCode: string): Post[] => {
+  if (!geoCode || geoCode === 'global') return postsList;
+
+  const geoKeywordsMap: { [key: string]: string[] } = {
+    AU: ['australia', 'aussie', 'ashes', 'bbl', 'sheffield', 'melbourne', 'sydney', 'tennis', 'australian', 'rugby', 'cricket', 'f1'],
+    IN: ['india', 'indian', 'ipl', 'bcci', 'subcontinent', 'rashid', 'delhi', 'asia', 't20', 'badminton', 'cricket', 'hockey'],
+    UK: ['uk', 'united kingdom', 'england', 'premier', 'league', 'epl', 'chelsea', 'arsenal', 'liverpool', 'manchester', 'wimbledon', 'f1'],
+    US: ['usa', 'us', 'america', 'american', 'nba', 'basketball', 'esports', 'faze', 'boston', 'super bowl', 'mls'],
+  };
+
+  const keywords = geoKeywordsMap[geoCode] || [];
+  if (keywords.length === 0) return postsList;
+
+  const scored = postsList.map(post => {
+    let score = 0;
+    const textToMatch = `${post.title} ${post.category} ${post.tags.join(' ')} ${post.meta_description || ''}`.toLowerCase();
+    
+    for (const kw of keywords) {
+      if (textToMatch.includes(kw.toLowerCase())) {
+        score += 2;
+      }
+    }
+    return { post, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map(s => s.post);
+};
+
 export default function Home({ onNavigate, activeGeo }: HomeProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [fixtures, setFixtures] = useState<FixtureItem[]>([]);
@@ -32,8 +61,9 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
     }
 
     const loadData = () => {
-      const homePosts = DB.getHomePosts(); // Max 10 posts on homepage for egress optimization
-      setPosts(homePosts);
+      const homePosts = DB.getHomePosts();
+      const sorted = sortPostsByGeo(homePosts, activeGeo);
+      setPosts(sorted);
       setFixtures(DB.getFixtures());
     };
 
@@ -76,7 +106,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
     <div className="bg-[#01140f] text-slate-100 min-h-screen pb-16 space-y-12 font-sans selection:bg-[#22c55e] selection:text-[#022c22]" id="home-page-container">
       
       {/* 1. HERO SECTION (3D Editorial Board) */}
-      <Hero onNavigate={onNavigate} />
+      <Hero onNavigate={onNavigate} activeGeo={activeGeo} />
 
       {/* EDITORIAL POLICY BANNER CARD (Mint green card matching screenshot) */}
       <section className="max-w-7xl mx-auto px-4 md:px-6">
@@ -207,7 +237,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                   </h3>
 
                   <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                    {post.excerpt}
+                    {post.meta_description || post.content.replace(/#+/g, '').slice(0, 120)}
                   </p>
                 </div>
               </div>
@@ -249,7 +279,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                     {post.category}
                   </div>
                   <div className="absolute bottom-3 right-3 bg-slate-950/80 text-white text-[10px] px-2 py-0.5 rounded font-mono">
-                    {post.read_time || '4 min read'}
+                    5 min read
                   </div>
                 </div>
 
@@ -259,7 +289,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
                   </h3>
 
                   <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                    {post.excerpt}
+                    {post.meta_description || post.content.replace(/#+/g, '').slice(0, 120)}
                   </p>
                 </div>
               </div>

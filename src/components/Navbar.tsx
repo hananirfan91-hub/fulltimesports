@@ -13,10 +13,10 @@ interface NavbarProps {
 
 const GEO_COUNTRIES = [
   { code: 'global', name: 'Global Edition' },
-  { code: 'IN', name: 'India (Cricket First)' },
-  { code: 'UK', name: 'United Kingdom (PL Focus)' },
-  { code: 'US', name: 'USA (NBA & Esports)' },
-  { code: 'AU', name: 'Australia (Multi-Sport)' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'IN', name: 'India' },
+  { code: 'UK', name: 'United Kingdom' },
+  { code: 'US', name: 'USA' },
 ];
 
 export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo }: NavbarProps) {
@@ -447,7 +447,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                       }}
                       className={`text-left px-2 py-1.5 rounded transition ${activeGeo === c.code ? 'bg-[#16a34a] text-white font-bold' : 'hover:bg-slate-200 text-slate-700'}`}
                     >
-                      {c.name.split(' (')[0]}
+                      {c.name}
                     </button>
                   ))}
                 </div>

@@ -7,16 +7,46 @@ import { getYouTubeId } from '../lib/videoUtils';
 
 interface HeroProps {
   onNavigate: (path: string) => void;
+  activeGeo?: string;
 }
 
-export default function Hero({ onNavigate }: HeroProps) {
+const sortPostsByGeo = (postsList: Post[], geoCode?: string): Post[] => {
+  if (!geoCode || geoCode === 'global') return postsList;
+
+  const geoKeywordsMap: { [key: string]: string[] } = {
+    AU: ['australia', 'aussie', 'ashes', 'bbl', 'sheffield', 'melbourne', 'sydney', 'tennis', 'australian', 'rugby', 'cricket', 'f1'],
+    IN: ['india', 'indian', 'ipl', 'bcci', 'subcontinent', 'rashid', 'delhi', 'asia', 't20', 'badminton', 'cricket', 'hockey'],
+    UK: ['uk', 'united kingdom', 'england', 'premier', 'league', 'epl', 'chelsea', 'arsenal', 'liverpool', 'manchester', 'wimbledon', 'f1'],
+    US: ['usa', 'us', 'america', 'american', 'nba', 'basketball', 'esports', 'faze', 'boston', 'super bowl', 'mls'],
+  };
+
+  const keywords = geoKeywordsMap[geoCode] || [];
+  if (keywords.length === 0) return postsList;
+
+  const scored = postsList.map(post => {
+    let score = 0;
+    const textToMatch = `${post.title} ${post.category} ${post.tags.join(' ')} ${post.meta_description || ''}`.toLowerCase();
+    
+    for (const kw of keywords) {
+      if (textToMatch.includes(kw.toLowerCase())) {
+        score += 2;
+      }
+    }
+    return { post, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map(s => s.post);
+};
+
+export default function Hero({ onNavigate, activeGeo }: HeroProps) {
   const [heroConfig, setHeroConfig] = useState<HeroConfig>(() => DB.getHeroConfig());
-  const [allPosts, setAllPosts] = useState<Post[]>(() => DB.getPosts());
+  const [rawPosts, setRawPosts] = useState<Post[]>(() => DB.getPosts());
 
   useEffect(() => {
     const handleSync = () => {
       setHeroConfig(DB.getHeroConfig());
-      setAllPosts(DB.getPosts());
+      setRawPosts(DB.getPosts());
     };
 
     handleSync();
@@ -25,6 +55,8 @@ export default function Hero({ onNavigate }: HeroProps) {
       window.removeEventListener('fts_db_sync', handleSync);
     };
   }, []);
+
+  const allPosts = sortPostsByGeo(rawPosts, activeGeo);
 
   if (heroConfig.enabled === false) {
     return null;

@@ -51,6 +51,35 @@ const SPORT_CATEGORY_ANSWERS: Record<string, { q: string, a: string }> = {
   }
 };
 
+const sortPostsByGeo = (postsList: Post[], geoCode: string): Post[] => {
+  if (!geoCode || geoCode === 'global') return postsList;
+
+  const geoKeywordsMap: { [key: string]: string[] } = {
+    AU: ['australia', 'aussie', 'ashes', 'bbl', 'sheffield', 'melbourne', 'sydney', 'tennis', 'australian', 'rugby', 'cricket', 'f1'],
+    IN: ['india', 'indian', 'ipl', 'bcci', 'subcontinent', 'rashid', 'delhi', 'asia', 't20', 'badminton', 'cricket', 'hockey'],
+    UK: ['uk', 'united kingdom', 'england', 'premier', 'league', 'epl', 'chelsea', 'arsenal', 'liverpool', 'manchester', 'wimbledon', 'f1'],
+    US: ['usa', 'us', 'america', 'american', 'nba', 'basketball', 'esports', 'faze', 'boston', 'super bowl', 'mls'],
+  };
+
+  const keywords = geoKeywordsMap[geoCode] || [];
+  if (keywords.length === 0) return postsList;
+
+  const scored = postsList.map(post => {
+    let score = 0;
+    const textToMatch = `${post.title} ${post.category} ${post.tags.join(' ')} ${post.meta_description || ''}`.toLowerCase();
+    
+    for (const kw of keywords) {
+      if (textToMatch.includes(kw.toLowerCase())) {
+        score += 2;
+      }
+    }
+    return { post, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map(s => s.post);
+};
+
 export default function SportCategory({ categorySlug, onNavigate, activeGeo, onChangeGeo }: SportCategoryProps) {
   const [category, setCategory] = useState<Category | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -124,31 +153,14 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
     );
   }
 
-  // Filter posts based on Category Level tab and Region Code
-  const filteredPosts = posts.filter(post => {
-    // 1. Tab filter
-    const matchesTab = activeTab === 'all' || 
-                       (activeTab === 'news' && post.type === 'news') || 
-                       (activeTab === 'opinion' && (post.type === 'blog' || post.type === 'opinion'));
-
-    // 2. Regional filter simulation
-    // Let's check matching tags for localized terms
-    if (regionalFilter === 'all') return matchesTab;
-    
-    const geoTerms: { [key: string]: string[] } = {
-      IN: ['india', 'pakistan', 'icc', 'subcontinent', 'rashid', 'delhi'],
-      UK: ['uk', 'premier', 'league', 'chelsea', 'arsenal', 'guardiola'],
-      US: ['usa', 'nba', 'boston', 'kings', 'esports', 'faze'],
-      AU: ['australia', 'melbourne', 'big bash', 'sheffield'],
-    };
-
-    const targetKeywords = geoTerms[regionalFilter] || [];
-    const matchesGeo = post.tags.some(tag => 
-      targetKeywords.some(kw => tag.toLowerCase().includes(kw))
-    );
-
-    return matchesTab && matchesGeo;
+  // Filter and sort posts based on Category Level tab and Region Audience
+  const tabPosts = posts.filter(post => {
+    return activeTab === 'all' || 
+           (activeTab === 'news' && post.type === 'news') || 
+           (activeTab === 'opinion' && (post.type === 'blog' || post.type === 'opinion'));
   });
+
+  const filteredPosts = sortPostsByGeo(tabPosts, activeGeo || regionalFilter);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -352,20 +364,23 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
               </button>
             </div>
 
-            {/* Local GEO filtration focus selectors */}
+            {/* Audience / Region selector */}
             <div className="flex items-center space-x-2 text-xs">
               <Globe className="h-4 w-4 text-[#22c55e]" />
-              <span className="font-semibold text-slate-700">Region Focus:</span>
+              <span className="font-semibold text-slate-700">Target Audience:</span>
               <select
-                value={regionalFilter}
-                onChange={(e) => setRegionalFilter(e.target.value)}
+                value={activeGeo || regionalFilter}
+                onChange={(e) => {
+                  setRegionalFilter(e.target.value);
+                  if (onChangeGeo) onChangeGeo(e.target.value);
+                }}
                 className="bg-white border rounded px-2.5 py-1 focus:outline-none focus:border-[#22c55e] text-slate-800 font-semibold"
               >
-                <option value="all">Global Edition (All)</option>
-                <option value="IN">Indian Subcontinent</option>
-                <option value="UK">United Kingdom (EPL focus)</option>
-                <option value="US">USA (NBA & Esports)</option>
+                <option value="global">Global Edition</option>
                 <option value="AU">Australia</option>
+                <option value="IN">India</option>
+                <option value="UK">United Kingdom</option>
+                <option value="US">USA</option>
               </select>
             </div>
           </div>
