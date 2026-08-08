@@ -50,6 +50,10 @@ async function getSitemapXML(host: string): Promise<string> {
   // Core static URLs
   const coreUrls = [
     { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0" },
+    { loc: `${baseUrl}/author/hanan-irfan`, changefreq: "daily", priority: "0.9" },
+    { loc: `${baseUrl}/why-choose-us`, changefreq: "weekly", priority: "0.8" },
+    { loc: `${baseUrl}/what-is-the-sports-room`, changefreq: "weekly", priority: "0.8" },
+    { loc: `${baseUrl}/live-stream`, changefreq: "daily", priority: "0.8" },
     { loc: `${baseUrl}/about-us`, changefreq: "monthly", priority: "0.4" },
     { loc: `${baseUrl}/contact-us`, changefreq: "monthly", priority: "0.4" },
     { loc: `${baseUrl}/privacy-policy`, changefreq: "monthly", priority: "0.3" },
@@ -177,7 +181,7 @@ app.get("/site.webmanifest", (req, res) => {
   res.sendFile(filePath);
 });
 
-// Dynamic robots.txt
+// Dynamic robots.txt with complete AI search engine rules
 app.get("/robots.txt", (req, res) => {
   const host = req.get("host") || "thesportsroom.online";
   const protocol = host.includes("localhost") || host.includes("0.0.0.0") || host.includes("127.0.0.1") ? "http" : "https";
@@ -185,9 +189,226 @@ app.get("/robots.txt", (req, res) => {
   res.send(`User-agent: *
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
 Sitemap: ${protocol}://${host}/sitemap.xml
+LLMs-txt: ${protocol}://${host}/llms.txt
 `);
 });
+
+// Helper for SSR Pre-rendering article & metadata for web crawlers / LLMs
+async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string): Promise<string> {
+  const protocol = host.includes("localhost") || host.includes("0.0.0.0") || host.includes("127.0.0.1") ? "http" : "https";
+  const baseUrl = `${protocol}://${host}`;
+  const cleanPath = reqUrl.split("?")[0];
+
+  let title = "The Sports Room | Live Cricket Scores, Real-Time Match Updates & Tournaments";
+  let description = "Follow live cricket scores, real-time match updates, upcoming schedules, and complete coverage of international series and major tournaments on The Sports Room.";
+  let keywords = "The Sports Room, live cricket scores, real-time match updates, upcoming cricket matches, cricket match schedules";
+  let canonicalUrl = `${baseUrl}${cleanPath === "/" ? "" : cleanPath}`;
+  let ogImage = `${baseUrl}/logo-preview.png`;
+  let pageType = "website";
+  let jsonLdData: any = null;
+  let preRenderedBody = "";
+
+  if (cleanPath.startsWith("/blog/") || cleanPath.startsWith("/article/")) {
+    const slug = cleanPath.replace("/blog/", "").replace("/article/", "");
+    try {
+      const { data: post } = await supabase
+        .from("fts_posts")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+      if (post) {
+        title = post.meta_title || `${post.title} | The Sports Room`;
+        description = post.meta_description || post.geo_summary || post.subheading || (post.content ? post.content.replace(/[#*`]/g, "").slice(0, 160) : title);
+        ogImage = post.featured_image || ogImage;
+        pageType = "article";
+
+        const tagsArray = post.tags || [];
+        const geoArray = post.geo_entities || [];
+        keywords = [post.focus_keyword, ...tagsArray, ...geoArray, "The Sports Room", "sports journalism"].filter(Boolean).join(", ");
+
+        const newsArticleSchema: any = {
+          "@context": "https://schema.org",
+          "@type": post.schema_type || "NewsArticle",
+          "@id": `${canonicalUrl}#article`,
+          "headline": post.title,
+          "description": description,
+          "image": [ogImage],
+          "datePublished": post.created_at,
+          "dateModified": post.created_at,
+          "author": [{
+            "@type": "Person",
+            "name": post.author || "Hanan Irfan",
+            "jobTitle": "Lead Sports Columnist & Editorial Director",
+            "url": `${baseUrl}/author/hanan-irfan`
+          }],
+          "publisher": {
+            "@type": "Organization",
+            "name": "The Sports Room",
+            "url": baseUrl,
+            "logo": {
+              "@type": "ImageObject",
+              "url": `${baseUrl}/logo-preview.png`
+            },
+            "sameAs": [
+              "https://www.facebook.com/profile.php?id=61592459862127",
+              "https://twitter.com/thesportsroom",
+              "https://www.tiktok.com/@pathan_x_babarian565",
+              "https://www.pinterest.com/thesportsroomonline"
+            ]
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": canonicalUrl
+          }
+        };
+
+        if (post.geo_summary) {
+          newsArticleSchema["abstract"] = post.geo_summary;
+        }
+
+        const breadcrumbsSchema = {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "@id": `${canonicalUrl}#breadcrumbs`,
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
+            { "@type": "ListItem", "position": 2, "name": post.category || "Sports", "item": `${baseUrl}/sport/${post.category || "cricket"}` },
+            { "@type": "ListItem", "position": 3, "name": post.title, "item": canonicalUrl }
+          ]
+        };
+
+        jsonLdData = [newsArticleSchema, breadcrumbsSchema];
+
+        if (post.aeo_faq && Array.isArray(post.aeo_faq) && post.aeo_faq.length > 0) {
+          jsonLdData.push({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "@id": `${canonicalUrl}#faq`,
+            "mainEntity": post.aeo_faq.map((item: any) => ({
+              "@type": "Question",
+              "name": item.question,
+              "acceptedAnswer": { "@type": "Answer", "text": item.answer }
+            }))
+          });
+        }
+
+        const paragraphs = (post.content || "").split("\n\n").map((p: string) => {
+          if (p.startsWith("## ")) return `<h2>${p.replace("## ", "")}</h2>`;
+          if (p.startsWith("### ")) return `<h3>${p.replace("### ", "")}</h3>`;
+          if (p.trim()) return `<p>${p.replace(/[#*`]/g, "")}</p>`;
+          return "";
+        }).join("");
+
+        preRenderedBody = `
+          <article class="max-w-4xl mx-auto px-4 py-8">
+            <nav class="text-xs text-emerald-400 mb-4 font-mono">
+              <a href="/">Home</a> &gt; <a href="/sport/${post.category}">${post.category}</a> &gt; <span>${post.title}</span>
+            </nav>
+            <h1 class="text-3xl font-bold text-white mb-2">${post.title}</h1>
+            <div class="text-xs text-slate-300 font-mono mb-6">
+              Published by <a href="/author/hanan-irfan" class="text-emerald-400 font-bold hover:underline">Hanan Irfan</a> | ${new Date(post.created_at).toDateString()}
+            </div>
+            ${post.geo_summary ? `<div class="bg-emerald-950/80 border border-emerald-800 p-4 rounded-xl mb-6 text-sm text-emerald-100"><strong>Key Takeaway &amp; Summary:</strong> ${post.geo_summary}</div>` : ""}
+            ${post.featured_image ? `<img src="${post.featured_image}" alt="${post.title}" class="w-full max-h-96 object-cover rounded-2xl mb-6" />` : ""}
+            <div class="prose prose-invert max-w-none text-slate-200 leading-relaxed">${paragraphs}</div>
+          </article>
+        `;
+      }
+    } catch (e) {
+      console.warn("[SSR Render] Could not fetch post for SSR:", e);
+    }
+  } else if (cleanPath.startsWith("/author/")) {
+    title = "Hanan Irfan | Founder, Sole Editorial Director & Lead Analyst - The Sports Room";
+    description = "Hanan Irfan is the Founder, Sole Editorial Director, and Lead Sports Analyst of The Sports Room (https://thesportsroom.online). Read his independent sports columns, cricket biomechanics breakdowns, and tactical match reports.";
+    keywords = "Hanan Irfan, Hanan Irfan Sports Columnist, The Sports Room Founder, Independent Sports Journalist";
+    jsonLdData = {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "@id": `${canonicalUrl}#person`,
+      "name": "Hanan Irfan",
+      "jobTitle": "Founder, Sole Editorial Director & Lead Sports Columnist",
+      "url": canonicalUrl,
+      "worksFor": {
+        "@type": "Organization",
+        "name": "The Sports Room",
+        "url": baseUrl,
+        "logo": `${baseUrl}/logo-preview.png`,
+        "sameAs": [
+          "https://www.facebook.com/profile.php?id=61592459862127",
+          "https://twitter.com/thesportsroom",
+          "https://www.tiktok.com/@pathan_x_babarian565",
+          "https://www.pinterest.com/thesportsroomonline"
+        ]
+      }
+    };
+    preRenderedBody = `
+      <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
+        <h1 class="text-3xl font-bold text-white mb-2">Hanan Irfan - Editorial Director &amp; Founder</h1>
+        <p class="text-emerald-400 font-mono text-xs mb-4">The Sports Room (https://thesportsroom.online)</p>
+        <p class="text-sm text-slate-300 leading-relaxed">Hanan Irfan is the Sole Editorial Director, Lead Sports Analyst, and Founder of The Sports Room. He writes un-scraped, human-authored sports journalism covering cricket seam biomechanics, football pressing tactics, and Formula 1 ground effect aerodynamics.</p>
+      </section>
+    `;
+  }
+
+  let result = htmlTemplate;
+  result = result.replace(/<title>.*?<\/title>/gi, `<title>${title}</title>`);
+
+  const metaTagsHtml = `
+    <meta name="description" content="${description.replace(/"/g, '&quot;')}" />
+    <meta name="keywords" content="${keywords.replace(/"/g, '&quot;')}" />
+    <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />
+    <meta property="og:description" content="${description.replace(/"/g, '&quot;')}" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta property="og:image" content="${ogImage}" />
+    <meta property="og:type" content="${pageType}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
+    <meta name="twitter:description" content="${description.replace(/"/g, '&quot;')}" />
+    <meta name="twitter:image" content="${ogImage}" />
+    ${jsonLdData ? `<script type="application/ld+json">${JSON.stringify(jsonLdData)}</script>` : ""}
+  `;
+
+  result = result.replace("</head>", `${metaTagsHtml}\n</head>`);
+
+  if (preRenderedBody) {
+    result = result.replace('<div id="root">', `<div id="root">${preRenderedBody}`);
+  }
+
+  return result;
+}
 
 // Primary Health Endpoint
 app.get("/api/health", (req, res) => {
@@ -206,9 +427,19 @@ async function configureApp() {
   } else {
     console.log("[FTS] Configuring Express static directory assets serving...");
     const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+    const fs = await import("fs");
+    app.use(express.static(distPath, { index: false }));
+    app.get("*", async (req, res) => {
+      const host = req.get("host") || "thesportsroom.online";
+      const indexPath = path.join(distPath, "index.html");
+      if (fs.existsSync(indexPath)) {
+        const rawHtml = fs.readFileSync(indexPath, "utf8");
+        const renderedHtml = await renderSSRPage(req.url, rawHtml, host);
+        res.setHeader("Content-Type", "text/html");
+        res.send(renderedHtml);
+      } else {
+        res.status(404).send("Application build index missing");
+      }
     });
   }
 

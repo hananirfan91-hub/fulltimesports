@@ -201,7 +201,9 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "logo": `${origin}/logo-preview.png`,
           "sameAs": [
             "https://www.facebook.com/profile.php?id=61592459862127",
-            "https://twitter.com/thesportsroom"
+            "https://twitter.com/thesportsroom",
+            "https://www.tiktok.com/@pathan_x_babarian565",
+            "https://www.pinterest.com/thesportsroomonline"
           ],
           "address": {
             "@type": "PostalAddress",
@@ -516,6 +518,36 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
             }
           ]
         }
+      };
+    } else if (currentPath.startsWith('/author/')) {
+      title = "Hanan Irfan | Founder, Sole Editorial Director & Lead Analyst - The Sports Room";
+      description = "Hanan Irfan is the Founder, Sole Editorial Director, and Lead Sports Analyst of The Sports Room (https://thesportsroom.online). Read his independent sports columns, cricket biomechanics breakdowns, and tactical match reports.";
+      keywords = ["Hanan Irfan", "Hanan Irfan Sports Columnist", "The Sports Room Founder", "Independent Sports Journalist", "Cricket Biomechanics Analyst", "Formula 1 Aerodynamics Reviewer", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
+      
+      ldJsonData = {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "@id": `${canonicalUrl}#person`,
+        "name": "Hanan Irfan",
+        "jobTitle": "Founder, Sole Editorial Director & Lead Sports Columnist",
+        "url": canonicalUrl,
+        "worksFor": {
+          "@type": "Organization",
+          "name": "The Sports Room",
+          "url": origin,
+          "logo": `${origin}/logo-preview.png`,
+          "sameAs": [
+            "https://www.facebook.com/profile.php?id=61592459862127",
+            "https://twitter.com/thesportsroom",
+            "https://www.youtube.com/@thesportsroom",
+            "https://www.tiktok.com/@pathan_x_babarian565"
+          ]
+        },
+        "sameAs": [
+          "https://www.facebook.com/profile.php?id=61592459862127",
+          "https://www.tiktok.com/@pathan_x_babarian565",
+          "https://www.pinterest.com/thesportsroomonline"
+        ]
       };
     } else if (currentPath === '/why-choose-us' || currentPath === '/why-choose-the-sports-room') {
       title = "Why Choose The Sports Room? | Independent, Authoritative Sports Journalism & Analytics";

@@ -7,14 +7,24 @@
 User-agent: *
 Allow: /
 
-# Explicitly allow AI agents, LLM search engines & research bots
+# Explicitly allow OpenAI ChatGPT Search & AI Crawlers
+User-agent: OAI-SearchBot
+Allow: /
+
 User-agent: GPTBot
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
+# Explicitly allow Google, Anthropic, Claude, Perplexity & AI Search Bots
+User-agent: Googlebot
+Allow: /
+
 User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
 Allow: /
 
 User-agent: ClaudeBot
@@ -47,4 +57,5 @@ Allow: /
 # Direct links to XML Sitemap and AI Summary Manifest
 Sitemap: https://thesportsroom.online/sitemap.xml
 LLMs-txt: https://thesportsroom.online/llms.txt
+
 

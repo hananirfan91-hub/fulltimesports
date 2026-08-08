@@ -16,6 +16,7 @@ const Glossary = lazy(() => import('./pages/Glossary'));
 const LiveStream = lazy(() => import('./pages/LiveStream'));
 const WhyChooseUs = lazy(() => import('./pages/WhyChooseUs'));
 const WhatIsTheSportsRoom = lazy(() => import('./pages/WhatIsTheSportsRoom'));
+const AuthorProfile = lazy(() => import('./pages/AuthorProfile'));
 
 function PageSkeleton() {
   return (
@@ -131,6 +132,9 @@ export default function App() {
     }
 
     // E-E-A-T & Authoritative Identity Pages
+    if (currentPath.startsWith('/author/')) {
+      return <AuthorProfile onNavigate={handleNavigate} />;
+    }
     if (currentPath === '/why-choose-us' || currentPath === '/why-choose-the-sports-room') {
       return <WhyChooseUs onNavigate={handleNavigate} />;
     }
