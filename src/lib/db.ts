@@ -63,7 +63,8 @@ const SEED_CATEGORIES: Category[] = [
 
 // Seed Admin Users
 const SEED_ADMINS: AdminUser[] = [
-  { id: 'admin-3', name: 'Hanan Irfan', email: 'hananirfan91@gmail.com', role: 'Super Admin', password: 'hanan@2007.' },
+  { id: 'admin-super-1', name: 'Hanan Irfan', email: 'hananirfan91@gmail.com', role: 'Super Admin', password: 'hanan@2007.', is_approved: true, is_writer: true },
+  { id: 'admin-super-2', name: 'Urwah Farooq', email: 'urwahfarooq303@gmail.com', role: 'Super Admin', password: 'urwah@2006', is_approved: true, is_writer: true },
 ];
 
 const SEED_MEDIA: MediaItem[] = [
@@ -1622,11 +1623,13 @@ export class DB {
     const data = localStorage.getItem(STORAGE_KEYS.ADMINS);
     let list: AdminUser[] = data ? JSON.parse(data) : [];
     
-    // Always guarantee Hanan Irfan super admin is present and approved
-    const superIdx = list.findIndex(a => a.email.toLowerCase() === 'hananirfan91@gmail.com');
-    if (superIdx < 0) {
+    const superEmails = ['hananirfan91@gmail.com', 'urwahfarooq303@gmail.com'];
+
+    // Guarantee Hanan Irfan
+    const hananIdx = list.findIndex(a => a.email.toLowerCase() === 'hananirfan91@gmail.com');
+    if (hananIdx < 0) {
       list.unshift({
-        id: 'admin-super',
+        id: 'admin-super-1',
         name: 'Hanan Irfan',
         email: 'hananirfan91@gmail.com',
         role: 'Super Admin',
@@ -1634,13 +1637,33 @@ export class DB {
         is_approved: true,
         is_writer: true
       });
-      localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(list));
     } else {
-      list[superIdx].is_approved = true;
-      list[superIdx].is_writer = true;
-      list[superIdx].role = 'Super Admin';
+      list[hananIdx].is_approved = true;
+      list[hananIdx].is_writer = true;
+      list[hananIdx].role = 'Super Admin';
+      list[hananIdx].password = 'hanan@2007.';
     }
 
+    // Guarantee Urwah Farooq
+    const urwahIdx = list.findIndex(a => a.email.toLowerCase() === 'urwahfarooq303@gmail.com');
+    if (urwahIdx < 0) {
+      list.push({
+        id: 'admin-super-2',
+        name: 'Urwah Farooq',
+        email: 'urwahfarooq303@gmail.com',
+        role: 'Super Admin',
+        password: 'urwah@2006',
+        is_approved: true,
+        is_writer: true
+      });
+    } else {
+      list[urwahIdx].is_approved = true;
+      list[urwahIdx].is_writer = true;
+      list[urwahIdx].role = 'Super Admin';
+      list[urwahIdx].password = 'urwah@2006';
+    }
+
+    localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(list));
     return list;
   }
 

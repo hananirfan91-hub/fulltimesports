@@ -11,6 +11,23 @@ const PORT = 3000;
 
 app.use(express.json());
 
+// 301 Redirect Middleware to eliminate duplicate paths for Google Search Console ('Page with redirect' & 'Alternate canonical')
+app.use((req, res, next) => {
+  const reqPath = req.path;
+  // Redirect trailing slashes for non-root URLs
+  if (reqPath.length > 1 && reqPath.endsWith('/')) {
+    const query = req.url.slice(reqPath.length);
+    const safepath = reqPath.slice(0, -1);
+    return res.redirect(301, safepath + query);
+  }
+  // Redirect legacy /article/ slug to standard /blog/ slug
+  if (reqPath.startsWith('/article/')) {
+    const slug = reqPath.replace('/article/', '');
+    return res.redirect(301, `/blog/${slug}`);
+  }
+  next();
+});
+
 // Initialize Supabase
 const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://rklhxooaljemearxlxap.supabase.co";
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrbGh4b29hbGplbWVhcnhseGFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODAzODYsImV4cCI6MjA5NjA1NjM4Nn0.E1gTPWDlC6YXZY_56PCkcKVCxa7_vlBPQlrf7bLxqp4";
@@ -410,6 +427,95 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
         <h1 class="text-3xl font-bold text-white mb-2">${topicTitle} - Editorial Central Hub</h1>
         <p class="text-emerald-400 font-mono text-xs mb-4">The Sports Room (https://thesportsroom.online)</p>
         <p class="text-sm text-slate-300 leading-relaxed">Follow complete coverage, match schedules, host venue updates (South Africa, Zimbabwe, Namibia), team qualification pathways, and deep tactical analysis for ${topicTitle} by Hanan Irfan.</p>
+      </section>
+    `;
+  } else if (cleanPath.startsWith("/sport/")) {
+    const category = cleanPath.replace("/sport/", "").toLowerCase();
+    const catTitle = category.charAt(0).toUpperCase() + category.slice(1);
+    
+    title = `${catTitle} News, Tactical Analysis & Match Statistics | The Sports Room`;
+    description = `In-depth, un-scraped sports journalism and statistical coverage for ${catTitle} on The Sports Room. Read technical breakdowns and match analysis by Lead Analyst Hanan Irfan.`;
+    keywords = `${catTitle}, ${catTitle} news, ${catTitle} analysis, ${catTitle} statistics, ${catTitle} updates, The Sports Room`;
+
+    jsonLdData = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "@id": `${canonicalUrl}#category-hub`,
+      "name": `${catTitle} Editorial Category`,
+      "description": description,
+      "url": canonicalUrl,
+      "publisher": {
+        "@type": "Organization",
+        "name": "The Sports Room",
+        "url": baseUrl
+      }
+    };
+
+    preRenderedBody = `
+      <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
+        <nav class="text-xs text-emerald-400 mb-4 font-mono"><a href="/">Home</a> &gt; <span>${catTitle}</span></nav>
+        <h1 class="text-3xl font-bold text-white mb-2">${catTitle} Editorial Hub</h1>
+        <p class="text-emerald-400 font-mono text-xs mb-4">The Sports Room (https://thesportsroom.online)</p>
+        <p class="text-sm text-slate-300 leading-relaxed">Discover deep tactical reviews, player statistics, match previews, and human-authored sports journalism covering ${catTitle}. Directed by Hanan Irfan.</p>
+      </section>
+    `;
+  } else if (cleanPath === "/why-choose-us") {
+    title = "Why Choose Us | The Sports Room - Human-Authored Sports Analytics";
+    description = "Discover why readers trust The Sports Room for original, un-scraped sports journalism, deep seam biomechanics, pressing matrices, and real-time match stats.";
+    preRenderedBody = `
+      <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
+        <h1 class="text-3xl font-bold text-white mb-2">Why Choose The Sports Room?</h1>
+        <p class="text-sm text-slate-300 leading-relaxed">Unlike AI-generated content farms or aggregated sports sites, The Sports Room provides 100% human-written, deeply researched sports journalism led by Hanan Irfan.</p>
+      </section>
+    `;
+  } else if (cleanPath === "/what-is-the-sports-room") {
+    title = "What is The Sports Room? | Editorial Mission & Publishing Standards";
+    description = "Learn about The Sports Room: an independent digital publication dedicated to elite sports journalism, cricket biomechanics, football pressing tactics, and Formula 1 ground-effect engineering.";
+    preRenderedBody = `
+      <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
+        <h1 class="text-3xl font-bold text-white mb-2">What is The Sports Room?</h1>
+        <p class="text-sm text-slate-300 leading-relaxed">The Sports Room is a premium digital publication delivering independent sports journalism and live match updates across international sports.</p>
+      </section>
+    `;
+  } else if (cleanPath === "/live-stream") {
+    title = "Live Sports Streams & Match Audio Broadcasts | The Sports Room";
+    description = "Watch live sports streams, legal match embeds, real-time commentary, and fan polls for ICC cricket tournaments, football leagues, and international events.";
+    preRenderedBody = `
+      <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
+        <h1 class="text-3xl font-bold text-white mb-2">Live Sports Streams &amp; Match Center</h1>
+        <p class="text-sm text-slate-300 leading-relaxed">Stream live sports coverage, interactive match chat rooms, fan prediction polls, and real-time scoreboards on The Sports Room.</p>
+      </section>
+    `;
+  } else if (cleanPath === "/about-us") {
+    title = "About Us | The Sports Room - Independent Sports Media";
+    description = "Learn more about the editorial team, analytical methodology, and founding vision behind The Sports Room digital sports portal.";
+    preRenderedBody = `
+      <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
+        <h1 class="text-3xl font-bold text-white mb-2">About The Sports Room</h1>
+        <p class="text-sm text-slate-300 leading-relaxed">Founded by Hanan Irfan, The Sports Room is an independent sports media organization committed to analytical rigor and un-scraped reporting.</p>
+      </section>
+    `;
+  } else if (cleanPath === "/") {
+    title = "The Sports Room | Live Cricket Scores, Match Updates & Sports Analysis";
+    description = "Follow live cricket scores, real-time match updates, upcoming schedules, and in-depth tactical analysis across international cricket, football, and F1 on The Sports Room.";
+    jsonLdData = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": `${baseUrl}/#website`,
+      "name": "The Sports Room",
+      "url": baseUrl,
+      "publisher": {
+        "@type": "Organization",
+        "name": "The Sports Room",
+        "url": baseUrl,
+        "logo": `${baseUrl}/logo-preview.png`
+      }
+    };
+    preRenderedBody = `
+      <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
+        <h1 class="text-3xl font-bold text-white mb-2">The Sports Room - Live Cricket Scores &amp; Sports Journalism</h1>
+        <p class="text-emerald-400 font-mono text-xs mb-4">Sole Editorial Director: Hanan Irfan | https://thesportsroom.online</p>
+        <p class="text-sm text-slate-300 leading-relaxed">Welcome to The Sports Room. Access live scorecards, match predictions, ICC tournament schedules, and deep tactical breakdowns for cricket, football, basketball, and Formula 1.</p>
       </section>
     `;
   }

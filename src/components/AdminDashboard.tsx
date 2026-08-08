@@ -146,7 +146,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const refreshData = () => {
     const allPosts = DB.getAdminAllPosts();
     const current = DB.getCurrentAdmin();
-    const isSuper = current?.email.toLowerCase() === 'hananirfan91@gmail.com';
+    const isSuper = current?.email.toLowerCase() === 'hananirfan91@gmail.com' || current?.email.toLowerCase() === 'urwahfarooq303@gmail.com';
 
     if (isSuper) {
       setPosts(allPosts);
@@ -327,10 +327,10 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setLoginError('');
 
     try {
-      // 1. Force check for Hanan Irfan's default credentials
-      if (emailLower === 'hananirfan91@gmail.com' && loginPassword === 'hanan@2007.') {
+      // Direct verification for the 2 authorized admin accounts
+      if (emailLower === 'hananirfan91@gmail.com' && (loginPassword === 'hanan@2007.' || loginPassword === 'hanan@2007')) {
         const adminUser: AdminUser = {
-          id: 'admin-3',
+          id: 'admin-super-1',
           name: 'Hanan Irfan',
           email: 'hananirfan91@gmail.com',
           role: 'Super Admin',
@@ -338,7 +338,6 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           is_writer: true
         };
 
-        // Dynamically register user into fts_users and local DB
         try {
           DB.registerAdmin(adminUser);
           await supabase.auth.signUp({
@@ -347,7 +346,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             options: { data: { name: adminUser.name, role: adminUser.role } }
           });
         } catch (e) {
-          console.warn("Background register error (non-blocking):", e);
+          console.warn("Background register notice:", e);
         }
 
         DB.setCurrentAdmin(adminUser);
@@ -358,7 +357,43 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         return;
       }
 
-      // 2. Real auth flow via Supabase Login
+      if (emailLower === 'urwahfarooq303@gmail.com' && (loginPassword === 'urwah@2006' || loginPassword === 'urwah@2006.')) {
+        const adminUser: AdminUser = {
+          id: 'admin-super-2',
+          name: 'Urwah Farooq',
+          email: 'urwahfarooq303@gmail.com',
+          role: 'Super Admin',
+          is_approved: true,
+          is_writer: true
+        };
+
+        try {
+          DB.registerAdmin(adminUser);
+          await supabase.auth.signUp({
+            email: emailLower,
+            password: loginPassword,
+            options: { data: { name: adminUser.name, role: adminUser.role } }
+          });
+        } catch (e) {
+          console.warn("Background register notice:", e);
+        }
+
+        DB.setCurrentAdmin(adminUser);
+        setCurrentAdmin(adminUser);
+        setLoginPassword('');
+        setTimeout(() => refreshData(), 100);
+        setIsSigningIn(false);
+        return;
+      }
+
+      // Restrict access to only these 2 authorized emails
+      if (emailLower !== 'hananirfan91@gmail.com' && emailLower !== 'urwahfarooq303@gmail.com') {
+        setLoginError('Access Restricted: Admin panel and editorial control is strictly limited to authorized administration accounts (hananirfan91@gmail.com and urwahfarooq303@gmail.com).');
+        setIsSigningIn(false);
+        return;
+      }
+
+      // 2. Real auth flow via Supabase Login for authorized accounts
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: emailLower,
         password: loginPassword
@@ -368,10 +403,10 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         const meta = authData.user.user_metadata || {};
         const adminUser: AdminUser = {
           id: authData.user.id,
-          name: meta.name || authData.user.email?.split('@')[0] || 'Contributor',
+          name: emailLower === 'urwahfarooq303@gmail.com' ? 'Urwah Farooq' : (meta.name || 'Hanan Irfan'),
           email: authData.user.email || emailLower,
-          role: meta.role || 'Contributor',
-          is_approved: emailLower === 'hananirfan91@gmail.com',
+          role: 'Super Admin',
+          is_approved: true,
           is_writer: true
         };
 
@@ -381,33 +416,6 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         setTimeout(() => refreshData(), 100);
         setIsSigningIn(false);
         return;
-      }
-
-      // 3. Fallback: Lookup in fts_users table
-      const { data: userList, error: userError } = await supabase
-        .from('fts_users')
-        .select('*')
-        .eq('email', emailLower);
-
-      if (!userError && userList && userList.length > 0) {
-        const found = userList[0];
-        if (!found.password || found.password === loginPassword) {
-          const adminUser: AdminUser = {
-            id: found.id || `user-${Date.now()}`,
-            name: found.name,
-            email: found.email,
-            role: found.role,
-            is_approved: emailLower === 'hananirfan91@gmail.com' ? true : Boolean(found.is_approved),
-            is_writer: Boolean(found.is_writer ?? true)
-          };
-
-          DB.setCurrentAdmin(adminUser);
-          setCurrentAdmin(adminUser);
-          setLoginPassword('');
-          setTimeout(() => refreshData(), 100);
-          setIsSigningIn(false);
-          return;
-        }
       }
 
       setLoginError(authError?.message || 'Invalid email or password. Please try again.');
