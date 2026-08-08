@@ -2181,76 +2181,87 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       )}
 
       {/* 8. SUBSCRIBERS PANEL */}
-      {activeTab === 'subscribers' && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-fade-in" id="admin-subscribers-panel">
-          <div className="flex border-b pb-4 mb-6 justify-between items-center flex-wrap gap-4">
-            <div>
-              <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase flex items-center gap-2">
-                <Mail className="h-5 w-5 text-[#22c55e]" />
-                <span>Subscriber & Inbox Management</span>
-              </h3>
-              <p className="text-xs text-slate-500">View registered subscriber emails, assign inbox messages, and broadcast live notifications & updates.</p>
+      {activeTab === 'subscribers' && (() => {
+        const safeSubList = Array.isArray(subscribers) ? subscribers.filter(s => s && typeof s === 'object' && s.email) : [];
+        const filteredSubs = safeSubList.filter(sub => 
+          (sub.email || '').toLowerCase().includes((subscriberSearchQuery || '').toLowerCase().trim())
+        );
+
+        return (
+          <>
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm animate-fade-in" id="admin-subscribers-panel">
+            <div className="flex border-b pb-4 mb-6 justify-between items-center flex-wrap gap-4">
+              <div>
+                <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-[#22c55e]" />
+                  <span>Subscriber & Inbox Management</span>
+                </h3>
+                <p className="text-xs text-slate-500">View registered subscriber emails, assign inbox messages, and broadcast live notifications & updates.</p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={() => {
+                    setBroadcastSuccessMsg('');
+                    setIsBroadcastModalOpen(true);
+                  }}
+                  className="bg-[#022c22] hover:bg-[#034434] text-[#22c55e] border border-[#22c55e]/40 font-mono font-bold text-xs px-4 py-2 rounded-xl flex items-center space-x-2 transition shadow-sm uppercase tracking-wider"
+                >
+                  <Bell className="h-4 w-4" />
+                  <span>Broadcast Update to All</span>
+                </button>
+
+                <span className="bg-emerald-100 text-[#022c22] border border-emerald-200 font-mono font-bold text-xs px-3 py-2 rounded-xl uppercase tracking-wider">
+                  Total Subscribers: {safeSubList.length}
+                </span>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => {
-                  setBroadcastSuccessMsg('');
-                  setIsBroadcastModalOpen(true);
-                }}
-                className="bg-[#022c22] hover:bg-[#034434] text-[#22c55e] border border-[#22c55e]/40 font-mono font-bold text-xs px-4 py-2 rounded-xl flex items-center space-x-2 transition shadow-sm uppercase tracking-wider"
-              >
-                <Bell className="h-4 w-4" />
-                <span>Broadcast Update to All</span>
-              </button>
-
-              <span className="bg-emerald-100 text-[#022c22] border border-emerald-200 font-mono font-bold text-xs px-3 py-2 rounded-xl uppercase tracking-wider">
-                Total Subscribers: {subscribers.length}
-              </span>
+            {/* Search bar */}
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search subscribers by email address..."
+                value={subscriberSearchQuery}
+                onChange={(e) => setSubscriberSearchQuery(e.target.value)}
+                className="w-full max-w-md bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-sans focus:outline-none focus:border-[#22c55e] text-slate-800"
+              />
             </div>
-          </div>
 
-          {/* Search bar */}
-          <div className="mb-4">
-            <input
-              type="text"
-              placeholder="Search subscribers by email address..."
-              value={subscriberSearchQuery}
-              onChange={(e) => setSubscriberSearchQuery(e.target.value)}
-              className="w-full max-w-md bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-sans focus:outline-none focus:border-[#22c55e] text-slate-800"
-            />
-          </div>
-
-          {subscribers.length === 0 ? (
-            <div className="text-center py-12 bg-slate-50 border border-dashed rounded-2xl">
-              <Mail className="h-10 w-10 text-slate-400 mx-auto mb-3" />
-              <p className="text-sm font-semibold text-slate-700">No email subscribers registered yet.</p>
-              <p className="text-xs text-slate-400 mt-1">When users type their email to subscribe on the homepage or footer, they will appear here instantly.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-slate-600 text-sm">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-550 border-b border-slate-200 font-mono text-[11px] uppercase text-left">
-                    <th className="py-3 px-4">Subscriber Email</th>
-                    <th className="py-3 px-4">Joined Date</th>
-                    <th className="py-3 px-4">Assigned Inbox</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {subscribers
-                    .filter(sub => sub.email.toLowerCase().includes(subscriberSearchQuery.toLowerCase()))
-                    .map((sub) => {
-                      const inboxCount = sub.inbox?.length || 0;
-                      const unreadCount = sub.inbox?.filter(m => !m.read).length || 0;
+            {safeSubList.length === 0 ? (
+              <div className="text-center py-12 bg-slate-50 border border-dashed rounded-2xl">
+                <Mail className="h-10 w-10 text-slate-400 mx-auto mb-3" />
+                <p className="text-sm font-semibold text-slate-700">No email subscribers registered yet.</p>
+                <p className="text-xs text-slate-400 mt-1">When users type their email to subscribe on the homepage or footer, they will appear here instantly.</p>
+              </div>
+            ) : filteredSubs.length === 0 ? (
+              <div className="text-center py-8 bg-slate-50 rounded-xl border border-slate-200">
+                <p className="text-xs text-slate-500">No subscribers match search query "{subscriberSearchQuery}".</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-slate-600 text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-550 border-b border-slate-200 font-mono text-[11px] uppercase text-left">
+                      <th className="py-3 px-4">Subscriber Email</th>
+                      <th className="py-3 px-4">Joined Date</th>
+                      <th className="py-3 px-4">Assigned Inbox</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredSubs.map((sub) => {
+                      const inbox = Array.isArray(sub.inbox) ? sub.inbox : [];
+                      const inboxCount = inbox.length;
+                      const unreadCount = inbox.filter(m => m && !m.read).length;
+                      const joinedDate = sub.created_at ? new Date(sub.created_at).toLocaleString() : 'N/A';
 
                       return (
-                        <tr key={sub.id} className="hover:bg-slate-50 transition">
+                        <tr key={sub.id || sub.email} className="hover:bg-slate-50 transition">
                           <td className="py-3 px-4 font-semibold text-slate-900 font-sans">
                             <div className="flex items-center space-x-2">
                               <span className="w-7 h-7 rounded-full bg-emerald-100 text-[#022c22] font-mono text-xs font-bold flex items-center justify-center shrink-0 uppercase">
-                                {sub.email.charAt(0)}
+                                {(sub.email || 'S').charAt(0)}
                               </span>
                               <div>
                                 <p className="text-sm font-bold text-slate-900">{sub.email}</p>
@@ -2259,7 +2270,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                             </div>
                           </td>
                           <td className="py-3 px-4 text-slate-500 font-mono text-xs">
-                            {new Date(sub.created_at).toLocaleString()}
+                            {joinedDate}
                           </td>
                           <td className="py-3 px-4">
                             <button
@@ -2304,10 +2315,11 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         </tr>
                       );
                     })}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
 
           {/* BROADCAST NOTIFICATION MODAL */}
           {isBroadcastModalOpen && (
@@ -2434,7 +2446,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       <Inbox className="h-5 w-5 text-[#22c55e]" />
                       <h3 className="font-display font-extrabold text-base text-white uppercase tracking-wider">Subscriber Inbox: {selectedSubForInbox.email}</h3>
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">Joined: {new Date(selectedSubForInbox.created_at).toLocaleString()}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Joined: {selectedSubForInbox.created_at ? new Date(selectedSubForInbox.created_at).toLocaleString() : 'N/A'}</p>
                   </div>
                   <button
                     onClick={() => {
@@ -2553,7 +2565,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                               <span className="bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/40 font-mono text-[10px] px-2 py-0.5 rounded font-bold uppercase">
                                 {msg.type || 'update'}
                               </span>
-                              <span className="text-[11px] text-slate-400 font-mono">{new Date(msg.sent_at).toLocaleString()}</span>
+                              <span className="text-[11px] text-slate-400 font-mono">{msg.sent_at ? new Date(msg.sent_at).toLocaleString() : 'N/A'}</span>
                               {msg.read ? (
                                 <span className="text-[10px] text-emerald-400 font-mono">✓ Read</span>
                               ) : (
@@ -2590,8 +2602,9 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               </div>
             </div>
           )}
-        </div>
-      )}
+          </>
+        );
+      })()}
 
       {/* WRITERS & APPROVALS MODULE */}
       {activeTab === 'users' && (

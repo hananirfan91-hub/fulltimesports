@@ -1862,14 +1862,31 @@ export class DB {
   }
 
   static getSubscribers(): Subscriber[] {
-    const data = localStorage.getItem(STORAGE_KEYS.SUBSCRIBERS);
-    return data ? JSON.parse(data) : [];
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.SUBSCRIBERS);
+      if (!data) return [];
+      const parsed = JSON.parse(data);
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .filter((s: any) => s && typeof s === 'object' && typeof s.email === 'string' && s.email.trim().length > 0)
+        .map((s: any) => ({
+          id: String(s.id || `sub-${Math.random()}`),
+          email: String(s.email).trim().toLowerCase(),
+          name: s.name ? String(s.name) : String(s.email).split('@')[0],
+          created_at: s.created_at || new Date().toISOString(),
+          inbox: Array.isArray(s.inbox) ? s.inbox : []
+        }));
+    } catch (e) {
+      console.warn("Failed to parse subscribers from localStorage:", e);
+      return [];
+    }
   }
 
   static getSubscriberByEmail(email: string): Subscriber | null {
-    if (!email) return null;
+    if (!email || typeof email !== 'string') return null;
     const list = this.getSubscribers();
-    return list.find(s => s.email.toLowerCase() === email.toLowerCase().trim()) || null;
+    const search = email.trim().toLowerCase();
+    return list.find(s => s && s.email && s.email.toLowerCase() === search) || null;
   }
 
   static insertSubscriber(email: string, name?: string): Subscriber {
