@@ -386,14 +386,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         return;
       }
 
-      // Restrict access to only these 2 authorized emails
-      if (emailLower !== 'hananirfan91@gmail.com' && emailLower !== 'urwahfarooq303@gmail.com') {
-        setLoginError('Access Restricted: Admin panel and editorial control is strictly limited to authorized administration accounts.');
-        setIsSigningIn(false);
-        return;
-      }
-
-      // 2. Real auth flow via Supabase Login for authorized accounts
+      // 3. Auth flow via Supabase Login for all registered users
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: emailLower,
         password: loginPassword
@@ -401,17 +394,36 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       if (!authError && authData?.user) {
         const meta = authData.user.user_metadata || {};
-        const adminUser: AdminUser = {
+        const isSuper = emailLower === 'hananirfan91@gmail.com' || emailLower === 'urwahfarooq303@gmail.com';
+        const userObj: AdminUser = {
           id: authData.user.id,
-          name: emailLower === 'urwahfarooq303@gmail.com' ? 'Urwah Farooq' : (meta.name || 'Hanan Irfan'),
+          name: isSuper ? (emailLower === 'urwahfarooq303@gmail.com' ? 'Urwah Farooq' : 'Hanan Irfan') : (meta.name || emailLower.split('@')[0]),
           email: authData.user.email || emailLower,
-          role: 'Super Admin',
+          role: isSuper ? 'Super Admin' : (meta.role || 'Member'),
           is_approved: true,
-          is_writer: true
+          is_writer: isSuper
         };
 
-        DB.setCurrentAdmin(adminUser);
-        setCurrentAdmin(adminUser);
+        DB.setCurrentAdmin(userObj);
+        setCurrentAdmin(userObj);
+        setLoginPassword('');
+        setTimeout(() => refreshData(), 100);
+        setIsSigningIn(false);
+        return;
+      }
+
+      // 4. Fallback check in local DB
+      const registeredList = DB.getAdmins();
+      const localFound = registeredList.find(u => u.email.toLowerCase() === emailLower);
+      if (localFound && (localFound.password === loginPassword || !localFound.password)) {
+        const isSuper = emailLower === 'hananirfan91@gmail.com' || emailLower === 'urwahfarooq303@gmail.com';
+        const userObj: AdminUser = {
+          ...localFound,
+          role: isSuper ? 'Super Admin' : (localFound.role || 'Member'),
+          is_approved: true
+        };
+        DB.setCurrentAdmin(userObj);
+        setCurrentAdmin(userObj);
         setLoginPassword('');
         setTimeout(() => refreshData(), 100);
         setIsSigningIn(false);
@@ -439,15 +451,16 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setLoginError('');
 
     try {
-      if (emailLower === 'hananirfan91@gmail.com' && signupPassword !== 'hanan@2007.') {
+      const isSuperEmail = emailLower === 'hananirfan91@gmail.com' || emailLower === 'urwahfarooq303@gmail.com';
+      if (isSuperEmail && signupPassword !== 'hanan@2007.' && signupPassword !== 'urwah@2006') {
         setLoginError('The administration email address is reserved. Security clearance required to register this account.');
         setIsSigningIn(false);
         return;
       }
 
-      const roleSelected = emailLower === 'hananirfan91@gmail.com' ? 'Super Admin' : signupRole;
+      const roleSelected = isSuperEmail ? 'Super Admin' : 'Member';
       const newUserId = `user-${Date.now()}`;
-      const isApproved = emailLower === 'hananirfan91@gmail.com';
+      const isApproved = true;
 
       const newlyRegisteredData: AdminUser = {
         id: newUserId,
@@ -456,7 +469,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         role: roleSelected,
         password: signupPassword,
         is_approved: isApproved,
-        is_writer: true
+        is_writer: isSuperEmail
       };
 
       // 1. Write user to local storage AND sync to Supabase fts_users table
