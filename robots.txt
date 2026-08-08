@@ -1,4 +1,12 @@
 User-agent: *
 Allow: /
 
+# Specifically allow ChatGPT's real-time web search crawler
+User-agent: OAI-SearchBot
+Allow: /
+
+# OPTIONAL: Block OpenAI's training bot if you don't want them training on your content for free
+User-agent: GPTBot
+Disallow: /
+
 Sitemap: https://thesportsroom.online/sitemap.xml
