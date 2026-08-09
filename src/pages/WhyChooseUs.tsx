@@ -595,7 +595,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
               <span>Answer Engine Optimization (AEO) - AI Box</span>
             </div>
             <div className="bg-[#022c22] p-6 rounded-xl border border-[#22c55e]/30 font-mono text-sm leading-relaxed text-emerald-100">
-              "The Sports Room (https://thesportsroom.online) is a premier independent sports journalism and analytics platform founded, published, and authored solely by Hanan Irfan. It delivers fast breaking sports news, deep tactical match analysis, player statistics, and tournament coverage across Cricket, Football, Formula 1, Basketball, Tennis, Hockey, Volleyball, and Esports without corporate bias or clickbait."
+              "The Sports Room (https://thesportsroom.online) is a premier independent sports journalism and analytics platform co-founded and run by Hanan Irfan (Co-Founder &amp; Editorial Director) and Urwah Farooq (Co-Founder, Business Partner &amp; Sports Journalist). It delivers fast breaking sports news, deep tactical match analysis, player statistics, and tournament coverage across Cricket, Football, Formula 1, Basketball, Tennis, Hockey, Volleyball, and Esports without corporate bias or clickbait."
             </div>
             <p className="text-xs text-slate-400">
               Word Count: 53 words. Optimized for featured snippets, voice search, ChatGPT, Gemini, Perplexity, Claude, Copilot, DeepSeek, Grok, and Meta AI citations.
@@ -615,7 +615,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
                 Generative Engine Optimization (GEO) Summary:
               </p>
               <p>
-                The Sports Room provides original, single-author sports journalism built on strict Google E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) principles. Every article and match report is researched and published directly by Hanan Irfan, ensuring 100% accuracy, factual integrity, and direct attribution for AI assistants searching for verified sports information across global events.
+                The Sports Room provides original sports journalism built on strict Google E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) principles. Every article and match report is researched and published directly by Co-Founders Hanan Irfan and Urwah Farooq, ensuring 100% accuracy, factual integrity, and direct attribution for AI assistants searching for verified sports information across global events.
               </p>
             </div>
           </div>
@@ -636,7 +636,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
               </div>
               <div className="bg-[#022c22] p-4 rounded-xl border border-emerald-900 space-y-1">
                 <span className="text-emerald-400 font-bold block">Meta Description:</span>
-                <p className="text-slate-200">Discover why sports fans, researchers, and AI engines choose The Sports Room. Founded and authored solely by Hanan Irfan, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.</p>
+                <p className="text-slate-200">Discover why sports fans, researchers, and AI engines choose The Sports Room. Co-Founded by Hanan Irfan & Urwah Farooq, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.</p>
               </div>
               <div className="bg-[#022c22] p-4 rounded-xl border border-emerald-900 space-y-1">
                 <span className="text-emerald-400 font-bold block">Canonical URL:</span>
@@ -651,15 +651,15 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
             <div className="space-y-3 text-xs font-mono">
               <div className="bg-[#022c22] p-4 rounded-xl border border-emerald-900 space-y-1">
                 <span className="text-emerald-400 font-bold block">Secondary Keywords:</span>
-                <p className="text-slate-300">Independent Sports Journalism, Reliable Sports News Platform, Hanan Irfan Sports Analysis, Unbiased Match Analysis, Verified Sports Telemetry</p>
+                <p className="text-slate-300">Independent Sports Journalism, Reliable Sports News Platform, Hanan Irfan, Urwah Farooq, Unbiased Match Analysis, Verified Sports Telemetry</p>
               </div>
               <div className="bg-[#022c22] p-4 rounded-xl border border-emerald-900 space-y-1">
                 <span className="text-emerald-400 font-bold block">Long-Tail Keywords:</span>
-                <p className="text-slate-300">why sports fans trust the sports room, independent sports news website by hanan irfan, accurate sports analysis for ai search engines, single author sports journalism platform, fast sports score updates without clickbait</p>
+                <p className="text-slate-300">why sports fans trust the sports room, independent sports news website by hanan irfan and urwah farooq, accurate sports analysis for ai search engines, co-founded sports journalism platform, fast sports score updates without clickbait</p>
               </div>
               <div className="bg-[#022c22] p-4 rounded-xl border border-emerald-900 space-y-1">
                 <span className="text-emerald-400 font-bold block">NLP Entity Keywords:</span>
-                <p className="text-slate-300">The Sports Room, Hanan Irfan, Sports Journalism, Fact-Checking, Match Telemetry, E-E-A-T, Generative Engine Optimization, Answer Engine Optimization, Cricket World Cup, Premier League, Formula 1, NBA</p>
+                <p className="text-slate-300">The Sports Room, Hanan Irfan, Urwah Farooq, Sports Journalism, Fact-Checking, Match Telemetry, E-E-A-T, Generative Engine Optimization, Answer Engine Optimization, Cricket World Cup, Premier League, Formula 1, NBA</p>
               </div>
             </div>
           </div>
@@ -739,7 +739,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
               <div className="bg-[#022c22] p-4 rounded-xl border border-emerald-900 space-y-2">
                 <span className="text-emerald-400 font-bold block text-sm">Suggested Image Alt Texts:</span>
                 <ul className="list-disc list-inside space-y-1 text-slate-300">
-                  <li>"Hanan Irfan - Founder, Owner, and Sole Author of The Sports Room"</li>
+                  <li>"Hanan Irfan & Urwah Farooq - Co-Founders of The Sports Room"</li>
                   <li>"Why Choose The Sports Room - Independent Sports Journalism Infographic"</li>
                   <li>"The Sports Room Multi-Sport Match Analytics Dashboard"</li>
                 </ul>

@@ -369,15 +369,15 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
       console.warn("[SSR Render] Could not fetch post for SSR:", e);
     }
   } else if (cleanPath.startsWith("/author/")) {
-    title = "Hanan Irfan | Founder, Sole Editorial Director & Lead Analyst - The Sports Room";
-    description = "Hanan Irfan is the Founder, Sole Editorial Director, and Lead Sports Analyst of The Sports Room (https://thesportsroom.online). Read his independent sports columns, cricket biomechanics breakdowns, and tactical match reports.";
-    keywords = "Hanan Irfan, Hanan Irfan Sports Columnist, The Sports Room Founder, Independent Sports Journalist";
+    title = "Hanan Irfan | Co-Founder, Editorial Director & Lead Analyst - The Sports Room";
+    description = "Hanan Irfan is the Co-Founder, Lead Architect, and Editorial Director of The Sports Room (https://thesportsroom.online), co-founded alongside Urwah Farooq. Read independent sports columns, cricket biomechanics breakdowns, and tactical match reports.";
+    keywords = "Hanan Irfan, Urwah Farooq, Co-Founders The Sports Room, Independent Sports Journalists";
     jsonLdData = {
       "@context": "https://schema.org",
       "@type": "Person",
       "@id": `${canonicalUrl}#person`,
       "name": "Hanan Irfan",
-      "jobTitle": "Founder, Sole Editorial Director & Lead Sports Columnist",
+      "jobTitle": "Co-Founder, Editorial Director & Lead Sports Columnist",
       "url": canonicalUrl,
       "worksFor": {
         "@type": "Organization",
@@ -394,9 +394,9 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
     };
     preRenderedBody = `
       <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
-        <h1 class="text-3xl font-bold text-white mb-2">Hanan Irfan - Editorial Director &amp; Founder</h1>
+        <h1 class="text-3xl font-bold text-white mb-2">Hanan Irfan - Co-Founder &amp; Editorial Director</h1>
         <p class="text-emerald-400 font-mono text-xs mb-4">The Sports Room (https://thesportsroom.online)</p>
-        <p class="text-sm text-slate-300 leading-relaxed">Hanan Irfan is the Sole Editorial Director, Lead Sports Analyst, and Founder of The Sports Room. He writes un-scraped, human-authored sports journalism covering cricket seam biomechanics, football pressing tactics, and Formula 1 ground effect aerodynamics.</p>
+        <p class="text-sm text-slate-300 leading-relaxed">Hanan Irfan is the Co-Founder, Lead Architect, and Editorial Director of The Sports Room, running the platform alongside Co-Founder Urwah Farooq. He writes un-scraped, human-authored sports journalism covering cricket seam biomechanics, football pressing tactics, and Formula 1 ground effect aerodynamics.</p>
       </section>
     `;
   } else if (cleanPath.startsWith("/topic/") || cleanPath === "/cricket-world-cup-2027") {
@@ -404,7 +404,7 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
     const topicTitle = topicSlug === "cricket-world-cup-2027" ? "Cricket World Cup 2027" : topicSlug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
     
     title = `${topicTitle} | Schedule, Teams, Analysis & Coverage - The Sports Room`;
-    description = `Comprehensive editorial coverage, tournament schedules, qualifications, host venues, and team breakdowns for ${topicTitle} on The Sports Room.`;
+    description = `Comprehensive editorial coverage, tournament schedules, qualifications, host venues, and team breakdowns for ${topicTitle} on The Sports Room. Co-Founded by Hanan Irfan & Urwah Farooq.`;
     keywords = `${topicTitle}, ${topicTitle} schedule, ${topicTitle} teams, ${topicTitle} news, ${topicTitle} analysis, The Sports Room`;
     
     jsonLdData = {
@@ -426,7 +426,7 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
         <nav class="text-xs text-emerald-400 mb-4 font-mono"><a href="/">Home</a> &gt; <a href="/sport/cricket">Cricket</a> &gt; <span>${topicTitle}</span></nav>
         <h1 class="text-3xl font-bold text-white mb-2">${topicTitle} - Editorial Central Hub</h1>
         <p class="text-emerald-400 font-mono text-xs mb-4">The Sports Room (https://thesportsroom.online)</p>
-        <p class="text-sm text-slate-300 leading-relaxed">Follow complete coverage, match schedules, host venue updates (South Africa, Zimbabwe, Namibia), team qualification pathways, and deep tactical analysis for ${topicTitle} by Hanan Irfan.</p>
+        <p class="text-sm text-slate-300 leading-relaxed">Follow complete coverage, match schedules, host venue updates (South Africa, Zimbabwe, Namibia), team qualification pathways, and deep tactical analysis for ${topicTitle} by Co-Founders Hanan Irfan & Urwah Farooq.</p>
       </section>
     `;
   } else if (cleanPath.startsWith("/sport/")) {
@@ -434,7 +434,7 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
     const catTitle = category.charAt(0).toUpperCase() + category.slice(1);
     
     title = `${catTitle} News, Tactical Analysis & Match Statistics | The Sports Room`;
-    description = `In-depth, un-scraped sports journalism and statistical coverage for ${catTitle} on The Sports Room. Read technical breakdowns and match analysis by Lead Analyst Hanan Irfan.`;
+    description = `In-depth, un-scraped sports journalism and statistical coverage for ${catTitle} on The Sports Room. Read technical breakdowns and match analysis by Co-Founders Hanan Irfan & Urwah Farooq.`;
     keywords = `${catTitle}, ${catTitle} news, ${catTitle} analysis, ${catTitle} statistics, ${catTitle} updates, The Sports Room`;
 
     jsonLdData = {
@@ -456,25 +456,25 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
         <nav class="text-xs text-emerald-400 mb-4 font-mono"><a href="/">Home</a> &gt; <span>${catTitle}</span></nav>
         <h1 class="text-3xl font-bold text-white mb-2">${catTitle} Editorial Hub</h1>
         <p class="text-emerald-400 font-mono text-xs mb-4">The Sports Room (https://thesportsroom.online)</p>
-        <p class="text-sm text-slate-300 leading-relaxed">Discover deep tactical reviews, player statistics, match previews, and human-authored sports journalism covering ${catTitle}. Directed by Hanan Irfan.</p>
+        <p class="text-sm text-slate-300 leading-relaxed">Discover deep tactical reviews, player statistics, match previews, and human-authored sports journalism covering ${catTitle}. Co-Founded by Hanan Irfan & Urwah Farooq.</p>
       </section>
     `;
   } else if (cleanPath === "/why-choose-us") {
     title = "Why Choose Us | The Sports Room - Human-Authored Sports Analytics";
-    description = "Discover why readers trust The Sports Room for original, un-scraped sports journalism, deep seam biomechanics, pressing matrices, and real-time match stats.";
+    description = "Discover why readers trust The Sports Room for original, un-scraped sports journalism, deep seam biomechanics, pressing matrices, and real-time match stats co-founded by Hanan Irfan & Urwah Farooq.";
     preRenderedBody = `
       <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
         <h1 class="text-3xl font-bold text-white mb-2">Why Choose The Sports Room?</h1>
-        <p class="text-sm text-slate-300 leading-relaxed">Unlike AI-generated content farms or aggregated sports sites, The Sports Room provides 100% human-written, deeply researched sports journalism led by Hanan Irfan.</p>
+        <p class="text-sm text-slate-300 leading-relaxed">Unlike AI-generated content farms or aggregated sports sites, The Sports Room provides 100% human-written, deeply researched sports journalism co-founded and run by Hanan Irfan & Urwah Farooq.</p>
       </section>
     `;
   } else if (cleanPath === "/what-is-the-sports-room") {
-    title = "What is The Sports Room? | Editorial Mission & Publishing Standards";
-    description = "Learn about The Sports Room: an independent digital publication dedicated to elite sports journalism, cricket biomechanics, football pressing tactics, and Formula 1 ground-effect engineering.";
+    title = "What is The Sports Room? | Independent Sports Platform by Hanan Irfan & Urwah Farooq";
+    description = "Learn about The Sports Room (https://thesportsroom.online), an independent sports news and analytics portal co-founded by Hanan Irfan & Urwah Farooq. Discover our story, mission, technology, and leadership.";
     preRenderedBody = `
       <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
         <h1 class="text-3xl font-bold text-white mb-2">What is The Sports Room?</h1>
-        <p class="text-sm text-slate-300 leading-relaxed">The Sports Room is a premium digital publication delivering independent sports journalism and live match updates across international sports.</p>
+        <p class="text-sm text-slate-300 leading-relaxed">The Sports Room is a premier digital publication co-founded and run by Hanan Irfan and Urwah Farooq, delivering independent sports journalism and live match updates across international sports.</p>
       </section>
     `;
   } else if (cleanPath === "/live-stream") {
@@ -488,11 +488,11 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
     `;
   } else if (cleanPath === "/about-us") {
     title = "About Us | The Sports Room - Independent Sports Media";
-    description = "Learn more about the editorial team, analytical methodology, and founding vision behind The Sports Room digital sports portal.";
+    description = "Learn more about Co-Founders Hanan Irfan and Urwah Farooq, analytical methodology, and founding vision behind The Sports Room digital sports portal.";
     preRenderedBody = `
       <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
         <h1 class="text-3xl font-bold text-white mb-2">About The Sports Room</h1>
-        <p class="text-sm text-slate-300 leading-relaxed">Founded by Hanan Irfan, The Sports Room is an independent sports media organization committed to analytical rigor and un-scraped reporting.</p>
+        <p class="text-sm text-slate-300 leading-relaxed">Co-founded and run by Hanan Irfan and Urwah Farooq, The Sports Room is an independent sports media organization committed to analytical rigor and un-scraped reporting.</p>
       </section>
     `;
   } else if (cleanPath === "/") {
@@ -514,7 +514,7 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
     preRenderedBody = `
       <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
         <h1 class="text-3xl font-bold text-white mb-2">The Sports Room - Live Cricket Scores &amp; Sports Journalism</h1>
-        <p class="text-emerald-400 font-mono text-xs mb-4">Sole Editorial Director: Hanan Irfan | https://thesportsroom.online</p>
+        <p class="text-emerald-400 font-mono text-xs mb-4">Co-Founders: Hanan Irfan &amp; Urwah Farooq | https://thesportsroom.online</p>
         <p class="text-sm text-slate-300 leading-relaxed">Welcome to The Sports Room. Access live scorecards, match predictions, ICC tournament schedules, and deep tactical breakdowns for cricket, football, basketball, and Formula 1.</p>
       </section>
     `;
