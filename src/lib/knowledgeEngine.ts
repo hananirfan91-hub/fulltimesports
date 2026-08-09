@@ -10,8 +10,8 @@ export interface SearchResult {
 // Static Knowledge Base for TSR Platform
 const PLATFORM_FAQS: { keywords: string[]; answer: string }[] = [
   {
-    keywords: ['owner', 'founder', 'who created', 'who owns', 'hanan', 'author', 'editor'],
-    answer: "**The Sports Room (TSR)** is founded and directed solely by **Hanan Irfan**, an independent sports journalist dedicated to 100% human editorial integrity, verified match reporting, and deep tactical analysis without AI clickbait. Learn more on our [About Us](/about-us) or [Why Choose Us](/why-choose-us) pages!"
+    keywords: ['owner', 'founder', 'founders', 'who created', 'who owns', 'hanan', 'urwah', 'author', 'editor'],
+    answer: "**The Sports Room (TSR)** is co-founded by **Hanan Irfan** (Co-Founder, Lead Architect & Editorial Director) and **Urwah Farooq** (Co-Founder, Business Partner & Sports Journalist). They are dedicated to 100% human editorial integrity, verified match reporting, and deep tactical analysis without AI clickbait. Learn more on our [About Us](/about-us) or [Why Choose Us](/why-choose-us) pages!"
   },
   {
     keywords: ['live', 'stream', 'broadcast', 'watch', 'match', 'channel'],

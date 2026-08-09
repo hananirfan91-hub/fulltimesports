@@ -216,7 +216,7 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                   </h3>
                 </div>
                 <p className="text-[11px] text-slate-300 leading-snug">
-                  Platform identity, sole author Hanan Irfan &amp; AI search facts.
+                  Platform identity, Co-Founders Hanan Irfan &amp; Urwah Farooq &amp; AI search facts.
                 </p>
               </motion.div>
 

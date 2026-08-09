@@ -948,7 +948,7 @@ export default function Glossary({ onNavigate }: { onNavigate: (path: string) =>
                       </h4>
                     </div>
 
-                    <div className="space-y-3 text-slate-650 text-xs md:text-sm leading-relaxed font-sans">
+                    <div className="space-y-3 text-slate-700 text-xs md:text-sm leading-relaxed font-sans">
                       {chapter.paragraphs.map((p, pIndex) => (
                         <p key={pIndex}>{p}</p>
                       ))}

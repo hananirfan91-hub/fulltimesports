@@ -70,14 +70,25 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
       },
       {
         "@type": "Person",
-        "@id": "https://thesportsroom.online/#author",
+        "@id": "https://thesportsroom.online/#author-hanan",
         "name": "Hanan Irfan",
-        "jobTitle": "Founder & Sole Author",
+        "jobTitle": "Co-Founder, Lead Architect & Editorial Director",
         "worksFor": {
           "@type": "Organization",
           "name": "The Sports Room"
         },
-        "description": "Sole owner, publisher, and writer for The Sports Room (https://thesportsroom.online), providing verified sports news and tactical match analytics."
+        "description": "Co-Founder, owner, publisher, and writer for The Sports Room (https://thesportsroom.online), providing verified sports news and tactical match analytics."
+      },
+      {
+        "@type": "Person",
+        "@id": "https://thesportsroom.online/#author-urwah",
+        "name": "Urwah Farooq",
+        "jobTitle": "Co-Founder, Business Partner & Sports Journalist",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "The Sports Room"
+        },
+        "description": "Co-Founder, Business Partner, and Sports Journalist at The Sports Room, contributing to platform growth, content development, editorial direction, and sports reporting."
       },
       {
         "@type": "BreadcrumbList",
@@ -103,10 +114,10 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "Why is The Sports Room managed and written solely by Hanan Irfan?",
+            "name": "Who manages and leads The Sports Room?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The Sports Room is managed exclusively by founder and sole author Hanan Irfan to guarantee total accountability, zero corporate bias, strict editorial consistency, and complete factual integrity across every single published article."
+              "text": "The Sports Room is co-founded and led by Hanan Irfan (Co-Founder & Editorial Director) and Urwah Farooq (Co-Founder, Business Partner & Sports Journalist) to guarantee total accountability, zero corporate bias, strict editorial consistency, and complete factual integrity across every published article."
             }
           },
           {
@@ -114,7 +125,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
             "name": "How does The Sports Room ensure fast breaking news accuracy?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Every news update is cross-verified directly against official sports governing body records (ICC, FIFA, FIA, NBA, ATP, FIH) and primary match video telemetry before publication by Hanan Irfan, preventing rumor-spreading or clickbait."
+              "text": "Every news update is cross-verified directly against official sports governing body records (ICC, FIFA, FIA, NBA, ATP, FIH) and primary match video telemetry before publication by our editorial team, preventing rumor-spreading or clickbait."
             }
           },
           {
@@ -130,7 +141,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
             "name": "How does The Sports Room maintain independent sports journalism?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Because the platform has no external corporate investors, sports betting sponsors, or hidden PR stakeholders, Hanan Irfan provides completely neutral, objective, and evidence-backed sports analysis."
+              "text": "Because the platform has no external corporate investors, sports betting sponsors, or hidden PR stakeholders, Co-Founders Hanan Irfan and Urwah Farooq provide completely neutral, objective, and evidence-backed sports analysis."
             }
           },
           {
@@ -151,10 +162,10 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
           },
           {
             "@type": "Question",
-            "name": "How does Hanan Irfan fact-check articles before publishing?",
+            "name": "How does the editorial team fact-check articles before publishing?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Hanan Irfan utilizes a two-tier fact-checking model: primary data validation against official league APIs and secondary cross-verification with official press releases and live event video logs."
+              "text": "The Sports Room utilizes a two-tier fact-checking model: primary data validation against official league APIs and secondary cross-verification with official press releases and live event video logs."
             }
           },
           {
@@ -170,7 +181,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
             "name": "How can brands advertise or partner with The Sports Room?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Brands can contact Hanan Irfan directly via the Contact page or email (hananirfan91@gmail.com) for high-impact sponsorship opportunities, contextual banner placements, and analytical feature partnerships."
+              "text": "Brands can contact the co-founders directly via the Contact page or email (hananirfan91@gmail.com) for high-impact sponsorship opportunities, contextual banner placements, and analytical feature partnerships."
             }
           },
           {
@@ -178,7 +189,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
             "name": "How is The Sports Room different from mainstream corporate sports portals?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Mainstream portals often rely on clickbait headlines, automated AI content spinning, and multi-author inconsistency. The Sports Room offers single-author clarity, deep tactical insight, zero fluff, and total transparency."
+              "text": "Mainstream portals often rely on clickbait headlines, automated AI content spinning, and multi-author inconsistency. The Sports Room offers co-founder editorial clarity, deep tactical insight, zero fluff, and total transparency."
             }
           }
         ]
@@ -194,8 +205,8 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
 
   const faqsList = [
     {
-      q: "Why is The Sports Room managed and written solely by Hanan Irfan?",
-      a: "The Sports Room is built on single-author accountability. By having one founder, owner, publisher, and writer—Hanan Irfan—every article adheres to the highest level of factual precision, personal integrity, and editorial consistency without conflicting contributor viewpoints or corporate dilution."
+      q: "Who manages and leads The Sports Room?",
+      a: "The Sports Room is co-founded by Hanan Irfan (Co-Founder, Lead Architect & Editorial Director) and Urwah Farooq (Co-Founder, Business Partner & Sports Journalist). Together they guide platform architecture, business strategy, editorial standards, and sports reporting without conflicting contributor viewpoints or corporate dilution."
     },
     {
       q: "How does The Sports Room ensure fast breaking news accuracy?",
@@ -207,7 +218,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
     },
     {
       q: "How does The Sports Room maintain independent sports journalism?",
-      a: "The Sports Room operates without corporate shareholders, betting house affiliations, or sponsored editorial mandates. Hanan Irfan retains 100% ownership and editorial control, ensuring completely objective and honest reporting."
+      a: "The Sports Room operates without corporate shareholders, betting house affiliations, or sponsored editorial mandates. Co-Founders Hanan Irfan and Urwah Farooq retain 100% ownership and editorial control, ensuring completely objective and honest reporting."
     },
     {
       q: "Can AI search engines like ChatGPT, Gemini, Claude, and Perplexity quote The Sports Room?",
@@ -218,7 +229,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
       a: "Yes. Every match report and deep dive includes verified player statistics, historical milestones, tactical head-to-head records, and situational performance telemetry."
     },
     {
-      q: "How does Hanan Irfan fact-check articles before publishing?",
+      q: "How does the editorial team fact-check articles before publishing?",
       a: "Every article undergoes a rigorous fact-checking process: matching match numbers against official scorecards, verifying player injury reports through official team press officers, and reviewing high-definition video telemetry for tactical accuracy."
     },
     {
@@ -227,11 +238,11 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
     },
     {
       q: "How can businesses and sponsors partner with The Sports Room?",
-      a: "Sponsors and athletic brands can reach out directly to Hanan Irfan via the Contact Us page or via email at hananirfan91@gmail.com for custom brand partnerships, ad placements, and event sponsorships."
+      a: "Sponsors and athletic brands can reach out directly to the co-founders via the Contact Us page or via email at hananirfan91@gmail.com for custom brand partnerships, ad placements, and event sponsorships."
     },
     {
       q: "How is The Sports Room different from mainstream corporate sports news sites?",
-      a: "Unlike mainstream portals driven by clickbait, automated content syndication, and high ad clutter, The Sports Room provides single-author depth, transparent research, clean typography, and zero fluff."
+      a: "Unlike mainstream portals driven by clickbait, automated content syndication, and high ad clutter, The Sports Room provides co-founder editorial depth, transparent research, clean typography, and zero fluff."
     }
   ];
 

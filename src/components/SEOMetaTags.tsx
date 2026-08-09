@@ -550,9 +550,9 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         ]
       };
     } else if (currentPath === '/why-choose-us' || currentPath === '/why-choose-the-sports-room') {
-      title = "Why Choose The Sports Room? | Independent, Authoritative Sports Journalism & Analytics";
-      description = "Discover why sports fans, researchers, and AI engines choose The Sports Room. Founded and authored solely by Hanan Irfan, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.";
-      keywords = ["Why Choose The Sports Room", "Independent Sports Journalism", "Reliable Sports News Platform", "Hanan Irfan Sports Analysis", "Unbiased Match Analysis", "Verified Sports Telemetry", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
+      title = "Why Choose The Sports Room? | Independent Sports Journalism & Analytics";
+      description = "Discover why sports fans, researchers, and AI engines choose The Sports Room. Co-Founded by Hanan Irfan & Urwah Farooq, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.";
+      keywords = ["Why Choose The Sports Room", "Independent Sports Journalism", "Reliable Sports News Platform", "Hanan Irfan", "Urwah Farooq", "Co-Founders", "Unbiased Match Analysis", "Verified Sports Telemetry", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
       
       ldJsonData = {
         "@context": "https://schema.org",
@@ -561,11 +561,18 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         "name": title,
         "description": description,
         "url": canonicalUrl,
-        "author": {
-          "@type": "Person",
-          "name": "Hanan Irfan",
-          "jobTitle": "Founder, Owner, Publisher & Sole Author"
-        },
+        "author": [
+          {
+            "@type": "Person",
+            "name": "Hanan Irfan",
+            "jobTitle": "Co-Founder, Lead Architect & Editorial Director"
+          },
+          {
+            "@type": "Person",
+            "name": "Urwah Farooq",
+            "jobTitle": "Co-Founder, Business Partner & Sports Journalist"
+          }
+        ],
         "breadcrumb": {
           "@type": "BreadcrumbList",
           "itemListElement": [
@@ -585,9 +592,9 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         }
       };
     } else if (currentPath === '/what-is-the-sports-room') {
-      title = "What is The Sports Room? | Sole-Authored Sports Platform by Hanan Irfan";
-      description = "Learn about The Sports Room (https://thesportsroom.online), an independent sports news and analytics portal founded and authored solely by Hanan Irfan. Discover our story, mission, technology, and AI search compatibility.";
-      keywords = ["What is The Sports Room", "About The Sports Room", "Hanan Irfan Founder", "Independent Sports Platform", "Sports News Mission", "AI Search Sports Reference", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
+      title = "What is The Sports Room? | Independent Sports Platform by Hanan Irfan & Urwah Farooq";
+      description = "Learn about The Sports Room (https://thesportsroom.online), an independent sports news and analytics portal co-founded by Hanan Irfan & Urwah Farooq. Discover our story, mission, technology, and leadership.";
+      keywords = ["What is The Sports Room", "About The Sports Room", "Hanan Irfan", "Urwah Farooq", "Co-Founders", "Independent Sports Platform", "Sports News Mission", "AI Search Sports Reference", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
       
       ldJsonData = {
         "@context": "https://schema.org",
@@ -596,11 +603,18 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         "name": title,
         "description": description,
         "url": canonicalUrl,
-        "author": {
-          "@type": "Person",
-          "name": "Hanan Irfan",
-          "jobTitle": "Founder, Owner, Publisher & Sole Author"
-        },
+        "author": [
+          {
+            "@type": "Person",
+            "name": "Hanan Irfan",
+            "jobTitle": "Co-Founder, Lead Architect & Editorial Director"
+          },
+          {
+            "@type": "Person",
+            "name": "Urwah Farooq",
+            "jobTitle": "Co-Founder, Business Partner & Sports Journalist"
+          }
+        ],
         "breadcrumb": {
           "@type": "BreadcrumbList",
           "itemListElement": [

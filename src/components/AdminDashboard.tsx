@@ -1306,7 +1306,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       <td className="py-3.5 px-4 font-semibold text-slate-800 uppercase text-xs">{post.category}</td>
                       <td className="py-3.5 px-4 text-xs font-mono">
                         {post.is_draft ? (
-                          <span className="text-slate-655 bg-slate-50 border border-slate-300 px-2 py-0.5 rounded flex items-center space-x-1.5 w-fit font-bold">
+                          <span className="text-slate-700 bg-slate-50 border border-slate-300 px-2 py-0.5 rounded flex items-center space-x-1.5 w-fit font-bold">
                             <span className="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
                             <span>Draft Article</span>
                           </span>
@@ -1549,7 +1549,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                     <td className="py-3 px-4 text-xs font-mono">
                       {fix.status === 'live' && <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold uppercase animate-pulse">● LIVE NOW</span>}
                       {fix.status === 'upcoming' && <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase font-semibold">Scheduled</span>}
-                      {fix.status === 'completed' && <span className="bg-slate-100 text-slate-655 px-2 py-0.5 rounded uppercase">Full Time</span>}
+                      {fix.status === 'completed' && <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded uppercase">Full Time</span>}
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex justify-end items-center space-x-1">
@@ -3779,7 +3779,7 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
             <form onSubmit={handleSaveRanking} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-mono font-bold text-slate-655 uppercase mb-1">Sport category</label>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">Sport category</label>
                   <select
                     value={editingRanking.sport || 'cricket'}
                     onChange={(e) => setEditingRanking({ ...editingRanking, sport: e.target.value })}

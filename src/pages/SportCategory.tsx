@@ -387,7 +387,7 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
 
           {/* Posts Dynamic Container */}
           {filteredPosts.length === 0 ? (
-            <div className="border border-slate-200 rounded-2xl bg-white p-12 text-center text-slate-650 max-w-xl mx-auto space-y-2">
+            <div className="border border-slate-200 rounded-2xl bg-white p-12 text-center text-slate-700 max-w-xl mx-auto space-y-2">
               <AlertCircle className="h-8 w-8 text-emerald-800 mx-auto" />
               <h4 className="font-display font-bold">No Regional Posts Matching Filters Working Desk</h4>
               <p className="text-xs text-slate-500">Our editor board has not tagged sport entries with keywords related to this regional query yet inside the Local FTS database.</p>
@@ -427,7 +427,7 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
                     <h3 className="font-display font-black text-lg md:text-xl text-slate-900 leading-tight uppercase group-hover:text-[#22c55e] transition line-clamp-2">
                       {post.title}
                     </h3>
-                    <p className="text-xs text-slate-655 leading-relaxed line-clamp-2">
+                    <p className="text-xs text-slate-700 leading-relaxed line-clamp-2">
                       {post.meta_description || post.content.replace(/<[^>]*>/g, '').replace(/[#*`]/g, '').slice(0, 150) + '...'}
                     </p>
                     <div className="flex justify-between items-center text-[10px] font-mono text-slate-450 pt-2 border-t border-slate-100">

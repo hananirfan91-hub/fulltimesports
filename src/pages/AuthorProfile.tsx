@@ -24,7 +24,7 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
     "@id": "https://thesportsroom.online/author/hanan-irfan#person",
     "name": "Hanan Irfan",
     "alternateName": "Hanan Irfan Pathan",
-    "jobTitle": "Founder, Sole Editorial Director & Chief Sports Columnist",
+    "jobTitle": "Co-Founder, Lead Architect & Editorial Director",
     "worksFor": {
       "@type": "Organization",
       "name": "The Sports Room",
@@ -38,7 +38,7 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
     },
     "url": "https://thesportsroom.online/author/hanan-irfan",
     "image": "https://thesportsroom.online/logo-preview.png",
-    "description": "Sole Editorial Director, Founder, and Lead Sports Analyst of The Sports Room (https://thesportsroom.online). Specializes in cricket spin biomechanics, football tactical pressing, F1 aerodynamics, and independent sports journalism.",
+    "description": "Co-Founder, Lead Architect, and Lead Sports Analyst of The Sports Room (https://thesportsroom.online). Specializes in cricket spin biomechanics, football tactical pressing, F1 aerodynamics, and independent sports journalism.",
     "knowsAbout": [
       "Cricket Biomechanics",
       "Spin Bowling Kinematics",

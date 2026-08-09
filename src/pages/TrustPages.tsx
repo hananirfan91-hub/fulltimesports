@@ -256,7 +256,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   1. Introduction to The Sports Room (TSR)
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   The digital evolution of modern sports media has arrived at a critical junction. For too long, digital sports publications have prioritized raw quantity over absolute excellence, stuffing search engines with programmatic placeholder articles, broken scrapers, and robotic data aggregates that tell readers nothing of the actual rhythm, physics, or emotional coordinates of the matches they track. <strong>The Sports Room (TSR)</strong> was founded in 2026 to change this reality completely. We are an independent, premium digital media house dedicated to analyzing high-density competitive coordinates across seven distinct sports domains: cricket, football, basketball, Formula 1, esports, tennis, and volleyball.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -269,7 +269,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   2. Leadership &amp; Vision: Hanan Irfan &amp; Urwah Farooq
                 </h3>
-                <p className="text-xs text-slate-655 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   At the core of the technical and editorial framework powering The Sports Room are Co-Founders <strong>Hanan Irfan</strong> and <strong>Urwah Farooq</strong>. Operating from Pakistan, Hanan recognized that standard web templates are fundamentally unsuited for the rapid state variations required in modern sports analytics, designing TSR as a modular, high-performance ecosystem.
                 </p>
                 <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl space-y-2 my-2">
@@ -285,7 +285,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   3. Technical Infrastructure &amp; Full-Stack Mastery
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   The infrastructure of The Sports Room represents a radical departure from mainstream WordPress or CMS-driven media platforms. Built entirely on top of React 18+ and compiled using the ultra-fast Vite bundler, the application uses local state virtualization to achieve instant page transitions, boasting a rendering footprint of less than 40ms. Rather than burdening the browser with dozens of remote connections, all historic databases are seeded locally within lightweight JSON repositories and synchronised in structured cache modules.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -298,7 +298,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   4. Vision: Elevating Regional and Global Sports
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   Our core vision is double-sided: we want to democratize high-level athletic data globally while elevating regional sports groups that are often overlooked by major networks. Sports clubs in areas like Rahim Yar Khan and regional Pakistani athletic clusters have historically lacked the IT infrastructure to display their player matrices, schedule timetables, and match brackets.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -311,7 +311,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   5. Our Hands-On Editorial Code of Conduct
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   Integrity is the most valuable currency in sports reporting. The editorial board of The Sports Room—governed by Hanan Irfan as Super Admin and assisted by our senior sports writers—operates under a strict code of human authorship. We are firmly opposed to 'content spinning,' where algorithms summarize work done by competitors without adding value.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -324,7 +324,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   6. Aerodynamic Calculus &amp; Sports Physics Science
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   At TSR, sports journalism transcends basic reporting of final scorelines. We examine the mathematical and physics-driven mechanics that dictate athletic performance. In F1 analysis, our strategists break down the ground-effect venturi channels on car floors, evaluating how pitch-sensitivity affects ride high-velocity cornering force. In cricket, we mathematically analyze the horizontal drift frequency of leg-spin bowling under humid conditions vs dry, high-elevation stadiums.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -337,7 +337,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   7. Overcoming the Automated Scraping Paradigm
                 </h3>
-                <p className="text-xs text-slate-655 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   The modern web is inundated with programmatic scraping scripts that pull sports numbers blindly. While these automated systems generate thousands of pages instantly, they fail to provide the human insight, expert context, and visual styling that athletic enthusiasts crave. This programmatic density pollutes Search Engine Results Pages (SERPs) and represents a significant violation of visitor trust.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -350,7 +350,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   8. Database Integrity and Zero-API Architecture
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   A unique architectural choice of TSR is our 'Zero-API dependency' model. Most modern sports websites query remote REST endpoints for standings, fixtures, and roster updates. This model leads to severe performance degradation: browsers become blocked by multiple simultaneous network connections, causing layout shifting, slow load times, and blank fields when external APIs crash.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -363,7 +363,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   9. Corporate Transparency &amp; Pakistani Tech Ventures
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   The Sports Room is operated by HI Digital Group, a technology firm based in Rahim Yar Khan, Punjab, Pakistan. Our organizational tree is fully transparent, and we are dedicated to raising the profile of South Asian software engineers. Pakistan has emerged as a powerhouse for agile full-stack developers, yet local tech talent is rarely highlighted on major international sports portals.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -376,7 +376,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   10. Reader Engagement and Institutional Accountability
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   We maintain a deep commitment to our readers. If you detect an error in our match database, a typo in a player roster, or a discrepancy in an aerodynamic drag calculation, we want to hear from you. We do not hide behind automated support loops or generic unresponsive emails. Let us know what you think through our ticket systems, where Hanan Irfan or our support staff will reply to your registered email addressing your query directly.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -419,7 +419,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
           {page === 'contact-us' && (
             <div className="space-y-8 animate-fade-in" id="contact-us-content">
               
-              <div className="border-b pb-4 border-slate-105">
+              <div className="border-b pb-4 border-slate-100">
                 <div className="flex items-center space-x-3 text-[#22c55e]">
                   <Mail className="h-7 w-7 text-[#22c55e]" />
                   <h1 className="font-display font-black text-2.5xl md:text-3xl tracking-tight uppercase text-slate-900 leading-none">
@@ -436,7 +436,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 
                 {/* Form column */}
                 <div className="lg:col-span-7 space-y-4">
-                  <p className="text-xs text-slate-605 leading-relaxed font-sans">
+                  <p className="text-xs text-slate-700 leading-relaxed font-sans">
                     Need to submit an editorial pitch, report score discrepancies, or inquire about sports partnerships? Contact Hanan Irfan or our development desk directly using the ticketing form below.
                   </p>
 
@@ -445,7 +445,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                       <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
                       <div>
                         <h4 className="font-bold text-xs uppercase font-display tracking-tight text-emerald-950">Ticket Submitted Successfully!</h4>
-                        <p className="text-xs text-slate-505 mt-2 leading-relaxed">
+                        <p className="text-xs text-slate-600 mt-2 leading-relaxed">
                           Our active sports journalism board has recorded your inquiry under administrative ticket reference: <strong className="font-mono text-[#22c55e]">TKT-{Date.now().toString().slice(-6)}</strong>. Our support staff will reply to your registered email address within 24 hours.
                         </p>
                       </div>
@@ -519,7 +519,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                   <span className="bg-[#022c22] text-[#22c55e] font-mono text-[8px] font-bold uppercase tracking-wider py-1 px-2.5 rounded-md">
                     TSR Registry Nodes
                   </span>
-                  <p className="text-[11px] text-slate-605 leading-relaxed">
+                  <p className="text-[11px] text-slate-700 leading-relaxed">
                     Our servers check incoming support tickets every 15 minutes. To accelerate response metrics, please categorize your subject lines precisely using the dropdown menu.
                   </p>
                   <div className="space-y-3 font-sans text-xs">
@@ -540,7 +540,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   1. TSR Global Administrative Helpdesk
                 </h3>
-                <p className="text-xs text-slate-655 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   The infrastructure of The Sports Room relies on communication channels that are organized, accountable, and entirely transparent. To manage communication efficiently, we operate a centralized <strong>TSR Global Administrative Helpdesk</strong>. All communications, whether they pertain to data corrections in our manual cricket scoring charts, system telemetry notifications, licensing agreements, or advertising configurations, must match our strict ticketing formats. This setup prevents editorial confusion and allows our small, focused technical team to resolve requests quickly.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -553,7 +553,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   2. Submitting Feedback &amp; Scoreline Corrections
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   Because TSR completely rejects automated live web scraping scripts in favor of high-quality manual data management, there is a small chance that latencies can occur. A wicket may fall in a regional Karachi Premier League match, or an aerodynamic setup shift may occur during F1 free practice, and our staff may take a few minutes to manually inspect and verify these variables before committing them to our database.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -566,7 +566,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   3. Editorial Pitching &amp; Guest Contribution Guidelines
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   The Sports Room is always looking for physical sports journalists, mathematics analysts, and competitive specialists who can compose insightful, non-spun analytical articles. We do not look for basic matches summaries that repeat what scores occurred. Instead, we want articles that dive into the deeper mechanics: tactical heat maps of midfielders, drafting statistics in esports championships, swing coefficients, or tyre degradation modeling.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -579,7 +579,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   4. Corporate Partnerships &amp; Media Sponsorship Rules
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   For brands seeking high-visibility sponsorship slots, TSR offers unique opportunities. Our core reader demographic consists of data-literate sports fans, developers, systems engineers, and athletic analysts who appreciate clean, high-contrast, uncluttered interfaces. We strictly avoid ugly, flashing, intrusive popups that block reading panels and cause high bounce metrics.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -592,7 +592,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   5. Technical Bug Reports &amp; Operational Telemetry
                 </h3>
-                <p className="text-xs text-slate-655 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   The software framework of TSR is compiled as a custom desktop/mobile web portal which operates as an isolated single-page application (SPA). While we run deep-analysis test builds regularly, browser variations or local sandboxed environments can sometimes produce performance bottlenecks.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -605,7 +605,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   6. Pakistani Tech Hub and South Asian Operations
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   TSR is proudly designed and maintained inside our corporate offices in Rahim Yar Khan, Punjab, Pakistan. Pakistan is a prominent source of tech innovation, producing many of the world's most talented developers, open-source maintainers, and digital strategists.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -618,7 +618,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   7. Media Ticket Escalation &amp; Response Protocols
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   Once an inquiry is logged in our local storage queue, it gains a unique ticket ID. TSR operates three escalation levels to ensure all submissions receive high-quality assessment:
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-600 leading-relaxed font-sans">
@@ -633,7 +633,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   8. Sponsorships, Advertising &amp; Direct Partnerships
                 </h3>
-                <p className="text-xs text-slate-655 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   In order to sustain our skilled human resource operations and technical analytical work, The Sports Room runs native advertising and direct brand sponsorship campaigns. Our ad zones comply strictly with clean reading standards and are configured to load asynchronously, so they never impact the load speeds of our layout.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -646,7 +646,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   9. Legal Notice, Intellectual Property and API Requests
                 </h3>
-                <p className="text-xs text-slate-655 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   All technical, athletic, and aerodynamic calculations displayed on The Sports Room are the intellectual property of The Sports Room LLC and HI Digital Group. We welcome educational and non-commercial references, provided that the publisher cites TSR with a clean, un-redirected backlink.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
@@ -659,7 +659,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
                   10. Contact Security Framework &amp; Interactive FAQ
                 </h3>
-                <p className="text-xs text-slate-650 leading-relaxed font-sans">
+                <p className="text-xs text-slate-700 leading-relaxed font-sans">
                   To protect our servers and database nodes from malicious automated script injections, our helpdesk ticketing form requires valid inputs and uses client-side sanitization. We completely block incoming automated script bots, scraper spiders, and scraping crawlers. TSR reserves the right to blacklist IP addresses that abuse our ticketing layouts or submit spam.
                 </p>
                 <p className="text-xs text-slate-600 leading-relaxed font-sans">
