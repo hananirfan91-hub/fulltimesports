@@ -47,8 +47,6 @@ const sortPostsByGeo = (postsList: Post[], geoCode: string): Post[] => {
 export default function Home({ onNavigate, activeGeo }: HomeProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [fixtures, setFixtures] = useState<FixtureItem[]>([]);
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
 
   useEffect(() => {
     document.title = "The Sports Room | Live Scores, Sports News & Expert Analysis";
@@ -80,16 +78,6 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
   const latestArticles = posts.slice(0, 6);
   const featuredPost = posts.find(p => p.is_featured) || posts[0];
   const videoPosts = posts.filter(p => !!p.video_url).slice(0, 3);
-
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newsletterEmail.trim().length > 3) {
-      DB.insertSubscriber(newsletterEmail);
-      setSubscribed(true);
-      setNewsletterEmail('');
-      setTimeout(() => setSubscribed(false), 5000);
-    }
-  };
 
   const categoriesList = [
     { name: 'Cricket', icon: '🏏', slug: 'cricket' },
@@ -390,46 +378,6 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* 8. NEWSLETTER SECTION */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 pt-2">
-        <div className="bg-[#022c22] text-white border border-[#22c55e]/30 rounded-3xl p-8 md:p-12 text-center max-w-4xl mx-auto space-y-6 shadow-2xl">
-          <div className="w-12 h-12 rounded-2xl bg-[#22c55e]/20 border border-[#22c55e]/40 text-[#22c55e] flex items-center justify-center mx-auto">
-            <Mail className="h-6 w-6" />
-          </div>
-
-          <div className="space-y-2">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">Subscribe To The TSR Dispatch</h2>
-            <p className="text-sm text-slate-300 max-w-xl mx-auto">
-              Get original expert opinions, mathematical tactical breakdowns, Formula 1 telemetry details, and cricket insider updates delivered straight to your inbox weekly.
-            </p>
-          </div>
-
-          {subscribed ? (
-            <div className="bg-[#22c55e]/20 border border-[#22c55e]/50 text-[#22c55e] p-4 rounded-xl max-w-md mx-auto flex items-center justify-center space-x-2 text-sm font-bold font-mono">
-              <CheckCircle2 className="h-5 w-5 shrink-0" />
-              <span>Subscribed successfully to The Sports Room!</span>
-            </div>
-          ) : (
-            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input 
-                type="email" 
-                required
-                placeholder="Enter editorial email address..."
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-                className="bg-[#01140f] border border-[#22c55e]/30 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c55e] flex-grow placeholder-slate-400 font-sans"
-              />
-              <button 
-                type="submit"
-                className="bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-bold text-sm px-6 py-3 rounded-xl transition shadow-lg shrink-0 font-mono uppercase"
-              >
-                Join Dispatch
-              </button>
-            </form>
-          )}
         </div>
       </section>
     </div>

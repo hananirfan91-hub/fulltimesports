@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Mail, Facebook, Compass, CheckCircle2 } from 'lucide-react';
+import React from 'react';
+import { Facebook, Compass } from 'lucide-react';
 import { DB } from '../lib/db';
 import Logo from './Logo';
 
@@ -8,19 +8,7 @@ interface FooterProps {
 }
 
 export default function Footer({ onNavigate }: FooterProps) {
-  const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
   const categories = DB.getCategories();
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.trim().length > 3) {
-      DB.insertSubscriber(email);
-      setSubscribed(true);
-      setEmail('');
-      setTimeout(() => setSubscribed(false), 5000);
-    }
-  };
 
   // Schema Markup generation as per Technical SEO prompt guidelines
   const orgSchema = {
