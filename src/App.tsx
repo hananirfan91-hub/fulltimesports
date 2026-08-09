@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import SEOMetaTags from './components/SEOMetaTags';
+import IndependenceBanner from './components/IndependenceBanner';
 import { ChatBot } from './components/ChatBot';
 import { DB } from './lib/db';
 
@@ -190,6 +191,9 @@ export default function App() {
     <div className="min-h-screen bg-[#01140f] text-slate-100 font-sans flex flex-col justify-between" id="applet-frame">
       {/* Automated dynamic meta and JSON-LD seo generator */}
       <SEOMetaTags currentPath={currentPath} />
+
+      {/* Independence Day Top Web Banner */}
+      <IndependenceBanner onNavigate={handleNavigate} />
 
       {/* Dynamic Navbar */}
       <Navbar 
