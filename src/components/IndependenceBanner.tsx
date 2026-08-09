@@ -63,13 +63,16 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
   const pad = (num: number) => num.toString().padStart(2, '0');
 
   return (
-    <div className="w-full bg-[#001c13] border-b border-[#22c55e]/30 py-1.5 px-2 relative overflow-hidden select-none" id="tsr-independence-banner-bar">
+    <div 
+      className="w-full bg-[#001c13] border-b border-[#22c55e]/30 relative overflow-hidden select-none" 
+      id="tsr-independence-banner-bar"
+    >
       {/* Container forced/optimized to standard 728x90 advertisement ratio */}
       <div 
         onClick={() => onNavigate && onNavigate('/topic/pakistan-cricket')}
         className="max-w-[728px] mx-auto h-[90px] relative bg-gradient-to-r from-[#00281b] via-[#023e2b] to-[#00281b] rounded-xl border border-[#22c55e]/40 shadow-[0_0_25px_rgba(34,197,94,0.15)] flex items-center justify-between px-3 md:px-4 cursor-pointer group transition-all duration-300 hover:border-[#22c55e] overflow-hidden"
       >
-        {/* Decorative Background Elements: Fireworks, Glowing Crescent/Star & Minar-e-Pakistan Silhouette */}
+        {/* Decorative Vector Elements: Fireworks, Glowing Crescent & Minar-e-Pakistan Silhouette */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-35">
           {/* Subtle Radial Glows */}
           <div className="absolute top-1/2 left-1/3 -translate-y-1/2 w-48 h-48 bg-[#22c55e]/20 rounded-full blur-2xl"></div>
@@ -81,7 +84,7 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
             <circle cx="50" cy="8" r="3" className="fill-emerald-400/40" />
           </svg>
 
-          {/* Fireworks Sparks Art (SVG) */}
+          {/* Fireworks Sparks Art */}
           <svg className="absolute -top-1 left-[45%] w-24 h-24 text-[#22c55e]/40 animate-pulse" viewBox="0 0 100 100">
             <line x1="50" y1="50" x2="50" y2="20" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" />
             <line x1="50" y1="50" x2="70" y2="30" stroke="currentColor" strokeWidth="1.5" strokeDasharray="2 2" />
@@ -108,11 +111,10 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
           <div className="absolute top-2 left-10 w-1 h-1 bg-white rounded-full animate-ping"></div>
           <div className="absolute bottom-3 right-1/3 w-1.5 h-1.5 bg-amber-300 rounded-full animate-pulse"></div>
         </div>
-
         {/* LEFT SECTION: The Sports Room Branding */}
         <div className="flex items-center space-x-2.5 z-10 shrink-0">
           {/* Animated Waving Pakistan Flag Ribbon Emblem with Crescent & Star */}
-          <div className="relative w-10 h-10 rounded-lg bg-[#002e1f] border border-[#22c55e]/50 flex items-center justify-center shadow-[0_0_12px_rgba(34,197,94,0.3)] overflow-hidden group-hover:scale-105 transition-transform duration-300">
+          <div className="relative w-10 h-10 rounded-lg bg-[#002e1f]/90 border border-[#22c55e]/60 flex items-center justify-center shadow-[0_0_12px_rgba(34,197,94,0.4)] overflow-hidden group-hover:scale-105 transition-transform duration-300">
             {/* White stripe on left */}
             <div className="absolute left-0 top-0 bottom-0 w-2.5 bg-white"></div>
             {/* Dark green area on right with Crescent and Star */}
@@ -130,11 +132,11 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
 
           <div className="text-left">
             <div className="flex items-center space-x-1">
-              <span className="font-display font-black text-xs md:text-[13px] tracking-wider text-white uppercase leading-none drop-shadow">
+              <span className="font-display font-black text-xs md:text-[13px] tracking-wider text-white uppercase leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
                 THE SPORTS ROOM
               </span>
             </div>
-            <p className="font-mono text-[9px] md:text-[10px] text-[#22c55e] font-bold tracking-widest uppercase mt-0.5">
+            <p className="font-mono text-[9px] md:text-[10px] text-[#22c55e] font-bold tracking-widest uppercase mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
               All Sports. One Room.
             </p>
           </div>
@@ -142,14 +144,14 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
 
         {/* CENTER SECTION: Patriotic Headline */}
         <div className="text-center z-10 px-1 hidden sm:block">
-          <div className="inline-flex items-center space-x-1 bg-[#001910]/80 border border-[#22c55e]/40 px-2.5 py-0.5 rounded-full mb-0.5 shadow-sm">
+          <div className="inline-flex items-center space-x-1 bg-[#001910]/80 backdrop-blur-md border border-[#22c55e]/50 px-2.5 py-0.5 rounded-full mb-0.5 shadow-md">
             <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-spin" />
-            <span className="font-display font-black text-[11px] md:text-[12px] tracking-tight uppercase text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+            <span className="font-display font-black text-[11px] md:text-[12px] tracking-tight uppercase text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
               CELEBRATING PAKISTAN INDEPENDENCE DAY
             </span>
             <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-spin" />
           </div>
-          <p className="font-mono text-[9px] md:text-[10px] font-semibold text-emerald-200 tracking-wider">
+          <p className="font-mono text-[9px] md:text-[10px] font-semibold text-emerald-200 tracking-wider drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
             One Nation. One Spirit. One Passion.
           </p>
         </div>
@@ -157,7 +159,7 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
         {/* RIGHT SECTION: Digital Countdown Panel */}
         <div className="flex items-center space-x-2 z-10 shrink-0">
           <div className="text-right">
-            <div className="font-mono text-[8px] md:text-[9px] font-bold text-amber-300 uppercase tracking-wider mb-0.5 flex items-center justify-end space-x-1">
+            <div className="font-mono text-[8px] md:text-[9px] font-bold text-amber-300 uppercase tracking-wider mb-0.5 flex items-center justify-end space-x-1 drop-shadow">
               <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-ping"></span>
               <span>INDEPENDENCE DAY COUNTDOWN</span>
             </div>
@@ -165,7 +167,7 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
             {/* Glowing Digital Countdown Boxes */}
             <div className="flex items-center space-x-1">
               {/* DAYS */}
-              <div className="bg-[#001810] border border-[#22c55e]/60 rounded px-1.5 py-0.5 text-center min-w-[34px] shadow-[0_0_8px_rgba(34,197,94,0.2)]">
+              <div className="bg-[#001810]/90 backdrop-blur-sm border border-[#22c55e]/70 rounded px-1.5 py-0.5 text-center min-w-[34px] shadow-[0_0_10px_rgba(34,197,94,0.3)]">
                 <span className="font-mono font-black text-xs md:text-sm text-white block leading-none">
                   {pad(timeLeft.days)}
                 </span>
@@ -177,7 +179,7 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
               <span className="font-mono font-bold text-xs text-[#22c55e] animate-pulse">:</span>
 
               {/* HOURS */}
-              <div className="bg-[#001810] border border-[#22c55e]/60 rounded px-1.5 py-0.5 text-center min-w-[34px] shadow-[0_0_8px_rgba(34,197,94,0.2)]">
+              <div className="bg-[#001810]/90 backdrop-blur-sm border border-[#22c55e]/70 rounded px-1.5 py-0.5 text-center min-w-[34px] shadow-[0_0_10px_rgba(34,197,94,0.3)]">
                 <span className="font-mono font-black text-xs md:text-sm text-white block leading-none">
                   {pad(timeLeft.hours)}
                 </span>
@@ -189,7 +191,7 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
               <span className="font-mono font-bold text-xs text-[#22c55e] animate-pulse">:</span>
 
               {/* MINUTES */}
-              <div className="bg-[#001810] border border-[#22c55e]/60 rounded px-1.5 py-0.5 text-center min-w-[34px] shadow-[0_0_8px_rgba(34,197,94,0.2)]">
+              <div className="bg-[#001810]/90 backdrop-blur-sm border border-[#22c55e]/70 rounded px-1.5 py-0.5 text-center min-w-[34px] shadow-[0_0_10px_rgba(34,197,94,0.3)]">
                 <span className="font-mono font-black text-xs md:text-sm text-white block leading-none">
                   {pad(timeLeft.minutes)}
                 </span>
@@ -201,7 +203,7 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
               <span className="font-mono font-bold text-xs text-[#22c55e] animate-pulse">:</span>
 
               {/* SECONDS */}
-              <div className="bg-[#001810] border border-[#22c55e]/60 rounded px-1.5 py-0.5 text-center min-w-[34px] shadow-[0_0_8px_rgba(34,197,94,0.2)]">
+              <div className="bg-[#001810]/90 backdrop-blur-sm border border-[#22c55e]/70 rounded px-1.5 py-0.5 text-center min-w-[34px] shadow-[0_0_10px_rgba(34,197,94,0.3)]">
                 <span className="font-mono font-black text-xs md:text-sm text-[#22c55e] block leading-none animate-pulse">
                   {pad(timeLeft.seconds)}
                 </span>
@@ -212,7 +214,7 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
             </div>
 
             {/* Small Line near countdown */}
-            <p className="font-sans text-[8px] md:text-[9px] text-slate-300 italic mt-0.5 tracking-tight text-right">
+            <p className="font-sans text-[8px] md:text-[9px] text-slate-200 italic mt-0.5 tracking-tight text-right drop-shadow">
               Celebrating the spirit of Pakistan
             </p>
           </div>
@@ -221,7 +223,7 @@ export default function IndependenceBanner({ onNavigate, onClose }: Independence
           <button 
             onClick={handleDismiss} 
             title="Dismiss banner"
-            className="p-1 text-emerald-300/70 hover:text-white hover:bg-emerald-900/60 rounded-full transition duration-150 ml-1"
+            className="p-1 text-emerald-300/80 hover:text-white hover:bg-emerald-900/80 rounded-full transition duration-150 ml-1 backdrop-blur-sm bg-black/30"
           >
             <X className="w-3.5 h-3.5" />
           </button>
