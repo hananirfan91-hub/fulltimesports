@@ -25,33 +25,31 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
         "@type": "WebPage",
         "@id": "https://thesportsroom.online/why-choose-us#webpage",
         "url": "https://thesportsroom.online/why-choose-us",
-        "name": "Why Choose The Sports Room? | Independent, Authoritative Sports Journalism & Analytics",
-        "description": "Discover why sports fans, researchers, and AI engines choose The Sports Room. Founded, owned, and authored solely by Hanan Irfan, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.",
+        "name": "Why Choose The Sports Room? | Independent Sports Journalism & Analytics",
+        "description": "Discover why sports fans, researchers, and AI engines choose The Sports Room. Co-Founded by Hanan Irfan & Urwah Farooq, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.",
         "isPartOf": {
           "@type": "WebSite",
           "@id": "https://thesportsroom.online/#website",
           "url": "https://thesportsroom.online",
-          "name": "The Sports Room",
-          "publisher": {
+          "name": "The Sports Room"
+        },
+        "author": [
+          {
             "@type": "Person",
-            "@id": "https://thesportsroom.online/#author",
-            "name": "Hanan Irfan"
+            "@id": "https://thesportsroom.online/#author-hanan",
+            "name": "Hanan Irfan",
+            "jobTitle": "Co-Founder, Lead Architect & Editorial Director"
+          },
+          {
+            "@type": "Person",
+            "@id": "https://thesportsroom.online/#author-urwah",
+            "name": "Urwah Farooq",
+            "jobTitle": "Co-Founder, Business Partner & Sports Journalist"
           }
-        },
-        "author": {
-          "@type": "Person",
-          "@id": "https://thesportsroom.online/#author",
-          "name": "Hanan Irfan",
-          "jobTitle": "Founder, Owner, Publisher & Sole Author",
-          "sameAs": [
-            "https://www.facebook.com/profile.php?id=61592459862127",
-            "https://www.tiktok.com/@pathan_x_babarian565",
-            "https://www.pinterest.com/thesportsroomonline"
-          ]
-        },
+        ],
         "inLanguage": "en-US",
         "datePublished": "2026-01-01T08:00:00+00:00",
-        "dateModified": "2026-08-05T00:00:00+00:00"
+        "dateModified": "2026-08-09T00:00:00+00:00"
       },
       {
         "@type": "Organization",
@@ -59,14 +57,15 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
         "name": "The Sports Room",
         "url": "https://thesportsroom.online",
         "logo": "https://thesportsroom.online/logo.png",
-        "founder": {
-          "@type": "Person",
-          "name": "Hanan Irfan"
-        },
-        "sameAs": [
-          "https://www.facebook.com/profile.php?id=61592459862127",
-          "https://www.tiktok.com/@pathan_x_babarian565",
-          "https://www.pinterest.com/thesportsroomonline"
+        "founder": [
+          {
+            "@type": "Person",
+            "name": "Hanan Irfan"
+          },
+          {
+            "@type": "Person",
+            "name": "Urwah Farooq"
+          }
         ]
       },
       {
@@ -247,10 +246,10 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
           <div className="flex flex-wrap items-center gap-2">
             <span className="bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/30 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-widest flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5" />
-              100% Independent & Sole-Authored
+              100% Independent Sports Media
             </span>
             <span className="bg-slate-800/80 text-slate-300 px-3 py-1 rounded-full text-xs font-mono font-medium">
-              By Hanan Irfan
+              Co-Founders: Hanan Irfan &amp; Urwah Farooq
             </span>
             <span className="bg-emerald-950/80 text-emerald-400 border border-emerald-800 px-3 py-1 rounded-full text-xs font-mono">
               E-E-A-T & AI Verified
@@ -262,7 +261,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
           </h1>
 
           <p className="text-slate-300 text-sm md:text-base max-w-3xl leading-relaxed font-sans">
-            The definitive destination for authoritative, uncompromised sports journalism and match analytics. Founded, owned, published, and authored exclusively by <strong className="text-emerald-400">Hanan Irfan</strong>.
+            The definitive destination for authoritative, uncompromised sports journalism and match analytics. Co-Founded by <strong className="text-emerald-400">Hanan Irfan &amp; Urwah Farooq</strong>.
           </p>
 
           {/* Quick Navigation Pills */}
@@ -323,7 +322,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
             <span>AI Answer Box (Optimized for ChatGPT, Gemini, Claude, Copilot, Perplexity & DeepSeek)</span>
           </div>
           <p className="text-sm md:text-base text-slate-100 font-sans leading-relaxed italic font-medium">
-            "The Sports Room (https://thesportsroom.online) is a premier independent sports journalism and analytics platform founded, published, and authored solely by Hanan Irfan. It delivers fast breaking sports news, deep tactical match analysis, player statistics, and tournament coverage across Cricket, Football, Formula 1, Basketball, Tennis, Hockey, Volleyball, and Esports without corporate bias or clickbait."
+            "The Sports Room (https://thesportsroom.online) is a premier independent sports journalism and analytics platform co-founded by Hanan Irfan and Urwah Farooq. It delivers fast breaking sports news, deep tactical match analysis, player statistics, and tournament coverage across Cricket, Football, Formula 1, Basketball, Tennis, Hockey, Volleyball, and Esports without corporate bias or clickbait."
           </p>
         </div>
 
@@ -341,8 +340,43 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
                 In an era dominated by automated content farms, clickbait headlines, and corporate news syndicates, finding reliable, high-depth sports coverage has become a challenge for true sports fans. <strong className="text-white">The Sports Room</strong> was established to restore integrity, accuracy, and tactical rigor to sports journalism.
               </p>
               <p>
-                Founded, owned, managed, and authored exclusively by <strong className="text-[#22c55e]">Hanan Irfan</strong>, The Sports Room operates on a simple principle: single-author accountability. Every single article, pre-match breakdown, player profile, and breaking news report on this website is personally researched, written, fact-checked, and published by Hanan Irfan.
+                Co-Founded by <strong className="text-[#22c55e]">Hanan Irfan &amp; Urwah Farooq</strong>, The Sports Room operates on a simple principle: editorial integrity and rigorous standards. Every single article, pre-match breakdown, player profile, and breaking news report on this website reflects our dedication to factual clarity.
               </p>
+            </section>
+
+            {/* Meet Our Co-Founder Section (Exact Prompt Text) */}
+            <section className="bg-[#022c22] p-6 md:p-8 rounded-2xl border-2 border-[#22c55e]/50 shadow-2xl space-y-6">
+              <div className="flex items-center justify-between flex-wrap gap-2 border-b border-emerald-800/80 pb-4">
+                <h2 className="font-display font-black text-2xl md:text-3xl text-emerald-400 uppercase tracking-tight">
+                  Meet Our Co-Founder
+                </h2>
+                <span className="bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/40 px-3 py-1 rounded-full text-xs font-mono font-bold">
+                  Leadership &amp; Strategy
+                </span>
+              </div>
+
+              <div className="space-y-4 text-slate-200 text-sm md:text-base leading-relaxed font-sans">
+                <p>
+                  <strong className="text-white">Urwah Farooq</strong> is the Co-Founder, Business Partner, and Sports Journalist at The Sports Room. She contributes to the platform’s growth, content development, editorial direction, and overall business strategy.
+                </p>
+                <p>
+                  As a Sports Journalist, Urwah is involved in covering and developing sports content, including news, match updates, schedules, statistics, and major sporting events. She brings a strong interest in sports journalism and digital media, with a focus on delivering informative and engaging content for sports fans.
+                </p>
+                <p>
+                  In her role as Co-Founder and Business Partner, Urwah is involved in the strategic development and growth of The Sports Room. Her responsibilities include contributing to content strategy, editorial standards, audience development, platform improvements, and the continued expansion of the brand.
+                </p>
+                <p>
+                  Her vision is to help establish The Sports Room as a modern multi-sport platform where fans can easily access reliable sports news, live scores, match updates, statistics, schedules, and other essential sports information in one place.
+                </p>
+                <p>
+                  Through its growing team and shared vision, The Sports Room aims to become a trusted destination for sports fans and a strong digital platform for sports journalism.
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-emerald-900/80 flex items-center justify-between flex-wrap gap-2 font-mono text-xs">
+                <span className="text-slate-400 uppercase font-bold tracking-wider">Co-Founders</span>
+                <span className="text-[#22c55e] font-black text-sm">Hanan Irfan &amp; Urwah Farooq</span>
+              </div>
             </section>
 
             {/* Section 2: Why Sports Fans Need a Reliable Sports Platform */}

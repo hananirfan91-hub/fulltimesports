@@ -80,7 +80,7 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono text-[10px] md:text-xs font-bold text-[#22c55e] uppercase tracking-widest bg-[#01140f] px-3 py-1 rounded-md border border-emerald-800/60 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#22c55e]" />
-                Verified Sole Author & Publisher
+                Co-Founder &amp; Editorial Director
               </span>
               <span className="font-mono text-[10px] md:text-xs font-bold text-slate-300 uppercase tracking-widest bg-emerald-950/80 px-2.5 py-1 rounded-md border border-emerald-900">
                 E-E-A-T Certified
@@ -92,7 +92,7 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
             </h1>
 
             <p className="font-mono text-xs md:text-sm text-emerald-400 font-semibold flex items-center gap-2">
-              <span>Founder & Editorial Director</span>
+              <span>Co-Founder, Lead Architect &amp; Editorial Director</span>
               <span>•</span>
               <span className="text-slate-300 flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-[#22c55e]" />
@@ -101,7 +101,7 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
             </p>
 
             <p className="text-xs md:text-sm text-slate-200 max-w-3xl leading-relaxed font-sans">
-              Hanan Irfan is the Sole Editorial Director, Lead Columnist, and Chief Digital Strategist of <strong>The Sports Room</strong> (<button onClick={() => onNavigate('/')} className="text-[#22c55e] hover:underline font-bold">https://thesportsroom.online</button>). He oversees 100% of the platform's editorial production, match analysis, biomechanics research, and technical architecture with zero automated scraping or AI slop.
+              Hanan Irfan is the Co-Founder, Lead Columnist, and Chief Digital Strategist of <strong>The Sports Room</strong> (<button onClick={() => onNavigate('/')} className="text-[#22c55e] hover:underline font-bold">https://thesportsroom.online</button>). Alongside Co-Founder <strong>Urwah Farooq</strong>, he oversees the platform's editorial direction, technical architecture, and content growth.
             </p>
 
             {/* Social & Reference Links */}
@@ -149,7 +149,7 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
                 <CheckCircle2 className="w-4 h-4 text-[#22c55e] shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-white block font-mono">100% Human Journalism:</strong>
-                  Every article, match breakdown, and column is personally drafted, verified, and published by Hanan Irfan.
+                  Every article, match breakdown, and column is drafted and verified under strict human editorial standards led by Hanan Irfan &amp; Urwah Farooq.
                 </div>
               </li>
               <li className="flex items-start gap-2 bg-[#01140f] p-2.5 rounded-xl border border-emerald-950">
@@ -167,6 +167,29 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
                 </div>
               </li>
             </ul>
+          </div>
+
+          {/* Co-Founder Urwah Farooq Card */}
+          <div className="bg-[#022c22] border-2 border-[#22c55e]/40 p-6 rounded-2xl space-y-3 shadow-xl">
+            <div className="flex items-center justify-between border-b border-emerald-800/80 pb-2">
+              <h3 className="font-display font-bold text-base text-emerald-300 uppercase tracking-tight">
+                Meet Our Co-Founder
+              </h3>
+              <span className="text-[10px] font-mono bg-[#22c55e]/20 text-[#22c55e] px-2 py-0.5 rounded border border-[#22c55e]/30">
+                Co-Founder
+              </span>
+            </div>
+            <h4 className="font-display font-black text-xl text-white">Urwah Farooq</h4>
+            <p className="text-xs font-mono text-emerald-400 font-semibold">
+              Co-Founder, Business Partner &amp; Sports Journalist
+            </p>
+            <p className="text-xs text-slate-200 leading-relaxed font-sans">
+              Urwah Farooq is the Co-Founder, Business Partner, and Sports Journalist at The Sports Room. She contributes to the platform’s growth, content development, editorial direction, and overall business strategy.
+            </p>
+            <div className="pt-2 border-t border-emerald-900 text-[11px] font-mono flex items-center justify-between">
+              <span className="text-slate-400">Co-Founders:</span>
+              <span className="text-[#22c55e] font-bold">Hanan Irfan &amp; Urwah Farooq</span>
+            </div>
           </div>
 
           <div className="bg-[#011e17] border border-emerald-900/80 p-6 rounded-2xl space-y-4">

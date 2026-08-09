@@ -267,14 +267,17 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
               {/* ================= ABOUT US HEADING 2 ================= */}
               <div className="space-y-3">
                 <h3 className="font-display font-extrabold text-slate-900 text-lg uppercase border-b pb-1">
-                  2. Meets the Digital Architect: Hanan Irfan
+                  2. Leadership &amp; Vision: Hanan Irfan &amp; Urwah Farooq
                 </h3>
                 <p className="text-xs text-slate-655 leading-relaxed font-sans">
-                  At the core of the technical framework powering The Sports Room is Hanan Irfan, a visionary full-stack engineer and digital product architect operating from Rahim Yar Khan, Punjab, Pakistan. Hanan recognized that standard web templates are fundamentally unsuited for the rapid state variations required in modern sports analytics. Standard portals rely on slow database queries, bulky script loops, and excessive tracking scripts that degrade reader device performance.
+                  At the core of the technical and editorial framework powering The Sports Room are Co-Founders <strong>Hanan Irfan</strong> and <strong>Urwah Farooq</strong>. Operating from Pakistan, Hanan recognized that standard web templates are fundamentally unsuited for the rapid state variations required in modern sports analytics, designing TSR as a modular, high-performance ecosystem.
                 </p>
-                <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                  To solve this, Hanan designed The Sports Room as a modular, sandboxed ecosystem. Operating as the Chief Architect of HI Digital Group, Hanan has leveraged advanced physical computing paradigms, lightweight local persistence engines, and rigorous typography pairing to create an application that behaves more like a high-performance video console than a static reading page. Through Hanan's strategic leadership, TSR empowers local sports bodies in the global south and links them to international athletic dashboards using cutting-edge enterprise architecture.
-                </p>
+                <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl space-y-2 my-2">
+                  <h4 className="font-bold text-emerald-950 text-sm font-display uppercase">Meet Our Co-Founder: Urwah Farooq</h4>
+                  <p className="text-xs text-slate-700 leading-relaxed font-sans">
+                    <strong>Urwah Farooq</strong> is the Co-Founder, Business Partner, and Sports Journalist at The Sports Room. She contributes to the platform’s growth, content development, editorial direction, and overall business strategy. As a Sports Journalist, Urwah is involved in covering and developing sports content, including news, match updates, schedules, statistics, and major sporting events. She brings a strong interest in sports journalism and digital media, with a focus on delivering informative and engaging content for sports fans. In her role as Co-Founder and Business Partner, Urwah is involved in the strategic development and growth of The Sports Room, with responsibilities including content strategy, editorial standards, audience development, platform improvements, and brand expansion.
+                  </p>
+                </div>
               </div>
 
               {/* ================= ABOUT US HEADING 3 ================= */}

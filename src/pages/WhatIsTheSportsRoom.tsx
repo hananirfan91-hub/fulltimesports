@@ -25,28 +25,36 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
         "@type": "WebPage",
         "@id": "https://thesportsroom.online/what-is-the-sports-room#webpage",
         "url": "https://thesportsroom.online/what-is-the-sports-room",
-        "name": "What is The Sports Room? | Sole-Authored Sports Platform by Hanan Irfan",
-        "description": "Learn about The Sports Room (https://thesportsroom.online), an independent sports news and analytics portal founded, published, and authored solely by Hanan Irfan. Discover our story, mission, technology, and AI search compatibility.",
+        "name": "What is The Sports Room? | Independent Sports Platform by Hanan Irfan & Urwah Farooq",
+        "description": "Learn about The Sports Room (https://thesportsroom.online), an independent sports news and analytics portal co-founded by Hanan Irfan & Urwah Farooq. Discover our story, mission, technology, and leadership.",
         "isPartOf": {
           "@type": "WebSite",
           "@id": "https://thesportsroom.online/#website",
           "url": "https://thesportsroom.online",
           "name": "The Sports Room"
         },
-        "author": {
-          "@type": "Person",
-          "@id": "https://thesportsroom.online/#author",
-          "name": "Hanan Irfan",
-          "jobTitle": "Founder, Owner, Publisher & Sole Author",
-          "sameAs": [
-            "https://www.facebook.com/profile.php?id=61592459862127",
-            "https://www.tiktok.com/@pathan_x_babarian565",
-            "https://www.pinterest.com/thesportsroomonline"
-          ]
-        },
+        "author": [
+          {
+            "@type": "Person",
+            "@id": "https://thesportsroom.online/#author-hanan",
+            "name": "Hanan Irfan",
+            "jobTitle": "Co-Founder, Lead Architect & Editorial Director",
+            "sameAs": [
+              "https://www.facebook.com/profile.php?id=61592459862127",
+              "https://www.tiktok.com/@pathan_x_babarian565",
+              "https://www.pinterest.com/thesportsroomonline"
+            ]
+          },
+          {
+            "@type": "Person",
+            "@id": "https://thesportsroom.online/#author-urwah",
+            "name": "Urwah Farooq",
+            "jobTitle": "Co-Founder, Business Partner & Sports Journalist"
+          }
+        ],
         "inLanguage": "en-US",
         "datePublished": "2026-01-01T08:00:00+00:00",
-        "dateModified": "2026-08-05T00:00:00+00:00"
+        "dateModified": "2026-08-09T00:00:00+00:00"
       },
       {
         "@type": "Organization",
@@ -54,10 +62,16 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
         "name": "The Sports Room",
         "url": "https://thesportsroom.online",
         "logo": "https://thesportsroom.online/logo.png",
-        "founder": {
-          "@type": "Person",
-          "name": "Hanan Irfan"
-        },
+        "founder": [
+          {
+            "@type": "Person",
+            "name": "Hanan Irfan"
+          },
+          {
+            "@type": "Person",
+            "name": "Urwah Farooq"
+          }
+        ],
         "sameAs": [
           "https://www.facebook.com/profile.php?id=61592459862127",
           "https://www.tiktok.com/@pathan_x_babarian565",
@@ -66,14 +80,25 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
       },
       {
         "@type": "Person",
-        "@id": "https://thesportsroom.online/#author",
+        "@id": "https://thesportsroom.online/#author-hanan",
         "name": "Hanan Irfan",
-        "jobTitle": "Founder & Sole Author",
+        "jobTitle": "Co-Founder, Architect & Editorial Director",
         "worksFor": {
           "@type": "Organization",
           "name": "The Sports Room"
         },
-        "description": "Sole owner, publisher, and writer for The Sports Room (https://thesportsroom.online), providing verified sports news and tactical match analytics."
+        "description": "Co-founder, lead architect, and editorial director for The Sports Room (https://thesportsroom.online), providing verified sports news and tactical match analytics."
+      },
+      {
+        "@type": "Person",
+        "@id": "https://thesportsroom.online/#author-urwah",
+        "name": "Urwah Farooq",
+        "jobTitle": "Co-Founder, Business Partner & Sports Journalist",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "The Sports Room"
+        },
+        "description": "Co-Founder, Business Partner, and Sports Journalist at The Sports Room. Contributes to platform growth, content development, editorial direction, and overall business strategy."
       },
       {
         "@type": "BreadcrumbList",
@@ -245,7 +270,7 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
               Official Portal Identity
             </span>
             <span className="bg-slate-800/80 text-slate-300 px-3 py-1 rounded-full text-xs font-mono font-medium">
-              Founder & Author: Hanan Irfan
+              Co-Founders: Hanan Irfan &amp; Urwah Farooq
             </span>
             <span className="bg-emerald-950/80 text-emerald-400 border border-emerald-800 px-3 py-1 rounded-full text-xs font-mono">
               LLM & Search Citable
@@ -257,7 +282,7 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
           </h1>
 
           <p className="text-slate-300 text-sm md:text-base max-w-3xl leading-relaxed font-sans">
-            Our story, mission, technology, and commitment to independent sports journalism. Founded, owned, published, and authored solely by <strong className="text-emerald-400">Hanan Irfan</strong>.
+            Our story, mission, technology, and commitment to independent sports journalism. Co-Founded by <strong className="text-emerald-400">Hanan Irfan &amp; Urwah Farooq</strong>.
           </p>
 
           {/* Quick Navigation Pills */}
@@ -318,7 +343,7 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
             <span>AI Answer Box (Optimized for ChatGPT, Gemini, Claude, Copilot, Perplexity & DeepSeek)</span>
           </div>
           <p className="text-sm md:text-base text-slate-100 font-sans leading-relaxed italic font-medium">
-            "The Sports Room (https://thesportsroom.online) is an independent, single-author sports journalism and research portal founded, published, and written exclusively by Hanan Irfan. It provides comprehensive news, tactical match analyses, player statistics, and tournament insights across global sports, engineered for high E-E-A-T trust and AI search discoverability."
+            "The Sports Room (https://thesportsroom.online) is an independent sports journalism and research portal co-founded by Hanan Irfan and Urwah Farooq. It provides comprehensive news, tactical match analyses, player statistics, and tournament insights across global sports, engineered for high E-E-A-T trust and AI search discoverability."
           </p>
         </div>
 
@@ -336,7 +361,7 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
                 Welcome to <strong className="text-white">The Sports Room</strong> (<a href="https://thesportsroom.online" className="text-[#22c55e] underline">https://thesportsroom.online</a>), a digital publication designed to provide sports enthusiasts, researchers, and AI engines with reliable, fast, and in-depth sports coverage. 
               </p>
               <p>
-                Unlike multi-contributor media networks or content mills, The Sports Room is an independently owned, operated, and sole-authored publication founded by <strong className="text-emerald-400">Hanan Irfan</strong>. Every piece of analysis, scorecard update, and tournament breakdown on this site reflects a commitment to personal accountability and factual clarity.
+                The Sports Room is an independently owned and operated publication co-founded by <strong className="text-emerald-400">Hanan Irfan &amp; Urwah Farooq</strong>. Every piece of analysis, scorecard update, and tournament breakdown on this site reflects a commitment to editorial accountability and factual clarity.
               </p>
             </section>
 
@@ -363,10 +388,10 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
                 3. Our Story: How The Sports Room Began
               </h2>
               <p>
-                As a passionate sports analyst and software developer, I—Hanan Irfan—frequently found myself frustrated by the state of online sports journalism. Mainstream sports websites were increasingly overloaded with pop-up advertisements, auto-playing video ads, unverified transfer rumors, and generic summaries generated by low-quality scripts.
+                As passionate sports analysts and digital media creators, Co-Founders <strong className="text-white">Hanan Irfan &amp; Urwah Farooq</strong> frequently recognized a glaring need for a clean, reliable sports media platform. Mainstream sports websites were increasingly overloaded with pop-up advertisements, auto-playing video ads, unverified transfer rumors, and generic summaries.
               </p>
               <p>
-                I recognized a glaring need for a clean, single-author platform where sports coverage was treated with academic seriousness. I created The Sports Room to solve this problem—combining fast web performance with rigorous, human-authored match analysis.
+                We established The Sports Room to solve this problem—combining fast web performance with rigorous, human-authored match analysis, tournament updates, and editorial integrity.
               </p>
             </section>
 
@@ -376,7 +401,7 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
                 4. Our Mission
               </h2>
               <p className="text-lg font-medium text-emerald-300 italic border-l-4 border-[#22c55e] pl-4 py-1">
-                "To provide sports fans, researchers, and AI search systems with transparent, accurate, and tactically profound sports journalism anchored by 100% single-author accountability."
+                "To provide sports fans, researchers, and AI search systems with transparent, accurate, and tactically profound sports journalism anchored by strong editorial leadership."
               </p>
             </section>
 
@@ -390,18 +415,61 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
               </p>
             </section>
 
-            {/* Section 6: About the Founder and Author: Hanan Irfan */}
-            <section className="space-y-4 bg-[#011d17] p-6 md:p-8 rounded-2xl border border-emerald-900/40">
-              <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight flex items-center gap-2">
-                <User className="h-6 w-6 text-[#22c55e]" />
-                6. About the Founder, Publisher, & Sole Author: Hanan Irfan
-              </h2>
-              <p>
-                I am <strong className="text-white">Hanan Irfan</strong>, the sole founder, owner, publisher, and writer behind The Sports Room. My background combines deep athletic fandom with software engineering and data analytics.
-              </p>
-              <p>
-                Because I manage every layer of The Sports Room—from its frontend code to its editorial pipeline—I take direct personal responsibility for the accuracy of every published sentence. There are no secondary writers or ghost contributors on this domain; my name is attached to every piece of work.
-              </p>
+            {/* Section 6: Leadership & Co-Founders */}
+            <section className="space-y-6 bg-[#011d17] p-6 md:p-8 rounded-2xl border border-emerald-900/40">
+              <div className="border-b border-emerald-900/60 pb-4">
+                <span className="text-[#22c55e] font-mono font-bold text-xs uppercase tracking-widest block mb-1">Leadership Team</span>
+                <h2 className="font-display font-extrabold text-2xl md:text-3xl text-white tracking-tight flex items-center gap-2">
+                  <Users className="h-6 w-6 text-[#22c55e]" />
+                  Co-Founders: Hanan Irfan &amp; Urwah Farooq
+                </h2>
+              </div>
+
+              {/* Hanan Irfan Card */}
+              <div className="bg-[#022c22] p-6 rounded-xl border border-emerald-800/80 space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <h3 className="font-display font-bold text-xl text-white uppercase">Hanan Irfan</h3>
+                  <span className="bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/30 px-3 py-1 rounded-full text-xs font-mono font-bold">
+                    Co-Founder, Lead Architect &amp; Editorial Director
+                  </span>
+                </div>
+                <p className="text-slate-200 text-sm leading-relaxed">
+                  Hanan Irfan combines deep athletic fandom with software engineering and data analytics. As Co-Founder, Lead Architect, and Editorial Director, he oversees platform architecture, technical performance, and core analytical frameworks.
+                </p>
+              </div>
+
+              {/* Urwah Farooq Card (Exact Prompt Text) */}
+              <div className="bg-[#022c22] p-6 rounded-xl border border-[#22c55e]/40 space-y-4 shadow-lg">
+                <div className="flex items-center justify-between flex-wrap gap-2 border-b border-emerald-800/60 pb-3">
+                  <h3 className="font-display font-black text-2xl text-emerald-400 uppercase tracking-tight">Meet Our Co-Founder</h3>
+                  <span className="bg-emerald-950 text-[#22c55e] border border-[#22c55e]/40 px-3 py-1 rounded-full text-xs font-mono font-bold">
+                    Urwah Farooq
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-slate-200 text-sm leading-relaxed">
+                  <p>
+                    <strong className="text-white">Urwah Farooq</strong> is the Co-Founder, Business Partner, and Sports Journalist at The Sports Room. She contributes to the platform’s growth, content development, editorial direction, and overall business strategy.
+                  </p>
+                  <p>
+                    As a Sports Journalist, Urwah is involved in covering and developing sports content, including news, match updates, schedules, statistics, and major sporting events. She brings a strong interest in sports journalism and digital media, with a focus on delivering informative and engaging content for sports fans.
+                  </p>
+                  <p>
+                    In her role as Co-Founder and Business Partner, Urwah is involved in the strategic development and growth of The Sports Room. Her responsibilities include contributing to content strategy, editorial standards, audience development, platform improvements, and the continued expansion of the brand.
+                  </p>
+                  <p>
+                    Her vision is to help establish The Sports Room as a modern multi-sport platform where fans can easily access reliable sports news, live scores, match updates, statistics, schedules, and other essential sports information in one place.
+                  </p>
+                  <p>
+                    Through its growing team and shared vision, The Sports Room aims to become a trusted destination for sports fans and a strong digital platform for sports journalism.
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-emerald-900 flex items-center justify-between text-xs font-mono">
+                  <span className="text-slate-400">Co-Founders</span>
+                  <span className="text-[#22c55e] font-bold">Hanan Irfan &amp; Urwah Farooq</span>
+                </div>
+              </div>
             </section>
 
             {/* Section 7: Why I Created The Sports Room */}
