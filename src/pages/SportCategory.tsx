@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Trophy, Calendar, Globe, Share2, Compass, ArrowRight, Eye, 
-  Sparkles, FileText, Check, Facebook, Twitter, MessageSquare, AlertCircle
+  Sparkles, FileText, Check, Facebook, Twitter, Linkedin, Youtube, Mail, MessageSquare, AlertCircle
 } from 'lucide-react';
 import { Post, Category, RankingItem, FixtureItem } from '../types';
 import { DB } from '../lib/db';
@@ -491,24 +491,49 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
           <div className="bg-white border border-slate-200 rounded-2xl p-5 text-center space-y-3 shadow-xs">
             <h4 className="font-display text-xs font-bold text-slate-900 uppercase">Connect on Social Desk</h4>
             <p className="text-[10px] text-slate-500">Stay updated on expert human sports coverage by following our official handles.</p>
-            <div className="flex justify-center space-x-2">
+            <div className="flex flex-wrap justify-center gap-2">
+              <a 
+                href="https://x.com/TSRVerse?s=20"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-700 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
+                title="Visit our Twitter/X Page"
+              >
+                <Twitter className="h-4 w-4" />
+              </a>
+              <a 
+                href="https://www.linkedin.com/in/thesportsroom"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-700 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
+                title="Visit our LinkedIn Page"
+              >
+                <Linkedin className="h-4 w-4" />
+              </a>
+              <a 
+                href="https://www.youtube.com/@thesportsroom01"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 border border-slate-200 rounded hover:border-red-500 text-slate-700 hover:text-red-500 transition inline-flex items-center justify-center cursor-pointer" 
+                title="Visit our YouTube Channel"
+              >
+                <Youtube className="h-4 w-4" />
+              </a>
               <a 
                 href="https://www.facebook.com/profile.php?id=61592459862127"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-505 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
+                className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-700 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
                 title="Visit our Facebook Page"
               >
                 <Facebook className="h-4 w-4" />
               </a>
               <a 
-                href="https://x.com/hananirfan91"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-505 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
-                title="Visit our Twitter/X Page"
+                href="mailto:thesportsroom01@gmail.com"
+                className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-700 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 
+                title="Email Editorial Desk"
               >
-                <Twitter className="h-4 w-4" />
+                <Mail className="h-4 w-4" />
               </a>
             </div>
           </div>

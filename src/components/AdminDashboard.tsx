@@ -151,7 +151,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const refreshData = () => {
     const allPosts = DB.getAdminAllPosts();
     const current = DB.getCurrentAdmin();
-    const isSuper = current?.email.toLowerCase() === 'hananirfan91@gmail.com' || current?.email.toLowerCase() === 'urwahfarooq303@gmail.com';
+    const isSuper = current?.email.toLowerCase() === 'thesportsroom01@gmail.com' || current?.email.toLowerCase() === 'hananirfan91@gmail.com' || current?.email.toLowerCase() === 'urwahfarooq303@gmail.com';
 
     if (isSuper) {
       setPosts(allPosts);
@@ -331,12 +331,12 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setLoginError('');
 
     try {
-      // Direct verification for the 2 authorized admin accounts
-      if (emailLower === 'hananirfan91@gmail.com' && (loginPassword === 'hanan@2007.' || loginPassword === 'hanan@2007')) {
+      // Direct verification for the authorized admin accounts
+      if ((emailLower === 'thesportsroom01@gmail.com' || emailLower === 'hananirfan91@gmail.com') && (loginPassword === 'hanan@2007.' || loginPassword === 'hanan@2007')) {
         const adminUser: AdminUser = {
           id: 'admin-super-1',
           name: 'Hanan Irfan',
-          email: 'hananirfan91@gmail.com',
+          email: emailLower,
           role: 'Super Admin',
           is_approved: true,
           is_writer: true
@@ -398,7 +398,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
       if (!authError && authData?.user) {
         const meta = authData.user.user_metadata || {};
-        const isSuper = emailLower === 'hananirfan91@gmail.com' || emailLower === 'urwahfarooq303@gmail.com';
+        const isSuper = emailLower === 'thesportsroom01@gmail.com' || emailLower === 'hananirfan91@gmail.com' || emailLower === 'urwahfarooq303@gmail.com';
         const userObj: AdminUser = {
           id: authData.user.id,
           name: isSuper ? (emailLower === 'urwahfarooq303@gmail.com' ? 'Urwah Farooq' : 'Hanan Irfan') : (meta.name || emailLower.split('@')[0]),
@@ -420,7 +420,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       const registeredList = DB.getAdmins();
       const localFound = registeredList.find(u => u.email.toLowerCase() === emailLower);
       if (localFound && (localFound.password === loginPassword || !localFound.password)) {
-        const isSuper = emailLower === 'hananirfan91@gmail.com' || emailLower === 'urwahfarooq303@gmail.com';
+        const isSuper = emailLower === 'thesportsroom01@gmail.com' || emailLower === 'hananirfan91@gmail.com' || emailLower === 'urwahfarooq303@gmail.com';
         const userObj: AdminUser = {
           ...localFound,
           role: isSuper ? 'Super Admin' : (localFound.role || 'Member'),
@@ -455,7 +455,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setLoginError('');
 
     try {
-      const isSuperEmail = emailLower === 'hananirfan91@gmail.com' || emailLower === 'urwahfarooq303@gmail.com';
+      const isSuperEmail = emailLower === 'thesportsroom01@gmail.com' || emailLower === 'hananirfan91@gmail.com' || emailLower === 'urwahfarooq303@gmail.com';
       if (isSuperEmail && signupPassword !== 'hanan@2007.' && signupPassword !== 'urwah@2006') {
         setLoginError('The administration email address is reserved. Security clearance required to register this account.');
         setIsSigningIn(false);
@@ -575,8 +575,10 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
   // POST CRUD
   const openNewPost = () => {
-    if (currentAdmin?.email.toLowerCase() !== 'hananirfan91@gmail.com' && !currentAdmin?.is_approved) {
-      alert("⚠️ Writer Approval Pending: Your email (" + (currentAdmin?.email || '') + ") is awaiting approval by the Main Admin (hananirfan91@gmail.com). You cannot write or publish articles until approved.");
+    const adminEm = currentAdmin?.email.toLowerCase() || '';
+    const isSuperUsr = adminEm === 'thesportsroom01@gmail.com' || adminEm === 'hananirfan91@gmail.com' || adminEm === 'urwahfarooq303@gmail.com';
+    if (!isSuperUsr && !currentAdmin?.is_approved) {
+      alert("⚠️ Writer Approval Pending: Your email (" + (currentAdmin?.email || '') + ") is awaiting approval by the Main Admin (thesportsroom01@gmail.com). You cannot write or publish articles until approved.");
       return;
     }
     setEditingPost({
@@ -1038,7 +1040,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     );
   }
 
-  const isSuperAdmin = currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' || currentAdmin?.email.toLowerCase() === 'urwahfarooq303@gmail.com';
+  const isSuperAdmin = currentAdmin?.email.toLowerCase() === 'thesportsroom01@gmail.com' || currentAdmin?.email.toLowerCase() === 'hananirfan91@gmail.com' || currentAdmin?.email.toLowerCase() === 'urwahfarooq303@gmail.com';
 
   if (!isSuperAdmin) {
     return (
@@ -2181,7 +2183,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
             <div className="flex items-center space-x-2">
               <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono font-bold text-xs px-3 py-1.5 rounded-xl uppercase">
-                Approved Writers: {admins.filter(a => a.is_approved || a.email.toLowerCase() === 'hananirfan91@gmail.com').length} / {admins.length}
+                Approved Writers: {admins.filter(a => a.is_approved || a.email.toLowerCase() === 'thesportsroom01@gmail.com' || a.email.toLowerCase() === 'hananirfan91@gmail.com' || a.email.toLowerCase() === 'urwahfarooq303@gmail.com').length} / {admins.length}
               </span>
             </div>
           </div>
@@ -2198,7 +2200,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {admins.map((user) => {
-                  const isMainAdmin = user.email.toLowerCase() === 'hananirfan91@gmail.com';
+                  const isMainAdmin = user.email.toLowerCase() === 'thesportsroom01@gmail.com' || user.email.toLowerCase() === 'hananirfan91@gmail.com' || user.email.toLowerCase() === 'urwahfarooq303@gmail.com';
                   const isApproved = isMainAdmin || user.is_approved === true;
                   return (
                     <tr key={user.id} className="hover:bg-slate-50 transition">
@@ -3266,7 +3268,7 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     image_alt TEXT,
     video_url TEXT,
     author TEXT NOT NULL DEFAULT 'Hanan Irfan',
-    author_email TEXT DEFAULT 'hananirfan91@gmail.com',
+    author_email TEXT DEFAULT 'thesportsroom01@gmail.com',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     is_featured BOOLEAN DEFAULT FALSE,
@@ -3472,7 +3474,7 @@ CREATE POLICY "Public delete posts" ON public.fts_posts FOR DELETE USING (true);
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
 
 INSERT INTO public.fts_users (id, name, email, role, password, is_approved, is_writer)
-VALUES ('admin-super', 'Hanan Irfan', 'hananirfan91@gmail.com', 'Super Admin', 'hanan@2007.', TRUE, TRUE)
+VALUES ('admin-super', 'Hanan Irfan', 'thesportsroom01@gmail.com', 'Super Admin', 'hanan@2007.', TRUE, TRUE)
 ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = 'Super Admin';`}
                 className="w-full h-full bg-slate-950 text-emerald-400 font-mono text-xs p-4 rounded-xl leading-relaxed focus:outline-none overflow-y-auto"
               />
@@ -3494,7 +3496,7 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     image_alt TEXT,
     video_url TEXT,
     author TEXT NOT NULL DEFAULT 'Hanan Irfan',
-    author_email TEXT DEFAULT 'hananirfan91@gmail.com',
+    author_email TEXT DEFAULT 'thesportsroom01@gmail.com',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     is_featured BOOLEAN DEFAULT FALSE,
@@ -3700,7 +3702,7 @@ CREATE POLICY "Public delete posts" ON public.fts_posts FOR DELETE USING (true);
 GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
 
 INSERT INTO public.fts_users (id, name, email, role, password, is_approved, is_writer)
-VALUES ('admin-super', 'Hanan Irfan', 'hananirfan91@gmail.com', 'Super Admin', 'hanan@2007.', TRUE, TRUE)
+VALUES ('admin-super', 'Hanan Irfan', 'thesportsroom01@gmail.com', 'Super Admin', 'hanan@2007.', TRUE, TRUE)
 ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = 'Super Admin';`;
                   navigator.clipboard.writeText(sqlText);
                   alert("📋 Complete PostgreSQL Database Script copied to clipboard!");

@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     image_alt TEXT,
     video_url TEXT,
     author TEXT NOT NULL DEFAULT 'Hanan Irfan',
-    author_email TEXT DEFAULT 'hananirfan91@gmail.com',
+    author_email TEXT DEFAULT 'thesportsroom01@gmail.com',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     is_featured BOOLEAN DEFAULT FALSE,
@@ -247,7 +247,7 @@ GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated, service_role;
 
 -- Insert / Update Super Admin Account
 INSERT INTO public.fts_users (id, name, email, role, password, is_approved, is_writer)
-VALUES ('admin-super', 'Hanan Irfan', 'hananirfan91@gmail.com', 'Super Admin', 'hanan@2007.', TRUE, TRUE)
+VALUES ('admin-super', 'Hanan Irfan', 'thesportsroom01@gmail.com', 'Super Admin', 'hanan@2007.', TRUE, TRUE)
 ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = 'Super Admin';
 
 -- Seed Initial Editorial Articles using TEXT[] for tags (Fixes 42804 Error)
@@ -268,7 +268,7 @@ Enter the mechanical evolution of the modern leg-spinner. Modern wrist spin util
     'https://images.unsplash.com/photo-1531415080290-b9b6e27967b8?w=1200&auto=format&fit=crop&q=80',
     'jfKfPfyJRdk',
     'Hanan Irfan',
-    'hananirfan91@gmail.com',
+    'thesportsroom01@gmail.com',
     '2026-06-04T08:30:00Z',
     TRUE,
     TRUE,
@@ -290,7 +290,7 @@ This positional movement creates a numerical midfield overload, neutralizing opp
     'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&auto=format&fit=crop&q=80',
     '21X5lGlDOfg',
     'Hanan Irfan',
-    'hananirfan91@gmail.com',
+    'thesportsroom01@gmail.com',
     '2026-06-03T14:15:00Z',
     TRUE,
     TRUE,

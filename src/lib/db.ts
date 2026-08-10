@@ -63,7 +63,7 @@ const SEED_CATEGORIES: Category[] = [
 
 // Seed Admin Users
 const SEED_ADMINS: AdminUser[] = [
-  { id: 'admin-super-1', name: 'Hanan Irfan', email: 'hananirfan91@gmail.com', role: 'Super Admin', password: 'hanan@2007.', is_approved: true, is_writer: true },
+  { id: 'admin-super-1', name: 'Hanan Irfan', email: 'thesportsroom01@gmail.com', role: 'Super Admin', password: 'hanan@2007.', is_approved: true, is_writer: true },
   { id: 'admin-super-2', name: 'Urwah Farooq', email: 'urwahfarooq303@gmail.com', role: 'Super Admin', password: 'urwah@2006', is_approved: true, is_writer: true },
 ];
 
@@ -1007,16 +1007,16 @@ export class DB {
             email: String(u.email || '').toLowerCase().trim(),
             role: String(u.role || 'Sports Writer'),
             password: u.password ? String(u.password) : undefined,
-            is_approved: u.email?.toLowerCase() === 'hananirfan91@gmail.com' ? true : Boolean(u.is_approved),
+            is_approved: (u.email?.toLowerCase() === 'thesportsroom01@gmail.com' || u.email?.toLowerCase() === 'hananirfan91@gmail.com' || u.email?.toLowerCase() === 'urwahfarooq303@gmail.com') ? true : Boolean(u.is_approved),
             is_writer: Boolean(u.is_writer ?? true)
           }));
           
           // Ensure main admin is always present and approved
-          if (!parsedUsers.some(u => u.email.toLowerCase() === 'hananirfan91@gmail.com')) {
+          if (!parsedUsers.some(u => u.email.toLowerCase() === 'thesportsroom01@gmail.com' || u.email.toLowerCase() === 'hananirfan91@gmail.com')) {
             parsedUsers.unshift({
               id: 'admin-super',
               name: 'Hanan Irfan',
-              email: 'hananirfan91@gmail.com',
+              email: 'thesportsroom01@gmail.com',
               role: 'Super Admin',
               password: 'hanan@2007.',
               is_approved: true,
@@ -1033,7 +1033,7 @@ export class DB {
               name: u.name,
               email: u.email.toLowerCase().trim(),
               role: u.role,
-              is_approved: u.email.toLowerCase() === 'hananirfan91@gmail.com' ? true : Boolean(u.is_approved),
+              is_approved: (u.email.toLowerCase() === 'thesportsroom01@gmail.com' || u.email.toLowerCase() === 'hananirfan91@gmail.com' || u.email.toLowerCase() === 'urwahfarooq303@gmail.com') ? true : Boolean(u.is_approved),
               is_writer: true,
               created_at: new Date().toISOString()
             }));
@@ -1672,21 +1672,22 @@ export class DB {
     const data = localStorage.getItem(STORAGE_KEYS.ADMINS);
     let list: AdminUser[] = data ? JSON.parse(data) : [];
     
-    const superEmails = ['hananirfan91@gmail.com', 'urwahfarooq303@gmail.com'];
+    const superEmails = ['thesportsroom01@gmail.com', 'hananirfan91@gmail.com', 'urwahfarooq303@gmail.com'];
 
     // Guarantee Hanan Irfan
-    const hananIdx = list.findIndex(a => a.email.toLowerCase() === 'hananirfan91@gmail.com');
+    const hananIdx = list.findIndex(a => a.email.toLowerCase() === 'thesportsroom01@gmail.com' || a.email.toLowerCase() === 'hananirfan91@gmail.com');
     if (hananIdx < 0) {
       list.unshift({
         id: 'admin-super-1',
         name: 'Hanan Irfan',
-        email: 'hananirfan91@gmail.com',
+        email: 'thesportsroom01@gmail.com',
         role: 'Super Admin',
         password: 'hanan@2007.',
         is_approved: true,
         is_writer: true
       });
     } else {
+      list[hananIdx].email = 'thesportsroom01@gmail.com';
       list[hananIdx].is_approved = true;
       list[hananIdx].is_writer = true;
       list[hananIdx].role = 'Super Admin';
@@ -1718,7 +1719,7 @@ export class DB {
 
   static registerAdmin(admin: AdminUser) {
     const list = this.getAdmins();
-    const isSuper = admin.email.toLowerCase() === 'hananirfan91@gmail.com';
+    const isSuper = admin.email.toLowerCase() === 'thesportsroom01@gmail.com' || admin.email.toLowerCase() === 'hananirfan91@gmail.com' || admin.email.toLowerCase() === 'urwahfarooq303@gmail.com';
     const newAdmin: AdminUser = {
       ...admin,
       email: admin.email.toLowerCase().trim(),
@@ -1765,7 +1766,8 @@ export class DB {
   }
 
   static revokeWriter(email: string) {
-    if (email.toLowerCase() === 'hananirfan91@gmail.com') return; // Cannot revoke Super Admin
+    const emLower = email.toLowerCase();
+    if (emLower === 'thesportsroom01@gmail.com' || emLower === 'hananirfan91@gmail.com' || emLower === 'urwahfarooq303@gmail.com') return; // Cannot revoke Super Admin
     const list = this.getAdmins();
     const target = list.find(a => a.email.toLowerCase() === email.toLowerCase());
     if (target) {
@@ -1780,7 +1782,8 @@ export class DB {
   }
 
   static deleteUser(id: string, email: string) {
-    if (email.toLowerCase() === 'hananirfan91@gmail.com') return;
+    const emLower = email.toLowerCase();
+    if (emLower === 'thesportsroom01@gmail.com' || emLower === 'hananirfan91@gmail.com' || emLower === 'urwahfarooq303@gmail.com') return;
     const list = this.getAdmins();
     const filtered = list.filter(a => a.email.toLowerCase() !== email.toLowerCase() && a.id !== id);
     localStorage.setItem(STORAGE_KEYS.ADMINS, JSON.stringify(filtered));

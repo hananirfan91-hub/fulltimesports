@@ -301,8 +301,10 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
               "url": `${baseUrl}/logo-preview.png`
             },
             "sameAs": [
+              "https://x.com/TSRVerse?s=20",
+              "https://www.linkedin.com/in/thesportsroom",
+              "https://www.youtube.com/@thesportsroom01",
               "https://www.facebook.com/profile.php?id=61592459862127",
-              "https://twitter.com/thesportsroom",
               "https://www.tiktok.com/@pathan_x_babarian565",
               "https://www.pinterest.com/thesportsroomonline"
             ]
@@ -385,8 +387,10 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
         "url": baseUrl,
         "logo": `${baseUrl}/logo-preview.png`,
         "sameAs": [
+          "https://x.com/TSRVerse?s=20",
+          "https://www.linkedin.com/in/thesportsroom",
+          "https://www.youtube.com/@thesportsroom01",
           "https://www.facebook.com/profile.php?id=61592459862127",
-          "https://twitter.com/thesportsroom",
           "https://www.tiktok.com/@pathan_x_babarian565",
           "https://www.pinterest.com/thesportsroomonline"
         ]

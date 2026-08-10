@@ -199,7 +199,7 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
             "name": "How can I contact the team at The Sports Room?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "You can contact the team via the Contact Us page on the website or directly via email at hananirfan91@gmail.com."
+              "text": "You can contact the team via the Contact Us page on the website or directly via email at thesportsroom01@gmail.com."
             }
           }
         ]
@@ -252,7 +252,7 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
     },
     {
       q: "How can I contact Hanan Irfan directly?",
-      a: "You can reach Hanan Irfan directly via email at hananirfan91@gmail.com or through the Contact page on the website."
+      a: "You can reach the editorial team directly via email at thesportsroom01@gmail.com or through the Contact page on the website."
     }
   ];
 

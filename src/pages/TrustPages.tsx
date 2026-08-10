@@ -190,7 +190,7 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                     </h3>
                     <p className="text-xs text-[#22c55e] font-mono font-bold flex items-center space-x-1">
                       <MapPin className="h-3 w-3 shrink-0" />
-                      <span>Rahim Yar Khan, Punjab, Pakistan • hananirfan91@gmail.com</span>
+                      <span>Rahim Yar Khan, Punjab, Pakistan • thesportsroom01@gmail.com</span>
                     </p>
                   </div>
                   
@@ -526,9 +526,9 @@ export default function TrustPages({ page, onNavigate }: TrustPageProps) {
                     <div className="flex items-start space-x-2">
                       <User className="h-4 w-4 text-[#22c55e] mt-0.5 shrink-0" />
                       <div>
-                        <p className="font-bold text-slate-800 leading-none">Hanan Irfan</p>
-                        <p className="text-[10px] text-slate-500">Super Admin &amp; Lead Tech Innovator</p>
-                        <p className="text-[10px] font-mono text-[#22c55e] mt-0.5">hananirfan91@gmail.com</p>
+                        <p className="font-bold text-slate-800 leading-none">Hanan Irfan &amp; Urwah Farooq</p>
+                        <p className="text-[10px] text-slate-500">Co-Founders &amp; Editorial Leadership</p>
+                        <p className="text-[10px] font-mono text-[#22c55e] mt-0.5">thesportsroom01@gmail.com</p>
                       </div>
                     </div>
                   </div>

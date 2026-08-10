@@ -31,7 +31,7 @@ const PLATFORM_FAQS: { keywords: string[]; answer: string }[] = [
   },
   {
     keywords: ['contact', 'support', 'ticket', 'email', 'submit', 'message'],
-    answer: "You can reach out directly to founder Hanan Irfan or submit an editorial support ticket at our [Contact Us](/contact-us) hub, or email us at `hananirfan91@gmail.com`."
+    answer: "You can reach out directly to co-founders Hanan Irfan & Urwah Farooq or submit an editorial support ticket at our [Contact Us](/contact-us) hub, or email us at `thesportsroom01@gmail.com`."
   },
   {
     keywords: ['rankings', 'stats', 'standings', 'leaderboard', 'icc'],

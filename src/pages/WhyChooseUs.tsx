@@ -181,7 +181,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
             "name": "How can brands advertise or partner with The Sports Room?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Brands can contact the co-founders directly via the Contact page or email (hananirfan91@gmail.com) for high-impact sponsorship opportunities, contextual banner placements, and analytical feature partnerships."
+              "text": "Brands can contact the co-founders directly via the Contact page or email (thesportsroom01@gmail.com) for high-impact sponsorship opportunities, contextual banner placements, and analytical feature partnerships."
             }
           },
           {
@@ -238,7 +238,7 @@ export default function WhyChooseUs({ onNavigate }: WhyChooseUsProps) {
     },
     {
       q: "How can businesses and sponsors partner with The Sports Room?",
-      a: "Sponsors and athletic brands can reach out directly to the co-founders via the Contact Us page or via email at hananirfan91@gmail.com for custom brand partnerships, ad placements, and event sponsorships."
+      a: "Sponsors and athletic brands can reach out directly to the co-founders via the Contact Us page or via email at thesportsroom01@gmail.com for custom brand partnerships, ad placements, and event sponsorships."
     },
     {
       q: "How is The Sports Room different from mainstream corporate sports news sites?",

@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   User, ShieldCheck, Award, Globe, Mail, ExternalLink, 
   FileText, CheckCircle2, BookOpen, Calendar, MapPin, 
-  Share2, ArrowRight
+  Share2, ArrowRight, Twitter, Linkedin, Youtube
 } from 'lucide-react';
 import { DB } from '../lib/db';
 
@@ -31,6 +31,9 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
       "url": "https://thesportsroom.online",
       "logo": "https://thesportsroom.online/logo-preview.png",
       "sameAs": [
+        "https://x.com/TSRVerse?s=20",
+        "https://www.linkedin.com/in/thesportsroom",
+        "https://www.youtube.com/@thesportsroom01",
         "https://www.facebook.com/profile.php?id=61592459862127",
         "https://www.tiktok.com/@pathan_x_babarian565",
         "https://www.pinterest.com/thesportsroomonline"
@@ -54,6 +57,9 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
       "addressCountry": "PK"
     },
     "sameAs": [
+      "https://x.com/TSRVerse?s=20",
+      "https://www.linkedin.com/in/thesportsroom",
+      "https://www.youtube.com/@thesportsroom01",
       "https://www.facebook.com/profile.php?id=61592459862127",
       "https://www.tiktok.com/@pathan_x_babarian565",
       "https://www.pinterest.com/thesportsroomonline"
@@ -107,6 +113,36 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
             {/* Social & Reference Links */}
             <div className="pt-2 flex flex-wrap gap-3">
               <a 
+                href="https://x.com/TSRVerse?s=20" 
+                target="_blank" 
+                rel="noreferrer"
+                className="bg-[#01140f] hover:bg-[#22c55e]/20 text-xs font-mono text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800/80 flex items-center gap-1.5 transition"
+              >
+                <Twitter className="w-3.5 h-3.5 text-[#22c55e]" />
+                X (Twitter)
+                <ExternalLink className="w-3 h-3 text-slate-400" />
+              </a>
+              <a 
+                href="https://www.linkedin.com/in/thesportsroom" 
+                target="_blank" 
+                rel="noreferrer"
+                className="bg-[#01140f] hover:bg-[#22c55e]/20 text-xs font-mono text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800/80 flex items-center gap-1.5 transition"
+              >
+                <Linkedin className="w-3.5 h-3.5 text-[#22c55e]" />
+                LinkedIn
+                <ExternalLink className="w-3 h-3 text-slate-400" />
+              </a>
+              <a 
+                href="https://www.youtube.com/@thesportsroom01" 
+                target="_blank" 
+                rel="noreferrer"
+                className="bg-[#01140f] hover:bg-[#22c55e]/20 text-xs font-mono text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800/80 flex items-center gap-1.5 transition"
+              >
+                <Youtube className="w-3.5 h-3.5 text-red-500" />
+                YouTube
+                <ExternalLink className="w-3 h-3 text-slate-400" />
+              </a>
+              <a 
                 href="https://www.facebook.com/profile.php?id=61592459862127" 
                 target="_blank" 
                 rel="noreferrer"
@@ -117,11 +153,11 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
                 <ExternalLink className="w-3 h-3 text-slate-400" />
               </a>
               <a 
-                href="mailto:hananirfan91@gmail.com" 
+                href="mailto:thesportsroom01@gmail.com" 
                 className="bg-[#01140f] hover:bg-[#22c55e]/20 text-xs font-mono text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800/80 flex items-center gap-1.5 transition"
               >
                 <Mail className="w-3.5 h-3.5 text-[#22c55e]" />
-                Editorial Desk
+                Editorial Desk (thesportsroom01@gmail.com)
               </a>
               <button
                 onClick={() => onNavigate('/why-choose-us')}

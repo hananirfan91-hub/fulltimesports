@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  ArrowLeft, Clock, Eye, Share2, Facebook, Twitter, Link as LinkIcon, 
+  ArrowLeft, Clock, Eye, Share2, Facebook, Twitter, Linkedin, Youtube, Mail, Link as LinkIcon, 
   CheckCircle, MessageSquare, Compass, Send, ShieldAlert, Award, List, Sparkles, BookOpen
 } from 'lucide-react';
 import { Post } from '../types';
@@ -772,9 +772,36 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
           {/* Social share widget row */}
           <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
-            <span className="text-xs font-bold text-slate-700">VISIT EDITORIAL FB & TWITTER CHANNELS:</span>
+            <span className="text-xs font-bold text-slate-700">OFFICIAL EDITORIAL CHANNELS &amp; SOCIAL NODES:</span>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <a 
+                href="https://x.com/TSRVerse?s=20"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#1DA1F2]/10 hover:bg-[#1DA1F2] hover:text-white text-[#1DA1F2] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 
+                title="Visit our Twitter/X Page"
+              >
+                <Twitter className="h-4 w-4" />
+              </a>
+              <a 
+                href="https://www.linkedin.com/in/thesportsroom"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#0A66C2]/10 hover:bg-[#0A66C2] hover:text-white text-[#0A66C2] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 
+                title="Visit our LinkedIn Page"
+              >
+                <Linkedin className="h-4 w-4" />
+              </a>
+              <a 
+                href="https://www.youtube.com/@thesportsroom01"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-red-500/10 hover:bg-red-600 hover:text-white text-red-600 p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 
+                title="Visit our YouTube Channel"
+              >
+                <Youtube className="h-4 w-4" />
+              </a>
               <a 
                 href="https://www.facebook.com/profile.php?id=61592459862127"
                 target="_blank"
@@ -785,13 +812,11 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                 <Facebook className="h-4 w-4" />
               </a>
               <a 
-                href="https://x.com/hananirfan91"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#1DA1F2]/10 hover:bg-[#1DA1F2] hover:text-white text-[#1DA1F2] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 
-                title="Visit our Twitter/X Page"
+                href="mailto:thesportsroom01@gmail.com"
+                className="bg-emerald-500/10 hover:bg-[#22c55e] hover:text-slate-950 text-[#22c55e] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 
+                title="Email Editorial Desk"
               >
-                <Twitter className="h-4 w-4" />
+                <Mail className="h-4 w-4" />
               </a>
               
               <button 
