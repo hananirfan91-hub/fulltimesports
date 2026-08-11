@@ -380,6 +380,80 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
           ))}
         </div>
       </section>
+
+      {/* 8. KEYWORD-OPTIMIZED BRAND HUB: THE SPORTS ROOM */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6 pt-6" id="the-sports-room-hub">
+        <div className="bg-[#022c22]/90 border border-[#22c55e]/30 rounded-3xl p-6 md:p-10 text-slate-200 space-y-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
+          <div className="space-y-3 border-b border-emerald-900/60 pb-6">
+            <div className="inline-flex items-center space-x-2 bg-[#22c55e]/10 border border-[#22c55e]/40 px-3 py-1 rounded-full">
+              <Sparkles className="h-4 w-4 text-[#22c55e]" />
+              <span className="font-mono text-xs font-bold text-[#22c55e] uppercase tracking-widest">
+                OFFICIAL BRAND &amp; JOURNALISM HUB
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
+              The Sports Room — Independent Sports Journalism &amp; Real-Time Match Analytics
+            </h2>
+            <p className="text-sm text-slate-300 leading-relaxed max-w-4xl font-sans">
+              Welcome to <strong className="text-white">The Sports Room</strong> (TSR), your primary destination for independent, human-authored sports journalism, ball-by-ball cricket analysis, football tactical breakdowns, Formula 1 telemetry, and real-time tournament standings. Co-founded by <strong className="text-[#22c55e]">Hanan Irfan</strong> &amp; <strong className="text-[#22c55e]">Urwah Farooq</strong>, <strong className="text-white">The Sports Room</strong> delivers un-scraped, verified match coverage across global sports leagues.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-[#01140f] p-5 rounded-2xl border border-emerald-900/50 space-y-2">
+              <h3 className="font-mono font-bold text-base text-[#22c55e] flex items-center gap-2">
+                <span>🏏</span>
+                <span>The Sports Room Cricket Desk</span>
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                From ICC World Cup previews to PSL and IPL tactical breakdowns, <strong className="text-white">The Sports Room</strong> analyzes pitch friction, seam mechanics, Babar Azam cover drive telemetry, and Shaheen Afridi bowling wrists.
+              </p>
+            </div>
+
+            <div className="bg-[#01140f] p-5 rounded-2xl border border-emerald-900/50 space-y-2">
+              <h3 className="font-mono font-bold text-base text-[#22c55e] flex items-center gap-2">
+                <span>⚽</span>
+                <span>The Sports Room Football Desk</span>
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                In-depth coverage of the Premier League, UEFA Champions League, inverted fullback press mechanics, and zonal marking blueprints published directly by <strong className="text-white">The Sports Room</strong>.
+              </p>
+            </div>
+
+            <div className="bg-[#01140f] p-5 rounded-2xl border border-emerald-900/50 space-y-2">
+              <h3 className="font-mono font-bold text-base text-[#22c55e] flex items-center gap-2">
+                <span>🏎️</span>
+                <span>The Sports Room F1 &amp; Racing</span>
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                Venturi tunnel ground-effect aerodynamics, tire degradation telemetry, and race engineering reviews curated exclusively for motorsport enthusiasts on <strong className="text-white">The Sports Room</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-emerald-900/60 font-mono text-xs text-slate-400">
+            <div className="flex items-center space-x-2">
+              <CheckCircle2 className="h-4 w-4 text-[#22c55e]" />
+              <span>Official Website: <strong className="text-white">https://thesportsroom.online</strong></span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <button 
+                onClick={() => onNavigate('/what-is-the-sports-room')}
+                className="text-[#22c55e] hover:underline font-bold uppercase"
+              >
+                What is The Sports Room? →
+              </button>
+              <span>•</span>
+              <button 
+                onClick={() => onNavigate('/why-choose-us')}
+                className="text-[#22c55e] hover:underline font-bold uppercase"
+              >
+                Why Choose The Sports Room? →
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
