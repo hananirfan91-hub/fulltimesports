@@ -113,6 +113,7 @@ The qualification route guarantees direct entries for co-hosts **South Africa** 
     created_at: '2026-08-01T10:00:00Z',
     is_featured: false,
     is_trending: true,
+    is_spotlight: true,
     type: 'news',
     views: 2890,
     meta_description: 'Detailed tactical preview, host venues breakdown, and qualification roadmap for the 14-team ICC Cricket World Cup 2027 in South Africa, Zimbabwe, and Namibia.'
@@ -656,6 +657,7 @@ export class DB {
         updated_at: p.updated_at || new Date().toISOString(),
         is_featured: Boolean(p.is_featured),
         is_trending: Boolean(p.is_trending),
+        is_spotlight: Boolean(p.is_spotlight),
         type: p.type === 'blog' ? 'blog' : 'news',
         scheduled_for: p.is_draft ? 'draft' : (p.scheduled_for || ''),
         meta_description: p.meta_description || '',
@@ -745,6 +747,7 @@ export class DB {
       updated_at: p.updated_at ? String(p.updated_at) : undefined,
       is_featured: Boolean(p.is_featured),
       is_trending: Boolean(p.is_trending),
+      is_spotlight: Boolean(p.is_spotlight || p.isSpotlight),
       type: p.type === 'blog' ? 'blog' : 'news',
       scheduled_for: String(p.scheduled_for || ''),
       meta_description: String(p.meta_description || ''),
@@ -1416,6 +1419,7 @@ export class DB {
       created_at: new Date().toISOString(),
       views: 0,
       is_draft: Boolean(post.is_draft),
+      is_spotlight: Boolean(post.is_spotlight),
       scheduled_for: post.is_draft ? 'draft' : (post.scheduled_for || ''),
     };
 

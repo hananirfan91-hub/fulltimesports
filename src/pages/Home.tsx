@@ -73,6 +73,7 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
     };
   }, [activeGeo]);
 
+  const spotlightPost = posts.find(p => Boolean(p.is_spotlight) && !p.is_draft);
   const trendingNews = posts.filter(p => p.is_trending).slice(0, 6);
   const displayTrending = trendingNews.length >= 3 ? trendingNews : posts.slice(0, 6);
   const latestArticles = posts.slice(0, 6);
@@ -95,6 +96,87 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
       
       {/* 1. HERO SECTION (3D Editorial Board) */}
       <Hero onNavigate={onNavigate} activeGeo={activeGeo} />
+
+      {/* 2. THE SPORTS ROOM SPOTLIGHT SECTION */}
+      {spotlightPost && (
+        <section className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="bg-gradient-to-br from-[#022c22] via-[#011c15] to-[#01140f] border-2 border-[#22c55e]/40 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
+            
+            {/* Background Ambient Glow */}
+            <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#22c55e]/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              
+              {/* Left Column: Featured Image */}
+              <div 
+                onClick={() => onNavigate(`/blog/${spotlightPost.slug}`)}
+                className="lg:col-span-5 relative group/img cursor-pointer rounded-2xl overflow-hidden border border-[#22c55e]/30 shadow-xl aspect-[16/10]"
+              >
+                <img 
+                  referrerPolicy="no-referrer"
+                  src={spotlightPost.featured_image} 
+                  alt={spotlightPost.image_alt || spotlightPost.title} 
+                  className="w-full h-full object-cover group-hover/img:scale-105 transition duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                
+                <div className="absolute top-3 left-3 bg-[#01140f]/90 backdrop-blur-md border border-[#22c55e]/50 text-[#22c55e] text-[10px] font-mono font-black uppercase px-3 py-1 rounded-full shadow-md flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
+                  <span>{spotlightPost.category}</span>
+                </div>
+
+                <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center text-[11px] font-mono text-slate-300">
+                  <span>By {spotlightPost.author}</span>
+                  <span>{new Date(spotlightPost.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+              </div>
+
+              {/* Right Column: Spotlight Content */}
+              <div className="lg:col-span-7 space-y-4">
+                <div className="flex items-center space-x-2">
+                  <span className="bg-amber-500 text-slate-950 font-mono text-[10px] font-black uppercase px-3 py-1 rounded-md tracking-wider flex items-center gap-1.5 shadow-sm">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>THE SPORTS ROOM SPOTLIGHT</span>
+                  </span>
+                  <span className="text-xs font-mono text-emerald-400 font-semibold uppercase">
+                    • Editor's Choice
+                  </span>
+                </div>
+
+                <h2 
+                  onClick={() => onNavigate(`/blog/${spotlightPost.slug}`)}
+                  className="text-2xl sm:text-3xl md:text-4xl font-display font-black text-white leading-tight tracking-tight hover:text-[#22c55e] transition duration-200 cursor-pointer"
+                >
+                  {spotlightPost.title}
+                </h2>
+
+                <p className="text-sm md:text-base text-slate-300 font-sans leading-relaxed line-clamp-3">
+                  {spotlightPost.subheading || spotlightPost.meta_description || spotlightPost.geo_summary || spotlightPost.content.replace(/[#*`|_~]/g, '').slice(0, 220) + '...'}
+                </p>
+
+                <div className="pt-2 flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={() => onNavigate(`/blog/${spotlightPost.slug}`)}
+                    className="px-6 py-3 bg-[#22c55e] hover:bg-[#16a34a] text-[#022c22] font-mono font-black text-xs uppercase tracking-wider rounded-xl transition duration-200 shadow-lg cursor-pointer flex items-center space-x-2 border border-[#22c55e]"
+                  >
+                    <span>Read Full Story</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+
+                  <button
+                    onClick={() => onNavigate(`/sport/${spotlightPost.category}`)}
+                    className="px-4 py-3 bg-slate-900/80 hover:bg-slate-800 text-slate-300 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer border border-slate-700/80"
+                  >
+                    More {spotlightPost.category} Coverage
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* EDITORIAL POLICY BANNER CARD (Mint green card matching screenshot) */}
       <section className="max-w-7xl mx-auto px-4 md:px-6">

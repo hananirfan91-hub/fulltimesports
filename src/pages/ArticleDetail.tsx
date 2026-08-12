@@ -785,7 +785,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                 <Twitter className="h-4 w-4" />
               </a>
               <a 
-                href="https://www.linkedin.com/in/thesportsroom"
+                href="https://www.linkedin.com/company/tsr-official"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-[#0A66C2]/10 hover:bg-[#0A66C2] hover:text-white text-[#0A66C2] p-2 rounded transition inline-flex items-center justify-center cursor-pointer" 

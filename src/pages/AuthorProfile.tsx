@@ -32,7 +32,7 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
       "logo": "https://thesportsroom.online/logo-preview.png",
       "sameAs": [
         "https://x.com/TSRVerse?s=20",
-        "https://www.linkedin.com/in/thesportsroom",
+        "https://www.linkedin.com/company/tsr-official",
         "https://www.youtube.com/@thesportsroom01",
         "https://www.facebook.com/profile.php?id=61592459862127",
         "https://www.tiktok.com/@pathan_x_babarian565",
@@ -58,7 +58,7 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
     },
     "sameAs": [
       "https://x.com/TSRVerse?s=20",
-      "https://www.linkedin.com/in/thesportsroom",
+      "https://www.linkedin.com/company/tsr-official",
       "https://www.youtube.com/@thesportsroom01",
       "https://www.facebook.com/profile.php?id=61592459862127",
       "https://www.tiktok.com/@pathan_x_babarian565",
@@ -123,7 +123,7 @@ export default function AuthorProfile({ onNavigate }: AuthorProfileProps) {
                 <ExternalLink className="w-3 h-3 text-slate-400" />
               </a>
               <a 
-                href="https://www.linkedin.com/in/thesportsroom" 
+                href="https://www.linkedin.com/company/tsr-official" 
                 target="_blank" 
                 rel="noreferrer"
                 className="bg-[#01140f] hover:bg-[#22c55e]/20 text-xs font-mono text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-800/80 flex items-center gap-1.5 transition"

@@ -201,7 +201,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "logo": `${origin}/logo-preview.png`,
           "sameAs": [
             "https://x.com/TSRVerse?s=20",
-            "https://www.linkedin.com/in/thesportsroom",
+            "https://www.linkedin.com/company/tsr-official",
             "https://www.youtube.com/@thesportsroom01",
             "https://www.facebook.com/profile.php?id=61592459862127",
             "https://www.tiktok.com/@pathan_x_babarian565",
@@ -540,7 +540,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "logo": `${origin}/logo-preview.png`,
           "sameAs": [
             "https://x.com/TSRVerse?s=20",
-            "https://www.linkedin.com/in/thesportsroom",
+            "https://www.linkedin.com/company/tsr-official",
             "https://www.youtube.com/@thesportsroom01",
             "https://www.facebook.com/profile.php?id=61592459862127",
             "https://www.tiktok.com/@pathan_x_babarian565"
@@ -548,7 +548,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         },
         "sameAs": [
           "https://x.com/TSRVerse?s=20",
-          "https://www.linkedin.com/in/thesportsroom",
+          "https://www.linkedin.com/company/tsr-official",
           "https://www.youtube.com/@thesportsroom01",
           "https://www.facebook.com/profile.php?id=61592459862127",
           "https://www.tiktok.com/@pathan_x_babarian565",

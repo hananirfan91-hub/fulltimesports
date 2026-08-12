@@ -14,6 +14,7 @@ export interface Post {
   updated_at?: string;
   is_featured: boolean;
   is_trending: boolean;
+  is_spotlight?: boolean;
   type: 'news' | 'blog'; // To distinguish for Hero or styling
   scheduled_for?: string; // ISO String or 'draft'
   meta_description?: string;

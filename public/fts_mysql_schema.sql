@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS fts_posts (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_featured TINYINT(1) DEFAULT 0,
     is_trending TINYINT(1) DEFAULT 0,
+    is_spotlight TINYINT(1) DEFAULT 0,
     type VARCHAR(32) NOT NULL DEFAULT 'news',
     scheduled_for VARCHAR(64) DEFAULT '',
     meta_description TEXT,

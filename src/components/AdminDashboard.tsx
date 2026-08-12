@@ -594,6 +594,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       author: currentAdmin?.name || 'Admin Editor',
       is_featured: false,
       is_trending: false,
+      is_spotlight: false,
       type: 'news',
       meta_title: '',
       meta_description: '',
@@ -617,6 +618,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const openEditPost = (post: Post) => {
     setEditingPost({
       ...post,
+      is_spotlight: Boolean(post.is_spotlight),
       heading_tag: post.heading_tag || 'h1',
       schema_type: post.schema_type || (post.type === 'blog' ? 'BlogPosting' : 'NewsArticle'),
       meta_robots: post.meta_robots || 'index, follow'
@@ -830,6 +832,15 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const handleToggleTrendingFlag = (id: string, state: boolean) => {
     DB.updatePost(id, { is_trending: state });
     refreshData();
+  };
+
+  const handleToggleSpotlightFlag = async (id: string, state: boolean) => {
+    try {
+      await DB.updatePost(id, { is_spotlight: state });
+      refreshData();
+    } catch (err) {
+      console.error("Failed to update spotlight status:", err);
+    }
   };
 
 
@@ -1285,6 +1296,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                   <th className="py-3 px-4">Title & Slug</th>
                   <th className="py-3 px-4">Sport Category</th>
                   <th className="py-3 px-4">Status & Schedule</th>
+                  <th className="py-3 px-4">Spotlight</th>
                   <th className="py-3 px-4">SEO Tags</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
@@ -1324,6 +1336,27 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                           </span>
                         )}
                         <span className="text-[10px] text-slate-400 block mt-1">{post.views} Views</span>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-xs">
+                        {post.is_spotlight ? (
+                          <button
+                            type="button"
+                            onClick={() => handleToggleSpotlightFlag(post.id, false)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-mono text-[10px] font-extrabold rounded-md uppercase transition shadow-xs cursor-pointer"
+                            title="Click to remove Spotlight status"
+                          >
+                            <span>⭐ Spotlight</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleToggleSpotlightFlag(post.id, true)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 font-mono text-[10px] font-medium rounded-md uppercase border border-slate-200 transition cursor-pointer"
+                            title="Click to set as Spotlight article"
+                          >
+                            <span>Off</span>
+                          </button>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 max-w-xs">
                         <div className="flex flex-wrap gap-1">
@@ -2685,6 +2718,30 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                         onChange={(e) => setEditingPost({ ...editingPost, scheduled_for: e.target.value })}
                         className="bg-white border border-slate-200 rounded px-2.5 py-1 text-xs text-slate-700 font-mono"
                       />
+                    </div>
+                  </div>
+
+                  {/* Set as Spotlight Toggle Bar */}
+                  <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="checkbox"
+                        id="is_spotlight_toggle"
+                        checked={Boolean(editingPost.is_spotlight)}
+                        onChange={(e) => setEditingPost({ ...editingPost, is_spotlight: e.target.checked })}
+                        className="rounded border-amber-400 text-amber-600 focus:ring-amber-500 h-4 w-4 cursor-pointer"
+                      />
+                      <div>
+                        <label htmlFor="is_spotlight_toggle" className="block text-xs font-mono font-bold text-slate-800 uppercase cursor-pointer select-none flex items-center gap-2">
+                          <span>Set as Spotlight Article</span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded font-mono font-extrabold uppercase ${editingPost.is_spotlight ? 'bg-amber-500 text-slate-950' : 'bg-slate-200 text-slate-600'}`}>
+                            {editingPost.is_spotlight ? 'ON' : 'OFF'}
+                          </span>
+                        </label>
+                        <p className="text-[10px] text-slate-500">
+                          Highlight this article in "The Sports Room Spotlight" banner on the homepage.
+                        </p>
+                      </div>
                     </div>
                   </div>
 

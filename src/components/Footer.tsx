@@ -21,7 +21,7 @@ export default function Footer({ onNavigate }: FooterProps) {
     "email": "thesportsroom01@gmail.com",
     "sameAs": [
       "https://x.com/TSRVerse?s=20",
-      "https://www.linkedin.com/in/thesportsroom",
+      "https://www.linkedin.com/company/tsr-official",
       "https://www.youtube.com/@thesportsroom01",
       "https://www.facebook.com/profile.php?id=61592459862127",
       "https://www.tiktok.com/@pathan_x_babarian565",
@@ -40,7 +40,7 @@ export default function Footer({ onNavigate }: FooterProps) {
     },
     {
       name: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/thesportsroom',
+      url: 'https://www.linkedin.com/company/tsr-official',
       icon: <Linkedin className="h-4 w-4 text-[#0A66C2]" />,
       badge: 'The Sports Room',
     },

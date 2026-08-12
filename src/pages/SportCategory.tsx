@@ -502,7 +502,7 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
                 <Twitter className="h-4 w-4" />
               </a>
               <a 
-                href="https://www.linkedin.com/in/thesportsroom"
+                href="https://www.linkedin.com/company/tsr-official"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 border border-slate-200 rounded hover:border-[#22c55e] text-slate-700 hover:text-[#22c55e] transition inline-flex items-center justify-center cursor-pointer" 

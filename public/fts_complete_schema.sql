@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     is_featured BOOLEAN DEFAULT FALSE,
     is_trending BOOLEAN DEFAULT FALSE,
+    is_spotlight BOOLEAN DEFAULT FALSE,
     type VARCHAR(32) NOT NULL DEFAULT 'news',
     scheduled_for TEXT DEFAULT '',
     meta_description TEXT DEFAULT '',
