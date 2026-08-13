@@ -615,17 +615,24 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setIsPostModalOpen(true);
   };
 
-  const openEditPost = (post: Post) => {
+  const openEditPost = async (post: Post) => {
+    let fullPost = post;
+    if (!fullPost.content || fullPost.content.trim() === '') {
+      const fetched = await DB.getPostBySlugAsync(post.slug || post.id);
+      if (fetched && fetched.content) {
+        fullPost = fetched;
+      }
+    }
     setEditingPost({
-      ...post,
-      is_spotlight: Boolean(post.is_spotlight),
-      heading_tag: post.heading_tag || 'h1',
-      schema_type: post.schema_type || (post.type === 'blog' ? 'BlogPosting' : 'NewsArticle'),
-      meta_robots: post.meta_robots || 'index, follow'
+      ...fullPost,
+      is_spotlight: Boolean(fullPost.is_spotlight),
+      heading_tag: fullPost.heading_tag || 'h1',
+      schema_type: fullPost.schema_type || (fullPost.type === 'blog' ? 'BlogPosting' : 'NewsArticle'),
+      meta_robots: fullPost.meta_robots || 'index, follow'
     });
-    setTempTags(post.tags ? post.tags.join(', ') : '');
-    setTempEntities(post.geo_entities ? post.geo_entities.join(', ') : '');
-    setFaqList(post.aeo_faq ? [...post.aeo_faq] : []);
+    setTempTags(fullPost.tags ? fullPost.tags.join(', ') : '');
+    setTempEntities(fullPost.geo_entities ? fullPost.geo_entities.join(', ') : '');
+    setFaqList(fullPost.aeo_faq ? [...fullPost.aeo_faq] : []);
     setPostComposerTab('content');
     setIsPostModalOpen(true);
   };

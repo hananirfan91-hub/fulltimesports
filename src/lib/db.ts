@@ -801,7 +801,7 @@ export class DB {
 
       const { data: summaryData, error: summaryErr } = await supabase
         .from('fts_posts')
-        .select('id, title, slug, category, tags, featured_image, image_alt, video_url, author, author_email, created_at, updated_at, is_featured, is_trending, type, meta_description, views, is_draft')
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (summaryErr) {
