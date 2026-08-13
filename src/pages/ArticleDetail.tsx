@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   ArrowLeft, Clock, Eye, Share2, Facebook, Twitter, Linkedin, Youtube, Mail, Link as LinkIcon, 
-  CheckCircle, MessageSquare, Compass, Send, ShieldAlert, Award, List, Sparkles, BookOpen
+  CheckCircle, MessageSquare, Compass, Send, ShieldAlert, Award, List, Sparkles, BookOpen, Calendar
 } from 'lucide-react';
 import { Post } from '../types';
 import { DB } from '../lib/db';
@@ -609,6 +609,10 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
             </div>
 
             <div className="flex items-center space-x-3 font-semibold">
+              <span className="flex items-center space-x-1.5 bg-white border border-slate-200/80 text-slate-900 px-3 py-1.5 rounded-lg shadow-2xs">
+                <Calendar className="h-4 w-4 text-emerald-600" />
+                <span className="text-slate-800 font-bold">{post.created_at ? new Date(post.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently Published'}</span>
+              </span>
               <span className="flex items-center space-x-1.5 bg-white border border-slate-200/80 text-slate-900 px-3 py-1.5 rounded-lg shadow-2xs">
                 <Clock className="h-4 w-4 text-emerald-600" />
                 <span className="text-slate-800 font-bold">{readTimeMinutes} min read</span>
