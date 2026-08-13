@@ -11,6 +11,7 @@ import { supabase } from '../lib/supabase';
 import { normalizeSlug } from '../lib/slugUtils';
 import { detectEntitiesInText } from '../lib/entityRegistry';
 import { validateAndConvertStreamUrl } from '../lib/streamEmbed';
+import { ensureFullSeoGeoAeo } from '../lib/seoGenerator';
 
 const alert = (msg: string) => {
   try {
@@ -623,6 +624,10 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         fullPost = fetched;
       }
     }
+
+    // Ensure all SEO, GEO, and AEO metadata fields are fully populated
+    fullPost = ensureFullSeoGeoAeo(fullPost);
+
     setEditingPost({
       ...fullPost,
       is_spotlight: Boolean(fullPost.is_spotlight),
@@ -630,8 +635,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       schema_type: fullPost.schema_type || (fullPost.type === 'blog' ? 'BlogPosting' : 'NewsArticle'),
       meta_robots: fullPost.meta_robots || 'index, follow'
     });
-    setTempTags(fullPost.tags ? fullPost.tags.join(', ') : '');
-    setTempEntities(fullPost.geo_entities ? fullPost.geo_entities.join(', ') : '');
+    setTempTags(fullPost.tags && Array.isArray(fullPost.tags) ? fullPost.tags.join(', ') : '');
+    setTempEntities(fullPost.geo_entities && Array.isArray(fullPost.geo_entities) ? fullPost.geo_entities.join(', ') : '');
     setFaqList(fullPost.aeo_faq ? [...fullPost.aeo_faq] : []);
     setPostComposerTab('content');
     setIsPostModalOpen(true);

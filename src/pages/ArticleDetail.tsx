@@ -788,18 +788,20 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
           <AdSensePlaceholder slot="article-mid-content" format="horizontal" />
 
           {/* Keyword tags cluster */}
-          <div className="pt-6 border-t border-slate-200">
-            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-2.5">
-              SEO COUPLER KEYWORDS
-            </span>
-            <div className="flex flex-wrap gap-1.5 text-xs font-mono">
-              {post.tags.map((tag, i) => (
-                <span key={i} className="bg-slate-50 border border-slate-200 hover:border-[#22c55e] hover:text-[#22c55e] text-slate-700 px-3 py-1 rounded transition duration-155 cursor-pointer">
-                  {tag}
-                </span>
-              ))}
+          {post.tags && Array.isArray(post.tags) && post.tags.length > 0 && (
+            <div className="pt-6 border-t border-slate-200">
+              <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block mb-2.5">
+                SEO COUPLER KEYWORDS
+              </span>
+              <div className="flex flex-wrap gap-1.5 text-xs font-mono">
+                {post.tags.map((tag, i) => (
+                  <span key={i} className="bg-slate-50 border border-slate-200 hover:border-[#22c55e] hover:text-[#22c55e] text-slate-700 px-3 py-1 rounded transition duration-155 cursor-pointer">
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Social share widget row */}
           <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">

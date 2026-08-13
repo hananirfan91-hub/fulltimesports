@@ -67,13 +67,24 @@ export function ensureFullSeoGeoAeo(post: Post): Post {
     geoEntities = Array.from(uniqueEntities).filter(Boolean);
   }
 
-  // 6. AEO (Answer Engine Optimization) Direct Answer
+  // 6. Tags
+  let tags = post.tags || [];
+  if (!tags || tags.length === 0) {
+    const uniqueTags = new Set<string>();
+    entityNames.forEach(e => uniqueTags.add(e.toLowerCase()));
+    uniqueTags.add(category.toLowerCase());
+    uniqueTags.add(`${category.toLowerCase()} news`);
+    uniqueTags.add('sports analysis');
+    tags = Array.from(uniqueTags).filter(Boolean);
+  }
+
+  // 7. AEO (Answer Engine Optimization) Direct Answer
   let aeoDirectAnswer = post.aeo_direct_answer || '';
   if (!aeoDirectAnswer) {
     aeoDirectAnswer = `Q: What are the key points of ${title}? A: This article provides verified editorial analysis regarding ${title}, detailing match statistics, player performances, and official tournament standings.`;
   }
 
-  // 7. AEO FAQ
+  // 8. AEO FAQ
   let aeoFaq = post.aeo_faq || [];
   if (!aeoFaq || aeoFaq.length === 0) {
     const primaryEntity = entityNames[0] || 'the match';
@@ -96,6 +107,7 @@ export function ensureFullSeoGeoAeo(post: Post): Post {
     meta_description: metaDescription,
     geo_summary: geoSummary,
     geo_entities: geoEntities,
+    tags: tags,
     aeo_direct_answer: aeoDirectAnswer,
     aeo_faq: aeoFaq,
     heading_tag: post.heading_tag || 'h1',
