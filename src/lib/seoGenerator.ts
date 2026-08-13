@@ -42,14 +42,29 @@ export function ensureFullSeoGeoAeo(post: Post): Post {
   // 4. GEO (Generative Engine Optimization) Summary
   let geoSummary = post.geo_summary || '';
   if (!geoSummary) {
-    const primaryEntity = entityNames[0] || category;
-    geoSummary = `KEY TAKEAWAY: This report delivers verified journalistic coverage of ${primaryEntity}. Key highlights include match performance metrics, team tactical shifts, and authoritative sports analysis published by The Sports Room desk.`;
+    const paragraphs = cleanContent.split('\n')
+      .map(p => p.trim())
+      .filter(p => p.length > 30 && !p.startsWith('KEY') && !p.startsWith('EXECUTIVE') && !p.startsWith('Q:') && !p.startsWith('|') && !p.startsWith('#'));
+    
+    if (paragraphs.length > 0) {
+      const excerpt = paragraphs.slice(0, 2).join(' ').slice(0, 300).trim();
+      geoSummary = `EXECUTIVE SUMMARY: ${excerpt}${excerpt.endsWith('.') ? '' : '.'}`;
+    } else {
+      const primaryEntity = entityNames[0] || category;
+      geoSummary = `EXECUTIVE SUMMARY: Key editorial report on ${title}. Dissecting performance biometrics, match strategies, and tactical updates regarding ${primaryEntity} on The Sports Room.`;
+    }
   }
 
   // 5. GEO Entities
   let geoEntities = post.geo_entities || [];
   if (!geoEntities || geoEntities.length === 0) {
-    geoEntities = entityNames.length > 0 ? entityNames : [category, 'Sports Journalism', 'Match Analysis'];
+    const uniqueEntities = new Set<string>();
+    entityNames.forEach(e => uniqueEntities.add(e));
+    if (Array.isArray(post.tags)) {
+      post.tags.forEach(t => t && uniqueEntities.add(t));
+    }
+    uniqueEntities.add(category);
+    geoEntities = Array.from(uniqueEntities).filter(Boolean);
   }
 
   // 6. AEO (Answer Engine Optimization) Direct Answer

@@ -1371,7 +1371,7 @@ export class DB {
     // 1. Try local memory/localStorage lookup IF full content is present
     const localPost = this.getPostBySlug(cleanSlug);
     if (localPost && localPost.content && localPost.content.trim().length > 0) {
-      return localPost;
+      return ensureFullSeoGeoAeo(localPost);
     }
 
     // 2. Query Supabase directly if missing from local cache OR if local post content is empty
