@@ -1368,11 +1368,13 @@ export class DB {
     if (!slug) return undefined;
     const cleanSlug = normalizeSlug(slug);
 
-    // 1. Try local memory/localStorage lookup
+    // 1. Try local memory/localStorage lookup IF full content is present
     const localPost = this.getPostBySlug(cleanSlug);
-    if (localPost) return localPost;
+    if (localPost && localPost.content && localPost.content.trim().length > 0) {
+      return localPost;
+    }
 
-    // 2. Query Supabase directly if missing from local cache
+    // 2. Query Supabase directly if missing from local cache OR if local post content is empty
     try {
       const rawTarget = decodeURIComponent(slug).trim();
       const { data, error } = await supabase
@@ -1384,7 +1386,7 @@ export class DB {
       if (!error && data && data.length > 0) {
         const remotePost = this.parseRemotePost(data[0]);
 
-        // Merge into local cache so future lookups succeed instantly
+        // Merge into local cache so future lookups and lists retain full content
         const allPosts = this.getAdminAllPosts();
         const existingIdx = allPosts.findIndex(p => p.id === remotePost.id || normalizeSlug(p.slug) === cleanSlug);
         if (existingIdx !== -1) {
@@ -1403,7 +1405,7 @@ export class DB {
       console.error("Supabase getPostBySlugAsync exception:", err);
     }
 
-    return undefined;
+    return localPost || undefined;
   }
 
   static async insertPost(post: Omit<Post, 'id' | 'created_at' | 'views'>): Promise<Post> {

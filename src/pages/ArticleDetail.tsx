@@ -453,6 +453,33 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
       }
     });
 
+    if (insideTable && tableHeaders.length > 0) {
+      nodes.push(
+        <div key="table-end" className="overflow-x-auto my-6 border border-slate-200 rounded-lg">
+          <table className="w-full text-xs md:text-sm text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200">
+                {tableHeaders.map((h, i) => (
+                  <th key={i} className="p-3 font-semibold text-slate-800 uppercase font-mono tracking-wider text-[10px]">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {tableRows.map((row, idx) => (
+                <tr key={idx} className="hover:bg-slate-50/50 transition">
+                  {row.map((cell, cidx) => (
+                    <td key={cidx} className="p-3 text-slate-700">
+                      {parseInlineElements(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
     return nodes;
   };
 
@@ -702,7 +729,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
           {/* Custom rendered body */}
           <div className="markdown-body prose max-w-none pb-6 space-y-4">
-            {post.content.trim().startsWith('<') ? (
+            {post.content.trim().startsWith('<') || /<\s*(p|div|span|h[1-6]|ul|ol|table|blockquote|article|section)\b/i.test(post.content) ? (
               <div dangerouslySetInnerHTML={{ __html: post.content }} className="space-y-4 text-slate-700 text-sm md:text-[15px] leading-relaxed" />
             ) : (
               renderMarkdown(post.content)
