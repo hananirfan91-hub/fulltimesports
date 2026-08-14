@@ -115,6 +115,37 @@ input::placeholder, textarea::placeholder {
   color: #94a3b8 !important;
 }
 
+/* QUIZ MODAL & PUBLIC LEADERBOARD INPUT & DATE SELECTOR OVERRIDES (HIGH CONTRAST) */
+#daily-quiz-dialog input,
+#daily-quiz-dialog textarea,
+#daily-quiz-dialog select,
+.quiz-input,
+#public-leaderboard-dialog input,
+#public-leaderboard-dialog select,
+.leaderboard-date,
+#homepage-quiz-leaderboard-banner select {
+  color: #f8fafc !important; /* Crisp, high-contrast white text */
+  background-color: #022c22 !important;
+  caret-color: #22c55e !important;
+  font-weight: 600;
+}
+
+#daily-quiz-dialog input::placeholder,
+#daily-quiz-dialog textarea::placeholder,
+.quiz-input::placeholder {
+  color: #94a3b8 !important; /* High-visibility light slate placeholder */
+}
+
+/* Ensure select dropdown option lists render clearly on dark backgrounds */
+#daily-quiz-dialog select option,
+#public-leaderboard-dialog select option,
+.leaderboard-date option,
+#homepage-quiz-leaderboard-banner select option {
+  background-color: #01140f !important;
+  color: #f8fafc !important;
+  font-weight: 500;
+}
+
 /* ADMIN PANEL & LOGIN INPUT FONT COLORS */
 #admin-login-sec input,
 #admin-login-sec textarea,

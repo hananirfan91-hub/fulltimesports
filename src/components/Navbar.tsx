@@ -255,7 +255,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
           {/* 3. Live Page */}
           <button
             onClick={() => onNavigate('/live-stream')}
-            className={`flex items-center space-x-1.5 font-display text-sm font-bold tracking-wide uppercase transition duration-150 px-3 py-1 rounded-full border ${
+            className={`flex items-center space-x-1.5 font-display text-xs font-bold tracking-wide uppercase transition duration-150 px-3 py-1 rounded-full border ${
               currentPath === '/live-stream'
                 ? 'bg-[#22c55e] text-slate-950 border-[#22c55e] font-black shadow-md'
                 : 'bg-[#022c22] text-white hover:bg-[#22c55e] hover:text-slate-950 border-emerald-800'
@@ -263,6 +263,23 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
           >
             <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
             <span>Live Stream</span>
+          </button>
+
+          {/* Daily Quiz Button */}
+          <button
+            onClick={() => onNavigate('/quiz')}
+            className="flex items-center space-x-1.5 font-display text-xs font-bold tracking-wide uppercase transition duration-150 px-3 py-1 rounded-full bg-[#022c22] text-[#22c55e] hover:bg-[#22c55e] hover:text-slate-950 border border-emerald-800 shadow-sm"
+          >
+            <span>⚡ Daily Quiz</span>
+          </button>
+
+          {/* Leaderboard Button */}
+          <button
+            onClick={() => onNavigate('/leaderboard')}
+            className="flex items-center space-x-1.5 font-display text-xs font-bold tracking-wide uppercase transition duration-150 px-3 py-1 rounded-full bg-amber-950/80 text-amber-300 hover:bg-amber-400 hover:text-slate-950 border border-amber-800 shadow-sm"
+          >
+            <Trophy className="w-3.5 h-3.5 text-amber-400" />
+            <span>Leaderboard</span>
           </button>
 
           {/* 4. Football */}

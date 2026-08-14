@@ -184,3 +184,78 @@ export interface FanPoll {
   created_at: string;
   updated_at?: string;
 }
+
+export interface QuizQuestion {
+  id: string;
+  quiz_id?: string;
+  question_text: string;
+  option_a: string;
+  option_b: string;
+  option_c: string;
+  option_d: string;
+  correct_option: 'A' | 'B' | 'C' | 'D';
+  points: number;
+  order_index?: number;
+}
+
+export interface DailyQuiz {
+  id: string;
+  quiz_date: string; // YYYY-MM-DD
+  title: string;
+  description: string;
+  is_published: boolean;
+  questions: QuizQuestion[];
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface QuizAnswerChoice {
+  question_id: string;
+  selected_option: 'A' | 'B' | 'C' | 'D';
+  is_correct?: boolean;
+  points_earned?: number;
+}
+
+export interface QuizSubmission {
+  id: string;
+  quiz_id: string;
+  full_name: string;
+  email: string;
+  score: number;
+  total_possible_score: number;
+  correct_count: number;
+  total_questions: number;
+  submitted_at: string;
+  answers?: QuizAnswerChoice[];
+}
+
+export interface MonthlyLeaderboardWinner {
+  id: string;
+  leaderboard_id?: string;
+  rank: number; // 1 to 5
+  full_name: string;
+  email: string;
+  points: number;
+  quizzes_attempted: number;
+  correct_answers: number;
+}
+
+export interface MonthlyLeaderboard {
+  id: string;
+  month_year: string; // e.g. '2026-08'
+  title: string;
+  is_finalized: boolean;
+  finalized_at?: string;
+  winners: MonthlyLeaderboardWinner[];
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface MonthlyUserAggregation {
+  email: string;
+  full_name: string;
+  total_points: number;
+  quizzes_attempted: number;
+  correct_answers: number;
+  last_submission_at: string;
+}

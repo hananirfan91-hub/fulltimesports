@@ -9,10 +9,13 @@ import { Post, FixtureItem } from '../types';
 import { DB } from '../lib/db';
 import Hero from '../components/Hero';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
+import HomepageFanChallenge from '../components/HomepageFanChallenge';
 
 interface HomeProps {
   onNavigate: (path: string) => void;
   activeGeo: string;
+  onOpenQuiz?: () => void;
+  onOpenLeaderboard?: () => void;
 }
 
 const sortPostsByGeo = (postsList: Post[], geoCode: string): Post[] => {
@@ -28,9 +31,13 @@ const sortPostsByGeo = (postsList: Post[], geoCode: string): Post[] => {
   const keywords = geoKeywordsMap[geoCode] || [];
   if (keywords.length === 0) return postsList;
 
-  const scored = postsList.map(post => {
+  const scored = (postsList || []).map(post => {
     let score = 0;
-    const textToMatch = `${post.title} ${post.category} ${post.tags.join(' ')} ${post.meta_description || ''}`.toLowerCase();
+    const title = post?.title || '';
+    const category = post?.category || '';
+    const tags = Array.isArray(post?.tags) ? post.tags.join(' ') : '';
+    const metaDesc = post?.meta_description || '';
+    const textToMatch = `${title} ${category} ${tags} ${metaDesc}`.toLowerCase();
     
     for (const kw of keywords) {
       if (textToMatch.includes(kw.toLowerCase())) {
@@ -44,7 +51,7 @@ const sortPostsByGeo = (postsList: Post[], geoCode: string): Post[] => {
   return scored.map(s => s.post);
 };
 
-export default function Home({ onNavigate, activeGeo }: HomeProps) {
+export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderboard }: HomeProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [fixtures, setFixtures] = useState<FixtureItem[]>([]);
 
@@ -96,6 +103,12 @@ export default function Home({ onNavigate, activeGeo }: HomeProps) {
       
       {/* 1. HERO SECTION (3D Editorial Board) */}
       <Hero onNavigate={onNavigate} activeGeo={activeGeo} />
+
+      {/* FAN ENGAGEMENT & DAILY SPORTS QUIZ BANNER */}
+      <HomepageFanChallenge 
+        onOpenQuiz={onOpenQuiz || (() => onNavigate('/quiz'))} 
+        onOpenLeaderboard={onOpenLeaderboard || (() => onNavigate('/leaderboard'))} 
+      />
 
       {/* 2. THE SPORTS ROOM SPOTLIGHT SECTION */}
       {spotlightPost && (

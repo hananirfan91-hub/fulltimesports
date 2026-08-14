@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import SEOMetaTags from './components/SEOMetaTags';
 import { ChatBot } from './components/ChatBot';
 import { DB } from './lib/db';
+import DailyQuizModal from './components/DailyQuizModal';
+import LeaderboardModal from './components/LeaderboardModal';
 
 // Lazy load non-homepage route chunks to optimize initial JS payload and eliminate unused JS on mobile FCP/LCP
 const SportCategory = lazy(() => import('./pages/SportCategory'));
@@ -35,6 +37,8 @@ function PageSkeleton() {
 export default function App() {
   const [currentPath, setCurrentPath] = useState('/');
   const [activeGeo, setActiveGeo] = useState('global'); // 'global' | 'IN' | 'UK' | 'US' | 'AU'
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const [isLeaderboardModalOpen, setIsLeaderboardModalOpen] = useState(false);
 
   // Initialize DB Seeds on load
   useEffect(() => {
@@ -44,6 +48,15 @@ export default function App() {
     const path = window.location.pathname;
     if (path && path !== '/') {
       setCurrentPath(path);
+    }
+
+    // Check query params for opening quiz or leaderboard directly
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('quiz') === 'open') {
+      setIsQuizModalOpen(true);
+    }
+    if (urlParams.get('leaderboard') === 'open') {
+      setIsLeaderboardModalOpen(true);
     }
 
     // Set popstate listener to support browser Back and Forward buttons cleanly
@@ -57,6 +70,15 @@ export default function App() {
 
   // Professional Navigation router syncing Histroy records immediately
   const handleNavigate = (path: string) => {
+    if (path === '/quiz') {
+      setIsQuizModalOpen(true);
+      return;
+    }
+    if (path === '/leaderboard') {
+      setIsLeaderboardModalOpen(true);
+      return;
+    }
+
     window.history.pushState(null, '', path);
     setCurrentPath(path);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -66,7 +88,14 @@ export default function App() {
   const renderActiveView = () => {
     // 1. Home Node
     if (currentPath === '/' || currentPath === '') {
-      return <Home onNavigate={handleNavigate} activeGeo={activeGeo} />;
+      return (
+        <Home 
+          onNavigate={handleNavigate} 
+          activeGeo={activeGeo} 
+          onOpenQuiz={() => setIsQuizModalOpen(true)}
+          onOpenLeaderboard={() => setIsLeaderboardModalOpen(true)}
+        />
+      );
     }
 
     // 2. Rankings Panel Public link (seamless redirect)
@@ -211,6 +240,25 @@ export default function App() {
 
       {/* Structured Footer */}
       <Footer onNavigate={handleNavigate} />
+
+      {/* Global Interactive Modals for Fan Engagement */}
+      <DailyQuizModal
+        isOpen={isQuizModalOpen}
+        onClose={() => setIsQuizModalOpen(false)}
+        onNavigateLeaderboard={() => {
+          setIsQuizModalOpen(false);
+          setIsLeaderboardModalOpen(true);
+        }}
+      />
+
+      <LeaderboardModal
+        isOpen={isLeaderboardModalOpen}
+        onClose={() => setIsLeaderboardModalOpen(false)}
+        onOpenQuiz={() => {
+          setIsLeaderboardModalOpen(false);
+          setIsQuizModalOpen(true);
+        }}
+      />
     </div>
   );
 }

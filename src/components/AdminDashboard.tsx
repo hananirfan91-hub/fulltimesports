@@ -12,6 +12,7 @@ import { normalizeSlug } from '../lib/slugUtils';
 import { detectEntitiesInText } from '../lib/entityRegistry';
 import { validateAndConvertStreamUrl } from '../lib/streamEmbed';
 import { ensureFullSeoGeoAeo } from '../lib/seoGenerator';
+import AdminQuizLeaderboard from './AdminQuizLeaderboard';
 
 const alert = (msg: string) => {
   try {
@@ -39,7 +40,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'live_streams' | 'fan_polls'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'live_streams' | 'fan_polls' | 'users' | 'quiz_leaderboard'>('posts');
   
   // States
   const [posts, setPosts] = useState<Post[]>([]);
@@ -1246,6 +1247,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </button>
 
         <button
+          onClick={() => setActiveTab('quiz_leaderboard')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'quiz_leaderboard' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <Trophy className="h-4 w-4 text-amber-500" />
+          <span>Quiz & Leaderboards</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('profile')}
           className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'profile' ? 'bg-slate-900 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
         >
@@ -1255,6 +1264,11 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       </div>
 
       {/* TAB CONTENT PANELS */}
+
+      {/* QUIZ & LEADERBOARD MODULE */}
+      {activeTab === 'quiz_leaderboard' && (
+        <AdminQuizLeaderboard />
+      )}
 
       {/* 1. POSTS COLUMN */}
       {activeTab === 'posts' && (
