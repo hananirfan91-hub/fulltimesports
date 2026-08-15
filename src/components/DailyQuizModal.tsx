@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, CheckCircle2, AlertCircle, Award, Sparkles, X, ChevronRight, User, Mail, Clock, Send } from 'lucide-react';
+import { HelpCircle, CheckCircle2, AlertCircle, Award, Sparkles, X, ChevronRight, User, Mail, Clock, Send, Trophy } from 'lucide-react';
 import { DB } from '../lib/db';
 import { DailyQuiz } from '../types';
 
@@ -28,13 +28,17 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
 
   useEffect(() => {
     if (isOpen) {
-      // Pre-fill email if stored in local storage
+      // Pre-fill email and name if stored in local storage
       let initialEmail = '';
       try {
         const savedEmail = localStorage.getItem('tsr_subscriber_email');
+        const savedName = localStorage.getItem('tsr_participant_name');
         if (savedEmail) {
           setEmail(savedEmail);
           initialEmail = savedEmail;
+        }
+        if (savedName) {
+          setFullName(savedName);
         }
       } catch (e) {}
 
@@ -54,7 +58,13 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
           if (check.hasSubmitted) {
             setAlreadySubmittedInfo(check.submission);
           } else {
-            setAlreadySubmittedInfo(null);
+            // Live Supabase check
+            const live = await DB.checkSupabaseHasSubmittedToday(initialEmail, q.quiz_date);
+            if (live.hasSubmitted) {
+              setAlreadySubmittedInfo(live.submission);
+            } else {
+              setAlreadySubmittedInfo(null);
+            }
           }
         }
       };
@@ -68,14 +78,19 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
   }, [isOpen, quizIdOverride]);
 
   // Check whenever user updates their email in the input field
-  const handleEmailChange = (newEmail: string) => {
+  const handleEmailChange = async (newEmail: string) => {
     setEmail(newEmail);
-    if (activeQuiz && newEmail.includes('@')) {
+    if (activeQuiz && newEmail.includes('@') && newEmail.trim().length > 5) {
       const check = DB.hasUserSubmittedToday(newEmail, activeQuiz.quiz_date);
       if (check.hasSubmitted) {
         setAlreadySubmittedInfo(check.submission);
       } else {
-        setAlreadySubmittedInfo(null);
+        const live = await DB.checkSupabaseHasSubmittedToday(newEmail, activeQuiz.quiz_date);
+        if (live.hasSubmitted) {
+          setAlreadySubmittedInfo(live.submission);
+        } else {
+          setAlreadySubmittedInfo(null);
+        }
       }
     } else {
       setAlreadySubmittedInfo(null);
@@ -214,7 +229,7 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
                     }}
                     className="w-full sm:w-auto bg-[#22c55e] text-slate-950 font-mono font-bold text-xs py-3 px-6 rounded-xl uppercase tracking-wider hover:bg-[#34d399] transition flex items-center justify-center gap-2"
                   >
-                    <TrophyIcon className="w-4 h-4" />
+                    <Trophy className="w-4 h-4" />
                     <span>View Monthly Leaderboard</span>
                   </button>
                 )}
@@ -269,7 +284,7 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
                     }}
                     className="w-full sm:w-auto bg-[#22c55e] text-slate-950 font-mono font-bold text-xs py-3 px-6 rounded-xl uppercase tracking-wider hover:bg-[#34d399] transition flex items-center justify-center gap-2"
                   >
-                    <TrophyIcon className="w-4 h-4" />
+                    <Trophy className="w-4 h-4" />
                     <span>View Monthly Leaderboard</span>
                   </button>
                 )}

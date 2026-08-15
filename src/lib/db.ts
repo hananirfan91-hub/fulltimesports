@@ -2559,17 +2559,28 @@ export class DB {
       // 4. Seed user_responses & quiz_submissions if empty in Supabase
       try {
         const { data: existSubs } = await supabase.from('user_responses').select('id').limit(1);
-        if (!existSubs || existSubs.length === 0) {
+        const { data: existQuizSubs } = await supabase.from('quiz_submissions').select('id').limit(1);
+        
+        if ((!existSubs || existSubs.length === 0) || (!existQuizSubs || existQuizSubs.length === 0)) {
           for (const sub of SEED_SUBMISSIONS) {
             try {
               await supabase.from('user_responses').insert([{
                 full_name: sub.full_name,
+                name: sub.full_name,
                 email: sub.email,
                 score: sub.score,
                 total: sub.total_possible_score,
                 created_at: sub.submitted_at
               }]);
-            } catch (e) {}
+            } catch (e) {
+              try {
+                await supabase.from('user_responses').insert([{
+                  email: sub.email,
+                  score: sub.score,
+                  total: sub.total_possible_score
+                }]);
+              } catch (e2) {}
+            }
 
             try {
               await supabase.from('quiz_submissions').insert([{
@@ -2581,7 +2592,16 @@ export class DB {
                 total_questions: sub.total_questions,
                 submitted_at: sub.submitted_at
               }]);
-            } catch (e) {}
+            } catch (e) {
+              try {
+                await supabase.from('quiz_submissions').insert([{
+                  full_name: sub.full_name,
+                  email: sub.email,
+                  score: sub.score,
+                  total_possible_score: sub.total_possible_score
+                }]);
+              } catch (e2) {}
+            }
           }
         }
       } catch (e) {
@@ -2885,13 +2905,38 @@ export class DB {
 
   /**
    * Checks if a user identified by email has already submitted today's quiz.
-   * Enforces 1 submission per day per participant.
+   * Enforces strictly 1 submission per day per email address.
+   * On the next calendar day, the user becomes eligible again automatically.
    */
   static hasUserSubmittedToday(email: string, targetDate?: string): { hasSubmitted: boolean; submission?: QuizSubmission } {
     if (!email || !email.trim()) return { hasSubmitted: false };
     const emailNorm = email.trim().toLowerCase();
-    const todayStr = targetDate || new Date().toISOString().slice(0, 10);
+    const todayStr = (targetDate && targetDate.trim()) ? targetDate.trim().slice(0, 10) : new Date().toISOString().slice(0, 10);
 
+    // 1. Check local storage cache for instant blocking on this client
+    try {
+      const localKey = `tsr_quiz_sub_${todayStr}_${emailNorm}`;
+      const cached = localStorage.getItem(localKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        return {
+          hasSubmitted: true,
+          submission: {
+            id: parsed.id || `local-${Date.now()}`,
+            quiz_id: parsed.quiz_id || 'quiz-today',
+            full_name: parsed.full_name || 'Participant',
+            email: emailNorm,
+            score: parsed.score || 0,
+            total_possible_score: parsed.total_possible_score || 100,
+            correct_count: parsed.correct_count || 0,
+            total_questions: parsed.total_questions || 5,
+            submitted_at: parsed.submitted_at || new Date().toISOString()
+          }
+        };
+      }
+    } catch (e) {}
+
+    // 2. Check in-memory submissions cache
     const submissions = DB.getSubmissions();
     const existing = submissions.find(s => {
       if (!s.email || s.email.toLowerCase().trim() !== emailNorm) return false;
@@ -2899,10 +2944,74 @@ export class DB {
       return subDate === todayStr;
     });
 
+    if (existing) {
+      return {
+        hasSubmitted: true,
+        submission: existing
+      };
+    }
+
     return {
-      hasSubmitted: !!existing,
-      submission: existing
+      hasSubmitted: false
     };
+  }
+
+  /**
+   * Live Supabase query to check if email already submitted for a specific date
+   */
+  static async checkSupabaseHasSubmittedToday(email: string, targetDate?: string): Promise<{ hasSubmitted: boolean; submission?: any }> {
+    if (!email || !email.trim()) return { hasSubmitted: false };
+    const emailNorm = email.trim().toLowerCase();
+    const todayStr = (targetDate && targetDate.trim()) ? targetDate.trim().slice(0, 10) : new Date().toISOString().slice(0, 10);
+
+    // In-memory check first
+    const mem = DB.hasUserSubmittedToday(emailNorm, todayStr);
+    if (mem.hasSubmitted) return mem;
+
+    // Database live query across quiz_submissions and user_responses
+    try {
+      const { data: dbLiveQuizSubs } = await supabase
+        .from('quiz_submissions')
+        .select('*')
+        .eq('email', emailNorm);
+
+      if (dbLiveQuizSubs && dbLiveQuizSubs.length > 0) {
+        const matched = dbLiveQuizSubs.find((r: any) => {
+          const rDate = String(r.submitted_at || r.created_at || '').slice(0, 10);
+          return rDate === todayStr;
+        });
+
+        if (matched) {
+          try {
+            localStorage.setItem(`tsr_quiz_sub_${todayStr}_${emailNorm}`, JSON.stringify(matched));
+          } catch (e) {}
+          return { hasSubmitted: true, submission: matched };
+        }
+      }
+
+      const { data: dbLiveUserResp } = await supabase
+        .from('user_responses')
+        .select('*')
+        .eq('email', emailNorm);
+
+      if (dbLiveUserResp && dbLiveUserResp.length > 0) {
+        const matched2 = dbLiveUserResp.find((r: any) => {
+          const rDate = String(r.created_at || r.submitted_at || '').slice(0, 10);
+          return rDate === todayStr;
+        });
+
+        if (matched2) {
+          try {
+            localStorage.setItem(`tsr_quiz_sub_${todayStr}_${emailNorm}`, JSON.stringify(matched2));
+          } catch (e) {}
+          return { hasSubmitted: true, submission: matched2 };
+        }
+      }
+    } catch (e) {
+      console.warn("checkSupabaseHasSubmittedToday notice:", e);
+    }
+
+    return { hasSubmitted: false };
   }
 
   static async submitQuizPayload(
@@ -2930,33 +3039,22 @@ export class DB {
       throw new Error("A valid email address is required.");
     }
 
-    const todayDateStr = (quiz.quiz_date && quiz.quiz_date.trim()) ? quiz.quiz_date : new Date().toISOString().slice(0, 10);
+    const todayDateStr = (quiz.quiz_date && quiz.quiz_date.trim()) ? quiz.quiz_date.slice(0, 10) : new Date().toISOString().slice(0, 10);
 
     // =========================================================================
-    // ENFORCE 1 SUBMISSION PER PERSON PER DAY
+    // STRICT 1 SUBMISSION PER EMAIL PER DAY ENFORCEMENT
     // =========================================================================
-    // 1. Check in-memory store
+    // 1. Check local storage & memory store
     const memCheck = DB.hasUserSubmittedToday(emailNorm, todayDateStr);
     if (memCheck.hasSubmitted) {
-      throw new Error("You have already submitted today's quiz! Only 1 submission is allowed per person per day. Please come back tomorrow for the next daily quiz!");
+      throw new Error(`You have already submitted today's quiz (${todayDateStr})! Each participant is limited to 1 submission per day. You will be eligible to submit again tomorrow for the new daily quiz challenge!`);
     }
 
     // 2. Check Supabase database live to prevent duplicate submissions from other tabs/devices
     try {
-      const { data: dbLiveSubs } = await supabase
-        .from('user_responses')
-        .select('*')
-        .eq('email', emailNorm);
-
-      if (dbLiveSubs && dbLiveSubs.length > 0) {
-        const alreadySubmitted = dbLiveSubs.some((r: any) => {
-          const rDate = String(r.created_at || r.submitted_at || '').slice(0, 10);
-          return rDate === todayDateStr;
-        });
-
-        if (alreadySubmitted) {
-          throw new Error("You have already submitted today's quiz! Only 1 submission is allowed per person per day. Please come back tomorrow for the next daily quiz!");
-        }
+      const liveCheck = await DB.checkSupabaseHasSubmittedToday(emailNorm, todayDateStr);
+      if (liveCheck.hasSubmitted) {
+        throw new Error(`You have already submitted today's quiz (${todayDateStr})! Each participant is limited to 1 submission per day. You will be eligible to submit again tomorrow for the new daily quiz challenge!`);
       }
     } catch (err: any) {
       if (err?.message?.includes("already submitted today's quiz")) {
@@ -2994,7 +3092,58 @@ export class DB {
     let dbWriteSuccessful = false;
     let lastErrorMsg = '';
 
-    // Real Supabase INSERT into user_responses table
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(quiz.id));
+    const validQuizUUID = isUUID ? quiz.id : null;
+
+    // 1. Real Supabase INSERT into quiz_submissions table
+    try {
+      const qSubmissionPayload: any = {
+        full_name: fullName.trim(),
+        email: emailNorm,
+        score: score,
+        total_possible_score: totalPossible,
+        correct_count: correctCount,
+        total_questions: totalQuestions,
+        submitted_at: new Date().toISOString()
+      };
+      if (validQuizUUID) {
+        qSubmissionPayload.quiz_id = validQuizUUID;
+      }
+
+      const { data: qData, error: qErr } = await supabase
+        .from('quiz_submissions')
+        .insert([qSubmissionPayload])
+        .select();
+
+      if (!qErr && qData && qData.length > 0) {
+        insertedId = String(qData[0].id);
+        dbWriteSuccessful = true;
+      } else if (qErr) {
+        // Fallback for schemas with different column naming
+        try {
+          const { data: qData2, error: qErr2 } = await supabase
+            .from('quiz_submissions')
+            .insert([{
+              name: fullName.trim(),
+              full_name: fullName.trim(),
+              email: emailNorm,
+              score: score,
+              total: totalPossible,
+              total_possible_score: totalPossible
+            }])
+            .select();
+
+          if (!qErr2 && qData2 && qData2.length > 0) {
+            insertedId = String(qData2[0].id);
+            dbWriteSuccessful = true;
+          }
+        } catch (e2) {}
+      }
+    } catch (e) {
+      console.warn("quiz_submissions insert exception:", e);
+    }
+
+    // 2. Real Supabase INSERT into user_responses table
     try {
       const { data: insertedData, error: insertErr } = await supabase
         .from('user_responses')
@@ -3003,6 +3152,7 @@ export class DB {
           email: emailNorm,
           score: score,
           total: totalPossible,
+          created_at: new Date().toISOString()
         }])
         .select();
 
@@ -3032,30 +3182,6 @@ export class DB {
       console.warn("user_responses insert exception:", e);
     }
 
-    // Also insert into quiz_submissions table in Supabase
-    try {
-      const { data: qData, error: qErr } = await supabase
-        .from('quiz_submissions')
-        .insert([{
-          quiz_id: quiz.id,
-          full_name: fullName.trim(),
-          email: emailNorm,
-          score: score,
-          total_possible_score: totalPossible,
-          correct_count: correctCount,
-          total_questions: totalQuestions,
-          submitted_at: new Date().toISOString()
-        }])
-        .select();
-
-      if (!qErr && qData && qData.length > 0) {
-        insertedId = String(qData[0].id);
-        dbWriteSuccessful = true;
-      }
-    } catch (e) {
-      console.warn("quiz_submissions insert exception:", e);
-    }
-
     const newSubmission: QuizSubmission = {
       id: insertedId,
       quiz_id: quiz.id,
@@ -3070,6 +3196,14 @@ export class DB {
     };
 
     DB._memorySubmissions.unshift(newSubmission);
+    
+    // Store local lock for today's submission date
+    try {
+      localStorage.setItem(`tsr_quiz_sub_${todayDateStr}_${emailNorm}`, JSON.stringify(newSubmission));
+      localStorage.setItem('tsr_subscriber_email', emailNorm);
+      localStorage.setItem('tsr_participant_name', fullName.trim());
+    } catch (e) {}
+
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     return {

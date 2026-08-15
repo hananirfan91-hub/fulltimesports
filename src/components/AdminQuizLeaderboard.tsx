@@ -500,11 +500,20 @@ export default function AdminQuizLeaderboard() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase">Quiz Submissions Log</h3>
-              <p className="text-xs text-slate-500 font-sans">Real-time record of all participants, email addresses, and scores</p>
+              <p className="text-xs text-slate-500 font-sans">Real-time record of all participants, email addresses, and scores synced with Supabase</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-              <div className="relative flex-1 sm:w-64">
+              <button
+                onClick={handleManualRefresh}
+                disabled={isSyncing}
+                className="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-mono font-bold text-xs py-2 px-3 rounded-xl transition flex items-center gap-1.5"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>Sync Supabase</span>
+              </button>
+
+              <div className="relative flex-1 sm:w-56">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="text"
