@@ -2455,17 +2455,85 @@ export class DB {
     return 'A';
   }
 
+  static async seedQuizDataToSupabase(): Promise<boolean> {
+    try {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      // 1. Seed daily_quizzes
+      const { error: dqErr } = await supabase.from('daily_quizzes').upsert([
+        {
+          title: 'Daily Sports Knowledge Challenge',
+          description: 'Answer all questions to earn points towards the monthly Top 5 fan leaderboard!',
+          quiz_date: todayStr,
+          is_published: true,
+          updated_at: new Date().toISOString()
+        }
+      ], { onConflict: 'title' });
+      if (dqErr) console.warn("Supabase seed daily_quizzes notice:", dqErr.message);
+
+      // 2. Seed quiz_questions
+      const seedQuestions = SEED_QUIZZES[0]?.questions || [];
+      for (let i = 0; i < seedQuestions.length; i++) {
+        const q = seedQuestions[i];
+        const optionsArray = [q.option_a, q.option_b, q.option_c, q.option_d];
+        const correctIdx = q.correct_option === 'B' ? 1 : q.correct_option === 'C' ? 2 : q.correct_option === 'D' ? 3 : 0;
+        const { error: qErr } = await supabase.from('quiz_questions').insert([
+          {
+            question_text: q.question_text,
+            options: optionsArray,
+            option_a: q.option_a,
+            option_b: q.option_b,
+            option_c: q.option_c,
+            option_d: q.option_d,
+            correct_option: q.correct_option,
+            correct_answer: correctIdx,
+            points: Number(q.points) || 20,
+            order_index: i,
+            explanation: q.question_text
+          }
+        ]);
+        if (qErr) console.warn("Supabase seed quiz_questions notice:", qErr.message);
+      }
+
+      // 3. Seed monthly_leaderboards
+      for (const lb of SEED_MONTHLY_LEADERBOARDS) {
+        const { error: lbErr } = await supabase.from('monthly_leaderboards').upsert([
+          {
+            month_year: lb.month_year,
+            title: lb.title,
+            is_finalized: lb.is_finalized,
+            winners: lb.winners
+          }
+        ], { onConflict: 'month_year' });
+        if (lbErr) console.warn("Supabase seed monthly_leaderboards notice:", lbErr.message);
+      }
+
+      return true;
+    } catch (e) {
+      console.error("seedQuizDataToSupabase error:", e);
+      return false;
+    }
+  }
+
   static async syncQuizDataFromSupabase() {
     try {
       // 1. Fetch questions directly from Supabase (try daily_quizzes or quiz_questions)
       const { data: dqData } = await supabase.from('daily_quizzes').select('*').order('created_at', { ascending: false });
-      const { data: qData, error: qErr } = await supabase
+      let { data: qData, error: qErr } = await supabase
         .from('quiz_questions')
         .select('*')
         .order('created_at', { ascending: true });
 
       if (qErr) {
         console.error("Supabase SELECT quiz_questions error:", qErr.message);
+      }
+
+      // If Supabase is totally empty, automatically seed it
+      if ((!qData || qData.length === 0) && (!dqData || dqData.length === 0)) {
+        await DB.seedQuizDataToSupabase();
+        const refetch = await supabase.from('quiz_questions').select('*').order('created_at', { ascending: true });
+        if (refetch.data && refetch.data.length > 0) {
+          qData = refetch.data;
+        }
       }
 
       let questionsList: QuizQuestion[] = [];
@@ -2533,7 +2601,7 @@ export class DB {
       }
 
       // 3. Fetch leaderboards directly from Supabase monthly_leaderboards table
-      const { data: lbData, error: lbErr } = await supabase
+      let { data: lbData, error: lbErr } = await supabase
         .from('monthly_leaderboards')
         .select('*')
         .order('created_at', { ascending: false });

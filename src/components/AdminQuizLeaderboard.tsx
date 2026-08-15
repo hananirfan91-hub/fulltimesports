@@ -25,6 +25,36 @@ export default function AdminQuizLeaderboard() {
   const [lbTitle, setLbTitle] = useState('');
   const [isFinalized, setIsFinalized] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSeedToSupabase = async () => {
+    setIsSyncing(true);
+    try {
+      await DB.seedQuizDataToSupabase();
+      await DB.syncQuizDataFromSupabase();
+      refreshAllData();
+      setSaveSuccessMsg("✅ Successfully pushed default Quiz questions, Daily Quiz, and Monthly Leaderboards to Supabase!");
+      setTimeout(() => setSaveSuccessMsg(''), 5000);
+    } catch (err: any) {
+      alert("Failed to seed to Supabase: " + (err?.message || err));
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleManualRefresh = async () => {
+    setIsSyncing(true);
+    try {
+      await DB.syncQuizDataFromSupabase();
+      refreshAllData();
+      setSaveSuccessMsg("🔄 Synchronized latest data from Supabase.");
+      setTimeout(() => setSaveSuccessMsg(''), 3000);
+    } catch (err: any) {
+      alert("Failed to refresh from Supabase: " + (err?.message || err));
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const refreshAllData = () => {
     const qList = DB.getQuizzes();
@@ -289,7 +319,7 @@ export default function AdminQuizLeaderboard() {
   return (
     <div className="space-y-6" id="admin-quiz-leaderboard-module">
       {/* Module Header Bar */}
-      <div className="bg-[#022c22] border border-emerald-900 rounded-2xl p-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-[#022c22] border border-emerald-900 rounded-2xl p-6 text-white flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
           <div className="flex items-center space-x-2 text-[#22c55e] font-mono text-xs font-bold uppercase tracking-wider mb-1">
             <Trophy className="w-4 h-4" />
@@ -299,43 +329,72 @@ export default function AdminQuizLeaderboard() {
             Daily Quiz & Monthly Leaderboard
           </h2>
           <p className="text-xs text-slate-300 font-sans mt-0.5">
-            Create daily quizzes, view user score submissions, and manually select & publish official monthly Top 5 fan leaderboards.
+            Manage daily quizzes, inspect user submissions, and publish monthly Top 5 fan leaderboards to Supabase.
           </p>
         </div>
 
-        {/* Sub-Navigation Tabs */}
-        <div className="flex items-center bg-[#01140f] p-1.5 rounded-xl border border-emerald-950">
+        <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={() => setSubTab('quizzes')}
-            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition flex items-center space-x-1.5 ${
-              subTab === 'quizzes' ? 'bg-[#22c55e] text-slate-950 shadow' : 'text-slate-300 hover:text-white'
-            }`}
+            onClick={handleManualRefresh}
+            disabled={isSyncing}
+            className="px-3 py-2 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/60 rounded-xl text-xs font-mono font-bold text-emerald-300 transition flex items-center space-x-1.5"
+            title="Reload from Supabase"
           >
-            <HelpCircle className="w-4 h-4" />
-            <span>Daily Quizzes ({quizzes.length})</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>Refresh Supabase</span>
           </button>
 
           <button
-            onClick={() => setSubTab('submissions')}
-            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition flex items-center space-x-1.5 ${
-              subTab === 'submissions' ? 'bg-[#22c55e] text-slate-950 shadow' : 'text-slate-300 hover:text-white'
-            }`}
+            onClick={handleSeedToSupabase}
+            disabled={isSyncing}
+            className="px-3.5 py-2 bg-[#22c55e] hover:bg-[#16a34a] text-slate-950 rounded-xl text-xs font-mono font-bold uppercase transition flex items-center space-x-1.5 shadow"
+            title="Push standard seed quizzes and leaderboards to empty Supabase tables"
           >
-            <User className="w-4 h-4" />
-            <span>Submissions ({submissions.length})</span>
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Push Data to Supabase</span>
           </button>
 
-          <button
-            onClick={() => setSubTab('leaderboard')}
-            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition flex items-center space-x-1.5 ${
-              subTab === 'leaderboard' ? 'bg-[#22c55e] text-slate-950 shadow' : 'text-slate-300 hover:text-white'
-            }`}
-          >
-            <Award className="w-4 h-4" />
-            <span>Monthly Leaderboard</span>
-          </button>
+          {/* Sub-Navigation Tabs */}
+          <div className="flex items-center bg-[#01140f] p-1.5 rounded-xl border border-emerald-950">
+            <button
+              onClick={() => setSubTab('quizzes')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition flex items-center space-x-1.5 ${
+                subTab === 'quizzes' ? 'bg-[#22c55e] text-slate-950 shadow' : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <HelpCircle className="w-4 h-4" />
+              <span>Quizzes ({quizzes.length})</span>
+            </button>
+
+            <button
+              onClick={() => setSubTab('submissions')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition flex items-center space-x-1.5 ${
+                subTab === 'submissions' ? 'bg-[#22c55e] text-slate-950 shadow' : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              <span>Submissions ({submissions.length})</span>
+            </button>
+
+            <button
+              onClick={() => setSubTab('leaderboard')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition flex items-center space-x-1.5 ${
+                subTab === 'leaderboard' ? 'bg-[#22c55e] text-slate-950 shadow' : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              <Award className="w-4 h-4" />
+              <span>Leaderboard</span>
+            </button>
+          </div>
         </div>
       </div>
+
+      {saveSuccessMsg && (
+        <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-xl text-emerald-900 text-xs font-bold flex items-center space-x-2 animate-fade-in shadow-sm">
+          <CheckCircle2 className="w-5 h-5 text-[#22c55e] flex-shrink-0" />
+          <span>{saveSuccessMsg}</span>
+        </div>
+      )}
 
       {/* ================= TAB 1: DAILY QUIZZES ================= */}
       {subTab === 'quizzes' && (
@@ -343,7 +402,7 @@ export default function AdminQuizLeaderboard() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <h3 className="font-display font-extrabold text-lg text-slate-900 uppercase">Daily Quiz Management</h3>
-              <p className="text-xs text-slate-500 font-sans">Set up questions, options, point values, and publication dates</p>
+              <p className="text-xs text-slate-500 font-sans">Set up questions, options, point values, and publication dates in Supabase</p>
             </div>
             <button
               onClick={handleOpenNewQuiz}
@@ -356,50 +415,79 @@ export default function AdminQuizLeaderboard() {
 
           <div className="grid grid-cols-1 gap-4">
             {quizzes.map((q) => (
-              <div key={q.id} className="border border-slate-200 rounded-xl p-5 hover:border-emerald-500 transition bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="space-y-1.5 min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <span className="bg-slate-200 text-slate-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-slate-300">
-                      📅 {q.quiz_date}
-                    </span>
-                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
-                      q.is_published ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'
-                    }`}>
-                      {q.is_published ? '● PUBLISHED' : '○ DRAFT'}
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-500">
-                      {q.questions.length} Questions
-                    </span>
+              <div key={q.id} className="border border-slate-200 rounded-xl p-5 hover:border-emerald-500 transition bg-slate-50 space-y-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="space-y-1.5 min-w-0">
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-slate-200 text-slate-800 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-slate-300">
+                        📅 {q.quiz_date}
+                      </span>
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
+                        q.is_published ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'
+                      }`}>
+                        {q.is_published ? '● PUBLISHED' : '○ DRAFT'}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-500 font-bold">
+                        {q.questions.length} Questions
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-slate-900 text-base">{q.title}</h4>
+                    <p className="text-xs text-slate-600 line-clamp-1">{q.description}</p>
                   </div>
-                  <h4 className="font-bold text-slate-900 text-base">{q.title}</h4>
-                  <p className="text-xs text-slate-600 line-clamp-1">{q.description}</p>
+
+                  <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
+                    <button
+                      onClick={() => handleTogglePublish(q.id, q.is_published)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition flex items-center space-x-1 ${
+                        q.is_published ? 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
+                      }`}
+                    >
+                      {q.is_published ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      <span>{q.is_published ? 'Unpublish' : 'Publish'}</span>
+                    </button>
+                    <button
+                      onClick={() => handleOpenEditQuiz(q)}
+                      className="p-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg transition"
+                      title="Edit Quiz"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteQuiz(q.id)}
+                      className="p-2 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg transition"
+                      title="Delete Quiz"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex items-center space-x-2 w-full md:w-auto justify-end">
-                  <button
-                    onClick={() => handleTogglePublish(q.id, q.is_published)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold uppercase transition flex items-center space-x-1 ${
-                      q.is_published ? 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100' : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
-                    }`}
-                  >
-                    {q.is_published ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    <span>{q.is_published ? 'Unpublish' : 'Publish'}</span>
-                  </button>
-                  <button
-                    onClick={() => handleOpenEditQuiz(q)}
-                    className="p-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg transition"
-                    title="Edit Quiz"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteQuiz(q.id)}
-                    className="p-2 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg transition"
-                    title="Delete Quiz"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                {/* Question Items breakdown preview */}
+                {q.questions && q.questions.length > 0 && (
+                  <div className="pt-2 border-t border-slate-200 space-y-2">
+                    <div className="text-[11px] font-mono font-bold text-slate-700 uppercase">
+                      Questions List ({q.questions.length}):
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {q.questions.map((ques, idx) => (
+                        <div key={ques.id || idx} className="bg-white p-3 rounded-lg border border-slate-200 text-xs space-y-1">
+                          <div className="flex justify-between items-center">
+                            <span className="font-mono font-bold text-[#022c22]">Q{idx + 1}. {ques.question_text}</span>
+                            <span className="font-mono text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">
+                              {ques.points} pts (Ans: {ques.correct_option})
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600">
+                            <div className={ques.correct_option === 'A' ? 'font-bold text-[#22c55e]' : ''}>A: {ques.option_a}</div>
+                            <div className={ques.correct_option === 'B' ? 'font-bold text-[#22c55e]' : ''}>B: {ques.option_b}</div>
+                            <div className={ques.correct_option === 'C' ? 'font-bold text-[#22c55e]' : ''}>C: {ques.option_c}</div>
+                            <div className={ques.correct_option === 'D' ? 'font-bold text-[#22c55e]' : ''}>D: {ques.option_d}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
