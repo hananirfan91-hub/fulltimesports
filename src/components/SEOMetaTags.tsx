@@ -159,13 +159,61 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
 
     // A. Detect Routing Contexts
     if (currentPath === '/' || currentPath === '') {
-      // Home context
-      title = "The Sports Room | Live Cricket Scores, Match Updates & Upcoming Tournaments";
-      description = "Welcome to The Sports Room. Track live cricket scores, real-time match updates, upcoming match schedules, and complete tournament coverage for international series and global leagues.";
+      // Home context: 30-65 character SEO title with main topic near beginning
+      title = "The Sports Room – Latest Sports News, Scores & Updates";
+      description = "Get the latest sports news, live match scores, expert tactical analysis, and sports updates on The Sports Room. Explore daily sports quizzes and rankings.";
       keywords = GLOBAL_SEO_KEYWORDS.join(", ");
       
-      // Multi-schema: Website + SportsActivityLocation with topical about entries
+      // Comprehensive Knowledge Graph: Organization + WebSite + WebPage + Breadcrumbs + FAQ
       ldJsonData = [
+        {
+          "@context": "https://schema.org",
+          "@type": "NewsMediaOrganization",
+          "@id": `${origin}/#organization`,
+          "name": "The Sports Room",
+          "alternateName": ["TSR", "The Sports Room Online"],
+          "url": origin,
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${origin}/logo-preview.png`,
+            "width": 512,
+            "height": 512
+          },
+          "founder": [
+            {
+              "@type": "Person",
+              "name": "Hanan Irfan",
+              "jobTitle": "Co-Founder, Lead Architect & Editorial Director"
+            },
+            {
+              "@type": "Person",
+              "name": "Urwah Farooq",
+              "jobTitle": "Co-Founder, Business Partner & Sports Journalist"
+            }
+          ],
+          "sameAs": [
+            "https://x.com/TSRVerse?s=20",
+            "https://www.linkedin.com/company/tsr-official",
+            "https://www.youtube.com/@thesportsroom01",
+            "https://www.facebook.com/profile.php?id=61592459862127",
+            "https://www.tiktok.com/@pathan_x_babarian565",
+            "https://www.pinterest.com/thesportsroomonline"
+          ],
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Babar Colony",
+            "addressLocality": "Rahim Yar Khan",
+            "addressRegion": "Punjab",
+            "postalCode": "64200",
+            "addressCountry": "PK"
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+923106359235",
+            "contactType": "editorial",
+            "email": "thesportsroom01@gmail.com"
+          }
+        },
         {
           "@context": "https://schema.org",
           "@type": "WebSite",
@@ -173,14 +221,9 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "name": "The Sports Room",
           "alternateName": "TSR Sports Lounge",
           "url": origin,
-          "description": "Full-scale human-written sports news, F1 telemetry, football passing networks and cricket biomechanics analysis.",
+          "description": "The Sports Room is an independent digital sports platform delivering latest sports news, live match scores, expert analysis, cricket telemetry, daily sports quizzes, and leaderboards.",
           "publisher": {
-            "@type": "Organization",
-            "name": "The Sports Room",
-            "logo": {
-              "@type": "ImageObject",
-              "url": `${origin}/logo-preview.png`
-            }
+            "@id": `${origin}/#organization`
           },
           "potentialAction": {
             "@type": "SearchAction",
@@ -190,6 +233,42 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
             },
             "query-input": "required name=search_term_string"
           }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "@id": `${origin}/#breadcrumb`,
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": origin
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "@id": `${origin}/#webpage`,
+          "url": origin,
+          "name": "The Sports Room – Latest Sports News, Scores & Updates",
+          "description": "Get the latest sports news, live match scores, expert tactical analysis, and sports updates on The Sports Room. Explore daily sports quizzes and rankings.",
+          "isPartOf": {
+            "@id": `${origin}/#website`
+          },
+          "about": {
+            "@id": `${origin}/#organization`
+          },
+          "publisher": {
+            "@id": `${origin}/#organization`
+          },
+          "breadcrumb": {
+            "@id": `${origin}/#breadcrumb`
+          },
+          "inLanguage": "en-US",
+          "datePublished": "2024-01-15T00:00:00+00:00",
+          "dateModified": "2026-08-15T10:00:00+00:00"
         },
         {
           "@context": "https://schema.org",
@@ -222,26 +301,34 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "mainEntity": [
             {
               "@type": "Question",
-              "name": "What makes The Sports Room coverage authentic?",
+              "name": "What is The Sports Room?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "The Sports Room provides 100% human-authored sports journalism with zero automated scraping or AI translations, offering biomechanical analysis, pitch telemetry, and match statistics."
+                "text": "The Sports Room (thesportsroom.online) is an independent digital sports media and analytics platform co-founded by Hanan Irfan and Urwah Farooq. It delivers real-time sports news, live match coverage, deep tactical breakdowns, cricket telemetry, daily sports quizzes, and fan leaderboard rankings."
               }
             },
             {
               "@type": "Question",
-              "name": "How does Babar Azam execute his cover drive?",
+              "name": "How does the Daily Sports Quiz and Monthly Leaderboard work?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Babar Azam's cover drive relies on late wrist alignment, head transfer over the front knee, and fluid high-elbow follow-through off pitched-up deliveries."
+                "text": "Users can take one verified daily sports quiz per calendar day containing 5 multiple-choice questions. Submissions earn points that tally towards the monthly leaderboard standings, allowing sports enthusiasts to test their knowledge and earn recognition."
               }
             },
             {
               "@type": "Question",
-              "name": "What is F1 ground-effect aerodynamics?",
+              "name": "What live sports coverage and match updates are provided?",
               "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Ground-effect aerodynamics in modern Formula 1 utilizes shaped Venturi tunnels under the car floor to create low pressure and high downforce with minimal drag."
+                "text": "The Sports Room provides real-time ball-by-ball updates, live embedded video streams, tournament schedules, team standings, and comprehensive match summaries across cricket, football, Formula 1, tennis, basketball, and field hockey."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How is sports data and factual information verified on The Sports Room?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Every article, schedule, and telemetry metric is 100% human-authored and fact-checked against official sports governing bodies, including the International Cricket Council (ICC), UEFA, and Formula 1 official telemetry registers."
               }
             }
           ]

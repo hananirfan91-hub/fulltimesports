@@ -289,9 +289,9 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
               <div className="flex items-center justify-between border-b border-[#22c55e]/20 pb-3">
                 <div className="flex items-center space-x-2">
                   <Flame className="h-5 w-5 text-[#22c55e] animate-bounce" />
-                  <span className="font-mono font-black text-xs uppercase tracking-widest text-[#22c55e]">
+                  <h2 className="font-mono font-black text-xs uppercase tracking-widest text-[#22c55e]">
                     🔥 TRENDING SPOTLIGHT
-                  </span>
+                  </h2>
                 </div>
                 <span className="bg-emerald-950/80 text-emerald-400 font-mono text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-emerald-800">
                   EDITORIAL DESK
@@ -319,9 +319,9 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                         <span className="text-[9px] font-mono font-bold uppercase text-[#22c55e] block mb-0.5">
                           #{idx + 1} {post.category.toUpperCase()}
                         </span>
-                        <h4 className="font-display font-bold text-xs text-white group-hover:text-[#22c55e] transition truncate">
+                        <h3 className="font-display font-bold text-xs text-white group-hover:text-[#22c55e] transition truncate">
                           {post.title}
-                        </h4>
+                        </h3>
                         <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
                           By {post.author}
                         </span>
@@ -341,9 +341,9 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                         referrerPolicy="no-referrer"
                       />
                     </div>
-                    <h4 className="font-display font-extrabold text-sm text-white group-hover:text-[#22c55e] transition leading-snug">
+                    <h3 className="font-display font-extrabold text-sm text-white group-hover:text-[#22c55e] transition leading-snug">
                       {featuredArticle?.title || "Explore Live Sports Analysis & Tactical Coverage"}
-                    </h4>
+                    </h3>
                   </div>
                 )}
               </div>
