@@ -32,13 +32,18 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
         if (savedEmail) setEmail(savedEmail);
       } catch (e) {}
 
-      if (quizIdOverride) {
-        const q = DB.getQuizById(quizIdOverride);
-        setActiveQuiz(q);
-      } else {
-        const today = DB.getTodayQuiz();
-        setActiveQuiz(today);
-      }
+      const loadQuiz = async () => {
+        await DB.syncQuizDataFromSupabase();
+        if (quizIdOverride) {
+          const q = DB.getQuizById(quizIdOverride);
+          setActiveQuiz(q);
+        } else {
+          const today = DB.getTodayQuiz();
+          setActiveQuiz(today);
+        }
+      };
+
+      loadQuiz();
 
       setErrorMessage('');
       setSubmittedResult(null);

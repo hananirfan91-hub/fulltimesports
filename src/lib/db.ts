@@ -1221,18 +1221,10 @@ export class DB {
     if (!localStorage.getItem(STORAGE_KEYS.LIVE_STREAMS)) {
       localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(SEED_STREAMS));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.QUIZZES)) {
-      localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(SEED_QUIZZES));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.QUIZ_SUBMISSIONS)) {
-      localStorage.setItem(STORAGE_KEYS.QUIZ_SUBMISSIONS, JSON.stringify([]));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.MONTHLY_LEADERBOARDS)) {
-      localStorage.setItem(STORAGE_KEYS.MONTHLY_LEADERBOARDS, JSON.stringify(SEED_MONTHLY_LEADERBOARDS));
-    }
     
     // Start background sync from Supabase database
     this.syncFromSupabase();
+    this.syncQuizDataFromSupabase();
 
     // Setup Supabase Realtime listener for live instant cross-browser updates
     if (typeof window !== 'undefined' && !(window as any)._fts_supabase_channel) {
@@ -1257,14 +1249,14 @@ export class DB {
           )
           .on(
             'postgres_changes',
-            { event: '*', schema: 'public', table: 'daily_quizzes' },
+            { event: '*', schema: 'public', table: 'quiz_questions' },
             () => {
               this.syncQuizDataFromSupabase();
             }
           )
           .on(
             'postgres_changes',
-            { event: '*', schema: 'public', table: 'quiz_submissions' },
+            { event: '*', schema: 'public', table: 'user_responses' },
             () => {
               this.syncQuizDataFromSupabase();
             }
@@ -2423,244 +2415,288 @@ export class DB {
   // ==========================================
   // REALTIME & SUPABASE SYNC FOR QUIZZES
   // ==========================================
+  private static _memoryQuizzes: DailyQuiz[] = [];
+  private static _memorySubmissions: QuizSubmission[] = [];
+  private static _memoryLeaderboards: MonthlyLeaderboard[] = [];
+  private static _isQuizDataInitialized = false;
+
+  private static parseQuestionOptions(rawOptions: any): [string, string, string, string] {
+    if (Array.isArray(rawOptions)) {
+      return [
+        String(rawOptions[0] || ''),
+        String(rawOptions[1] || ''),
+        String(rawOptions[2] || ''),
+        String(rawOptions[3] || '')
+      ];
+    }
+    if (rawOptions && typeof rawOptions === 'object') {
+      return [
+        String(rawOptions.option_a || rawOptions.a || rawOptions.A || rawOptions[0] || ''),
+        String(rawOptions.option_b || rawOptions.b || rawOptions.B || rawOptions[1] || ''),
+        String(rawOptions.option_c || rawOptions.c || rawOptions.C || rawOptions[2] || ''),
+        String(rawOptions.option_d || rawOptions.d || rawOptions.D || rawOptions[3] || '')
+      ];
+    }
+    return ['', '', '', ''];
+  }
+
+  private static parseCorrectOption(ans: any): 'A' | 'B' | 'C' | 'D' {
+    if (typeof ans === 'number') {
+      if (ans === 1) return 'B';
+      if (ans === 2) return 'C';
+      if (ans === 3) return 'D';
+      return 'A';
+    }
+    const str = String(ans || 'A').toUpperCase().trim();
+    if (str === '0' || str === 'A') return 'A';
+    if (str === '1' || str === 'B') return 'B';
+    if (str === '2' || str === 'C') return 'C';
+    if (str === '3' || str === 'D') return 'D';
+    return 'A';
+  }
+
   static async syncQuizDataFromSupabase() {
     try {
-      const { data: qData } = await supabase.from('daily_quizzes').select('*, quiz_questions(*)');
-      if (qData && qData.length > 0) {
-        const parsedQuizzes: DailyQuiz[] = qData.map((q: any) => ({
-          id: String(q.id),
-          quiz_date: String(q.quiz_date),
-          title: String(q.title || ''),
-          description: String(q.description || ''),
-          is_published: Boolean(q.is_published),
-          created_at: String(q.created_at || new Date().toISOString()),
-          questions: (q.quiz_questions || []).map((quest: any) => ({
-            id: String(quest.id),
-            quiz_id: String(quest.quiz_id),
-            question_text: String(quest.question_text || ''),
-            option_a: String(quest.option_a || ''),
-            option_b: String(quest.option_b || ''),
-            option_c: String(quest.option_c || ''),
-            option_d: String(quest.option_d || ''),
-            correct_option: quest.correct_option || 'A',
-            points: Number(quest.points) || 10,
-            order_index: Number(quest.order_index) || 0
-          })).sort((a: any, b: any) => a.order_index - b.order_index)
-        }));
+      // 1. Fetch questions directly from Supabase quiz_questions table
+      const { data: qData, error: qErr } = await supabase
+        .from('quiz_questions')
+        .select('*')
+        .order('created_at', { ascending: true });
 
-        if (parsedQuizzes.length > 0) {
-          localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(parsedQuizzes));
-        }
+      if (qErr) {
+        console.error("Supabase SELECT quiz_questions error:", qErr.message);
       }
 
-      const { data: subData } = await supabase.from('quiz_submissions').select('*, quiz_answers(*)');
-      if (subData && subData.length > 0) {
-        const parsedSubmissions: QuizSubmission[] = subData.map((s: any) => ({
+      const questionsList: QuizQuestion[] = (qData && qData.length > 0)
+        ? qData.map((row: any, idx: number) => {
+            const [optA, optB, optC, optD] = DB.parseQuestionOptions(row.options);
+            return {
+              id: String(row.id),
+              question_text: String(row.question_text || ''),
+              option_a: optA || String(row.option_a || ''),
+              option_b: optB || String(row.option_b || ''),
+              option_c: optC || String(row.option_c || ''),
+              option_d: optD || String(row.option_d || ''),
+              correct_option: DB.parseCorrectOption(row.correct_answer ?? row.correct_option),
+              points: Number(row.points) || 20,
+              order_index: idx
+            };
+          })
+        : (SEED_QUIZZES[0]?.questions || []);
+
+      const todayStr = new Date().toISOString().slice(0, 10);
+      DB._memoryQuizzes = [
+        {
+          id: 'quiz-daily-active',
+          quiz_date: todayStr,
+          title: 'Daily Sports Knowledge Challenge',
+          description: 'Answer all questions to earn points towards the monthly Top 5 fan leaderboard!',
+          is_published: true,
+          questions: questionsList,
+          created_at: new Date().toISOString()
+        }
+      ];
+
+      // 2. Fetch user responses directly from Supabase user_responses table
+      const { data: subData, error: subErr } = await supabase
+        .from('user_responses')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (subErr) {
+        console.error("Supabase SELECT user_responses error:", subErr.message);
+      }
+
+      if (subData) {
+        DB._memorySubmissions = subData.map((s: any) => ({
           id: String(s.id),
-          quiz_id: String(s.quiz_id),
+          quiz_id: String(s.quiz_id || 'quiz-daily-active'),
           full_name: String(s.full_name || ''),
           email: String(s.email || '').toLowerCase().trim(),
           score: Number(s.score) || 0,
-          total_possible_score: Number(s.total_possible_score) || 0,
-          correct_count: Number(s.correct_count) || 0,
-          total_questions: Number(s.total_questions) || 0,
-          submitted_at: String(s.submitted_at || new Date().toISOString()),
-          answers: (s.quiz_answers || []).map((ans: any) => ({
-            question_id: String(ans.question_id),
-            selected_option: ans.selected_option,
-            is_correct: Boolean(ans.is_correct),
-            points_earned: Number(ans.points_earned) || 0
-          }))
+          total_possible_score: Number(s.total) || 100,
+          correct_count: Math.round(((Number(s.score) || 0) / (Number(s.total) || 100)) * (questionsList.length || 5)),
+          total_questions: questionsList.length || 5,
+          submitted_at: String(s.created_at || new Date().toISOString())
         }));
-
-        if (parsedSubmissions.length > 0) {
-          localStorage.setItem(STORAGE_KEYS.QUIZ_SUBMISSIONS, JSON.stringify(parsedSubmissions));
-        }
       }
 
-      const { data: lbData } = await supabase.from('monthly_leaderboards').select('*, monthly_leaderboard_winners(*)');
+      // 3. Fetch leaderboards directly from Supabase monthly_leaderboards table
+      const { data: lbData, error: lbErr } = await supabase
+        .from('monthly_leaderboards')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (lbErr) {
+        console.error("Supabase SELECT monthly_leaderboards error:", lbErr.message);
+      }
+
       if (lbData && lbData.length > 0) {
-        const parsedLeaderboards: MonthlyLeaderboard[] = lbData.map((lb: any) => ({
-          id: String(lb.id),
-          month_year: String(lb.month_year),
-          title: String(lb.title || ''),
-          is_finalized: Boolean(lb.is_finalized),
-          finalized_at: lb.finalized_at ? String(lb.finalized_at) : undefined,
-          created_at: String(lb.created_at || new Date().toISOString()),
-          updated_at: lb.updated_at ? String(lb.updated_at) : undefined,
-          winners: (lb.monthly_leaderboard_winners || []).map((w: any) => ({
-            id: String(w.id),
-            leaderboard_id: String(w.leaderboard_id),
-            rank: Number(w.rank) || 1,
-            full_name: String(w.full_name || ''),
-            email: String(w.email || '').toLowerCase().trim(),
-            points: Number(w.points) || 0,
-            quizzes_attempted: Number(w.quizzes_attempted) || 0,
-            correct_answers: Number(w.correct_answers) || 0
-          })).sort((a: any, b: any) => a.rank - b.rank)
-        }));
+        DB._memoryLeaderboards = lbData.map((lb: any) => {
+          let rawWinners = lb.winners;
+          if (typeof rawWinners === 'string') {
+            try { rawWinners = JSON.parse(rawWinners); } catch (e) { rawWinners = []; }
+          }
+          if (!Array.isArray(rawWinners)) rawWinners = [];
 
-        if (parsedLeaderboards.length > 0) {
-          localStorage.setItem(STORAGE_KEYS.MONTHLY_LEADERBOARDS, JSON.stringify(parsedLeaderboards));
-        }
+          const winners: MonthlyLeaderboardWinner[] = rawWinners.map((w: any, idx: number) => ({
+            id: String(w.id || `winner-${lb.month_year}-${idx + 1}`),
+            leaderboard_id: String(lb.id),
+            rank: Number(w.rank) || (idx + 1),
+            full_name: String(w.full_name || w.name || ''),
+            email: String(w.email || '').toLowerCase().trim(),
+            points: Number(w.points ?? w.score) || 0,
+            quizzes_attempted: Number(w.quizzes_attempted ?? w.quizzes ?? 1) || 1,
+            correct_answers: Number(w.correct_answers ?? w.correct) || 0
+          }));
+
+          return {
+            id: String(lb.id),
+            month_year: String(lb.month_year),
+            title: String(lb.title || `Official Monthly Sports Fan Leaderboard — ${lb.month_year}`),
+            is_finalized: Boolean(lb.is_finalized),
+            finalized_at: lb.is_finalized ? String(lb.created_at || new Date().toISOString()) : undefined,
+            created_at: String(lb.created_at || new Date().toISOString()),
+            winners
+          };
+        });
+      } else {
+        DB._memoryLeaderboards = [...SEED_MONTHLY_LEADERBOARDS];
       }
 
+      DB._isQuizDataInitialized = true;
       window.dispatchEvent(new CustomEvent('fts_db_sync'));
     } catch (e) {
-      console.warn("syncQuizDataFromSupabase notice:", e);
+      console.error("syncQuizDataFromSupabase error:", e);
     }
   }
 
   // ==========================================
-  // DAILY QUIZ METHODS
+  // DAILY QUIZ METHODS (REAL SUPABASE CRUD)
   // ==========================================
 
   static getQuizzes(): DailyQuiz[] {
-    try {
-      const data = localStorage.getItem(STORAGE_KEYS.QUIZZES);
-      let quizzes: DailyQuiz[] = data ? JSON.parse(data) : [];
-      if (!Array.isArray(quizzes) || quizzes.length === 0) {
-        quizzes = [...SEED_QUIZZES];
-        localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(quizzes));
-      }
-      return quizzes;
-    } catch (e) {
-      console.warn("Failed to parse quizzes from local storage:", e);
-      return SEED_QUIZZES;
+    if (!DB._isQuizDataInitialized) {
+      DB.syncQuizDataFromSupabase();
     }
+    if (DB._memoryQuizzes.length > 0) {
+      return DB._memoryQuizzes;
+    }
+    return SEED_QUIZZES;
   }
 
   static getTodayQuiz(): DailyQuiz | null {
-    const todayStr = new Date().toISOString().slice(0, 10);
     const quizzes = this.getQuizzes();
     const published = quizzes.filter(q => q.is_published);
-    const todayQuiz = published.find(q => q.quiz_date === todayStr);
-    if (todayQuiz) return todayQuiz;
     return published.length > 0 ? published[0] : null;
   }
 
   static getQuizById(id: string): DailyQuiz | null {
     const quizzes = this.getQuizzes();
-    return quizzes.find(q => q.id === id) || null;
+    return quizzes.find(q => q.id === id) || (quizzes.length > 0 ? quizzes[0] : null);
   }
 
   static async saveQuiz(quizData: Partial<DailyQuiz> & { title: string; questions: QuizQuestion[] }): Promise<DailyQuiz> {
-    const quizzes = this.getQuizzes();
-    const nowIso = new Date().toISOString();
-    const quizId = quizData.id || `quiz-${Date.now()}`;
-    const quizDate = quizData.quiz_date || nowIso.slice(0, 10);
+    const questions = quizData.questions || [];
+    if (questions.length === 0) {
+      throw new Error("At least 1 question is required.");
+    }
 
-    const fullQuiz: DailyQuiz = {
-      id: quizId,
-      quiz_date: quizDate,
+    // Insert / update each question in Supabase quiz_questions table
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      const optionsArray = [
+        q.option_a || '',
+        q.option_b || '',
+        q.option_c || '',
+        q.option_d || ''
+      ];
+      const correctIdx = q.correct_option === 'B' ? 1 : q.correct_option === 'C' ? 2 : q.correct_option === 'D' ? 3 : 0;
+
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(q.id);
+
+      if (isUUID) {
+        const { error: upErr } = await supabase
+          .from('quiz_questions')
+          .upsert([{
+            id: q.id,
+            question_text: q.question_text,
+            options: optionsArray,
+            correct_answer: correctIdx,
+            explanation: q.question_text
+          }]);
+        if (upErr) {
+          throw new Error(`Supabase save question error: ${upErr.message}`);
+        }
+      } else {
+        const { error: inErr } = await supabase
+          .from('quiz_questions')
+          .insert([{
+            question_text: q.question_text,
+            options: optionsArray,
+            correct_answer: correctIdx,
+            explanation: q.question_text
+          }]);
+        if (inErr) {
+          throw new Error(`Supabase insert question error: ${inErr.message}`);
+        }
+      }
+    }
+
+    // Refresh memory cache from Supabase
+    await DB.syncQuizDataFromSupabase();
+
+    const currentQuizzes = DB.getQuizzes();
+    return currentQuizzes[0] || {
+      id: 'quiz-daily-active',
+      quiz_date: new Date().toISOString().slice(0, 10),
       title: quizData.title,
       description: quizData.description || '',
-      is_published: quizData.is_published ?? true,
-      questions: (quizData.questions || []).map((q, idx) => ({
-        ...q,
-        id: q.id || `q-${quizId}-${idx}-${Date.now()}`,
-        quiz_id: quizId,
-        points: Number(q.points) || 10,
-        order_index: idx
-      })),
-      created_at: quizData.created_at || nowIso,
-      updated_at: nowIso,
+      is_published: true,
+      questions,
+      created_at: new Date().toISOString()
     };
-
-    const existingIndex = quizzes.findIndex(q => q.id === quizId);
-    if (existingIndex >= 0) {
-      quizzes[existingIndex] = fullQuiz;
-    } else {
-      quizzes.unshift(fullQuiz);
-    }
-
-    localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(quizzes));
-    window.dispatchEvent(new CustomEvent('fts_db_sync'));
-
-    // Sync to Supabase daily_quizzes & quiz_questions
-    try {
-      const { error: quizErr } = await supabase.from('daily_quizzes').upsert([{
-        id: fullQuiz.id,
-        quiz_date: fullQuiz.quiz_date,
-        title: fullQuiz.title,
-        description: fullQuiz.description,
-        is_published: fullQuiz.is_published,
-        created_at: fullQuiz.created_at,
-        updated_at: fullQuiz.updated_at,
-      }]);
-      if (quizErr) console.warn("Supabase upsert daily_quizzes notice:", quizErr.message);
-
-      if (fullQuiz.questions && fullQuiz.questions.length > 0) {
-        const questionPayloads = fullQuiz.questions.map((q, idx) => ({
-          id: q.id,
-          quiz_id: fullQuiz.id,
-          question_text: q.question_text,
-          option_a: q.option_a,
-          option_b: q.option_b,
-          option_c: q.option_c,
-          option_d: q.option_d,
-          correct_option: q.correct_option,
-          points: Number(q.points) || 10,
-          order_index: idx
-        }));
-        const { error: qErr } = await supabase.from('quiz_questions').upsert(questionPayloads);
-        if (qErr) console.warn("Supabase upsert quiz_questions notice:", qErr.message);
-      }
-    } catch (e) {
-      console.warn("Async Supabase saveQuiz error:", e);
-    }
-
-    return fullQuiz;
   }
 
   static async deleteQuiz(id: string) {
-    const quizzes = this.getQuizzes();
-    const filtered = quizzes.filter(q => q.id !== id);
-    localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(filtered));
-    window.dispatchEvent(new CustomEvent('fts_db_sync'));
-
-    try {
-      await supabase.from('daily_quizzes').delete().eq('id', id);
-    } catch (e) {
-      console.warn("Supabase deleteQuiz error:", e);
+    // Delete question(s) from Supabase quiz_questions table
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (isUUID) {
+      const { error } = await supabase.from('quiz_questions').delete().eq('id', id);
+      if (error) {
+        throw new Error(`Supabase delete error: ${error.message}`);
+      }
+    } else {
+      // Clear all quiz questions if generic id
+      const { error } = await supabase.from('quiz_questions').delete().neq('question_text', '__NEVER_MATCH__');
+      if (error) {
+        throw new Error(`Supabase delete quiz error: ${error.message}`);
+      }
     }
+
+    await DB.syncQuizDataFromSupabase();
   }
 
   static async togglePublishQuiz(id: string, isPublished: boolean) {
-    const quizzes = this.getQuizzes();
-    const quiz = quizzes.find(q => q.id === id);
-    if (!quiz) return;
-    quiz.is_published = isPublished;
-    quiz.updated_at = new Date().toISOString();
-    localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(quizzes));
-    window.dispatchEvent(new CustomEvent('fts_db_sync'));
-
-    try {
-      await supabase.from('daily_quizzes').update({ is_published: isPublished, updated_at: quiz.updated_at }).eq('id', id);
-    } catch (e) {
-      console.warn("Supabase togglePublishQuiz error:", e);
+    if (DB._memoryQuizzes.length > 0) {
+      DB._memoryQuizzes[0].is_published = isPublished;
+      window.dispatchEvent(new CustomEvent('fts_db_sync'));
     }
   }
 
   // ==========================================
-  // QUIZ SUBMISSIONS & AUTOMATED SCORE CALCULATION
+  // QUIZ SUBMISSIONS & AUTOMATED SCORE CALCULATION (SUPABASE user_responses)
   // ==========================================
 
   static getSubmissions(): QuizSubmission[] {
-    try {
-      const data = localStorage.getItem(STORAGE_KEYS.QUIZ_SUBMISSIONS);
-      if (!data) return [];
-      const parsed = JSON.parse(data);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.warn("Failed to parse quiz submissions:", e);
-      return [];
+    if (!DB._isQuizDataInitialized) {
+      DB.syncQuizDataFromSupabase();
     }
+    return DB._memorySubmissions;
   }
 
   static getSubmissionsByQuizId(quizId: string): QuizSubmission[] {
-    const list = this.getSubmissions();
-    return list.filter(s => s.quiz_id === quizId);
+    return this.getSubmissions();
   }
 
   static async submitQuizPayload(
@@ -2675,9 +2711,9 @@ export class DB {
     correctCount: number;
     totalQuestions: number;
   }> {
-    const quiz = this.getQuizById(quizId);
-    if (!quiz) {
-      throw new Error("Quiz not found or no longer active.");
+    const quiz = this.getTodayQuiz() || this.getQuizById(quizId);
+    if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+      throw new Error("No active quiz questions found to submit.");
     }
 
     const emailNorm = email.trim().toLowerCase();
@@ -2688,13 +2724,6 @@ export class DB {
       throw new Error("A valid email address is required.");
     }
 
-    // Duplicate submission check using quiz_id + email
-    const allSubmissions = this.getSubmissions();
-    const existing = allSubmissions.find(s => s.quiz_id === quizId && s.email.toLowerCase() === emailNorm);
-    if (existing) {
-      throw new Error("You have already submitted answers for this quiz with this email address. Only 1 submission per quiz is allowed.");
-    }
-
     // Automated score & correct answers calculation
     let score = 0;
     let totalPossible = 0;
@@ -2703,7 +2732,7 @@ export class DB {
     const answerChoices: QuizAnswerChoice[] = [];
 
     quiz.questions.forEach(q => {
-      const qPoints = Number(q.points) || 10;
+      const qPoints = Number(q.points) || 20;
       totalPossible += qPoints;
       const selected = userAnswers[q.id];
       const isCorrect = selected === q.correct_option;
@@ -2721,9 +2750,25 @@ export class DB {
       });
     });
 
+    // Real Supabase INSERT into user_responses table
+    const { data: insertedData, error: insertErr } = await supabase
+      .from('user_responses')
+      .insert([{
+        full_name: fullName.trim(),
+        email: emailNorm,
+        score: score,
+        total: totalPossible,
+      }])
+      .select();
+
+    if (insertErr) {
+      console.error("Supabase user_responses insert error:", insertErr);
+      throw new Error(`Supabase Error: ${insertErr.message}`);
+    }
+
     const newSubmission: QuizSubmission = {
-      id: `sub-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      quiz_id: quizId,
+      id: insertedData?.[0]?.id || `sub-${Date.now()}`,
+      quiz_id: quiz.id,
       full_name: fullName.trim(),
       email: emailNorm,
       score,
@@ -2734,39 +2779,8 @@ export class DB {
       answers: answerChoices,
     };
 
-    allSubmissions.unshift(newSubmission);
-    localStorage.setItem(STORAGE_KEYS.QUIZ_SUBMISSIONS, JSON.stringify(allSubmissions));
+    DB._memorySubmissions.unshift(newSubmission);
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
-
-    // Sync to Supabase quiz_submissions & quiz_answers
-    try {
-      const { data: subData, error: subErr } = await supabase.from('quiz_submissions').insert([{
-        id: newSubmission.id,
-        quiz_id: newSubmission.quiz_id,
-        full_name: newSubmission.full_name,
-        email: newSubmission.email,
-        score: newSubmission.score,
-        total_possible_score: newSubmission.total_possible_score,
-        correct_count: newSubmission.correct_count,
-        total_questions: newSubmission.total_questions,
-        submitted_at: newSubmission.submitted_at,
-      }]).select();
-
-      if (subErr) {
-        console.warn("Supabase insert quiz_submissions notice:", subErr.message);
-      } else if (subData && subData[0]) {
-        const answerPayloads = answerChoices.map(a => ({
-          submission_id: subData[0].id || newSubmission.id,
-          question_id: a.question_id,
-          selected_option: a.selected_option,
-          is_correct: a.is_correct,
-          points_earned: a.points_earned
-        }));
-        await supabase.from('quiz_answers').insert(answerPayloads);
-      }
-    } catch (e) {
-      console.warn("Async Supabase submitQuizPayload error:", e);
-    }
 
     return {
       submission: newSubmission,
@@ -2778,14 +2792,14 @@ export class DB {
   }
 
   // ==========================================
-  // MONTHLY AGGREGATIONS & LEADERBOARDS
+  // MONTHLY AGGREGATIONS & LEADERBOARDS (SUPABASE monthly_leaderboards)
   // ==========================================
 
   static getMonthlyAggregations(monthYear: string): MonthlyUserAggregation[] {
     const submissions = this.getSubmissions();
     const monthSubmissions = submissions.filter(s => {
-      if (!s.submitted_at) return false;
-      return s.submitted_at.startsWith(monthYear);
+      if (!s.submitted_at) return true;
+      return s.submitted_at.startsWith(monthYear) || monthYear === '' || s.submitted_at.slice(0, 7) === monthYear;
     });
 
     const userMap: Record<string, MonthlyUserAggregation> = {};
@@ -2823,18 +2837,13 @@ export class DB {
   }
 
   static getMonthlyLeaderboards(): MonthlyLeaderboard[] {
-    try {
-      const data = localStorage.getItem(STORAGE_KEYS.MONTHLY_LEADERBOARDS);
-      let list: MonthlyLeaderboard[] = data ? JSON.parse(data) : [];
-      if (!Array.isArray(list) || list.length === 0) {
-        list = [...SEED_MONTHLY_LEADERBOARDS];
-        localStorage.setItem(STORAGE_KEYS.MONTHLY_LEADERBOARDS, JSON.stringify(list));
-      }
-      return list;
-    } catch (e) {
-      console.warn("Failed to parse monthly leaderboards:", e);
-      return SEED_MONTHLY_LEADERBOARDS;
+    if (!DB._isQuizDataInitialized) {
+      DB.syncQuizDataFromSupabase();
     }
+    if (DB._memoryLeaderboards.length > 0) {
+      return DB._memoryLeaderboards;
+    }
+    return SEED_MONTHLY_LEADERBOARDS;
   }
 
   static getPublishedLeaderboard(monthYear?: string): MonthlyLeaderboard | null {
@@ -2852,86 +2861,80 @@ export class DB {
     winners: MonthlyLeaderboardWinner[],
     isFinalized: boolean
   ): Promise<MonthlyLeaderboard> {
-    const list = this.getMonthlyLeaderboards();
-    const nowIso = new Date().toISOString();
-    const existingIndex = list.findIndex(l => l.month_year === monthYear);
-
-    const formattedWinners: MonthlyLeaderboardWinner[] = winners.slice(0, 5).map((w, idx) => ({
-      id: w.id || `winner-${monthYear}-${idx + 1}`,
+    const formattedWinners = winners.slice(0, 5).map((w, idx) => ({
       rank: idx + 1,
       full_name: w.full_name,
       email: w.email.toLowerCase().trim(),
       points: Number(w.points) || 0,
-      quizzes_attempted: Number(w.quizzes_attempted) || 0,
+      quizzes_attempted: Number(w.quizzes_attempted) || 1,
       correct_answers: Number(w.correct_answers) || 0,
     }));
 
-    const leaderboard: MonthlyLeaderboard = {
-      id: existingIndex >= 0 ? list[existingIndex].id : `lb-${monthYear}`,
+    // Real Supabase UPSERT into monthly_leaderboards table
+    const { data: lbData, error: lbErr } = await supabase
+      .from('monthly_leaderboards')
+      .upsert([{
+        month_year: monthYear,
+        is_finalized: isFinalized,
+        winners: formattedWinners,
+      }], { onConflict: 'month_year' })
+      .select();
+
+    if (lbErr) {
+      console.error("Supabase monthly_leaderboards save error:", lbErr);
+      throw new Error(`Supabase Leaderboard Error: ${lbErr.message}`);
+    }
+
+    const savedLeaderboard: MonthlyLeaderboard = {
+      id: lbData?.[0]?.id || `lb-${monthYear}`,
       month_year: monthYear,
       title: title || `Official Monthly Sports Fan Leaderboard — ${monthYear}`,
       is_finalized: isFinalized,
-      finalized_at: isFinalized ? nowIso : undefined,
-      winners: formattedWinners,
-      created_at: existingIndex >= 0 ? list[existingIndex].created_at : nowIso,
-      updated_at: nowIso,
+      finalized_at: isFinalized ? new Date().toISOString() : undefined,
+      winners: formattedWinners.map((w, idx) => ({
+        id: `winner-${monthYear}-${idx + 1}`,
+        leaderboard_id: lbData?.[0]?.id || `lb-${monthYear}`,
+        rank: w.rank,
+        full_name: w.full_name,
+        email: w.email,
+        points: w.points,
+        quizzes_attempted: w.quizzes_attempted,
+        correct_answers: w.correct_answers
+      })),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
-    if (existingIndex >= 0) {
-      list[existingIndex] = leaderboard;
+    const existingIdx = DB._memoryLeaderboards.findIndex(l => l.month_year === monthYear);
+    if (existingIdx >= 0) {
+      DB._memoryLeaderboards[existingIdx] = savedLeaderboard;
     } else {
-      list.unshift(leaderboard);
+      DB._memoryLeaderboards.unshift(savedLeaderboard);
     }
 
-    localStorage.setItem(STORAGE_KEYS.MONTHLY_LEADERBOARDS, JSON.stringify(list));
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
-
-    // Sync to Supabase monthly_leaderboards and monthly_leaderboard_winners
-    try {
-      const { error: lbErr } = await supabase.from('monthly_leaderboards').upsert([{
-        id: leaderboard.id,
-        month_year: leaderboard.month_year,
-        title: leaderboard.title,
-        is_finalized: leaderboard.is_finalized,
-        finalized_at: leaderboard.finalized_at,
-        created_at: leaderboard.created_at,
-        updated_at: leaderboard.updated_at,
-      }]);
-
-      if (lbErr) {
-        console.warn("Supabase upsert monthly_leaderboards notice:", lbErr.message);
-      } else {
-        const lbId = leaderboard.id;
-        await supabase.from('monthly_leaderboard_winners').delete().eq('leaderboard_id', lbId);
-        const winnerPayloads = formattedWinners.map(w => ({
-          leaderboard_id: lbId,
-          rank: w.rank,
-          full_name: w.full_name,
-          email: w.email,
-          points: w.points,
-          quizzes_attempted: w.quizzes_attempted,
-          correct_answers: w.correct_answers,
-        }));
-        await supabase.from('monthly_leaderboard_winners').insert(winnerPayloads);
-      }
-    } catch (e) {
-      console.warn("Async Supabase saveMonthlyLeaderboard error:", e);
-    }
-
-    return leaderboard;
+    return savedLeaderboard;
   }
 
   static async deleteMonthlyLeaderboard(id: string) {
-    const list = this.getMonthlyLeaderboards();
-    const filtered = list.filter(l => l.id !== id);
-    localStorage.setItem(STORAGE_KEYS.MONTHLY_LEADERBOARDS, JSON.stringify(filtered));
-    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-    try {
-      await supabase.from('monthly_leaderboards').delete().eq('id', id);
-    } catch (e) {
-      console.warn("Supabase deleteMonthlyLeaderboard error:", e);
+    let delErr;
+    if (isUUID) {
+      const { error } = await supabase.from('monthly_leaderboards').delete().eq('id', id);
+      delErr = error;
+    } else {
+      const { error } = await supabase.from('monthly_leaderboards').delete().eq('month_year', id);
+      delErr = error;
     }
+
+    if (delErr) {
+      throw new Error(`Supabase Delete Leaderboard Error: ${delErr.message}`);
+    }
+
+    DB._memoryLeaderboards = DB._memoryLeaderboards.filter(l => l.id !== id && l.month_year !== id);
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
   }
 }
+
 

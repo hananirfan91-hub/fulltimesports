@@ -174,21 +174,31 @@ export default function AdminQuizLeaderboard() {
       }
     }
 
-    await DB.saveQuiz({
-      ...editingQuiz,
-      title: editingQuiz.title,
-      questions: quizQuestions
-    });
+    try {
+      await DB.saveQuiz({
+        ...editingQuiz,
+        title: editingQuiz.title,
+        questions: quizQuestions
+      });
 
-    setIsQuizModalOpen(false);
-    setEditingQuiz(null);
-    refreshAllData();
+      setIsQuizModalOpen(false);
+      setEditingQuiz(null);
+      await DB.syncQuizDataFromSupabase();
+      refreshAllData();
+    } catch (err: any) {
+      alert(err?.message || "Failed to save quiz to Supabase.");
+    }
   };
 
   const handleDeleteQuiz = async (id: string) => {
     if (confirm("Delete this quiz completely?")) {
-      await DB.deleteQuiz(id);
-      refreshAllData();
+      try {
+        await DB.deleteQuiz(id);
+        await DB.syncQuizDataFromSupabase();
+        refreshAllData();
+      } catch (err: any) {
+        alert(err?.message || "Failed to delete quiz in Supabase.");
+      }
     }
   };
 
@@ -256,12 +266,17 @@ export default function AdminQuizLeaderboard() {
     }
 
     setSaveSuccessMsg('');
-    await DB.saveMonthlyLeaderboard(selectedMonthYear, lbTitle, selectedWinners, finalize);
-    setIsFinalized(finalize);
-    setSaveSuccessMsg(finalize ? "🎉 Monthly Leaderboard Finalized and Published to Live Site!" : "Saved draft leaderboard.");
-    refreshAllData();
+    try {
+      await DB.saveMonthlyLeaderboard(selectedMonthYear, lbTitle, selectedWinners, finalize);
+      setIsFinalized(finalize);
+      setSaveSuccessMsg(finalize ? "🎉 Monthly Leaderboard Finalized and Published to Supabase & Live Site!" : "Saved draft leaderboard to Supabase.");
+      await DB.syncQuizDataFromSupabase();
+      refreshAllData();
 
-    setTimeout(() => setSaveSuccessMsg(''), 4000);
+      setTimeout(() => setSaveSuccessMsg(''), 4000);
+    } catch (err: any) {
+      alert(err?.message || "Failed to save leaderboard to Supabase.");
+    }
   };
 
   // Filtered submissions

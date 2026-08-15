@@ -16,17 +16,22 @@ export default function LeaderboardModal({ isOpen, onClose, onOpenQuiz }: Leader
 
   useEffect(() => {
     if (isOpen) {
-      const allLb = DB.getMonthlyLeaderboards();
-      setLeaderboards(allLb);
+      const loadLeaderboards = async () => {
+        await DB.syncQuizDataFromSupabase();
+        const allLb = DB.getMonthlyLeaderboards();
+        setLeaderboards(allLb);
 
-      const published = DB.getPublishedLeaderboard();
-      if (published) {
-        setSelectedMonthYear(published.month_year);
-        setCurrentLeaderboard(published);
-      } else if (allLb.length > 0) {
-        setSelectedMonthYear(allLb[0].month_year);
-        setCurrentLeaderboard(allLb[0]);
-      }
+        const published = DB.getPublishedLeaderboard();
+        if (published) {
+          setSelectedMonthYear(published.month_year);
+          setCurrentLeaderboard(published);
+        } else if (allLb.length > 0) {
+          setSelectedMonthYear(allLb[0].month_year);
+          setCurrentLeaderboard(allLb[0]);
+        }
+      };
+
+      loadLeaderboards();
     }
   }, [isOpen]);
 
