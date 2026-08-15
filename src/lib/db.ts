@@ -829,6 +829,7 @@ export class DB {
   }
 
   private static lastSyncTimestamp = 0;
+  private static lastQuizSyncTimestamp = 0;
   private static CACHE_TTL_MS = 5 * 60 * 1000; // 5-minute cache window to eliminate unnecessary Supabase egress
 
   static parseRemotePost(p: any): Post {
@@ -885,8 +886,11 @@ export class DB {
   }
 
   static async syncFromSupabase(force = false) {
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden' && !force) {
+      return;
+    }
     const now = Date.now();
-    // Cache check: Skip remote queries if data was synced within 5-10 minutes unless explicitly forced
+    // Cache check: Skip remote queries if data was synced within 5 minutes unless explicitly forced
     if (!force && now - DB.lastSyncTimestamp < DB.CACHE_TTL_MS) {
       return;
     }
@@ -2615,7 +2619,16 @@ export class DB {
     }
   }
 
-  static async syncQuizDataFromSupabase() {
+  static async syncQuizDataFromSupabase(force = false) {
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden' && !force) {
+      return;
+    }
+    const now = Date.now();
+    if (!force && DB._isQuizDataInitialized && now - DB.lastQuizSyncTimestamp < DB.CACHE_TTL_MS) {
+      return;
+    }
+    DB.lastQuizSyncTimestamp = now;
+
     try {
       // 1. Fetch questions directly from Supabase (try daily_quizzes or quiz_questions)
       const { data: dqData } = await supabase.from('daily_quizzes').select('*').order('created_at', { ascending: false });
@@ -2972,8 +2985,9 @@ export class DB {
     try {
       const { data: dbLiveQuizSubs } = await supabase
         .from('quiz_submissions')
-        .select('*')
-        .eq('email', emailNorm);
+        .select('id, email, score, total_possible_score, correct_count, total_questions, submitted_at, created_at, full_name')
+        .eq('email', emailNorm)
+        .limit(5);
 
       if (dbLiveQuizSubs && dbLiveQuizSubs.length > 0) {
         const matched = dbLiveQuizSubs.find((r: any) => {
@@ -2991,8 +3005,9 @@ export class DB {
 
       const { data: dbLiveUserResp } = await supabase
         .from('user_responses')
-        .select('*')
-        .eq('email', emailNorm);
+        .select('id, email, score, total, correct_count, total_questions, submitted_at, created_at, name')
+        .eq('email', emailNorm)
+        .limit(5);
 
       if (dbLiveUserResp && dbLiveUserResp.length > 0) {
         const matched2 = dbLiveUserResp.find((r: any) => {
