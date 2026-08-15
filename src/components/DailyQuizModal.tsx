@@ -24,22 +24,38 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
     totalQuestions: number;
   } | null>(null);
 
+  const [alreadySubmittedInfo, setAlreadySubmittedInfo] = useState<any>(null);
+
   useEffect(() => {
     if (isOpen) {
       // Pre-fill email if stored in local storage
+      let initialEmail = '';
       try {
         const savedEmail = localStorage.getItem('tsr_subscriber_email');
-        if (savedEmail) setEmail(savedEmail);
+        if (savedEmail) {
+          setEmail(savedEmail);
+          initialEmail = savedEmail;
+        }
       } catch (e) {}
 
       const loadQuiz = async () => {
         await DB.syncQuizDataFromSupabase();
+        let q: DailyQuiz | undefined;
         if (quizIdOverride) {
-          const q = DB.getQuizById(quizIdOverride);
-          setActiveQuiz(q);
+          q = DB.getQuizById(quizIdOverride);
+          setActiveQuiz(q || null);
         } else {
-          const today = DB.getTodayQuiz();
-          setActiveQuiz(today);
+          q = DB.getTodayQuiz();
+          setActiveQuiz(q || null);
+        }
+
+        if (initialEmail && q) {
+          const check = DB.hasUserSubmittedToday(initialEmail, q.quiz_date);
+          if (check.hasSubmitted) {
+            setAlreadySubmittedInfo(check.submission);
+          } else {
+            setAlreadySubmittedInfo(null);
+          }
         }
       };
 
@@ -50,6 +66,21 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
       setUserAnswers({});
     }
   }, [isOpen, quizIdOverride]);
+
+  // Check whenever user updates their email in the input field
+  const handleEmailChange = (newEmail: string) => {
+    setEmail(newEmail);
+    if (activeQuiz && newEmail.includes('@')) {
+      const check = DB.hasUserSubmittedToday(newEmail, activeQuiz.quiz_date);
+      if (check.hasSubmitted) {
+        setAlreadySubmittedInfo(check.submission);
+      } else {
+        setAlreadySubmittedInfo(null);
+      }
+    } else {
+      setAlreadySubmittedInfo(null);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -195,13 +226,71 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
                 </button>
               </div>
             </div>
+          ) : alreadySubmittedInfo ? (
+            /* Already Submitted for Today Screen */
+            <div className="text-center py-8 space-y-6 animate-fade-in" id="quiz-already-submitted-view">
+              <div className="inline-flex p-4 bg-amber-500/10 border border-amber-500/40 rounded-full text-amber-400">
+                <CheckCircle2 className="w-12 h-12" />
+              </div>
+              <div className="space-y-2">
+                <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                  Daily Limit Reached • 1 Quiz Per Day
+                </span>
+                <h3 className="font-display font-black text-2xl text-white uppercase tracking-tight">
+                  You Have Already Submitted Today!
+                </h3>
+                <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                  You ({email}) have already participated in today's daily quiz challenge. Each user is allowed <strong className="text-emerald-400">1 submission per day</strong>. Come back tomorrow for the next sports quiz challenge!
+                </p>
+              </div>
+
+              {/* Previous Score Display */}
+              <div className="grid grid-cols-2 gap-4 bg-[#01140f] p-6 rounded-2xl border border-emerald-900 max-w-md mx-auto">
+                <div className="text-center space-y-1">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block">Your Recorded Score</span>
+                  <div className="text-3xl font-black font-display text-[#22c55e]">
+                    {alreadySubmittedInfo.score} <span className="text-xs text-slate-400 font-normal">/ {alreadySubmittedInfo.total_possible_score || 100}</span>
+                  </div>
+                </div>
+                <div className="text-center space-y-1 border-l border-emerald-950">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block">Status</span>
+                  <div className="text-base font-bold font-mono text-emerald-400 pt-2">
+                    ✓ Recorded
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-3 pt-4">
+                {onNavigateLeaderboard && (
+                  <button 
+                    onClick={() => {
+                      onClose();
+                      onNavigateLeaderboard();
+                    }}
+                    className="w-full sm:w-auto bg-[#22c55e] text-slate-950 font-mono font-bold text-xs py-3 px-6 rounded-xl uppercase tracking-wider hover:bg-[#34d399] transition flex items-center justify-center gap-2"
+                  >
+                    <TrophyIcon className="w-4 h-4" />
+                    <span>View Monthly Leaderboard</span>
+                  </button>
+                )}
+                <button 
+                  onClick={() => {
+                    setEmail('');
+                    setAlreadySubmittedInfo(null);
+                  }}
+                  className="w-full sm:w-auto bg-slate-900 border border-slate-700 text-slate-200 font-mono text-xs py-3 px-6 rounded-xl uppercase tracking-wider hover:bg-slate-800 transition"
+                >
+                  Use Another Email
+                </button>
+              </div>
+            </div>
           ) : (
             /* Quiz Questions Form */
             <form onSubmit={handleSubmit} className="space-y-6" id="quiz-submission-form">
               {/* User Metadata Required Section */}
               <div className="bg-[#01140f] p-4 rounded-xl border border-emerald-950 space-y-3">
                 <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest block">
-                  Step 1: Required Participant Information
+                  Step 1: Required Participant Information (1 Submission Per Day)
                 </span>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
@@ -231,7 +320,7 @@ export default function DailyQuizModal({ isOpen, onClose, onNavigateLeaderboard,
                         type="email" 
                         required
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => handleEmailChange(e.target.value)}
                         placeholder="e.g. ahmed@example.com"
                         className="w-full bg-[#022c22] border border-emerald-900 rounded-lg py-2.5 pl-9 pr-3 text-xs text-slate-100 placeholder-slate-400 font-medium quiz-input focus:outline-none focus:border-[#22c55e]"
                       />

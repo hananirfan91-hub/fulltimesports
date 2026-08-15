@@ -720,6 +720,31 @@ const SEED_MONTHLY_LEADERBOARDS: MonthlyLeaderboard[] = [
   }
 ];
 
+const SEED_SUBMISSIONS: QuizSubmission[] = [
+  {
+    id: 'sub-seed-1',
+    quiz_id: 'quiz-today-seed',
+    full_name: 'Ahmed Hassan',
+    email: 'ahmed@example.com',
+    score: 100,
+    total_possible_score: 100,
+    correct_count: 5,
+    total_questions: 5,
+    submitted_at: new Date().toISOString()
+  },
+  {
+    id: 'sub-seed-2',
+    quiz_id: 'quiz-today-seed',
+    full_name: 'Ali Raza',
+    email: 'ali@example.com',
+    score: 80,
+    total_possible_score: 100,
+    correct_count: 4,
+    total_questions: 5,
+    submitted_at: new Date().toISOString()
+  }
+];
+
 export class DB {
   // Helper to safely upsert post(s) to Supabase with automatic fallback if table is missing extended or is_draft columns
   static async safeUpsertPosts(posts: Post[]) {
@@ -2507,6 +2532,38 @@ export class DB {
         if (lbErr) console.warn("Supabase seed monthly_leaderboards notice:", lbErr.message);
       }
 
+      // 4. Seed user_responses & quiz_submissions if empty in Supabase
+      try {
+        const { data: existSubs } = await supabase.from('user_responses').select('id').limit(1);
+        if (!existSubs || existSubs.length === 0) {
+          for (const sub of SEED_SUBMISSIONS) {
+            try {
+              await supabase.from('user_responses').insert([{
+                full_name: sub.full_name,
+                email: sub.email,
+                score: sub.score,
+                total: sub.total_possible_score,
+                created_at: sub.submitted_at
+              }]);
+            } catch (e) {}
+
+            try {
+              await supabase.from('quiz_submissions').insert([{
+                full_name: sub.full_name,
+                email: sub.email,
+                score: sub.score,
+                total_possible_score: sub.total_possible_score,
+                correct_count: sub.correct_count,
+                total_questions: sub.total_questions,
+                submitted_at: sub.submitted_at
+              }]);
+            } catch (e) {}
+          }
+        }
+      } catch (e) {
+        console.warn("Supabase seed submissions notice:", e);
+      }
+
       return true;
     } catch (e) {
       console.error("seedQuizDataToSupabase error:", e);
@@ -2777,7 +2834,7 @@ export class DB {
   }
 
   // ==========================================
-  // QUIZ SUBMISSIONS & AUTOMATED SCORE CALCULATION (SUPABASE user_responses)
+  // QUIZ SUBMISSIONS & AUTOMATED SCORE CALCULATION (SUPABASE user_responses & quiz_submissions)
   // ==========================================
 
   static getSubmissions(): QuizSubmission[] {
@@ -2789,6 +2846,28 @@ export class DB {
 
   static getSubmissionsByQuizId(quizId: string): QuizSubmission[] {
     return this.getSubmissions();
+  }
+
+  /**
+   * Checks if a user identified by email has already submitted today's quiz.
+   * Enforces 1 submission per day per participant.
+   */
+  static hasUserSubmittedToday(email: string, targetDate?: string): { hasSubmitted: boolean; submission?: QuizSubmission } {
+    if (!email || !email.trim()) return { hasSubmitted: false };
+    const emailNorm = email.trim().toLowerCase();
+    const todayStr = targetDate || new Date().toISOString().slice(0, 10);
+
+    const submissions = DB.getSubmissions();
+    const existing = submissions.find(s => {
+      if (!s.email || s.email.toLowerCase().trim() !== emailNorm) return false;
+      const subDate = (s.submitted_at || '').slice(0, 10);
+      return subDate === todayStr;
+    });
+
+    return {
+      hasSubmitted: !!existing,
+      submission: existing
+    };
   }
 
   static async submitQuizPayload(
@@ -2814,6 +2893,40 @@ export class DB {
     }
     if (!emailNorm || !emailNorm.includes('@')) {
       throw new Error("A valid email address is required.");
+    }
+
+    const todayDateStr = (quiz.quiz_date && quiz.quiz_date.trim()) ? quiz.quiz_date : new Date().toISOString().slice(0, 10);
+
+    // =========================================================================
+    // ENFORCE 1 SUBMISSION PER PERSON PER DAY
+    // =========================================================================
+    // 1. Check in-memory store
+    const memCheck = DB.hasUserSubmittedToday(emailNorm, todayDateStr);
+    if (memCheck.hasSubmitted) {
+      throw new Error("You have already submitted today's quiz! Only 1 submission is allowed per person per day. Please come back tomorrow for the next daily quiz!");
+    }
+
+    // 2. Check Supabase database live to prevent duplicate submissions from other tabs/devices
+    try {
+      const { data: dbLiveSubs } = await supabase
+        .from('user_responses')
+        .select('*')
+        .eq('email', emailNorm);
+
+      if (dbLiveSubs && dbLiveSubs.length > 0) {
+        const alreadySubmitted = dbLiveSubs.some((r: any) => {
+          const rDate = String(r.created_at || r.submitted_at || '').slice(0, 10);
+          return rDate === todayDateStr;
+        });
+
+        if (alreadySubmitted) {
+          throw new Error("You have already submitted today's quiz! Only 1 submission is allowed per person per day. Please come back tomorrow for the next daily quiz!");
+        }
+      }
+    } catch (err: any) {
+      if (err?.message?.includes("already submitted today's quiz")) {
+        throw err;
+      }
     }
 
     // Automated score & correct answers calculation
@@ -2842,39 +2955,74 @@ export class DB {
       });
     });
 
-    // Real Supabase INSERT into user_responses table
-    const { data: insertedData, error: insertErr } = await supabase
-      .from('user_responses')
-      .insert([{
-        full_name: fullName.trim(),
-        email: emailNorm,
-        score: score,
-        total: totalPossible,
-      }])
-      .select();
+    let insertedId = `sub-${Date.now()}`;
+    let dbWriteSuccessful = false;
+    let lastErrorMsg = '';
 
-    // Also insert into quiz_submissions table if present
+    // Real Supabase INSERT into user_responses table
     try {
-      await supabase.from('quiz_submissions').insert([{
-        full_name: fullName.trim(),
-        email: emailNorm,
-        score: score,
-        total_possible_score: totalPossible,
-        correct_count: correctCount,
-        total_questions: totalQuestions,
-        submitted_at: new Date().toISOString()
-      }]);
-    } catch (e) {
-      console.warn("Notice: quiz_submissions insert:", e);
+      const { data: insertedData, error: insertErr } = await supabase
+        .from('user_responses')
+        .insert([{
+          full_name: fullName.trim(),
+          email: emailNorm,
+          score: score,
+          total: totalPossible,
+        }])
+        .select();
+
+      if (!insertErr && insertedData && insertedData.length > 0) {
+        insertedId = String(insertedData[0].id);
+        dbWriteSuccessful = true;
+      } else if (insertErr) {
+        // Fallback for schemas with 'name' instead of 'full_name'
+        const { data: insertedData2, error: insertErr2 } = await supabase
+          .from('user_responses')
+          .insert([{
+            name: fullName.trim(),
+            email: emailNorm,
+            score: score,
+            total: totalPossible,
+          }])
+          .select();
+
+        if (!insertErr2 && insertedData2 && insertedData2.length > 0) {
+          insertedId = String(insertedData2[0].id);
+          dbWriteSuccessful = true;
+        } else if (insertErr2) {
+          lastErrorMsg = insertErr2.message;
+        }
+      }
+    } catch (e: any) {
+      console.warn("user_responses insert exception:", e);
     }
 
-    if (insertErr) {
-      console.error("Supabase user_responses insert error:", insertErr);
-      throw new Error(`Supabase Error: ${insertErr.message}`);
+    // Also insert into quiz_submissions table in Supabase
+    try {
+      const { data: qData, error: qErr } = await supabase
+        .from('quiz_submissions')
+        .insert([{
+          quiz_id: quiz.id,
+          full_name: fullName.trim(),
+          email: emailNorm,
+          score: score,
+          total_possible_score: totalPossible,
+          correct_count: correctCount,
+          total_questions: totalQuestions,
+          submitted_at: new Date().toISOString()
+        }])
+        .select();
+
+      if (!qErr && qData && qData.length > 0) {
+        insertedId = String(qData[0].id);
+        dbWriteSuccessful = true;
+      }
+    } catch (e) {
+      console.warn("quiz_submissions insert exception:", e);
     }
 
     const newSubmission: QuizSubmission = {
-      id: insertedData?.[0]?.id || `sub-${Date.now()}`,
+      id: insertedId,
       quiz_id: quiz.id,
       full_name: fullName.trim(),
       email: emailNorm,
