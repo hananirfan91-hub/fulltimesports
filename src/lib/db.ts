@@ -2457,7 +2457,8 @@ export class DB {
 
   static async syncQuizDataFromSupabase() {
     try {
-      // 1. Fetch questions directly from Supabase quiz_questions table
+      // 1. Fetch questions directly from Supabase (try daily_quizzes or quiz_questions)
+      const { data: dqData } = await supabase.from('daily_quizzes').select('*').order('created_at', { ascending: false });
       const { data: qData, error: qErr } = await supabase
         .from('quiz_questions')
         .select('*')
@@ -2467,39 +2468,48 @@ export class DB {
         console.error("Supabase SELECT quiz_questions error:", qErr.message);
       }
 
-      const questionsList: QuizQuestion[] = (qData && qData.length > 0)
-        ? qData.map((row: any, idx: number) => {
-            const [optA, optB, optC, optD] = DB.parseQuestionOptions(row.options);
-            return {
-              id: String(row.id),
-              question_text: String(row.question_text || ''),
-              option_a: optA || String(row.option_a || ''),
-              option_b: optB || String(row.option_b || ''),
-              option_c: optC || String(row.option_c || ''),
-              option_d: optD || String(row.option_d || ''),
-              correct_option: DB.parseCorrectOption(row.correct_answer ?? row.correct_option),
-              points: Number(row.points) || 20,
-              order_index: idx
-            };
-          })
-        : (SEED_QUIZZES[0]?.questions || []);
+      let questionsList: QuizQuestion[] = [];
+      if (qData && qData.length > 0) {
+        questionsList = qData.map((row: any, idx: number) => {
+          const [optA, optB, optC, optD] = DB.parseQuestionOptions(row.options);
+          return {
+            id: String(row.id),
+            question_text: String(row.question_text || ''),
+            option_a: String(row.option_a || optA || ''),
+            option_b: String(row.option_b || optB || ''),
+            option_c: String(row.option_c || optC || ''),
+            option_d: String(row.option_d || optD || ''),
+            correct_option: DB.parseCorrectOption(row.correct_option ?? row.correct_answer),
+            points: Number(row.points) || 20,
+            order_index: Number(row.order_index) || idx
+          };
+        });
+      } else if (SEED_QUIZZES[0]?.questions) {
+        questionsList = [...SEED_QUIZZES[0].questions];
+      }
 
+      const activeDailyQuiz = dqData && dqData.length > 0 ? dqData[0] : null;
       const todayStr = new Date().toISOString().slice(0, 10);
       DB._memoryQuizzes = [
         {
-          id: 'quiz-daily-active',
-          quiz_date: todayStr,
-          title: 'Daily Sports Knowledge Challenge',
-          description: 'Answer all questions to earn points towards the monthly Top 5 fan leaderboard!',
-          is_published: true,
+          id: activeDailyQuiz?.id || 'quiz-daily-active',
+          quiz_date: activeDailyQuiz?.quiz_date || todayStr,
+          title: activeDailyQuiz?.title || 'Daily Sports Knowledge Challenge',
+          description: activeDailyQuiz?.description || 'Answer all questions to earn points towards the monthly Top 5 fan leaderboard!',
+          is_published: activeDailyQuiz?.is_published ?? true,
           questions: questionsList,
-          created_at: new Date().toISOString()
+          created_at: activeDailyQuiz?.created_at || new Date().toISOString()
         }
       ];
 
-      // 2. Fetch user responses directly from Supabase user_responses table
+      // 2. Fetch user responses / submissions from Supabase
       const { data: subData, error: subErr } = await supabase
         .from('user_responses')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      const { data: quizSubs } = await supabase
+        .from('quiz_submissions')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -2507,17 +2517,18 @@ export class DB {
         console.error("Supabase SELECT user_responses error:", subErr.message);
       }
 
-      if (subData) {
-        DB._memorySubmissions = subData.map((s: any) => ({
+      const mergedSubs = subData || quizSubs || [];
+      if (mergedSubs.length > 0) {
+        DB._memorySubmissions = mergedSubs.map((s: any) => ({
           id: String(s.id),
           quiz_id: String(s.quiz_id || 'quiz-daily-active'),
-          full_name: String(s.full_name || ''),
+          full_name: String(s.full_name || s.name || ''),
           email: String(s.email || '').toLowerCase().trim(),
           score: Number(s.score) || 0,
-          total_possible_score: Number(s.total) || 100,
-          correct_count: Math.round(((Number(s.score) || 0) / (Number(s.total) || 100)) * (questionsList.length || 5)),
-          total_questions: questionsList.length || 5,
-          submitted_at: String(s.created_at || new Date().toISOString())
+          total_possible_score: Number(s.total || s.total_possible_score) || 100,
+          correct_count: Number(s.correct_count) || Math.round(((Number(s.score) || 0) / (Number(s.total || s.total_possible_score) || 100)) * (questionsList.length || 5)),
+          total_questions: Number(s.total_questions) || questionsList.length || 5,
+          submitted_at: String(s.created_at || s.submitted_at || new Date().toISOString())
         }));
       }
 
@@ -2600,6 +2611,19 @@ export class DB {
     const questions = quizData.questions || [];
     if (questions.length === 0) {
       throw new Error("At least 1 question is required.");
+    }
+
+    // Upsert into daily_quizzes table if it exists
+    try {
+      await supabase.from('daily_quizzes').upsert([{
+        title: quizData.title,
+        description: quizData.description || 'Daily Sports Knowledge Challenge',
+        quiz_date: new Date().toISOString().slice(0, 10),
+        is_published: true,
+        updated_at: new Date().toISOString()
+      }], { onConflict: 'title' });
+    } catch (e) {
+      console.warn("Notice: daily_quizzes upsert:", e);
     }
 
     // Insert / update each question in Supabase quiz_questions table
@@ -2760,6 +2784,21 @@ export class DB {
         total: totalPossible,
       }])
       .select();
+
+    // Also insert into quiz_submissions table if present
+    try {
+      await supabase.from('quiz_submissions').insert([{
+        full_name: fullName.trim(),
+        email: emailNorm,
+        score: score,
+        total_possible_score: totalPossible,
+        correct_count: correctCount,
+        total_questions: totalQuestions,
+        submitted_at: new Date().toISOString()
+      }]);
+    } catch (e) {
+      console.warn("Notice: quiz_submissions insert:", e);
+    }
 
     if (insertErr) {
       console.error("Supabase user_responses insert error:", insertErr);
