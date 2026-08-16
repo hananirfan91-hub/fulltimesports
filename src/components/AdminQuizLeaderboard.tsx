@@ -129,9 +129,18 @@ export default function AdminQuizLeaderboard() {
   // ================= QUIZ HANDLERS =================
   const handleOpenNewQuiz = () => {
     const todayStr = new Date().toISOString().slice(0, 10);
+    const existingToday = quizzes.find(q => q.quiz_date === todayStr);
+
+    let defaultDate = todayStr;
+    if (existingToday) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      defaultDate = tomorrow.toISOString().slice(0, 10);
+    }
+
     setEditingQuiz({
       title: 'Daily Sports Knowledge Challenge',
-      quiz_date: todayStr,
+      quiz_date: defaultDate,
       description: 'Test your sports knowledge on cricket, football, F1, and basketball to earn points on the monthly leaderboard!',
       is_published: true,
     });
@@ -146,14 +155,86 @@ export default function AdminQuizLeaderboard() {
         correct_option: 'A',
         points: 20,
         order_index: 0
+      },
+      {
+        id: `q-2-${Date.now()}`,
+        question_text: '',
+        option_a: '',
+        option_b: '',
+        option_c: '',
+        option_d: '',
+        correct_option: 'A',
+        points: 20,
+        order_index: 1
+      },
+      {
+        id: `q-3-${Date.now()}`,
+        question_text: '',
+        option_a: '',
+        option_b: '',
+        option_c: '',
+        option_d: '',
+        correct_option: 'A',
+        points: 20,
+        order_index: 2
+      },
+      {
+        id: `q-4-${Date.now()}`,
+        question_text: '',
+        option_a: '',
+        option_b: '',
+        option_c: '',
+        option_d: '',
+        correct_option: 'A',
+        points: 20,
+        order_index: 3
+      },
+      {
+        id: `q-5-${Date.now()}`,
+        question_text: '',
+        option_a: '',
+        option_b: '',
+        option_c: '',
+        option_d: '',
+        correct_option: 'A',
+        points: 20,
+        order_index: 4
       }
     ]);
     setIsQuizModalOpen(true);
   };
 
   const handleOpenEditQuiz = (q: DailyQuiz) => {
-    setEditingQuiz(q);
-    setQuizQuestions(q.questions || []);
+    setEditingQuiz({ ...q });
+    if (q.questions && q.questions.length > 0) {
+      setQuizQuestions(q.questions.map((ques, idx) => ({
+        id: ques.id || `q-${idx + 1}-${Date.now()}`,
+        quiz_id: q.id,
+        question_text: ques.question_text || '',
+        option_a: ques.option_a || '',
+        option_b: ques.option_b || '',
+        option_c: ques.option_c || '',
+        option_d: ques.option_d || '',
+        correct_option: ques.correct_option || 'A',
+        points: ques.points || 20,
+        order_index: ques.order_index ?? idx
+      })));
+    } else {
+      setQuizQuestions([
+        {
+          id: `q-1-${Date.now()}`,
+          quiz_id: q.id,
+          question_text: '',
+          option_a: '',
+          option_b: '',
+          option_c: '',
+          option_d: '',
+          correct_option: 'A',
+          points: 20,
+          order_index: 0
+        }
+      ]);
+    }
     setIsQuizModalOpen(true);
   };
 
@@ -213,7 +294,6 @@ export default function AdminQuizLeaderboard() {
 
       setIsQuizModalOpen(false);
       setEditingQuiz(null);
-      await DB.syncQuizDataFromSupabase();
       refreshAllData();
     } catch (err: any) {
       alert(err?.message || "Failed to save quiz to Supabase.");
@@ -221,10 +301,9 @@ export default function AdminQuizLeaderboard() {
   };
 
   const handleDeleteQuiz = async (id: string) => {
-    if (confirm("Delete this quiz completely?")) {
+    if (confirm("Are you sure you want to delete this daily quiz and all its questions?")) {
       try {
         await DB.deleteQuiz(id);
-        await DB.syncQuizDataFromSupabase();
         refreshAllData();
       } catch (err: any) {
         alert(err?.message || "Failed to delete quiz in Supabase.");

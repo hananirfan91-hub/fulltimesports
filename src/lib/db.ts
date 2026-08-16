@@ -2487,31 +2487,36 @@ export class DB {
   static async seedQuizDataToSupabase(): Promise<boolean> {
     try {
       const todayStr = new Date().toISOString().slice(0, 10);
+      let targetQuizId = 'quiz-today-seed';
       
       // 1. Seed daily_quizzes (clean select-then-update or insert to avoid onConflict errors)
       try {
-        const { data: existingDq } = await supabase.from('daily_quizzes').select('id').limit(1);
+        const { data: existingDq } = await supabase.from('daily_quizzes').select('id, quiz_date').limit(1);
         if (existingDq && existingDq.length > 0) {
+          targetQuizId = String(existingDq[0].id);
           await supabase.from('daily_quizzes').update({
             title: 'Daily Sports Knowledge Challenge',
             description: 'Answer all questions to earn points towards the monthly Top 5 fan leaderboard!',
-            quiz_date: todayStr,
+            quiz_date: existingDq[0].quiz_date || todayStr,
             is_published: true,
             updated_at: new Date().toISOString()
           }).eq('id', existingDq[0].id);
         } else {
-          await supabase.from('daily_quizzes').insert([{
+          const { data: insDq } = await supabase.from('daily_quizzes').insert([{
             title: 'Daily Sports Knowledge Challenge',
             description: 'Answer all questions to earn points towards the monthly Top 5 fan leaderboard!',
             quiz_date: todayStr,
             is_published: true
-          }]);
+          }]).select();
+          if (insDq && insDq.length > 0) {
+            targetQuizId = String(insDq[0].id);
+          }
         }
       } catch (dqErr: any) {
         console.warn("Supabase seed daily_quizzes notice:", dqErr?.message || dqErr);
       }
 
-      // 2. Seed quiz_questions using standard schema columns (question_text, options, correct_answer, explanation)
+      // 2. Seed quiz_questions using standard schema columns and attach quiz_id
       const seedQuestions = SEED_QUIZZES[0]?.questions || [];
       for (let i = 0; i < seedQuestions.length; i++) {
         const q = seedQuestions[i];
@@ -2519,15 +2524,20 @@ export class DB {
         const correctIdx = q.correct_option === 'B' ? 1 : q.correct_option === 'C' ? 2 : q.correct_option === 'D' ? 3 : 0;
         
         try {
-          const { error: qErr } = await supabase.from('quiz_questions').insert([
-            {
-              question_text: q.question_text,
-              options: optionsArray,
-              correct_answer: correctIdx,
-              explanation: q.question_text
-            }
-          ]);
-          if (qErr) console.warn("Supabase seed quiz_questions notice:", qErr.message);
+          const qPayload: any = {
+            question_text: q.question_text,
+            options: optionsArray,
+            correct_answer: correctIdx,
+            explanation: q.question_text
+          };
+          if (targetQuizId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetQuizId)) {
+            qPayload.quiz_id = targetQuizId;
+          }
+          const { error: qErr } = await supabase.from('quiz_questions').insert([qPayload]);
+          if (qErr && qErr.message.includes('quiz_id')) {
+            delete qPayload.quiz_id;
+            await supabase.from('quiz_questions').insert([qPayload]);
+          }
         } catch (e: any) {
           console.warn("Supabase quiz_questions insert exception:", e?.message || e);
         }
@@ -2588,6 +2598,7 @@ export class DB {
 
             try {
               await supabase.from('quiz_submissions').insert([{
+                quiz_id: targetQuizId,
                 full_name: sub.full_name,
                 email: sub.email,
                 score: sub.score,
@@ -2630,15 +2641,21 @@ export class DB {
     DB.lastQuizSyncTimestamp = now;
 
     try {
-      // 1. Fetch questions directly from Supabase (try daily_quizzes or quiz_questions)
-      const { data: dqData } = await supabase.from('daily_quizzes').select('*').order('created_at', { ascending: false });
+      // 1. Fetch daily_quizzes & quiz_questions from Supabase
+      const { data: dqData } = await supabase.from('daily_quizzes').select('*').order('quiz_date', { ascending: false });
       let { data: qData, error: qErr } = await supabase
         .from('quiz_questions')
         .select('*')
         .order('created_at', { ascending: true });
 
       if (qErr) {
-        console.error("Supabase SELECT quiz_questions error:", qErr.message);
+        // Fallback without order clause if created_at does not exist
+        const { data: fallbackQData } = await supabase
+          .from('quiz_questions')
+          .select('*');
+        if (fallbackQData) {
+          qData = fallbackQData;
+        }
       }
 
       // If Supabase is totally empty, automatically seed it
@@ -2650,12 +2667,13 @@ export class DB {
         }
       }
 
-      let questionsList: QuizQuestion[] = [];
+      let allQuestions: QuizQuestion[] = [];
       if (qData && qData.length > 0) {
-        questionsList = qData.map((row: any, idx: number) => {
+        allQuestions = qData.map((row: any, idx: number) => {
           const [optA, optB, optC, optD] = DB.parseQuestionOptions(row.options);
           return {
             id: String(row.id),
+            quiz_id: row.quiz_id ? String(row.quiz_id) : undefined,
             question_text: String(row.question_text || ''),
             option_a: String(row.option_a || optA || ''),
             option_b: String(row.option_b || optB || ''),
@@ -2666,23 +2684,68 @@ export class DB {
             order_index: Number(row.order_index) || idx
           };
         });
-      } else if (SEED_QUIZZES[0]?.questions) {
-        questionsList = [...SEED_QUIZZES[0].questions];
       }
 
-      const activeDailyQuiz = dqData && dqData.length > 0 ? dqData[0] : null;
       const todayStr = new Date().toISOString().slice(0, 10);
-      DB._memoryQuizzes = [
-        {
-          id: activeDailyQuiz?.id || 'quiz-daily-active',
-          quiz_date: activeDailyQuiz?.quiz_date || todayStr,
-          title: activeDailyQuiz?.title || 'Daily Sports Knowledge Challenge',
-          description: activeDailyQuiz?.description || 'Answer all questions to earn points towards the monthly Top 5 fan leaderboard!',
-          is_published: activeDailyQuiz?.is_published ?? true,
-          questions: questionsList,
-          created_at: activeDailyQuiz?.created_at || new Date().toISOString()
-        }
-      ];
+
+      if (dqData && dqData.length > 0) {
+        // Group questions strictly by their respective quiz_id so each day's quiz is separate
+        DB._memoryQuizzes = dqData.map((dq: any) => {
+          const quizId = String(dq.id);
+          const quizDate = String(dq.quiz_date || todayStr);
+
+          // 1. Strict match by quiz_id
+          let questionsForQuiz = allQuestions.filter(q => q.quiz_id === quizId);
+
+          // 2. Check memory cache for this specific quiz to preserve locally saved questions
+          if (questionsForQuiz.length === 0) {
+            const memQuiz = DB._memoryQuizzes.find(mq => mq.id === quizId || mq.quiz_date === quizDate);
+            if (memQuiz && memQuiz.questions && memQuiz.questions.length > 0) {
+              questionsForQuiz = memQuiz.questions;
+            }
+          }
+
+          // 3. For legacy questions (where quiz_id is null/missing in Supabase):
+          // ONLY attach legacy unlinked questions to today's quiz if today's quiz has no questions. NEVER attach to future/other day quizzes!
+          if (questionsForQuiz.length === 0 && quizDate === todayStr && allQuestions.some(q => !q.quiz_id)) {
+            questionsForQuiz = allQuestions.filter(q => !q.quiz_id);
+          }
+
+          // 4. Fallback to seed questions only if this is today's quiz and it's completely empty
+          if (questionsForQuiz.length === 0 && quizDate === todayStr && SEED_QUIZZES[0]?.questions) {
+            questionsForQuiz = [...SEED_QUIZZES[0].questions];
+          }
+
+          return {
+            id: quizId,
+            quiz_date: quizDate,
+            title: String(dq.title || 'Daily Sports Knowledge Challenge'),
+            description: String(dq.description || 'Answer all questions to earn points towards the monthly Top 5 fan leaderboard!'),
+            is_published: dq.is_published ?? true,
+            questions: questionsForQuiz,
+            created_at: String(dq.created_at || new Date().toISOString()),
+            updated_at: dq.updated_at ? String(dq.updated_at) : undefined
+          };
+        });
+      } else {
+        // Fallback single quiz if daily_quizzes table is empty
+        const defaultQuestions = allQuestions.length > 0 ? allQuestions : (SEED_QUIZZES[0]?.questions || []);
+        DB._memoryQuizzes = [
+          {
+            id: 'quiz-daily-active',
+            quiz_date: todayStr,
+            title: 'Daily Sports Knowledge Challenge',
+            description: 'Answer all questions to earn points towards the monthly Top 5 fan leaderboard!',
+            is_published: true,
+            questions: defaultQuestions,
+            created_at: new Date().toISOString()
+          }
+        ];
+      }
+
+      try {
+        localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(DB._memoryQuizzes));
+      } catch (e) {}
 
       // 2. Fetch user responses / submissions from Supabase
       const { data: subData, error: subErr } = await supabase
@@ -2708,8 +2771,8 @@ export class DB {
           email: String(s.email || '').toLowerCase().trim(),
           score: Number(s.score) || 0,
           total_possible_score: Number(s.total || s.total_possible_score) || 100,
-          correct_count: Number(s.correct_count) || Math.round(((Number(s.score) || 0) / (Number(s.total || s.total_possible_score) || 100)) * (questionsList.length || 5)),
-          total_questions: Number(s.total_questions) || questionsList.length || 5,
+          correct_count: Number(s.correct_count) || Math.round(((Number(s.score) || 0) / (Number(s.total || s.total_possible_score) || 100)) * (allQuestions.length || 5)),
+          total_questions: Number(s.total_questions) || allQuestions.length || 5,
           submitted_at: String(s.created_at || s.submitted_at || new Date().toISOString())
         }));
       }
@@ -2775,53 +2838,136 @@ export class DB {
     if (DB._memoryQuizzes.length > 0) {
       return DB._memoryQuizzes;
     }
+    try {
+      const cached = localStorage.getItem(STORAGE_KEYS.QUIZZES);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {}
     return SEED_QUIZZES;
   }
 
   static getTodayQuiz(): DailyQuiz | null {
     const quizzes = this.getQuizzes();
     const published = quizzes.filter(q => q.is_published);
-    return published.length > 0 ? published[0] : null;
+    if (published.length === 0) return null;
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    // 1. Exact match for today's date
+    const exactToday = published.find(q => q.quiz_date === todayStr);
+    if (exactToday) return exactToday;
+
+    // 2. Closest available quiz on or before today
+    const pastOrToday = published.filter(q => q.quiz_date <= todayStr);
+    if (pastOrToday.length > 0) {
+      return pastOrToday[0];
+    }
+
+    return published[0];
   }
 
   static getQuizById(id: string): DailyQuiz | null {
     const quizzes = this.getQuizzes();
-    return quizzes.find(q => q.id === id) || (quizzes.length > 0 ? quizzes[0] : null);
+    return quizzes.find(q => q.id === id) || null;
   }
 
   static async saveQuiz(quizData: Partial<DailyQuiz> & { title: string; questions: QuizQuestion[] }): Promise<DailyQuiz> {
-    const questions = quizData.questions || [];
-    if (questions.length === 0) {
+    const rawQuestions = quizData.questions || [];
+    if (rawQuestions.length === 0) {
       throw new Error("At least 1 question is required.");
     }
 
-    // Upsert into daily_quizzes table if it exists without relying on unique constraints
+    const quizDate = quizData.quiz_date || new Date().toISOString().slice(0, 10);
+    const quizTitle = quizData.title.trim();
+    const quizDesc = quizData.description || 'Daily Sports Knowledge Challenge';
+    const isPublished = quizData.is_published ?? true;
+
+    let targetQuizId = quizData.id;
+    const isUUID = targetQuizId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetQuizId);
+
+    // Format questions with IDs and clean fields
+    const formattedQuestions: QuizQuestion[] = rawQuestions.map((q, idx) => ({
+      id: q.id || `q-${idx + 1}-${Date.now()}`,
+      quiz_id: targetQuizId,
+      question_text: q.question_text || '',
+      option_a: q.option_a || '',
+      option_b: q.option_b || '',
+      option_c: q.option_c || '',
+      option_d: q.option_d || '',
+      correct_option: (q.correct_option || 'A') as 'A' | 'B' | 'C' | 'D',
+      points: Number(q.points) || 20,
+      order_index: q.order_index ?? idx
+    }));
+
+    // 1. Save or update quiz row in daily_quizzes table
     try {
-      const { data: existingDq } = await supabase.from('daily_quizzes').select('id').limit(1);
-      if (existingDq && existingDq.length > 0) {
+      if (targetQuizId && isUUID) {
+        // Update existing row in daily_quizzes
         await supabase.from('daily_quizzes').update({
-          title: quizData.title,
-          description: quizData.description || 'Daily Sports Knowledge Challenge',
-          quiz_date: quizData.quiz_date || new Date().toISOString().slice(0, 10),
-          is_published: true,
+          title: quizTitle,
+          description: quizDesc,
+          quiz_date: quizDate,
+          is_published: isPublished,
           updated_at: new Date().toISOString()
-        }).eq('id', existingDq[0].id);
+        }).eq('id', targetQuizId);
       } else {
-        await supabase.from('daily_quizzes').insert([{
-          title: quizData.title,
-          description: quizData.description || 'Daily Sports Knowledge Challenge',
-          quiz_date: quizData.quiz_date || new Date().toISOString().slice(0, 10),
-          is_published: true,
-          updated_at: new Date().toISOString()
-        }]);
+        // Check if there is already a quiz for this exact date
+        const { data: existingDq } = await supabase
+          .from('daily_quizzes')
+          .select('id')
+          .eq('quiz_date', quizDate)
+          .limit(1);
+
+        if (existingDq && existingDq.length > 0 && (!targetQuizId || targetQuizId === existingDq[0].id)) {
+          targetQuizId = String(existingDq[0].id);
+          await supabase.from('daily_quizzes').update({
+            title: quizTitle,
+            description: quizDesc,
+            quiz_date: quizDate,
+            is_published: isPublished,
+            updated_at: new Date().toISOString()
+          }).eq('id', targetQuizId);
+        } else {
+          // Insert a new daily quiz for this distinct date
+          const { data: insertedDq } = await supabase.from('daily_quizzes').insert([{
+            title: quizTitle,
+            description: quizDesc,
+            quiz_date: quizDate,
+            is_published: isPublished,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }]).select();
+
+          if (insertedDq && insertedDq.length > 0) {
+            targetQuizId = String(insertedDq[0].id);
+          } else {
+            targetQuizId = targetQuizId || `quiz-${quizDate}-${Date.now()}`;
+          }
+        }
       }
     } catch (e) {
       console.warn("Notice: daily_quizzes save notice:", e);
+      targetQuizId = targetQuizId || `quiz-${quizDate}-${Date.now()}`;
     }
 
-    // Insert / update each question in Supabase quiz_questions table
-    for (let i = 0; i < questions.length; i++) {
-      const q = questions[i];
+    // Attach targetQuizId to formatted questions
+    formattedQuestions.forEach(q => { q.quiz_id = targetQuizId; });
+
+    // 2. Clean up existing questions for this specific quiz ID to avoid duplicate or mixed questions
+    try {
+      if (targetQuizId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetQuizId)) {
+        await supabase.from('quiz_questions').delete().eq('quiz_id', targetQuizId);
+      }
+    } catch (delErr) {
+      console.warn("quiz_questions clean old questions notice:", delErr);
+    }
+
+    // 3. Insert each question associated with THIS specific targetQuizId
+    for (let i = 0; i < formattedQuestions.length; i++) {
+      const q = formattedQuestions[i];
       const optionsArray = [
         q.option_a || '',
         q.option_b || '',
@@ -2830,75 +2976,101 @@ export class DB {
       ];
       const correctIdx = q.correct_option === 'B' ? 1 : q.correct_option === 'C' ? 2 : q.correct_option === 'D' ? 3 : 0;
 
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(q.id);
+      const isTargetUUID = targetQuizId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetQuizId);
 
-      if (isUUID) {
-        const { error: upErr } = await supabase
-          .from('quiz_questions')
-          .update({
-            question_text: q.question_text,
-            options: optionsArray,
-            correct_answer: correctIdx,
-            explanation: q.question_text
-          })
-          .eq('id', q.id);
-        if (upErr) {
-          console.warn("Supabase update question notice:", upErr.message);
-        }
-      } else {
-        const { error: inErr } = await supabase
-          .from('quiz_questions')
-          .insert([{
-            question_text: q.question_text,
-            options: optionsArray,
-            correct_answer: correctIdx,
-            explanation: q.question_text
-          }]);
+      const qPayload: any = {
+        question_text: q.question_text,
+        options: optionsArray,
+        correct_answer: correctIdx,
+        explanation: q.question_text
+      };
+      if (targetQuizId && isTargetUUID) {
+        qPayload.quiz_id = targetQuizId;
+      }
+
+      try {
+        const { error: inErr } = await supabase.from('quiz_questions').insert([qPayload]);
         if (inErr) {
-          console.warn("Supabase insert question notice:", inErr.message);
+          if (inErr.message.includes('quiz_id')) {
+            delete qPayload.quiz_id;
+            await supabase.from('quiz_questions').insert([qPayload]);
+          } else {
+            console.warn("quiz_questions insert notice:", inErr.message);
+          }
         }
+      } catch (err) {
+        console.warn("quiz_questions insert error:", err);
       }
     }
 
-    // Refresh memory cache from Supabase
-    await DB.syncQuizDataFromSupabase();
-
-    const currentQuizzes = DB.getQuizzes();
-    return currentQuizzes[0] || {
-      id: 'quiz-daily-active',
-      quiz_date: new Date().toISOString().slice(0, 10),
-      title: quizData.title,
-      description: quizData.description || '',
-      is_published: true,
-      questions,
+    // 4. Update memory cache and local storage immediately
+    const savedQuiz: DailyQuiz = {
+      id: targetQuizId || `quiz-${quizDate}-${Date.now()}`,
+      quiz_date: quizDate,
+      title: quizTitle,
+      description: quizDesc,
+      is_published: isPublished,
+      questions: formattedQuestions,
       created_at: new Date().toISOString()
     };
+
+    const existingIdx = DB._memoryQuizzes.findIndex(q => q.id === targetQuizId || q.quiz_date === quizDate);
+    if (existingIdx >= 0) {
+      DB._memoryQuizzes[existingIdx] = savedQuiz;
+    } else {
+      DB._memoryQuizzes = [savedQuiz, ...DB._memoryQuizzes];
+    }
+
+    try {
+      localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(DB._memoryQuizzes));
+    } catch (e) {}
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    return savedQuiz;
   }
 
   static async deleteQuiz(id: string) {
-    // Delete question(s) from Supabase quiz_questions table
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-    if (isUUID) {
-      const { error } = await supabase.from('quiz_questions').delete().eq('id', id);
-      if (error) {
-        throw new Error(`Supabase delete error: ${error.message}`);
+    const targetQuiz = DB._memoryQuizzes.find(q => q.id === id);
+    const isUUID = id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+    try {
+      // 1. Delete associated questions for this specific quiz
+      if (isUUID) {
+        await supabase.from('quiz_questions').delete().eq('quiz_id', id);
+        await supabase.from('daily_quizzes').delete().eq('id', id);
+      } else if (targetQuiz?.quiz_date) {
+        await supabase.from('daily_quizzes').delete().eq('quiz_date', targetQuiz.quiz_date);
       }
-    } else {
-      // Clear all quiz questions if generic id
-      const { error } = await supabase.from('quiz_questions').delete().neq('question_text', '__NEVER_MATCH__');
-      if (error) {
-        throw new Error(`Supabase delete quiz error: ${error.message}`);
-      }
+    } catch (e) {
+      console.warn("deleteQuiz error:", e);
     }
 
-    await DB.syncQuizDataFromSupabase();
+    // Remove from in-memory array and update local cache
+    DB._memoryQuizzes = DB._memoryQuizzes.filter(q => q.id !== id && (!targetQuiz?.quiz_date || q.quiz_date !== targetQuiz.quiz_date));
+    try {
+      localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(DB._memoryQuizzes));
+    } catch (e) {}
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
   }
 
   static async togglePublishQuiz(id: string, isPublished: boolean) {
-    if (DB._memoryQuizzes.length > 0) {
-      DB._memoryQuizzes[0].is_published = isPublished;
-      window.dispatchEvent(new CustomEvent('fts_db_sync'));
+    try {
+      await supabase.from('daily_quizzes').update({
+        is_published: isPublished,
+        updated_at: new Date().toISOString()
+      }).eq('id', id);
+    } catch (e) {
+      console.warn("togglePublishQuiz error:", e);
     }
+
+    const target = DB._memoryQuizzes.find(q => q.id === id);
+    if (target) {
+      target.is_published = isPublished;
+    }
+    try {
+      localStorage.setItem(STORAGE_KEYS.QUIZZES, JSON.stringify(DB._memoryQuizzes));
+    } catch (e) {}
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
   }
 
   // ==========================================
@@ -3041,7 +3213,7 @@ export class DB {
     correctCount: number;
     totalQuestions: number;
   }> {
-    const quiz = this.getTodayQuiz() || this.getQuizById(quizId);
+    const quiz = (quizId ? this.getQuizById(quizId) : null) || this.getTodayQuiz();
     if (!quiz || !quiz.questions || quiz.questions.length === 0) {
       throw new Error("No active quiz questions found to submit.");
     }
