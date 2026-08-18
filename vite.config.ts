@@ -15,6 +15,16 @@ export default defineConfig(() => {
       target: 'es2020',
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-motion': ['motion'],
+            'vendor-icons': ['lucide-react'],
+            'vendor-supabase': ['@supabase/supabase-js'],
+          },
+        },
+      },
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

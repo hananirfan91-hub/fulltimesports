@@ -105,6 +105,11 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
             alt="Sports Stadium Atmosphere"
             className="w-full h-full object-cover opacity-35 filter contrast-110 scale-105"
             referrerPolicy="no-referrer"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            width={1600}
+            height={900}
           />
         )}
 
