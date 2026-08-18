@@ -29,7 +29,7 @@ export default function PWAInstallPrompt() {
     setIsStandalone(standaloneMode);
     if (standaloneMode) return;
 
-    // 2. Check if iOS device (Safari does not support beforeinstallprompt)
+    // 2. Check if iOS device (Safari)
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as any).MSStream;
     setIsIOS(isIOSDevice);
@@ -40,15 +40,16 @@ export default function PWAInstallPrompt() {
       const promptEvent = e as BeforeInstallPromptEvent;
       setDeferredPrompt(promptEvent);
       
-      // Check if user previously dismissed banner in this session
-      const dismissed = sessionStorage.getItem('tsr_pwa_dismissed');
-      if (!dismissed) {
-        // Show after 3.5s delay so user sees initial page comfortably
-        setTimeout(() => setShowBanner(true), 3500);
-      }
+      // Show prompt banner after brief initial page load (1.5s)
+      setTimeout(() => setShowBanner(true), 1500);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Fallback: show banner for all web visitors if not standalone after 1.8s
+    const visitorTimer = setTimeout(() => {
+      setShowBanner(true);
+    }, 1800);
 
     // 4. Listen for app installed event
     const handleAppInstalled = () => {
@@ -60,7 +61,7 @@ export default function PWAInstallPrompt() {
 
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // 5. Global listener to open install prompt manually from anywhere
+    // 5. Global listener to open install prompt manually from anywhere (Navbar/Footer)
     const handleManualOpen = () => {
       if (isIOSDevice) {
         setShowIOSModal(true);
@@ -73,30 +74,36 @@ export default function PWAInstallPrompt() {
 
     window.addEventListener('tsr_open_install_prompt', handleManualOpen);
 
-    // iOS prompt after initial visit delay
-    if (isIOSDevice && !standaloneMode && !sessionStorage.getItem('tsr_pwa_dismissed')) {
-      const iosTimer = setTimeout(() => {
-        setShowBanner(true);
-      }, 5000);
-      return () => clearTimeout(iosTimer);
-    }
-
     return () => {
+      clearTimeout(visitorTimer);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
       window.removeEventListener('tsr_open_install_prompt', handleManualOpen);
     };
-  }, [deferredPrompt]);
+  }, []);
+
+  // Auto-dismiss after 5 seconds whenever banner is displayed
+  useEffect(() => {
+    if (!showBanner) return;
+
+    const timer = setTimeout(() => {
+      setShowBanner(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [showBanner]);
 
   const handleInstallClick = async () => {
     if (isIOS) {
       setShowIOSModal(true);
+      setShowBanner(false);
       return;
     }
 
     if (!deferredPrompt) {
-      // Fallback for browsers that support direct installation or manual guide
-      alert("To install The Sports Room app, tap your browser's menu (⋮ or Share) and select 'Install app' or 'Add to Home Screen'.");
+      // Fallback for browsers that support manual installation
+      alert("To install The Sports Room app, tap your browser's menu (⋮ or Share icon) and select 'Install app' or 'Add to Home Screen'.");
+      setShowBanner(false);
       return;
     }
 
@@ -108,31 +115,30 @@ export default function PWAInstallPrompt() {
         setDeferredPrompt(null);
       } else {
         setShowBanner(false);
-        sessionStorage.setItem('tsr_pwa_dismissed', 'true');
       }
     } catch (err) {
       console.warn("PWA install prompt error:", err);
+      setShowBanner(false);
     }
   };
 
   const handleDismiss = () => {
     setShowBanner(false);
-    sessionStorage.setItem('tsr_pwa_dismissed', 'true');
   };
 
   if (isStandalone) return null;
 
   return (
     <>
-      {/* 1. Subtle Floating Install Banner for Mobile & Desktop */}
+      {/* 1. Floating Install Banner positioned cleanly on Bottom-Left away from Voice AI Chatbot */}
       <AnimatePresence>
         {showBanner && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-md z-40 bg-[#022c22]/95 border border-[#22c55e]/40 backdrop-blur-xl p-3.5 rounded-2xl shadow-2xl shadow-black/60 text-white"
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="fixed bottom-5 left-4 right-4 sm:right-auto sm:left-6 sm:max-w-sm md:max-w-md z-50 bg-[#022c22]/95 border border-[#22c55e]/50 backdrop-blur-xl p-3 rounded-2xl shadow-2xl shadow-black/80 text-white overflow-hidden ring-1 ring-[#22c55e]/20"
             id="pwa-install-banner"
           >
             <div className="flex items-center space-x-3">
@@ -141,7 +147,7 @@ export default function PWAInstallPrompt() {
                 <img
                   src="/logo-preview.png"
                   alt="The Sports Room App Logo"
-                  className="w-12 h-12 rounded-xl object-contain bg-[#01140f] p-1 border border-[#22c55e]/30 shadow-md"
+                  className="w-11 h-11 rounded-xl object-contain bg-[#01140f] p-1 border border-[#22c55e]/30 shadow-md"
                   referrerPolicy="no-referrer"
                 />
                 <span className="absolute -bottom-1 -right-1 bg-[#22c55e] text-slate-950 p-0.5 rounded-full ring-2 ring-[#022c22]">
@@ -152,15 +158,15 @@ export default function PWAInstallPrompt() {
               {/* Text Info */}
               <div className="flex-1 min-w-0 pr-1">
                 <div className="flex items-center space-x-1.5">
-                  <h3 className="font-display font-black text-sm text-white tracking-tight leading-tight truncate">
+                  <h3 className="font-display font-black text-xs sm:text-sm text-white tracking-tight leading-tight truncate">
                     The Sports Room
                   </h3>
                   <span className="bg-[#22c55e]/20 text-[#22c55e] text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase">
-                    Free App
+                    App
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-300 truncate mt-0.5">
-                  Install for fast match scores &amp; daily sports quizzes
+                  Tap Install for fast scores &amp; daily quizzes
                 </p>
               </div>
 
@@ -168,7 +174,7 @@ export default function PWAInstallPrompt() {
               <div className="flex items-center space-x-1.5 shrink-0">
                 <button
                   onClick={handleInstallClick}
-                  className="bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-mono font-black text-xs px-3.5 py-2 rounded-xl transition flex items-center space-x-1 shadow-lg shadow-[#22c55e]/20 active:scale-95 cursor-pointer"
+                  className="bg-[#22c55e] hover:bg-[#34d399] text-slate-950 font-mono font-black text-xs px-3 py-1.5 rounded-xl transition flex items-center space-x-1 shadow-lg shadow-[#22c55e]/20 active:scale-95 cursor-pointer"
                   id="pwa-banner-install-btn"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -184,6 +190,14 @@ export default function PWAInstallPrompt() {
                 </button>
               </div>
             </div>
+
+            {/* 5-second animated countdown bar */}
+            <motion.div
+              initial={{ width: '100%' }}
+              animate={{ width: '0%' }}
+              transition={{ duration: 5, ease: 'linear' }}
+              className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-[#22c55e] to-emerald-400 opacity-75"
+            />
           </motion.div>
         )}
       </AnimatePresence>
