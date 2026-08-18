@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Search, Trophy, Calendar, Globe, ChevronDown, User, Heart, Bell } from 'lucide-react';
+import { Menu, X, Search, Trophy, Calendar, Globe, ChevronDown, User, Heart, Bell, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DB } from '../lib/db';
 import Logo from './Logo';
@@ -547,10 +547,21 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               <div className="pt-2 border-t border-emerald-950 flex flex-col space-y-2 font-medium text-xs text-slate-300">
                 <button
                   onClick={() => {
+                    window.dispatchEvent(new CustomEvent('tsr_open_install_prompt'));
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full text-center py-2.5 bg-[#022c22] border border-[#22c55e]/40 text-[#22c55e] hover:bg-[#022c22]/80 rounded-xl font-bold tracking-wider transition uppercase flex items-center justify-center space-x-2"
+                >
+                  <Download className="w-4 h-4 text-[#22c55e]" />
+                  <span>Install Web App</span>
+                </button>
+
+                <button
+                  onClick={() => {
                     onNavigate('/admin');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-center py-2.5 bg-[#22c55e] text-slate-950 hover:bg-[#34d399] rounded font-extrabold tracking-wider transition uppercase"
+                  className="w-full text-center py-2.5 bg-[#22c55e] text-slate-950 hover:bg-[#34d399] rounded-xl font-extrabold tracking-wider transition uppercase"
                 >
                   🔒 CREATE ACCOUNT
                 </button>

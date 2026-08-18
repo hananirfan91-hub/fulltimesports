@@ -16,9 +16,19 @@
     <link rel="dns-prefetch" href="https://zcmoxkcfqckszbkvbqqy.supabase.co" />
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
 
-    <!-- Custom Branded FTS Icon Favicon -->
+    <!-- Custom Branded TSR App Favicons & Apple Touch Icons -->
     <link rel="icon" type="image/png" href="/logo-preview.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/logo-preview.png" />
     <link rel="apple-touch-icon" href="/logo-preview.png" />
+    
+    <!-- PWA & Mobile Web App Meta Directives -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="The Sports Room" />
+    <meta name="application-name" content="The Sports Room" />
+    <meta name="msapplication-TileColor" content="#01140f" />
+    <meta name="msapplication-TileImage" content="/logo-preview.png" />
 
     <!-- Primary General SEO & Crawl Metadata -->
     <title>The Sports Room – Latest Sports News, Scores &amp; Updates</title>
@@ -184,7 +194,21 @@
 
     <!-- Manifest and Agentic Web MCP Standards -->
     <link rel="manifest" href="/site.webmanifest" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="webmcp" href="/webmcp.json" />
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').then(function(registration) {
+            console.log('TSR PWA: ServiceWorker registered successfully with scope:', registration.scope);
+          }).catch(function(err) {
+            console.log('TSR PWA: ServiceWorker registration skipped/failed:', err);
+          });
+        });
+      }
+    </script>
     
     <!-- Inline Declarative WebMCP API Registration for AI Browsing Agents -->
     <script type="application/webmcp+json">

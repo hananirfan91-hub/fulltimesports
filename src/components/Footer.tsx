@@ -228,6 +228,15 @@ export default function Footer({ onNavigate }: FooterProps) {
                 <span>Contact &amp; Editorial Desk</span>
               </button>
             </li>
+            <li>
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent('tsr_open_install_prompt'))} 
+                className="text-emerald-400 hover:text-[#22c55e] transition flex items-center space-x-1.5 group font-bold"
+              >
+                <ChevronRight className="w-3 h-3 text-emerald-800 group-hover:text-[#22c55e] transition shrink-0" />
+                <span>📲 Install Web App (PWA)</span>
+              </button>
+            </li>
           </ul>
         </div>
 
