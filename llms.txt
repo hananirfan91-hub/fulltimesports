@@ -1,31 +1,172 @@
-# The Sports Room (TSR)
+# The Sports Room
 
-> An elite digital sports journalism platform and digital sports lounge offering 105% human-authored athletic coverage, mechanical telemetry, tactical reviews, and schedules.
+> The Sports Room (TSR) is an independent digital sports media platform covering cricket, football, tennis, Formula 1, basketball, esports, volleyball, and hockey. TSR publishes sports news, match reports, analysis, previews, schedules, rankings, tactical features, and sports-science content.
 
 ## Core Navigation & Pages
 
-- [Home](/) - The master portal for today's top sports stories, cricket/football news, real-time metrics, and the TSR Sports Lounge contributions feed. Include the cinematic hero featuring Babar Azam's cover drive.
-- [Sports Science Atlas](/sports-atlas) - An extensive database indexing biomechanics in cricket, Formula 1 thermodynamics, football sprinting kinematics, and athletic recovery models.
-- [Rankings](/rankings) - Official team standings and points classifications across the PSL, ICC standings, Champions League, and national leagues.
-- [Fixtures](/fixtures) - High-resolution match scheduling boards, stadium telemetry, and upcoming game dates.
-- [About Us](/about-us) - Learn about our mission of 100% human-written, authentic coverage.
-- [Contact Us](/contact-us) - Share news tips, pitch sports stories, or request corrections.
+- [Home](/) - The main portal for the latest sports news, featured stories, match coverage, scores, schedules, and sports analysis.
+- [Sports Atlas](/sports-atlas) - Sports-science and educational resources covering biomechanics, performance, tactics, engineering, and technical aspects of sport.
+- [Rankings](/rankings) - Sports standings, rankings, points tables, and competition classifications where available.
+- [Fixtures](/fixtures) - Upcoming sports fixtures, match schedules, dates, venues, and related event information.
+- [About Us](/about-us) - Information about The Sports Room, its mission, editorial focus, and platform.
+- [Contact Us](/contact-us) - Contact information for news tips, story submissions, corrections, and general inquiries.
 
-## Siloed Sport Categories & Topical Semantic Mapping
+## Sports Coverage
 
-- [/sport/cricket](/sport/cricket) - Pakistan cricket news, Rawalpindi pitch telemetry, PSL results, Babar Azam batting technique, Shaheen Afridi seam angles, and ICC rankings 2026.
-- [/sport/football](/sport/football) - Tactics news today, UEFA Nations League reviews, Premier League today, and complete FIFA World Cup 2026 schedules and venues.
-- [/sport/tennis](/sport/tennis) - Daily match writeups for Roland Garros 2026, WTA/ATP rankings, Maja Chwalinska qualifier updates, and clay court sliding tactics.
-- [/sport/f1](/sport/f1) - Race results 2026, Charles Leclerc contract news, underbody ground-effect aerodynamics, and pit stop tire strategies.
-- [/sport/basketball](/sport/basketball) - NBA news today, standings 2026, draft prospects, and pick-and-roll tactical guides.
-- [/sport/esports](/sport/esports) - League of Legends worlds 2026, LPL standings, Economy calculations in the CS2 Major, and Valorant VCT tour results.
-- [/sport/volleyball](/sport/volleyball) - Volleyball Nations League (VNL 2026) results, schedules, and FIVB volleyball world rankings.
-- [/sport/hockey](/sport/hockey) - Regional PHF field hockey scorecards, dragflick wrist biomechanics, and Pakistan squash tournament news.
+### Cricket
 
-## Technical Specifications & Integration APIs
+- [/sport/cricket](/sport/cricket) - Cricket news, match reports, previews, analysis, player updates, team news, international cricket, Pakistan cricket, PSL, ICC competitions, and major domestic tournaments.
+- Coverage includes Pakistan, India, Australia, England, Bangladesh, Sri Lanka, Afghanistan, West Indies, and other major cricket teams and competitions.
 
-The platform runs client-side state storage leveraging persistent Web Storage interfaces with full metadata generation:
+### Football
 
-- **Site Database Logic**: Handles sports journalism publications, reader submissions, category definitions, and matches tables directly inside `src/lib/db.ts`.
-- **Search & Filter Endpoints**: Fully indexable query logic reachable through `/glossary` and `/sports-atlas` search bars.
-- **Topical JSON-LD Schema Engine**: Dynamic implementation of `WebSite`, `SportsActivityLocation`, `NewsArticle`, `CollectionPage`, and `DefinedTermSet` schema structured blocks inside `src/components/SEOMetaTags.tsx`.
+- [/sport/football](/sport/football) - Football news, match reports, tactical analysis, competitions, player updates, fixtures, results, UEFA competitions, Premier League coverage, international football, and FIFA World Cup coverage.
+
+### Tennis
+
+- [/sport/tennis](/sport/tennis) - Tennis news, match reports, tournament coverage, ATP and WTA updates, rankings, Grand Slam events, player developments, and tactical analysis.
+
+### Formula 1
+
+- [/sport/f1](/sport/f1) - Formula 1 news, race reports, qualifying results, driver updates, team developments, contracts, technical analysis, aerodynamics, strategy, and pit-stop coverage.
+
+### Basketball
+
+- [/sport/basketball](/sport/basketball) - Basketball news, NBA coverage, standings, results, player updates, draft developments, match analysis, and tactical features.
+
+### Esports
+
+- [/sport/esports](/sport/esports) - Esports news, tournament results, team developments, competitive gaming, standings, player updates, and analysis across major esports titles.
+
+### Volleyball
+
+- [/sport/volleyball](/sport/volleyball) - Volleyball news, match results, tournament coverage, schedules, rankings, player and team updates, and technical analysis.
+
+### Hockey
+
+- [/sport/hockey](/sport/hockey) - Hockey news, match coverage, tournaments, results, player updates, rankings, and tactical and technical analysis.
+
+## Editorial Content
+
+The Sports Room publishes several types of sports content, including:
+
+- News reports
+- Breaking sports updates
+- Match reports
+- Match previews
+- Tournament previews
+- Player and team news
+- Interviews and quotes
+- Statistical analysis
+- Tactical analysis
+- Sports explainers
+- Sports-science features
+- Competition guides
+- Rankings and standings
+- Fixtures and schedules
+
+## Article Structure
+
+Sports articles are organized primarily under:
+
+- `/blog/` - Individual sports articles, news reports, analysis, previews, guides, and features.
+- `/sport/` - Sport-specific content collections.
+- `/topic/` - Topic and entity-based content collections where available.
+
+Individual article pages may contain publication dates, modified dates, authorship information, article categories, related topics, images, and structured metadata.
+
+## News & Current Coverage
+
+The Sports Room covers current developments across international and domestic sports. News articles should be evaluated based on the information and publication date presented on the individual article page.
+
+Recent news content may also be represented in the site's Google News sitemap:
+
+- [/news-sitemap.xml](/news-sitemap.xml)
+
+The main XML sitemap contains the site's indexable URLs:
+
+- [/sitemap.xml](/sitemap.xml)
+
+## Topic Areas
+
+The Sports Room covers major athletes, teams, tournaments, competitions, and sporting events. Topic coverage may include:
+
+- Babar Azam
+- Shaheen Afridi
+- Mohammad Rizwan
+- Sufyan Muqeem
+- Naseem Shah
+- Pakistan cricket
+- India cricket
+- Australia cricket
+- England cricket
+- PSL
+- IPL
+- ICC competitions
+- Asia Cup
+- ICC Cricket World Cup
+- Lionel Messi
+- Cristiano Ronaldo
+- UEFA Champions League
+- Premier League
+- Max Verstappen
+- Real Madrid
+- Barcelona
+- Formula 1
+- NBA
+- Tennis Grand Slam tournaments
+- Major esports competitions
+- Volleyball Nations League
+- International hockey
+
+## Sports Science & Analysis
+
+Sports Atlas provides educational and analytical resources related to:
+
+- Cricket biomechanics
+- Batting and bowling mechanics
+- Football sprinting and movement
+- Tennis footwork and court movement
+- Volleyball serving and rotational mechanics
+- Hockey drag-flick technique
+- Formula 1 aerodynamics
+- Ground-effect engineering
+- Racing strategy and vehicle performance
+- Athletic performance and sports science
+
+## Structured Data
+
+The Sports Room uses structured data where appropriate to help search engines understand its content.
+
+Potential structured data types include:
+
+- `WebSite`
+- `Organization`
+- `NewsArticle`
+- `Article`
+- `CollectionPage`
+- `BreadcrumbList`
+- `SportsActivityLocation`
+- `DefinedTermSet`
+
+Structured data should reflect information that is actually visible and available on the corresponding webpage.
+
+## Content Discovery
+
+For a complete list of indexable URLs, use:
+
+- [/sitemap.xml](/sitemap.xml)
+
+For recent news content represented in the Google News sitemap, use:
+
+- [/news-sitemap.xml](/news-sitemap.xml)
+
+For individual sports sections, use the `/sport/` category pages.
+
+For individual articles, use the `/blog/` pages.
+
+## About The Sports Room
+
+The Sports Room is an independent sports media platform focused on delivering accessible sports news, reporting, analysis, statistics, schedules, and educational sports content across multiple disciplines.
+
+The platform covers both Pakistani and international sports and aims to provide readers with a centralized destination for sports information.
