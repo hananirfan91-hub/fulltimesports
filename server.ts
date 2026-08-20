@@ -180,6 +180,7 @@ app.get("/sitemap.xml", async (req, res) => {
 // Google News XML Sitemap Endpoint
 app.get("/news-sitemap.xml", (req, res) => {
   res.header("Content-Type", "application/xml; charset=utf-8");
+  res.header("Cache-Control", "public, max-age=300, must-revalidate");
   res.header("Access-Control-Allow-Origin", "*");
   const filePath = path.join(process.cwd(), "public", "news-sitemap.xml");
   res.sendFile(filePath);
@@ -188,14 +189,16 @@ app.get("/news-sitemap.xml", (req, res) => {
 // Direct route for Machine-Readable LLM Summary (AIO / GEO / Agentic Browsing)
 app.get("/llms.txt", (req, res) => {
   res.header("Content-Type", "text/plain; charset=utf-8");
+  res.header("Cache-Control", "public, max-age=300, must-revalidate");
   res.header("Access-Control-Allow-Origin", "*");
-  const filePath = path.join(process.cwd(), "llms.txt");
+  const filePath = path.join(process.cwd(), "public", "llms.txt");
   res.sendFile(filePath);
 });
 
 // Direct route for WebMCP Manifest (Agentic Web Protocol standard)
 app.get("/webmcp.json", (req, res) => {
   res.header("Content-Type", "application/json; charset=utf-8");
+  res.header("Cache-Control", "public, max-age=300, must-revalidate");
   res.header("Access-Control-Allow-Origin", "*");
   const filePath = path.join(process.cwd(), "public", "webmcp.json");
   res.sendFile(filePath);
@@ -213,6 +216,9 @@ app.get("/robots.txt", (req, res) => {
   const host = req.get("host") || "thesportsroom.online";
   const protocol = host.includes("localhost") || host.includes("0.0.0.0") || host.includes("127.0.0.1") ? "http" : "https";
   res.header("Content-Type", "text/plain; charset=utf-8");
+  res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.header("Pragma", "no-cache");
+  res.header("Expires", "0");
   res.send(`User-agent: *
 Allow: /
 Disallow: /api/
