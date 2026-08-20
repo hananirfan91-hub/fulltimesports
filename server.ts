@@ -177,6 +177,14 @@ app.get("/sitemap.xml", async (req, res) => {
   }
 });
 
+// Google News XML Sitemap Endpoint
+app.get("/news-sitemap.xml", (req, res) => {
+  res.header("Content-Type", "application/xml; charset=utf-8");
+  res.header("Access-Control-Allow-Origin", "*");
+  const filePath = path.join(process.cwd(), "public", "news-sitemap.xml");
+  res.sendFile(filePath);
+});
+
 // Direct route for Machine-Readable LLM Summary (AIO / GEO / Agentic Browsing)
 app.get("/llms.txt", (req, res) => {
   res.header("Content-Type", "text/plain; charset=utf-8");
@@ -239,6 +247,7 @@ User-agent: Applebot-Extended
 Allow: /
 
 Sitemap: ${protocol}://${host}/sitemap.xml
+Sitemap: ${protocol}://${host}/news-sitemap.xml
 LLMs-txt: ${protocol}://${host}/llms.txt
 `);
 });
