@@ -1,13 +1,58 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin
 
-# Specifically allow ChatGPT's real-time web search crawler
+# Google Crawlers (Search & News)
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+
+# OpenAI / ChatGPT
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
 User-agent: OAI-SearchBot
 Allow: /
 
-# OPTIONAL: Block OpenAI's training bot if you don't want them training on your content for free
-User-agent: GPTBot
-Disallow: /
+# Anthropic / Claude
+User-agent: ClaudeBot
+Allow: /
 
+User-agent: Anthropic-ai
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# Apple
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Social Crawlers
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+# Sitemaps and AI manifests
 Sitemap: https://thesportsroom.online/sitemap.xml
 Sitemap: https://thesportsroom.online/news-sitemap.xml
+LLMs-txt: https://thesportsroom.online/llms.txt

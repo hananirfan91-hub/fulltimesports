@@ -1,62 +1,58 @@
-# ==============================================================================
-# The Sports Room (TSR) - Robots.txt & AI Crawler Indexing Configuration
-# Website: https://thesportsroom.online
-# ==============================================================================
-
-# Allow all general search engine crawlers and web spiders full access
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin
 
-# Explicitly allow OpenAI ChatGPT Search & AI Crawlers
-User-agent: OAI-SearchBot
+# Google Crawlers (Search & News)
+User-agent: Googlebot
 Allow: /
 
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+
+# OpenAI / ChatGPT
 User-agent: GPTBot
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
-# Explicitly allow Google, Anthropic, Claude, Perplexity & AI Search Bots
-User-agent: Googlebot
+User-agent: OAI-SearchBot
 Allow: /
 
-User-agent: Google-Extended
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
+# Anthropic / Claude
 User-agent: ClaudeBot
 Allow: /
 
 User-agent: Anthropic-ai
 Allow: /
 
+# Perplexity AI
 User-agent: PerplexityBot
+Allow: /
+
+# Apple
+User-agent: Applebot
 Allow: /
 
 User-agent: Applebot-Extended
 Allow: /
 
-User-agent: Bytespider
-Allow: /
-
-User-agent: CCBot
-Allow: /
-
-User-agent: Cohere-ai
-Allow: /
-
-User-agent: FacebookExternalHit
-Allow: /
-
+# Social Crawlers
 User-agent: Twitterbot
 Allow: /
 
-# Direct links to XML Sitemap, News Sitemap and AI Summary Manifest
+User-agent: facebookexternalhit
+Allow: /
+
+# Sitemaps and AI manifests
 Sitemap: https://thesportsroom.online/sitemap.xml
 Sitemap: https://thesportsroom.online/news-sitemap.xml
 LLMs-txt: https://thesportsroom.online/llms.txt
-
-

@@ -212,40 +212,62 @@ app.get("/site.webmanifest", (req, res) => {
 app.get("/robots.txt", (req, res) => {
   const host = req.get("host") || "thesportsroom.online";
   const protocol = host.includes("localhost") || host.includes("0.0.0.0") || host.includes("127.0.0.1") ? "http" : "https";
-  res.header("Content-Type", "text/plain");
+  res.header("Content-Type", "text/plain; charset=utf-8");
   res.send(`User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin
 
-User-agent: OAI-SearchBot
+# Google Crawlers (Search & News)
+User-agent: Googlebot
 Allow: /
 
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+
+# OpenAI / ChatGPT
 User-agent: GPTBot
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
-User-agent: Googlebot
+User-agent: OAI-SearchBot
 Allow: /
 
-User-agent: Google-Extended
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
+# Anthropic / Claude
 User-agent: ClaudeBot
 Allow: /
 
 User-agent: Anthropic-ai
 Allow: /
 
+# Perplexity AI
 User-agent: PerplexityBot
+Allow: /
+
+# Apple
+User-agent: Applebot
 Allow: /
 
 User-agent: Applebot-Extended
 Allow: /
 
+# Social Crawlers
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+# Sitemaps and AI manifests
 Sitemap: ${protocol}://${host}/sitemap.xml
 Sitemap: ${protocol}://${host}/news-sitemap.xml
 LLMs-txt: ${protocol}://${host}/llms.txt
