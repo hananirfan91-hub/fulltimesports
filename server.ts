@@ -211,6 +211,101 @@ app.get("/site.webmanifest", (req, res) => {
   res.sendFile(filePath);
 });
 
+// IndexNow Protocol Key Verification Endpoints (for Bing, Yandex, Seznam, Naver)
+const DEFAULT_INDEXNOW_KEY = process.env.INDEXNOW_KEY || "c03b12368c8b4bf09bc77a4a98e89f81";
+
+app.get(["/c03b12368c8b4bf09bc77a4a98e89f81.txt", "/indexnow.txt", "/indexnow-key.txt"], (req, res) => {
+  res.header("Content-Type", "text/plain; charset=utf-8");
+  res.header("Cache-Control", "public, max-age=86400");
+  res.send(DEFAULT_INDEXNOW_KEY);
+});
+
+// Dynamic key matcher for any 32-character hex IndexNow key
+app.get("/:key([a-f0-9]{32}).txt", (req, res) => {
+  res.header("Content-Type", "text/plain; charset=utf-8");
+  res.header("Cache-Control", "public, max-age=86400");
+  res.send(req.params.key);
+});
+
+// IndexNow Submission API Endpoint (Submits URLs directly to Bing / IndexNow)
+app.post("/api/indexnow", async (req, res) => {
+  try {
+    const host = req.get("host") || "thesportsroom.online";
+    const protocol = host.includes("localhost") || host.includes("0.0.0.0") || host.includes("127.0.0.1") ? "http" : "https";
+    const primaryDomain = "thesportsroom.online";
+
+    let urlList: string[] = req.body.urls || [];
+
+    if (!Array.isArray(urlList) || urlList.length === 0) {
+      // Gather all posts from database to submit full catalog
+      const { data: posts } = await supabase.from("fts_posts").select("slug").limit(100);
+      const postUrls = (posts || []).map(p => `https://${primaryDomain}/blog/${p.slug}`);
+      const categoryUrls = CATEGORIES_ROTATION.map(c => `https://${primaryDomain}/sport/${c}`);
+      urlList = [
+        `https://${primaryDomain}/`,
+        `https://${primaryDomain}/sitemap.xml`,
+        `https://${primaryDomain}/news-sitemap.xml`,
+        `https://${primaryDomain}/what-is-the-sports-room`,
+        `https://${primaryDomain}/why-choose-us`,
+        `https://${primaryDomain}/cricket-world-cup-2027`,
+        ...categoryUrls,
+        ...postUrls
+      ];
+    }
+
+    // Ensure all URLs are properly formatted
+    const cleanUrlList = Array.from(new Set(urlList.map(u => {
+      if (u.startsWith("http://") || u.startsWith("https://")) return u;
+      return `https://${primaryDomain}${u.startsWith("/") ? "" : "/"}${u}`;
+    })));
+
+    const payload = {
+      host: primaryDomain,
+      key: DEFAULT_INDEXNOW_KEY,
+      keyLocation: `https://${primaryDomain}/${DEFAULT_INDEXNOW_KEY}.txt`,
+      urlList: cleanUrlList
+    };
+
+    console.log(`[IndexNow] Submitting ${cleanUrlList.length} URLs to Bing & IndexNow API...`);
+
+    // Submit to official IndexNow API endpoint
+    const response = await fetch("https://api.indexnow.org/indexnow", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    // Also submit to Bing direct endpoint
+    try {
+      await fetch("https://www.bing.com/indexnow", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (bingErr) {
+      console.warn("[IndexNow] Bing direct endpoint notice:", bingErr);
+    }
+
+    res.json({
+      success: true,
+      status: response.status,
+      submittedCount: cleanUrlList.length,
+      urls: cleanUrlList.slice(0, 10),
+      message: `Successfully notified Bing and IndexNow search engines for ${cleanUrlList.length} URLs.`
+    });
+  } catch (error: any) {
+    console.error("[IndexNow] Submission failed:", error);
+    res.status(500).json({
+      success: false,
+      error: error?.message || "Failed to submit URLs to IndexNow"
+    });
+  }
+});
+
 // Dynamic robots.txt with complete AI search engine rules
 app.get("/robots.txt", (req, res) => {
   const host = req.get("host") || "thesportsroom.online";
@@ -234,8 +329,20 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-# Bing
+# Bing & Microsoft Copilot
 User-agent: Bingbot
+Allow: /
+
+User-agent: msnbot
+Allow: /
+
+User-agent: BingPreview
+Allow: /
+
+User-agent: msnbot-media
+Allow: /
+
+User-agent: AdIdxBot
 Allow: /
 
 # OpenAI / ChatGPT
@@ -345,6 +452,10 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
               "https://www.tiktok.com/@pathan_x_babarian565",
               "https://www.pinterest.com/thesportsroomonline"
             ]
+          },
+          "speakable": {
+            "@type": "SpeakableSpecification",
+            "cssSelector": ["#direct-answer-summary", "#article-headline"]
           },
           "mainEntityOfPage": {
             "@type": "WebPage",

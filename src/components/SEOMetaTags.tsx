@@ -516,6 +516,10 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
               }
             },
             "description": description,
+            "speakable": {
+              "@type": "SpeakableSpecification",
+              "cssSelector": ["#direct-answer-summary", "#article-headline"]
+            },
             "mainEntityOfPage": {
               "@type": "WebPage",
               "@id": customCanonical

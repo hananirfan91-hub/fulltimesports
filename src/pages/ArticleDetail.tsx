@@ -11,6 +11,7 @@ import AdSensePlaceholder from '../components/AdSensePlaceholder';
 import { injectInternalLinks } from '../lib/internalLinkEngine';
 import { getSmartRelatedArticles, getBidirectionalReferences } from '../lib/relatedArticlesEngine';
 import { detectEntitiesInText } from '../lib/entityRegistry';
+import { submitToIndexNow } from '../lib/indexNow';
 
 const alert = (msg: string) => {
   try {
@@ -141,6 +142,10 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
           console.warn("Failed to access localStorage comments:", e);
           setComments(dummyComments);
         }
+        // Ping IndexNow in background to notify Bing & search engines of fresh page state
+        try {
+          submitToIndexNow([`/blog/${activePost.slug}`]).catch(() => {});
+        } catch (_) {}
       } else {
         setPost(null);
       }
@@ -570,20 +575,10 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
             </span>
           </div>
 
-          {/* Article Large Title with Custom Heading Tag Support */}
-          {post.heading_tag === 'h2' ? (
-            <h2 className="font-display font-black text-2xl md:text-4.5xl text-slate-900 tracking-tight leading-tight uppercase">
-              {post.title}
-            </h2>
-          ) : post.heading_tag === 'h3' ? (
-            <h3 className="font-display font-black text-2xl md:text-4.5xl text-slate-900 tracking-tight leading-tight uppercase">
-              {post.title}
-            </h3>
-          ) : (
-            <h1 className="font-display font-black text-2xl md:text-4.5xl text-slate-900 tracking-tight leading-tight uppercase">
-              {post.title}
-            </h1>
-          )}
+          {/* Article Large Title - Strictly semantic H1 for On-Page & Bing SEO */}
+          <h1 id="article-headline" className="font-display font-black text-2xl md:text-4.5xl text-slate-900 tracking-tight leading-tight uppercase">
+            {post.title}
+          </h1>
 
           {/* Subheading (H2 / Sub-Title for SEO Structure) */}
           {post.subheading ? (
@@ -681,7 +676,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
           {/* B. AEO (Answer Engine Optimization) Direct Answer / Position-Zero Box */}
           {post.aeo_direct_answer ? (
-            <div className="bg-gradient-to-r from-[#022c22] to-[#01140f] border-l-4 border-[#22c55e] rounded-2xl p-5 md:p-6 text-white shadow-md relative overflow-hidden" id="editorial-resolution-key">
+            <div className="bg-gradient-to-r from-[#022c22] to-[#01140f] border-l-4 border-[#22c55e] rounded-2xl p-5 md:p-6 text-white shadow-md relative overflow-hidden" id="direct-answer-summary" itemProp="abstract" role="region" aria-label="Key Takeaways and Direct Summary">
               <div className="flex items-center space-x-2 mb-2">
                 <span className="p-0.5 px-2 bg-[#22c55e] text-[#022c22] font-mono text-[9px] font-black uppercase rounded tracking-wider">
                   AEO Direct Answer Box
@@ -699,7 +694,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
             </div>
           ) : (
             /* Fallback Burning Q&A block fulfilling the default resolution desk */
-            <div className="bg-gradient-to-r from-[#022c22] to-[#01140f] border-l-4 border-[#22c55e] rounded-2xl p-5 md:p-6 text-white shadow-md relative overflow-hidden" id="editorial-resolution-key">
+            <div className="bg-gradient-to-r from-[#022c22] to-[#01140f] border-l-4 border-[#22c55e] rounded-2xl p-5 md:p-6 text-white shadow-md relative overflow-hidden" id="direct-answer-summary" itemProp="abstract" role="region" aria-label="Key Takeaways and Direct Summary">
               <div className="flex items-center space-x-2 mb-3">
                 <span className="p-0.5 px-2 bg-[#22c55e] text-[#022c22] font-mono text-[9px] font-black uppercase rounded tracking-wider">
                   Resolution Desk
