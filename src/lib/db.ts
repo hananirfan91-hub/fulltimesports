@@ -498,7 +498,7 @@ const SEED_FIXTURES: FixtureItem[] = [
   { id: 'fix-8', sport: 'volleyball', team1: 'Poland', team2: 'Brazil', date: '2026-06-04', time: '19:00 GMT', venue: 'Spodek, Katowice', status: 'upcoming', stage: 'Nations League' },
 ];
 
-// Seed Live Streams
+// Seed Live Streams (Strictly Cricket Match Broadcasts)
 const SEED_STREAMS: LiveStreamItem[] = [
   {
     id: 'stream-1',
@@ -506,7 +506,7 @@ const SEED_STREAMS: LiveStreamItem[] = [
     description: 'Watch live ball-by-ball stream, tactical analysis, and commentary of Pakistan vs West Indies 2nd Test match live from National Stadium, Karachi.',
     platform: 'youtube',
     video_url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
-    embed_url: 'https://www.youtube.com/embed/jfKfPfyJRdk',
+    embed_url: 'https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0',
     thumbnail: 'https://images.unsplash.com/photo-1531415080290-b9b6e27967b8?w=1200&auto=format&fit=crop&q=80',
     status: 'active',
     is_featured: true,
@@ -520,7 +520,14 @@ const SEED_STREAMS: LiveStreamItem[] = [
     created_at: new Date(Date.now() - 3600000).toISOString(),
     updated_at: new Date().toISOString(),
     enable_chat: true,
-    views: 14250
+    views: 14250,
+    autoplay: true,
+    logo_position: 'top-right',
+    logo_type: 'badge',
+    logo_size: 'large',
+    custom_logo_url: '',
+    enable_custom_controls: true,
+    default_volume: 85
   },
   {
     id: 'stream-2',
@@ -528,7 +535,7 @@ const SEED_STREAMS: LiveStreamItem[] = [
     description: 'Official live match stream of Pakistan Super League (PSL) 2026 Final featuring high-voltage T20 action and live scoreboard.',
     platform: 'youtube',
     video_url: 'https://www.youtube.com/watch?v=21X5lGlDOfg',
-    embed_url: 'https://www.youtube.com/embed/21X5lGlDOfg',
+    embed_url: 'https://www.youtube-nocookie.com/embed/21X5lGlDOfg?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0',
     thumbnail: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
     status: 'active',
     is_featured: false,
@@ -542,95 +549,130 @@ const SEED_STREAMS: LiveStreamItem[] = [
     created_at: new Date(Date.now() - 1800000).toISOString(),
     updated_at: new Date().toISOString(),
     enable_chat: true,
-    views: 28900
+    views: 28900,
+    autoplay: true,
+    logo_position: 'top-right',
+    logo_type: 'badge',
+    logo_size: 'large',
+    custom_logo_url: '',
+    enable_custom_controls: true,
+    default_volume: 85
   },
   {
     id: 'stream-3',
-    title: 'UEFA Champions League Final - Real Madrid vs Manchester City Official Stream',
-    description: 'Live broadcast of the UEFA Champions League Final. Watch tactile build-up play, pitch cams, and English commentary.',
-    platform: 'facebook',
-    video_url: 'https://www.facebook.com/facebook/videos/10153231379946729/',
-    embed_url: 'https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Ffacebook%2Fvideos%2F10153231379946729%2F&show_text=false&width=1280',
-    thumbnail: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&auto=format&fit=crop&q=80',
-    status: 'upcoming',
+    title: 'India vs England 4th Test 2026 - Day 4 Live Match Broadcast',
+    description: 'Watch live ball-by-ball Test match action with expert commentary, pitch insights, and live session stats.',
+    platform: 'youtube',
+    video_url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+    embed_url: 'https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0',
+    thumbnail: 'https://images.unsplash.com/photo-1531415080290-b9b6e27967b8?w=1200&auto=format&fit=crop&q=80',
+    status: 'active',
     is_featured: false,
-    match_name: 'UEFA Champions League Final',
-    team_one: 'Real Madrid',
-    team_two: 'Manchester City',
-    tournament: 'UEFA Champions League 2026',
-    stream_start: new Date(Date.now() + 86400000).toISOString(),
-    stream_end: new Date(Date.now() + 97200000).toISOString(),
+    match_name: '4th Test Match - Day 4',
+    team_one: 'India',
+    team_two: 'England',
+    tournament: 'Anthony de Mello Trophy 2026',
+    stream_start: new Date(Date.now() - 7200000).toISOString(),
+    stream_end: new Date(Date.now() + 14400000).toISOString(),
     created_by: 'Hanan Irfan',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    enable_chat: false,
-    views: 4500
+    enable_chat: true,
+    views: 19500,
+    autoplay: true,
+    logo_position: 'top-right',
+    logo_type: 'badge',
+    logo_size: 'large',
+    custom_logo_url: '',
+    enable_custom_controls: true,
+    default_volume: 85
   },
   {
     id: 'stream-4',
-    title: 'Monaco Grand Prix 2026 - Main Race Live Telemetry & Track Cam Stream',
-    description: 'Live Formula 1 Grand Prix coverage with real-time pitstop telemetry, sector timings, and driver cockpit streams.',
+    title: 'Tamil Nadu Premier League (TNPL) 2026 - Match 27 Live T20 Stream',
+    description: 'High octane T20 action from TNPL 2026. Watch live boundary hits, death overs bowling, and tactical breakdowns.',
     platform: 'youtube',
     video_url: 'https://www.youtube.com/watch?v=5qap5aO4i9A',
-    embed_url: 'https://www.youtube.com/embed/5qap5aO4i9A',
-    thumbnail: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&auto=format&fit=crop&q=80',
+    embed_url: 'https://www.youtube-nocookie.com/embed/5qap5aO4i9A?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0',
+    thumbnail: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
     status: 'upcoming',
     is_featured: false,
-    match_name: 'Monaco Grand Prix',
-    team_one: 'Red Bull Racing',
-    team_two: 'Ferrari',
-    tournament: 'FIA Formula 1 World Championship 2026',
-    stream_start: new Date(Date.now() + 172800000).toISOString(),
-    stream_end: new Date(Date.now() + 180000000).toISOString(),
+    match_name: 'TNPL Match 27 • Super Over Action',
+    team_one: 'IDream Tiruppur Tamizhans',
+    team_two: 'Salem Spartans',
+    tournament: 'Shriram Capital TNPL 2026',
+    stream_start: new Date(Date.now() + 14400000).toISOString(),
+    stream_end: new Date(Date.now() + 28800000).toISOString(),
     created_by: 'Hanan Irfan',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     enable_chat: true,
-    views: 1200
+    views: 8200,
+    autoplay: true,
+    logo_position: 'top-right',
+    logo_type: 'badge',
+    logo_size: 'large',
+    custom_logo_url: '',
+    enable_custom_controls: true,
+    default_volume: 85
   },
   {
     id: 'stream-5',
-    title: 'StreamYard Live Sports Desk & Panel Discussion',
-    description: 'Live interactive panel discussion and match breakdown broadcasted directly via StreamYard studio.',
-    platform: 'streamyard',
-    video_url: 'https://streamyard.com/watch/demo-sports-room',
-    embed_url: 'https://streamyard.com/watch/demo-sports-room',
-    thumbnail: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&auto=format&fit=crop&q=80',
-    status: 'active',
+    title: 'ICC Men\'s T20 World Cup 2026 - Australia vs South Africa Super 8 Live',
+    description: 'Crucial Super 8 T20 encounter. Watch live powerplay hitting, yorkers, and instant momentum swings.',
+    platform: 'youtube',
+    video_url: 'https://www.youtube.com/watch?v=21X5lGlDOfg',
+    embed_url: 'https://www.youtube-nocookie.com/embed/21X5lGlDOfg?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0',
+    thumbnail: 'https://images.unsplash.com/photo-1531415080290-b9b6e27967b8?w=1200&auto=format&fit=crop&q=80',
+    status: 'upcoming',
     is_featured: false,
-    match_name: 'Live Sports Desk & Fan Q&A',
-    team_one: 'Sports Desk',
-    team_two: 'Guest Analysts',
-    tournament: 'StreamYard Live Studio',
-    stream_start: new Date(Date.now() - 1800000).toISOString(),
-    stream_end: new Date(Date.now() + 7200000).toISOString(),
+    match_name: 'Super 8 Match 12',
+    team_one: 'Australia',
+    team_two: 'South Africa',
+    tournament: 'ICC Men\'s T20 World Cup 2026',
+    stream_start: new Date(Date.now() + 86400000).toISOString(),
+    stream_end: new Date(Date.now() + 100800000).toISOString(),
     created_by: 'Hanan Irfan',
-    created_at: new Date(Date.now() - 1800000).toISOString(),
+    created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    enable_chat: false,
-    views: 3200
+    enable_chat: true,
+    views: 15400,
+    autoplay: true,
+    logo_position: 'top-right',
+    logo_type: 'badge',
+    logo_size: 'large',
+    custom_logo_url: '',
+    enable_custom_controls: true,
+    default_volume: 85
   },
   {
     id: 'stream-6',
-    title: 'Pakistan vs West Indies Test Series 2026 - Live HD Stream',
-    description: 'Watch Pakistan vs West Indies Test Series 2026 live streaming in High Definition powered by Tamasha Web. Full match coverage, ball-by-ball action, and commentary.',
-    platform: 'tamasha',
-    video_url: 'https://tamashaweb.com/pakistan-vs-west-indies-test-series-2026',
-    embed_url: 'https://tamashaweb.com/pakistan-vs-west-indies-test-series-2026',
+    title: 'The Ashes 2026 - Australia vs England 1st Test Live HD Broadcast',
+    description: 'The pinnacle of cricket rivalry. Live HD broadcast of Australia vs England 1st Test match with full statistical graphics.',
+    platform: 'youtube',
+    video_url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+    embed_url: 'https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0',
     thumbnail: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
     status: 'active',
-    is_featured: true,
-    match_name: 'Pakistan vs West Indies Test Series 2026',
-    team_one: 'Pakistan',
-    team_two: 'West Indies',
-    tournament: 'PAK vs WI Test Series 2026',
-    stream_start: new Date(Date.now() - 3600000).toISOString(),
-    stream_end: new Date(Date.now() + 14400000).toISOString(),
+    is_featured: false,
+    match_name: '1st Test Match - Session 2',
+    team_one: 'Australia',
+    team_two: 'England',
+    tournament: 'The Ashes Test Series 2026',
+    stream_start: new Date(Date.now() - 5400000).toISOString(),
+    stream_end: new Date(Date.now() + 18000000).toISOString(),
     created_by: 'Hanan Irfan',
-    created_at: new Date(Date.now() - 3600000).toISOString(),
+    created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     enable_chat: true,
-    views: 8900
+    views: 31200,
+    autoplay: true,
+    logo_position: 'top-right',
+    logo_type: 'badge',
+    logo_size: 'large',
+    custom_logo_url: '',
+    enable_custom_controls: true,
+    default_volume: 85
   }
 ];
 
@@ -1322,25 +1364,74 @@ export class DB {
     const data = localStorage.getItem(STORAGE_KEYS.LIVE_STREAMS);
     let streams: LiveStreamItem[] = data ? JSON.parse(data) : [];
     
-    // Auto-repair legacy dummy URLs if present in browser localStorage
+    // Auto-repair legacy non-cricket or unformatted streams in browser localStorage
     let updated = false;
-    streams = streams.map(s => {
-      if (s.embed_url?.includes('H9T9e03d_jE')) {
+
+    // Filter out or replace old non-cricket seeds
+    const legacyNonCricketTitles = ['UEFA', 'Champions League', 'Monaco Grand Prix', 'Formula 1', 'StreamYard Live Sports Desk', 'demo-sports-room'];
+    streams = streams.filter(s => {
+      const isLegacyNonCricket = legacyNonCricketTitles.some(term => 
+        (s.title && s.title.includes(term)) || 
+        (s.tournament && s.tournament.includes(term)) || 
+        (s.match_name && s.match_name.includes(term))
+      );
+      if (isLegacyNonCricket) {
         updated = true;
-        return { ...s, video_url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk', embed_url: 'https://www.youtube.com/embed/jfKfPfyJRdk' };
+        return false;
       }
-      if (s.embed_url?.includes('6p8bV_G7u20')) {
-        updated = true;
-        return { ...s, video_url: 'https://www.youtube.com/watch?v=21X5lGlDOfg', embed_url: 'https://www.youtube.com/embed/21X5lGlDOfg' };
-      }
-      if (s.embed_url?.includes('YBzE8S5S9_U')) {
-        updated = true;
-        return { ...s, video_url: 'https://www.youtube.com/watch?v=5qap5aO4i9A', embed_url: 'https://www.youtube.com/embed/5qap5aO4i9A' };
-      }
-      return s;
+      return true;
     });
 
-    // Ensure all initial SEED_STREAMS exist in local storage for existing users
+    streams = streams.map(s => {
+      let changed = false;
+      let newS = { ...s };
+
+      if (newS.embed_url?.includes('H9T9e03d_jE')) {
+        changed = true;
+        newS.video_url = 'https://www.youtube.com/watch?v=jfKfPfyJRdk';
+        newS.embed_url = 'https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0';
+      }
+      if (newS.embed_url?.includes('6p8bV_G7u20')) {
+        changed = true;
+        newS.video_url = 'https://www.youtube.com/watch?v=21X5lGlDOfg';
+        newS.embed_url = 'https://www.youtube-nocookie.com/embed/21X5lGlDOfg?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0';
+      }
+      if (newS.embed_url?.includes('YBzE8S5S9_U')) {
+        changed = true;
+        newS.video_url = 'https://www.youtube.com/watch?v=5qap5aO4i9A';
+        newS.embed_url = 'https://www.youtube-nocookie.com/embed/5qap5aO4i9A?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0';
+      }
+
+      if (newS.autoplay === undefined) {
+        newS.autoplay = true;
+        changed = true;
+      }
+      if (!newS.logo_position) {
+        newS.logo_position = 'top-right';
+        changed = true;
+      }
+      if (!newS.logo_type) {
+        newS.logo_type = 'badge';
+        changed = true;
+      }
+      if (!newS.logo_size) {
+        newS.logo_size = 'large';
+        changed = true;
+      }
+      if (newS.enable_custom_controls === undefined) {
+        newS.enable_custom_controls = true;
+        changed = true;
+      }
+      if (newS.default_volume === undefined) {
+        newS.default_volume = 85;
+        changed = true;
+      }
+
+      if (changed) updated = true;
+      return newS;
+    });
+
+    // Ensure all cricket SEED_STREAMS exist in local storage
     SEED_STREAMS.forEach(seed => {
       const exists = streams.some(s => s.id === seed.id);
       if (!exists) {
@@ -1406,6 +1497,12 @@ export class DB {
       created_at: stream.created_at || nowIso,
       updated_at: nowIso,
       views: stream.views || 0,
+      autoplay: stream.autoplay !== undefined ? stream.autoplay : true,
+      logo_position: stream.logo_position || 'top-right',
+      logo_type: stream.logo_type || 'badge',
+      custom_logo_url: stream.custom_logo_url || '',
+      enable_custom_controls: stream.enable_custom_controls !== undefined ? stream.enable_custom_controls : true,
+      default_volume: stream.default_volume !== undefined ? stream.default_volume : 80,
     } as LiveStreamItem;
 
     streams.unshift(newStream);

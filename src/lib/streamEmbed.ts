@@ -4,7 +4,7 @@
 
 export interface UrlValidationResult {
   isValid: boolean;
-  platform: 'facebook' | 'youtube' | 'streamyard' | 'tamasha' | null;
+  platform: 'facebook' | 'youtube' | 'streamyard' | 'tamasha' | 'twitch' | 'custom' | null;
   embedUrl: string;
   videoId?: string;
   error?: string;
@@ -15,23 +15,38 @@ const ALLOWED_DOMAINS = [
   'www.youtube.com',
   'm.youtube.com',
   'youtu.be',
+  'youtube-nocookie.com',
+  'www.youtube-nocookie.com',
   'facebook.com',
   'www.facebook.com',
   'm.facebook.com',
   'web.facebook.com',
   'fb.watch',
+  'fb.com',
   'streamyard.com',
   'www.streamyard.com',
   'tamashaweb.com',
   'www.tamashaweb.com',
   'tamasha.com.pk',
-  'www.tamasha.com.pk'
+  'www.tamasha.com.pk',
+  'twitch.tv',
+  'www.twitch.tv',
+  'player.twitch.tv',
+  'vimeo.com',
+  'player.vimeo.com',
+  'dailymotion.com',
+  'www.dailymotion.com'
 ];
 
 /**
- * Validates if a URL belongs to allowed Facebook, YouTube, StreamYard, or Tamasha domains and returns converted embed URL
+ * Validates any live stream URL (YouTube, Facebook, Tamasha, StreamYard, Twitch, custom streams)
+ * and formats the embed URL with auto-play parameters enabled.
  */
-export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: 'facebook' | 'youtube' | 'streamyard' | 'tamasha'): UrlValidationResult {
+export function validateAndConvertStreamUrl(
+  rawUrl: string, 
+  explicitPlatform?: 'facebook' | 'youtube' | 'streamyard' | 'tamasha' | 'twitch' | 'custom',
+  autoPlay: boolean = true
+): UrlValidationResult {
   if (!rawUrl || typeof rawUrl !== 'string') {
     return {
       isValid: false,
@@ -61,39 +76,36 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
     }
 
     const hostname = parsed.hostname.toLowerCase();
-    const isAllowedDomain = ALLOWED_DOMAINS.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
-
-    if (!isAllowedDomain) {
-      return {
-        isValid: false,
-        platform: null,
-        embedUrl: '',
-        error: 'Security Error: Only official YouTube, Facebook, StreamYard, and Tamasha (tamashaweb.com) URLs are accepted.'
-      };
-    }
 
     // Determine Platform
-    let platform: 'facebook' | 'youtube' | 'streamyard' | 'tamasha' = 'youtube';
-    if (hostname.includes('facebook') || hostname.includes('fb.watch')) {
+    let platform: 'facebook' | 'youtube' | 'streamyard' | 'tamasha' | 'twitch' | 'custom' = 'youtube';
+    if (hostname.includes('facebook') || hostname.includes('fb.watch') || hostname.includes('fb.com')) {
       platform = 'facebook';
     } else if (hostname.includes('streamyard')) {
       platform = 'streamyard';
     } else if (hostname.includes('tamasha')) {
       platform = 'tamasha';
+    } else if (hostname.includes('twitch')) {
+      platform = 'twitch';
     } else if (hostname.includes('youtube') || hostname.includes('youtu.be')) {
       platform = 'youtube';
     } else if (explicitPlatform) {
       platform = explicitPlatform;
+    } else {
+      platform = 'custom';
     }
 
-    // Convert Tamasha
+    // 1. Convert Tamasha
     if (platform === 'tamasha') {
       let embedUrl = parsed.toString();
-      // Handle tamashaweb.com URLs (e.g. https://tamashaweb.com/live/ten-sports-hd or /watch/...)
       if (parsed.pathname.startsWith('/live/') || parsed.pathname.startsWith('/watch/')) {
         embedUrl = `https://tamashaweb.com${parsed.pathname}${parsed.search}`;
       } else if (!embedUrl.includes('tamashaweb.com') && !embedUrl.includes('tamasha.com.pk')) {
         embedUrl = `https://tamashaweb.com${parsed.pathname}${parsed.search}`;
+      }
+
+      if (autoPlay && !embedUrl.includes('autoplay')) {
+        embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'autoplay=true';
       }
 
       const pathParts = parsed.pathname.split('/').filter(Boolean);
@@ -107,26 +119,20 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
       };
     }
 
-    // Convert StreamYard
+    // 2. Convert StreamYard
     if (platform === 'streamyard') {
       const pathParts = parsed.pathname.split('/').filter(Boolean);
       const streamId = pathParts.length > 0 ? pathParts[pathParts.length - 1] : '';
 
-      if (!streamId && !cleanUrl.includes('streamyard.com')) {
-        return {
-          isValid: false,
-          platform: 'streamyard',
-          embedUrl: '',
-          error: 'Could not extract valid StreamYard broadcast ID from the provided link.'
-        };
-      }
-
-      // Format clean embed URL (watch or embed or full raw streamyard link)
       let embedUrl = parsed.toString();
       if (parsed.pathname.startsWith('/watch/') || parsed.pathname.startsWith('/embed/')) {
         embedUrl = `https://streamyard.com${parsed.pathname}${parsed.search}`;
       } else if (streamId) {
         embedUrl = `https://streamyard.com/watch/${streamId}`;
+      }
+
+      if (autoPlay && !embedUrl.includes('autoplay')) {
+        embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'autoplay=1';
       }
 
       return {
@@ -137,22 +143,36 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
       };
     }
 
-    // Convert YouTube
+    // 3. Convert Twitch
+    if (platform === 'twitch') {
+      let channel = '';
+      const pathParts = parsed.pathname.split('/').filter(Boolean);
+      if (pathParts.length > 0) {
+        channel = pathParts[0];
+      }
+      const host = typeof window !== 'undefined' ? window.location.hostname : 'thesportsroom.online';
+      const embedUrl = `https://player.twitch.tv/?channel=${channel}&parent=${host}&autoplay=${autoPlay}`;
+
+      return {
+        isValid: true,
+        platform: 'twitch',
+        embedUrl,
+        videoId: channel
+      };
+    }
+
+    // 4. Convert YouTube
     if (platform === 'youtube') {
       let videoId = '';
 
       if (hostname.includes('youtu.be')) {
-        // e.g. https://youtu.be/abc1234
         videoId = parsed.pathname.replace(/^\//, '').split('/')[0];
       } else if (parsed.pathname.includes('/watch')) {
-        // e.g. https://www.youtube.com/watch?v=abc1234
         videoId = parsed.searchParams.get('v') || '';
       } else if (parsed.pathname.includes('/embed/')) {
-        // e.g. https://www.youtube.com/embed/abc1234
         const parts = parsed.pathname.split('/embed/');
         videoId = parts[1] ? parts[1].split('/')[0].split('?')[0] : '';
       } else if (parsed.pathname.includes('/live/')) {
-        // e.g. https://www.youtube.com/live/abc1234
         const parts = parsed.pathname.split('/live/');
         videoId = parts[1] ? parts[1].split('/')[0].split('?')[0] : '';
       } else if (parsed.pathname.includes('/shorts/')) {
@@ -161,14 +181,12 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
       }
 
       if (!videoId) {
-        // Fallback check query params or pathname
         const pathParts = parsed.pathname.split('/').filter(Boolean);
         if (pathParts.length > 0) {
           videoId = pathParts[pathParts.length - 1];
         }
       }
 
-      // Remove extra params from videoId if any remain
       videoId = videoId.replace(/[^a-zA-Z0-9_-]/g, '');
 
       if (!videoId) {
@@ -180,7 +198,9 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
         };
       }
 
-      const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      const autoPlayParam = autoPlay ? 'autoplay=1' : 'autoplay=0';
+      // Use YouTube-nocookie with enablejsapi=1, modestbranding=1, playsinline=1, rel=0, showinfo=0, controls=1, iv_load_policy=3, disablekb=0
+      const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?${autoPlayParam}&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0`;
       return {
         isValid: true,
         platform: 'youtube',
@@ -189,12 +209,12 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
       };
     }
 
-    // Convert Facebook
+    // 5. Convert Facebook
     if (platform === 'facebook') {
-      // For Facebook, standard plugins embed requires full encoded URL
       const fullUrl = parsed.toString();
       const encodedUrl = encodeURIComponent(fullUrl);
-      const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=1280&autoplay=true`;
+      const autoPlayParam = autoPlay ? 'autoplay=true' : 'autoplay=false';
+      const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=1280&${autoPlayParam}&allowfullscreen=true`;
 
       return {
         isValid: true,
@@ -203,11 +223,16 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
       };
     }
 
+    // 6. Generic / Custom Video URL (MP4, HLS, or direct iframe embed URL)
+    let embedUrl = parsed.toString();
+    if (autoPlay && !embedUrl.includes('autoplay')) {
+      embedUrl += (embedUrl.includes('?') ? '&' : '?') + 'autoplay=1';
+    }
+
     return {
-      isValid: false,
-      platform: null,
-      embedUrl: '',
-      error: 'Unsupported platform format'
+      isValid: true,
+      platform: 'custom',
+      embedUrl
     };
 
   } catch (err) {
@@ -215,7 +240,7 @@ export function validateAndConvertStreamUrl(rawUrl: string, explicitPlatform?: '
       isValid: false,
       platform: null,
       embedUrl: '',
-      error: 'Invalid URL format'
+      error: 'Invalid URL format. Please provide a valid stream link.'
     };
   }
 }

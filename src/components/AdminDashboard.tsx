@@ -246,7 +246,13 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       stream_start: new Date().toISOString().slice(0, 16),
       stream_end: new Date(Date.now() + 14400000).toISOString().slice(0, 16),
       enable_chat: true,
-      created_by: currentAdmin?.name || 'Hanan Irfan'
+      created_by: currentAdmin?.name || 'Hanan Irfan',
+      autoplay: true,
+      logo_position: 'top-right',
+      logo_type: 'badge',
+      custom_logo_url: '',
+      enable_custom_controls: true,
+      default_volume: 85
     });
     setIsStreamModalOpen(true);
   };
@@ -255,6 +261,12 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setStreamUrlError('');
     setEditingStream({
       ...item,
+      autoplay: item.autoplay !== undefined ? item.autoplay : true,
+      logo_position: item.logo_position || 'top-right',
+      logo_type: item.logo_type || 'badge',
+      custom_logo_url: item.custom_logo_url || '',
+      enable_custom_controls: item.enable_custom_controls !== undefined ? item.enable_custom_controls : true,
+      default_volume: item.default_volume !== undefined ? item.default_volume : 85,
       stream_start: item.stream_start ? item.stream_start.slice(0, 16) : new Date().toISOString().slice(0, 16),
       stream_end: item.stream_end ? item.stream_end.slice(0, 16) : new Date(Date.now() + 14400000).toISOString().slice(0, 16),
     });
@@ -268,10 +280,11 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       return;
     }
 
-    // Auto-convert and validate stream URL
-    const conversion = validateAndConvertStreamUrl(editingStream.video_url);
+    const autoPlaySetting = editingStream.autoplay !== undefined ? editingStream.autoplay : true;
+    // Auto-convert and validate stream URL with autoplay parameter
+    const conversion = validateAndConvertStreamUrl(editingStream.video_url, editingStream.platform, autoPlaySetting);
     if (!conversion.isValid || !conversion.embedUrl) {
-      setStreamUrlError(conversion.error || 'Invalid video stream URL. Please provide a valid Facebook or YouTube video link.');
+      setStreamUrlError(conversion.error || 'Invalid video stream URL. Please provide a valid stream link.');
       return;
     }
 
@@ -279,7 +292,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       id: editingStream.id,
       title: editingStream.title.trim(),
       description: editingStream.description?.trim() || '',
-      platform: conversion.platform,
+      platform: conversion.platform || editingStream.platform || 'youtube',
       video_url: editingStream.video_url.trim(),
       embed_url: conversion.embedUrl,
       thumbnail: editingStream.thumbnail || 'https://images.unsplash.com/photo-1540747737956-378724044282?w=1200&auto=format&fit=crop&q=80',
@@ -296,6 +309,12 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       updated_at: new Date().toISOString(),
       enable_chat: editingStream.enable_chat !== undefined ? editingStream.enable_chat : true,
       views: editingStream.views || 0,
+      autoplay: autoPlaySetting,
+      logo_position: editingStream.logo_position || 'top-right',
+      logo_type: editingStream.logo_type || 'badge',
+      custom_logo_url: editingStream.custom_logo_url?.trim() || '',
+      enable_custom_controls: editingStream.enable_custom_controls !== undefined ? editingStream.enable_custom_controls : true,
+      default_volume: editingStream.default_volume !== undefined ? Number(editingStream.default_volume) : 85,
     };
 
     DB.saveLiveStream(streamDataToSave);
@@ -2390,7 +2409,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                 <thead>
                   <tr className="bg-slate-50 text-slate-550 border-b border-slate-200 font-mono text-[11px] uppercase text-left">
                     <th className="py-3 px-4">Stream & Match Info</th>
-                    <th className="py-3 px-4">Platform</th>
+                    <th className="py-3 px-4">Quality & Brand</th>
                     <th className="py-3 px-4">Teams & Tournament</th>
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4">Featured</th>
@@ -2419,8 +2438,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       </td>
 
                       <td className="py-3.5 px-4 font-mono text-xs">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase text-white ${stream.platform === 'youtube' ? 'bg-red-600' : 'bg-blue-600'}`}>
-                          {stream.platform === 'youtube' ? 'YouTube' : 'Facebook'}
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase text-white bg-emerald-700">
+                          HD Stream • {stream.logo_position || 'top-right'}
                         </span>
                       </td>
 
@@ -4109,7 +4128,7 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
 
               <div>
                 <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
-                  Tamasha, StreamYard, YouTube, or Facebook Video URL / Embed String *
+                  Live Match Video Stream URL / Iframe Embed *
                 </label>
                 <input
                   type="text"
@@ -4128,11 +4147,11 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
                       embed_url: res.embedUrl || editingStream.embed_url
                     });
                   }}
-                  placeholder="https://tamashaweb.com/live/... or streamyard.com/watch/... or youtube link"
+                  placeholder="Paste any live video stream link or iframe..."
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
                 />
                 <p className="text-[11px] text-slate-500 mt-1 font-mono">
-                  Supported formats: Tamasha Live (tamashaweb.com), StreamYard, YouTube (live/shorts), Facebook videos, or raw iframe tags.
+                  Paste any match video link. The origin account/source branding is automatically shielded on the public broadcast page.
                 </p>
               </div>
 
@@ -4140,16 +4159,170 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
               {editingStream.video_url && (
                 <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl text-slate-200 font-mono text-[11px] space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[#22c55e] font-bold">● Auto Detected Engine:</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold text-white ${editingStream.platform === 'youtube' ? 'bg-red-600' : editingStream.platform === 'tamasha' ? 'bg-emerald-600' : editingStream.platform === 'streamyard' ? 'bg-teal-600' : 'bg-blue-600'}`}>
-                      {editingStream.platform === 'youtube' ? 'YouTube Live' : editingStream.platform === 'tamasha' ? 'Tamasha Live' : editingStream.platform === 'streamyard' ? 'StreamYard' : 'Facebook Live'}
+                    <span className="text-[#22c55e] font-bold">● Stream Auto-Processor:</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold text-white bg-emerald-600">
+                      Ready for Broadcast
                     </span>
                   </div>
                   <p className="text-slate-400 text-[10px] truncate">
-                    Target Embed URL: {validateAndConvertStreamUrl(editingStream.video_url).embedUrl || 'Waiting for valid link...'}
+                    Target Embed URL: {validateAndConvertStreamUrl(editingStream.video_url, editingStream.platform, editingStream.autoplay !== false).embedUrl || 'Waiting for valid link...'}
                   </p>
                 </div>
               )}
+
+              {/* LIVE STREAM PLAYBACK, AUTOPLAY & WEBSITE WATERMARK LOGO CONFIGURATION */}
+              <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-[#022c22]/40 border border-emerald-900/60 p-4 rounded-2xl text-slate-200 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#22c55e] animate-ping"></span>
+                    <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+                      Auto-Play & Website Logo Branding Settings
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-mono bg-emerald-950/80 border border-emerald-800/80 text-[#22c55e] px-2 py-0.5 rounded-full">
+                    Official Broadcast
+                  </span>
+                </div>
+
+                {/* 1. Auto-Play Video Toggle */}
+                <div className="flex items-start justify-between bg-slate-950/80 border border-slate-800/80 p-3 rounded-xl">
+                  <div className="space-y-0.5 pr-4">
+                    <label className="text-xs font-mono font-bold text-white uppercase flex items-center gap-1.5 cursor-pointer" htmlFor="stream-autoplay-toggle">
+                      <span>⚡ Auto-Play Video On Page Load</span>
+                      <span className="text-[9px] bg-[#22c55e]/20 text-[#22c55e] px-1.5 py-0.2 rounded font-mono">Auto Start</span>
+                    </label>
+                    <p className="text-[11px] text-slate-400 leading-snug">
+                      Starts video playback immediately when users visit the live match page.
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    id="stream-autoplay-toggle"
+                    checked={editingStream.autoplay !== false}
+                    onChange={(e) => setEditingStream({ ...editingStream, autoplay: e.target.checked })}
+                    className="w-5 h-5 rounded accent-[#22c55e] cursor-pointer mt-0.5 shrink-0"
+                  />
+                </div>
+
+                {/* 2. Logo Watermark Position & Style */}
+                <div className="space-y-3 bg-slate-950/80 border border-slate-800/80 p-3.5 rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-mono font-bold text-white uppercase flex items-center gap-1.5">
+                      <span>🏷️ Admin Website Logo Position</span>
+                    </label>
+                    <span className="text-[10px] text-slate-400 font-mono">Sets where logo appears on video</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {[
+                      { id: 'top-left', label: '↖️ Top Left', desc: 'Upper Left Corner' },
+                      { id: 'top-right', label: '↗️ Top Right', desc: 'Upper Right Corner' },
+                      { id: 'bottom-right', label: '↘️ Bottom Right', desc: 'Lower Right Corner' },
+                      { id: 'bottom-left', label: '↙️ Bottom Left', desc: 'Lower Left Corner' },
+                    ].map((pos) => {
+                      const isSelected = (editingStream.logo_position || 'top-right') === pos.id;
+                      return (
+                        <button
+                          key={pos.id}
+                          type="button"
+                          onClick={() => setEditingStream({ ...editingStream, logo_position: pos.id as any })}
+                          className={`p-2.5 rounded-xl text-left border transition cursor-pointer ${
+                            isSelected
+                              ? 'bg-emerald-950/90 border-[#22c55e] text-white ring-1 ring-[#22c55e]'
+                              : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                          }`}
+                        >
+                          <div className="text-xs font-mono font-bold flex items-center justify-between">
+                            <span>{pos.label}</span>
+                            {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]"></span>}
+                          </div>
+                          <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{pos.desc}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Watermark Design Style & Size */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+                    <div>
+                      <label className="block text-[11px] font-mono font-bold text-slate-300 uppercase mb-1">
+                        Logo Appearance
+                      </label>
+                      <select
+                        value={editingStream.logo_type || 'badge'}
+                        onChange={(e) => setEditingStream({ ...editingStream, logo_type: e.target.value as any })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#22c55e]"
+                      >
+                        <option value="badge">The Sports Room Live HD Badge</option>
+                        <option value="emblem">The Sports Room Shield Emblem</option>
+                        <option value="custom">Custom Logo Image URL</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-mono font-bold text-slate-300 uppercase mb-1">
+                        Logo Size On Screen
+                      </label>
+                      <select
+                        value={editingStream.logo_size || 'large'}
+                        onChange={(e) => setEditingStream({ ...editingStream, logo_size: e.target.value as any })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#22c55e]"
+                      >
+                        <option value="large">🌟 Big & Authoritative (Recommended)</option>
+                        <option value="medium">🔹 Medium Display</option>
+                        <option value="small">▪️ Compact Corner Tag</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-mono font-bold text-slate-300 uppercase mb-1">
+                        {editingStream.logo_type === 'custom' ? 'Custom Logo Image URL *' : 'Custom Branding Text / URL'}
+                      </label>
+                      <input
+                        type="text"
+                        value={editingStream.custom_logo_url || ''}
+                        onChange={(e) => setEditingStream({ ...editingStream, custom_logo_url: e.target.value })}
+                        placeholder={editingStream.logo_type === 'custom' ? 'https://thesportsroom.online/custom-logo.png' : 'Default: The Sports Room Live'}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#22c55e]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Live Interactive Visual Mockup Preview */}
+                <div className="relative aspect-video bg-slate-950 rounded-xl border border-slate-800 overflow-hidden flex flex-col justify-between p-3 shadow-inner">
+                  {/* Background Mockup Screen */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-900 to-[#022c22]/30 flex items-center justify-center">
+                    <div className="text-center space-y-1 opacity-40">
+                      <div className="w-8 h-8 rounded-full bg-[#22c55e]/20 border border-[#22c55e]/40 flex items-center justify-center mx-auto text-[#22c55e] font-mono text-xs">
+                        ▶
+                      </div>
+                      <span className="text-[10px] font-mono uppercase text-slate-300">
+                        {editingStream.match_name || 'Live Match Stream'} (Auto-Play: {editingStream.autoplay !== false ? 'ON' : 'OFF'})
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Watermark Overlay Mockup based on chosen position */}
+                  <div className={`absolute z-10 ${
+                    (editingStream.logo_position || 'top-right') === 'top-left' ? 'top-3 left-3' :
+                    (editingStream.logo_position || 'top-right') === 'top-right' ? 'top-3 right-3' :
+                    (editingStream.logo_position || 'top-right') === 'bottom-left' ? 'bottom-3 left-3' :
+                    'bottom-3 right-3'
+                  }`}>
+                    <div className="bg-slate-950/90 border border-emerald-500/50 shadow-lg px-2.5 py-1 rounded-lg flex items-center space-x-2 backdrop-blur-md">
+                      <div className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></div>
+                      {editingStream.custom_logo_url ? (
+                        <img src={editingStream.custom_logo_url} alt="Logo" className="h-4 max-w-[80px] object-contain" />
+                      ) : (
+                        <span className="text-[10px] font-black font-display uppercase tracking-wider text-white">
+                          THE SPORTS ROOM <span className="text-[#22c55e]">HD</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>

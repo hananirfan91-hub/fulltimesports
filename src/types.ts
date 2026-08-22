@@ -126,7 +126,7 @@ export interface LiveStreamItem {
   id: string;
   title: string;
   description: string;
-  platform: 'facebook' | 'youtube' | 'streamyard' | 'tamasha';
+  platform: 'facebook' | 'youtube' | 'streamyard' | 'tamasha' | 'twitch' | 'custom';
   video_url: string;
   embed_url: string;
   thumbnail?: string;
@@ -143,6 +143,15 @@ export interface LiveStreamItem {
   updated_at?: string;
   enable_chat?: boolean;
   views?: number;
+  
+  // Custom Controls & Website Watermark Options
+  autoplay?: boolean; // Auto-play video on stream load
+  logo_position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'; // Admin set logo watermark corner
+  logo_type?: 'badge' | 'emblem' | 'custom'; // Watermark appearance style
+  logo_size?: 'normal' | 'large' | 'xlarge'; // Logo watermark size (default: large)
+  custom_logo_url?: string; // Optional custom logo image URL override
+  enable_custom_controls?: boolean; // Show TSR website volume & audio controls
+  default_volume?: number; // Default website volume (0-100)
 }
 
 export interface SearchFilter {
