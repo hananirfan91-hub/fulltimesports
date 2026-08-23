@@ -1201,14 +1201,14 @@ export class DB {
           const deletedIds = this.getDeletedStreamIds();
           const localStreams = this.getLiveStreams();
 
-          // Build a canonical map
+          // Build canonical map from Supabase
           const streamMap = new Map<string, LiveStreamItem>();
 
-          // Add remote streams that are not deleted
+          // Add remote streams that are not marked as deleted
           streams.forEach((rs: any) => {
             const id = String(rs.id || '');
             if (id && !deletedIds.includes(id)) {
-              streamMap.set(id, {
+              const streamItem: LiveStreamItem = {
                 id: id,
                 title: String(rs.title || ''),
                 description: String(rs.description || ''),
@@ -1236,47 +1236,47 @@ export class DB {
                 custom_logo_url: rs.custom_logo_url || '',
                 enable_custom_controls: rs.enable_custom_controls !== undefined ? Boolean(rs.enable_custom_controls) : true,
                 default_volume: rs.default_volume !== undefined ? Number(rs.default_volume) : 85,
-              });
+              };
+              (streamItem as any).is_synced = true;
+              streamMap.set(id, streamItem);
             }
           });
 
-          // Merge local streams (respect newer local edits or unsynced local streams)
           const unsyncedStreams: LiveStreamItem[] = [];
-          localStreams.forEach((ls: LiveStreamItem) => {
-            if (!ls.id || deletedIds.includes(ls.id)) return;
-            const existingRemote = streamMap.get(ls.id);
-            if (!existingRemote) {
-              // Local stream exists but not in remote yet (e.g. newly created stream or initial seed)
-              streamMap.set(ls.id, ls);
-              unsyncedStreams.push(ls);
-            } else {
-              // Compare timestamps
-              const remoteTime = new Date(existingRemote.updated_at || existingRemote.created_at).getTime() || 0;
-              const localTime = new Date(ls.updated_at || ls.created_at).getTime() || 0;
-              if (ls.updated_at && localTime > remoteTime) {
-                // Local is newer (admin edited locally) - preserve local and push to Supabase!
-                streamMap.set(ls.id, { ...existingRemote, ...ls });
+
+          if (streams.length === 0 && deletedIds.length === 0) {
+            // First time initialization: if Supabase table is completely empty, seed it once
+            localStreams.forEach(ls => {
+              if (ls.id && !deletedIds.includes(ls.id)) {
+                (ls as any).is_synced = true;
+                streamMap.set(ls.id, ls);
                 unsyncedStreams.push(ls);
-              } else {
-                // Preserve local styling / branding flags if remote didn't store them
-                streamMap.set(ls.id, {
-                  ...existingRemote,
-                  autoplay: ls.autoplay !== undefined ? ls.autoplay : existingRemote.autoplay,
-                  logo_position: ls.logo_position || existingRemote.logo_position,
-                  logo_type: ls.logo_type || existingRemote.logo_type,
-                  logo_size: ls.logo_size || existingRemote.logo_size,
-                  custom_logo_url: ls.custom_logo_url || existingRemote.custom_logo_url,
-                  enable_custom_controls: ls.enable_custom_controls !== undefined ? ls.enable_custom_controls : existingRemote.enable_custom_controls,
-                  default_volume: ls.default_volume !== undefined ? ls.default_volume : existingRemote.default_volume,
-                });
               }
-            }
-          });
+            });
+          } else {
+            // Merge only unsynced local drafts or newer local edits
+            localStreams.forEach((ls: LiveStreamItem) => {
+              if (!ls.id || deletedIds.includes(ls.id)) return;
+              const existingRemote = streamMap.get(ls.id);
+              if (existingRemote) {
+                const remoteTime = new Date(existingRemote.updated_at || existingRemote.created_at).getTime() || 0;
+                const localTime = new Date(ls.updated_at || ls.created_at).getTime() || 0;
+                if (ls.updated_at && localTime > remoteTime) {
+                  (ls as any).is_synced = true;
+                  streamMap.set(ls.id, { ...existingRemote, ...ls });
+                  unsyncedStreams.push(ls);
+                }
+              } else if ((ls as any).is_synced === false) {
+                // Only push local streams if they were explicitly created locally and not yet synced
+                (ls as any).is_synced = true;
+                streamMap.set(ls.id, ls);
+                unsyncedStreams.push(ls);
+              }
+            });
+          }
 
           const mergedStreams = Array.from(streamMap.values());
-          if (mergedStreams.length > 0 || deletedIds.length > 0) {
-            localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(mergedStreams));
-          }
+          localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(mergedStreams));
 
           if (unsyncedStreams.length > 0) {
             this.safeUpsertLiveStreams(unsyncedStreams);
