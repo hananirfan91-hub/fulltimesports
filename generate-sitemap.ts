@@ -30,6 +30,7 @@ async function generate() {
   // Core static URLs
   const coreUrls = [
     { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0" },
+    { loc: `${baseUrl}/live-stream`, changefreq: "always", priority: "0.98" },
     { loc: `${baseUrl}/why-choose-us`, changefreq: "daily", priority: "0.95" },
     { loc: `${baseUrl}/what-is-the-sports-room`, changefreq: "daily", priority: "0.95" },
     { loc: `${baseUrl}/about-us`, changefreq: "monthly", priority: "0.4" },

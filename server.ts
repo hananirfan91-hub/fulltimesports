@@ -67,12 +67,12 @@ async function getSitemapXML(host: string): Promise<string> {
   // Core static URLs
   const coreUrls = [
     { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0" },
+    { loc: `${baseUrl}/live-stream`, changefreq: "always", priority: "0.98" },
     { loc: `${baseUrl}/topic/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9" },
     { loc: `${baseUrl}/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9" },
     { loc: `${baseUrl}/author/hanan-irfan`, changefreq: "daily", priority: "0.9" },
     { loc: `${baseUrl}/why-choose-us`, changefreq: "weekly", priority: "0.8" },
     { loc: `${baseUrl}/what-is-the-sports-room`, changefreq: "weekly", priority: "0.8" },
-    { loc: `${baseUrl}/live-stream`, changefreq: "daily", priority: "0.8" },
     { loc: `${baseUrl}/about-us`, changefreq: "monthly", priority: "0.4" },
     { loc: `${baseUrl}/contact-us`, changefreq: "monthly", priority: "0.4" },
     { loc: `${baseUrl}/privacy-policy`, changefreq: "monthly", priority: "0.3" },
