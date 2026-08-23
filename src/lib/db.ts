@@ -45,6 +45,7 @@ const STORAGE_KEYS = {
   TICKETS: 'fts_tickets',
   SUBSCRIBERS: 'fts_subscribers',
   LIVE_STREAMS: 'fts_live_streams',
+  DELETED_STREAM_IDS: 'fts_deleted_stream_ids',
   HERO_CONFIG: 'fts_hero_config',
   FAN_POLLS: 'fts_fan_polls',
   QUIZZES: 'fts_quizzes',
@@ -870,6 +871,78 @@ export class DB {
     }
   }
 
+  // Helper to safely upsert live streams to Supabase with multi-tier schema compatibility
+  static async safeUpsertLiveStreams(streams: LiveStreamItem[]) {
+    if (!streams || streams.length === 0) return;
+
+    const buildPayload = (s: LiveStreamItem, mode: 'full' | 'standard' | 'minimal') => {
+      const minimal: any = {
+        id: String(s.id),
+        title: String(s.title || 'Live Match Stream'),
+        description: String(s.description || ''),
+        platform: String(s.platform || 'youtube'),
+        video_url: String(s.video_url || ''),
+        embed_url: String(s.embed_url || ''),
+        thumbnail: String(s.thumbnail || ''),
+        status: String(s.status || 'active'),
+        is_featured: Boolean(s.is_featured),
+        match_name: String(s.match_name || ''),
+        tournament: String(s.tournament || ''),
+        created_at: String(s.created_at || new Date().toISOString()),
+        updated_at: String(s.updated_at || new Date().toISOString()),
+        views: Number(s.views) || 0,
+      };
+
+      if (mode === 'minimal') return minimal;
+
+      const standard: any = {
+        ...minimal,
+        team_one: String(s.team_one || ''),
+        team_two: String(s.team_two || ''),
+        stream_start: s.stream_start || null,
+        stream_end: s.stream_end || null,
+        created_by: String(s.created_by || 'Hanan Irfan'),
+        enable_chat: s.enable_chat !== undefined ? Boolean(s.enable_chat) : true,
+      };
+
+      if (mode === 'standard') return standard;
+
+      return {
+        ...standard,
+        autoplay: s.autoplay !== undefined ? Boolean(s.autoplay) : true,
+        logo_position: s.logo_position || 'top-right',
+        logo_type: s.logo_type || 'badge',
+        logo_size: s.logo_size || 'large',
+        custom_logo_url: s.custom_logo_url || '',
+        enable_custom_controls: s.enable_custom_controls !== undefined ? Boolean(s.enable_custom_controls) : true,
+        default_volume: s.default_volume !== undefined ? Number(s.default_volume) : 85,
+      };
+    };
+
+    // Tier 1: Try Full payload (with all modern UI customization fields)
+    const fullPayloads = streams.map(s => buildPayload(s, 'full'));
+    const { error: fullError } = await supabase.from('fts_live_streams').upsert(fullPayloads);
+
+    if (fullError) {
+      console.warn("Supabase full live stream upsert notice:", fullError.message);
+
+      // Tier 2: Try Standard payload
+      const standardPayloads = streams.map(s => buildPayload(s, 'standard'));
+      const { error: standardError } = await supabase.from('fts_live_streams').upsert(standardPayloads);
+
+      if (standardError) {
+        console.warn("Supabase standard live stream upsert notice:", standardError.message);
+
+        // Tier 3: Try Minimal payload (core fields guaranteed to match base table)
+        const minimalPayloads = streams.map(s => buildPayload(s, 'minimal'));
+        const { error: minimalError } = await supabase.from('fts_live_streams').upsert(minimalPayloads);
+        if (minimalError) {
+          console.warn("Supabase minimal live stream upsert notice:", minimalError.message);
+        }
+      }
+    }
+  }
+
   private static lastSyncTimestamp = 0;
   private static lastQuizSyncTimestamp = 0;
   private static CACHE_TTL_MS = 5 * 60 * 1000; // 5-minute cache window to eliminate unnecessary Supabase egress
@@ -1120,19 +1193,97 @@ export class DB {
       }
 
       // 6. Sync Live Streams
-      const { data: streams, error: streamError } = await supabase.from('fts_live_streams').select('*');
-      if (streamError) {
-        console.warn("Supabase fetch live streams notice:", streamError.message);
-      } else if (streams) {
-        if (streams.length > 0) {
-          localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
-        } else {
+      try {
+        const { data: streams, error: streamError } = await supabase.from('fts_live_streams').select('*');
+        if (streamError) {
+          console.warn("Supabase fetch live streams notice:", streamError.message);
+        } else if (streams) {
+          const deletedIds = this.getDeletedStreamIds();
           const localStreams = this.getLiveStreams();
-          if (localStreams.length > 0) {
-            const { error: streamUpsertErr } = await supabase.from('fts_live_streams').upsert(localStreams);
-            if (streamUpsertErr) console.warn("Supabase live streams upsert notice:", streamUpsertErr.message);
+
+          // Build a canonical map
+          const streamMap = new Map<string, LiveStreamItem>();
+
+          // Add remote streams that are not deleted
+          streams.forEach((rs: any) => {
+            const id = String(rs.id || '');
+            if (id && !deletedIds.includes(id)) {
+              streamMap.set(id, {
+                id: id,
+                title: String(rs.title || ''),
+                description: String(rs.description || ''),
+                platform: (rs.platform || 'youtube') as any,
+                video_url: String(rs.video_url || rs.videoUrl || ''),
+                embed_url: String(rs.embed_url || rs.embedUrl || ''),
+                thumbnail: String(rs.thumbnail || ''),
+                status: (rs.status || 'active') as any,
+                is_featured: Boolean(rs.is_featured ?? rs.isFeatured),
+                match_name: String(rs.match_name || rs.matchName || ''),
+                team_one: String(rs.team_one || rs.teamOne || ''),
+                team_two: String(rs.team_two || rs.teamTwo || ''),
+                tournament: String(rs.tournament || ''),
+                stream_start: String(rs.stream_start || rs.streamStart || new Date().toISOString()),
+                stream_end: String(rs.stream_end || rs.streamEnd || new Date(Date.now() + 14400000).toISOString()),
+                created_by: String(rs.created_by || rs.createdBy || 'Hanan Irfan'),
+                created_at: String(rs.created_at || rs.createdAt || new Date().toISOString()),
+                updated_at: String(rs.updated_at || rs.updatedAt || new Date().toISOString()),
+                enable_chat: rs.enable_chat !== undefined ? Boolean(rs.enable_chat) : true,
+                views: Number(rs.views) || 0,
+                autoplay: rs.autoplay !== undefined ? Boolean(rs.autoplay) : true,
+                logo_position: rs.logo_position || 'top-right',
+                logo_type: rs.logo_type || 'badge',
+                logo_size: rs.logo_size || 'large',
+                custom_logo_url: rs.custom_logo_url || '',
+                enable_custom_controls: rs.enable_custom_controls !== undefined ? Boolean(rs.enable_custom_controls) : true,
+                default_volume: rs.default_volume !== undefined ? Number(rs.default_volume) : 85,
+              });
+            }
+          });
+
+          // Merge local streams (respect newer local edits or unsynced local streams)
+          const unsyncedStreams: LiveStreamItem[] = [];
+          localStreams.forEach((ls: LiveStreamItem) => {
+            if (!ls.id || deletedIds.includes(ls.id)) return;
+            const existingRemote = streamMap.get(ls.id);
+            if (!existingRemote) {
+              // Local stream exists but not in remote yet (e.g. newly created stream or initial seed)
+              streamMap.set(ls.id, ls);
+              unsyncedStreams.push(ls);
+            } else {
+              // Compare timestamps
+              const remoteTime = new Date(existingRemote.updated_at || existingRemote.created_at).getTime() || 0;
+              const localTime = new Date(ls.updated_at || ls.created_at).getTime() || 0;
+              if (ls.updated_at && localTime > remoteTime) {
+                // Local is newer (admin edited locally) - preserve local and push to Supabase!
+                streamMap.set(ls.id, { ...existingRemote, ...ls });
+                unsyncedStreams.push(ls);
+              } else {
+                // Preserve local styling / branding flags if remote didn't store them
+                streamMap.set(ls.id, {
+                  ...existingRemote,
+                  autoplay: ls.autoplay !== undefined ? ls.autoplay : existingRemote.autoplay,
+                  logo_position: ls.logo_position || existingRemote.logo_position,
+                  logo_type: ls.logo_type || existingRemote.logo_type,
+                  logo_size: ls.logo_size || existingRemote.logo_size,
+                  custom_logo_url: ls.custom_logo_url || existingRemote.custom_logo_url,
+                  enable_custom_controls: ls.enable_custom_controls !== undefined ? ls.enable_custom_controls : existingRemote.enable_custom_controls,
+                  default_volume: ls.default_volume !== undefined ? ls.default_volume : existingRemote.default_volume,
+                });
+              }
+            }
+          });
+
+          const mergedStreams = Array.from(streamMap.values());
+          if (mergedStreams.length > 0 || deletedIds.length > 0) {
+            localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(mergedStreams));
+          }
+
+          if (unsyncedStreams.length > 0) {
+            this.safeUpsertLiveStreams(unsyncedStreams);
           }
         }
+      } catch (e) {
+        console.warn("Supabase live streams sync exception:", e);
       }
 
       // 7. Sync Hero Config
@@ -1290,7 +1441,9 @@ export class DB {
       localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify([]));
     }
     if (!localStorage.getItem(STORAGE_KEYS.LIVE_STREAMS)) {
-      localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(SEED_STREAMS));
+      const deletedIds = this.getDeletedStreamIds();
+      const initialStreams = SEED_STREAMS.filter(s => !deletedIds.includes(s.id));
+      localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(initialStreams));
     }
     
     // Start background sync from Supabase database
@@ -1360,14 +1513,32 @@ export class DB {
   }
 
   // LIVE STREAMS MODULE
+  static getDeletedStreamIds(): string[] {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.DELETED_STREAM_IDS || 'fts_deleted_stream_ids');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
   static getLiveStreams(): LiveStreamItem[] {
     const data = localStorage.getItem(STORAGE_KEYS.LIVE_STREAMS);
     let streams: LiveStreamItem[] = data ? JSON.parse(data) : [];
     
-    // Auto-repair legacy non-cricket or unformatted streams in browser localStorage
     let updated = false;
 
-    // Filter out or replace old non-cricket seeds
+    // Filter out deleted streams based on tombstones
+    const deletedIds = this.getDeletedStreamIds();
+    if (deletedIds.length > 0) {
+      const beforeLen = streams.length;
+      streams = streams.filter(s => !deletedIds.includes(s.id));
+      if (streams.length !== beforeLen) {
+        updated = true;
+      }
+    }
+
+    // Filter out legacy non-cricket seeds
     const legacyNonCricketTitles = ['UEFA', 'Champions League', 'Monaco Grand Prix', 'Formula 1', 'StreamYard Live Sports Desk', 'demo-sports-room'];
     streams = streams.filter(s => {
       const isLegacyNonCricket = legacyNonCricketTitles.some(term => 
@@ -1384,23 +1555,7 @@ export class DB {
 
     streams = streams.map(s => {
       let changed = false;
-      let newS = { ...s };
-
-      if (newS.embed_url?.includes('H9T9e03d_jE')) {
-        changed = true;
-        newS.video_url = 'https://www.youtube.com/watch?v=jfKfPfyJRdk';
-        newS.embed_url = 'https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0';
-      }
-      if (newS.embed_url?.includes('6p8bV_G7u20')) {
-        changed = true;
-        newS.video_url = 'https://www.youtube.com/watch?v=21X5lGlDOfg';
-        newS.embed_url = 'https://www.youtube-nocookie.com/embed/21X5lGlDOfg?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0';
-      }
-      if (newS.embed_url?.includes('YBzE8S5S9_U')) {
-        changed = true;
-        newS.video_url = 'https://www.youtube.com/watch?v=5qap5aO4i9A';
-        newS.embed_url = 'https://www.youtube-nocookie.com/embed/5qap5aO4i9A?autoplay=1&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0';
-      }
+      const newS = { ...s };
 
       if (newS.autoplay === undefined) {
         newS.autoplay = true;
@@ -1431,15 +1586,6 @@ export class DB {
       return newS;
     });
 
-    // Ensure all cricket SEED_STREAMS exist in local storage
-    SEED_STREAMS.forEach(seed => {
-      const exists = streams.some(s => s.id === seed.id);
-      if (!exists) {
-        streams.push(seed);
-        updated = true;
-      }
-    });
-
     if (updated) {
       localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
     }
@@ -1457,9 +1603,20 @@ export class DB {
     return streams.find(s => s.id === id) || null;
   }
 
-  static saveLiveStream(stream: Omit<LiveStreamItem, 'id'> & { id?: string }): LiveStreamItem {
+  static async saveLiveStream(stream: Omit<LiveStreamItem, 'id'> & { id?: string }): Promise<LiveStreamItem> {
+    // If stream is being restored or re-saved, remove from deleted IDs
+    if (stream.id) {
+      try {
+        const deleted = this.getDeletedStreamIds().filter(d => d !== stream.id);
+        localStorage.setItem(STORAGE_KEYS.DELETED_STREAM_IDS || 'fts_deleted_stream_ids', JSON.stringify(deleted));
+      } catch (e) {
+        console.warn("Deleted stream cache update notice:", e);
+      }
+    }
+
     const streams = this.getLiveStreams();
     const nowIso = new Date().toISOString();
+    let savedItem: LiveStreamItem;
 
     if (stream.id) {
       const index = streams.findIndex(s => s.id === stream.id);
@@ -1468,65 +1625,95 @@ export class DB {
         if (stream.is_featured) {
           streams.forEach(s => { s.is_featured = false; });
         }
-        const updated: LiveStreamItem = {
+        savedItem = {
           ...streams[index],
           ...stream,
           updated_at: nowIso
         };
-        streams[index] = updated;
-        localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
-
-        // Attempt async sync to Supabase
-        supabase.from('fts_live_streams').upsert([updated]).then(({ error }) => {
-          if (error) console.warn("Supabase upsert fts_live_streams notice:", error.message);
-        });
-
-        window.dispatchEvent(new CustomEvent('fts_db_sync'));
-        return updated;
+        streams[index] = savedItem;
+      } else {
+        if (stream.is_featured) {
+          streams.forEach(s => { s.is_featured = false; });
+        }
+        savedItem = {
+          ...stream,
+          id: stream.id,
+          created_at: stream.created_at || nowIso,
+          updated_at: nowIso,
+          views: stream.views || 0,
+        } as LiveStreamItem;
+        streams.unshift(savedItem);
       }
+    } else {
+      // Handle featured exclusivity if new stream is featured
+      if (stream.is_featured) {
+        streams.forEach(s => { s.is_featured = false; });
+      }
+
+      savedItem = {
+        ...stream,
+        id: `stream-${Date.now()}`,
+        created_at: nowIso,
+        updated_at: nowIso,
+        views: stream.views || 0,
+        autoplay: stream.autoplay !== undefined ? stream.autoplay : true,
+        logo_position: stream.logo_position || 'top-right',
+        logo_type: stream.logo_type || 'badge',
+        logo_size: stream.logo_size || 'large',
+        custom_logo_url: stream.custom_logo_url || '',
+        enable_custom_controls: stream.enable_custom_controls !== undefined ? stream.enable_custom_controls : true,
+        default_volume: stream.default_volume !== undefined ? stream.default_volume : 85,
+      } as LiveStreamItem;
+
+      streams.unshift(savedItem);
     }
 
-    // Handle featured exclusivity if new stream is featured
-    if (stream.is_featured) {
-      streams.forEach(s => { s.is_featured = false; });
-    }
-
-    const newStream: LiveStreamItem = {
-      ...stream,
-      id: stream.id || `stream-${Date.now()}`,
-      created_at: stream.created_at || nowIso,
-      updated_at: nowIso,
-      views: stream.views || 0,
-      autoplay: stream.autoplay !== undefined ? stream.autoplay : true,
-      logo_position: stream.logo_position || 'top-right',
-      logo_type: stream.logo_type || 'badge',
-      custom_logo_url: stream.custom_logo_url || '',
-      enable_custom_controls: stream.enable_custom_controls !== undefined ? stream.enable_custom_controls : true,
-      default_volume: stream.default_volume !== undefined ? stream.default_volume : 80,
-    } as LiveStreamItem;
-
-    streams.unshift(newStream);
     localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(streams));
-
-    // Async sync with Supabase
-    supabase.from('fts_live_streams').insert([newStream]).then(({ error }) => {
-      if (error) console.warn("Supabase insert fts_live_streams notice:", error.message);
-    });
-
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
-    return newStream;
+
+    // Asynchronously & safely upsert to Supabase with multi-tier column fallback
+    try {
+      await this.safeUpsertLiveStreams([savedItem]);
+    } catch (e) {
+      console.warn("Supabase live stream safeUpsert notice:", e);
+    }
+
+    return savedItem;
   }
 
-  static deleteLiveStream(id: string) {
-    const streams = this.getLiveStreams();
-    const filtered = streams.filter(s => s.id !== id);
+  static async deleteLiveStream(id: string): Promise<boolean> {
+    if (!id) return false;
+
+    // 1. Mark in tombstone list to prevent any background re-hydration
+    try {
+      const deleted = this.getDeletedStreamIds();
+      if (!deleted.includes(id)) {
+        deleted.push(id);
+        localStorage.setItem(STORAGE_KEYS.DELETED_STREAM_IDS || 'fts_deleted_stream_ids', JSON.stringify(deleted));
+      }
+    } catch (e) {
+      console.warn("Deleted stream store notice:", e);
+    }
+
+    // 2. Remove immediately from local storage
+    const currentStreams = this.getLiveStreams();
+    const filtered = currentStreams.filter(s => s.id !== id);
     localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(filtered));
 
-    supabase.from('fts_live_streams').delete().eq('id', id).then(({ error }) => {
-      if (error) console.warn("Supabase delete fts_live_streams notice:", error?.message);
-    });
-
+    // 3. Dispatch global sync event so all UI components update instantly
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
+
+    // 4. Delete from Supabase cloud database
+    try {
+      const { error } = await supabase.from('fts_live_streams').delete().eq('id', id);
+      if (error) {
+        console.warn("Supabase delete fts_live_streams notice:", error?.message);
+      }
+    } catch (e) {
+      console.warn("Supabase deleteLiveStream exception:", e);
+    }
+
+    return true;
   }
 
   static toggleLiveStreamFeatured(id: string) {
@@ -2317,7 +2504,7 @@ export class DB {
     });
   }
 
-  // HERO CONFIG MANAGEMENT
+  // HERO & BRANDING CONFIG MANAGEMENT
   static DEFAULT_HERO_CONFIG: HeroConfig = {
     enabled: true,
     liveBadgeText: '🔴 LIVE STREAMS • DAILY NEWS • TACTICAL METRICS',
@@ -2326,6 +2513,9 @@ export class DB {
     overlayOpacity: 0.65,
     overlayBlur: 2,
     heroHeight: 'medium',
+    logo_size: 'large',
+    logo_height_px: 64,
+    custom_logo_url: '/logo-preview.png',
   };
 
   static getHeroConfig(): HeroConfig {
@@ -2349,7 +2539,7 @@ export class DB {
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     try {
-      const heroPayload = {
+      const heroPayload: any = {
         id: 'hero_main_config',
         enabled: updated.enabled,
         live_badge_text: updated.liveBadgeText,
@@ -2360,9 +2550,19 @@ export class DB {
         overlay_opacity: updated.overlayOpacity,
         overlay_blur: updated.overlayBlur,
         hero_height: updated.heroHeight,
+        logo_size: updated.logo_size || 'large',
+        logo_height_px: updated.logo_height_px || 64,
+        custom_logo_url: updated.custom_logo_url || '',
         updated_at: updated.updated_at
       };
-      const { error } = await supabase.from('fts_hero_config').upsert([heroPayload]);
+      let { error } = await supabase.from('fts_hero_config').upsert([heroPayload]);
+      if (error && (error.message?.includes('logo_size') || error.message?.includes('logo_height_px'))) {
+        delete heroPayload.logo_size;
+        delete heroPayload.logo_height_px;
+        delete heroPayload.custom_logo_url;
+        const res = await supabase.from('fts_hero_config').upsert([heroPayload]);
+        error = res.error;
+      }
       if (error) console.warn("Supabase saveHeroConfig notice:", error.message);
     } catch (err) {
       console.warn("Supabase hero_config upsert exception:", err);

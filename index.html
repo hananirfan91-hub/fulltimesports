@@ -83,30 +83,35 @@
     <meta name="p:domain_verify" content="54b3f73fee6cc3627211d1fd5667357e" />
     <meta name="monetag" content="b35adbf8cbeb25deb09809944eabc0c2" />
 
-    <!-- Asynchronous Non-blocking Ad Network & Analytics Loading for 100% Core Web Vitals -->
+    <!-- Ultra-Fast Performance Optimized Non-blocking Ad Network & Analytics Loading for 100% Core Web Vitals -->
     <script>
-      // Load third-party scripts without blocking critical rendering path
-      window.addEventListener('load', function() {
-        // Tag Zone 1
-        var s1 = document.createElement('script');
-        s1.dataset.zone = '11507717';
-        s1.src = 'https://nap5k.com/tag.min.js';
-        s1.async = true;
-        document.head.appendChild(s1);
+      // Defer third-party advertising scripts to idle time so main JS bundle executes instantly
+      function loadDeferredThirdPartyScripts() {
+        var scripts = [
+          { src: 'https://nap5k.com/tag.min.js', zone: '11507717' },
+          { src: 'https://pl30645725.effectivecpmnetwork.com/6a/27/f9/6a27f908df3214c935fb49aa30614582.js' },
+          { src: 'https://n6wxm.com/vignette.min.js', zone: '11507666' }
+        ];
 
-        // Effective CPM Network
-        var s2 = document.createElement('script');
-        s2.src = 'https://pl30645725.effectivecpmnetwork.com/6a/27/f9/6a27f908df3214c935fb49aa30614582.js';
-        s2.async = true;
-        document.head.appendChild(s2);
+        scripts.forEach(function(item) {
+          var s = document.createElement('script');
+          s.src = item.src;
+          if (item.zone) s.dataset.zone = item.zone;
+          s.async = true;
+          s.defer = true;
+          document.head.appendChild(s);
+        });
+      }
 
-        // Vignette Zone
-        var s3 = document.createElement('script');
-        s3.dataset.zone = '11507666';
-        s3.src = 'https://n6wxm.com/vignette.min.js';
-        s3.async = true;
-        document.head.appendChild(s3);
-      });
+      if ('requestIdleCallback' in window) {
+        window.addEventListener('load', function() {
+          requestIdleCallback(loadDeferredThirdPartyScripts, { timeout: 3500 });
+        });
+      } else {
+        window.addEventListener('load', function() {
+          setTimeout(loadDeferredThirdPartyScripts, 2000);
+        });
+      }
     </script>
 
     <script>

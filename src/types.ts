@@ -148,7 +148,7 @@ export interface LiveStreamItem {
   autoplay?: boolean; // Auto-play video on stream load
   logo_position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'; // Admin set logo watermark corner
   logo_type?: 'badge' | 'emblem' | 'custom'; // Watermark appearance style
-  logo_size?: 'normal' | 'large' | 'xlarge'; // Logo watermark size (default: large)
+  logo_size?: 'small' | 'medium' | 'large' | 'xlarge' | 'giant'; // Logo watermark size (default: xlarge)
   custom_logo_url?: string; // Optional custom logo image URL override
   enable_custom_controls?: boolean; // Show TSR website volume & audio controls
   default_volume?: number; // Default website volume (0-100)
@@ -171,6 +171,16 @@ export interface HeroConfig {
   overlayOpacity: number;
   overlayBlur: number;
   heroHeight: 'auto' | 'compact' | 'medium' | 'tall';
+  logo_size?: 'small' | 'medium' | 'large' | 'xlarge' | 'giant';
+  logo_height_px?: number;
+  custom_logo_url?: string;
+  updated_at?: string;
+}
+
+export interface SiteBrandingConfig {
+  logo_size: 'small' | 'medium' | 'large' | 'xlarge' | 'giant';
+  logo_height_px: number;
+  custom_logo_url?: string;
   updated_at?: string;
 }
 

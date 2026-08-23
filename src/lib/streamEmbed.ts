@@ -211,15 +211,48 @@ export function validateAndConvertStreamUrl(
 
     // 5. Convert Facebook
     if (platform === 'facebook') {
-      const fullUrl = parsed.toString();
-      const encodedUrl = encodeURIComponent(fullUrl);
+      // If it is already a facebook plugins/video.php or plugins/post.php URL, don't re-wrap it
+      if (parsed.pathname.includes('/plugins/video.php') || parsed.pathname.includes('/plugins/post.php')) {
+        let embedUrl = parsed.toString();
+        if (autoPlay && !embedUrl.includes('autoplay')) {
+          embedUrl += '&autoplay=true';
+        }
+        if (!embedUrl.includes('allowfullscreen')) {
+          embedUrl += '&allowfullscreen=true';
+        }
+        return {
+          isValid: true,
+          platform: 'facebook',
+          embedUrl
+        };
+      }
+
+      // Check if it has ?v= parameter (e.g. facebook.com/watch/?v=123456)
+      const vParam = parsed.searchParams.get('v');
+      let canonicalUrl = parsed.toString();
+      
+      if (vParam) {
+        canonicalUrl = `https://www.facebook.com/watch/?v=${vParam}`;
+      } else if (parsed.pathname.includes('/videos/')) {
+        // e.g. facebook.com/user/videos/123456789/
+        canonicalUrl = `https://www.facebook.com${parsed.pathname}`;
+      } else if (parsed.pathname.includes('/reel/')) {
+        // e.g. facebook.com/reel/123456789/
+        canonicalUrl = `https://www.facebook.com${parsed.pathname}`;
+      }
+
+      const encodedUrl = encodeURIComponent(canonicalUrl);
       const autoPlayParam = autoPlay ? 'autoplay=true' : 'autoplay=false';
-      const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=1280&${autoPlayParam}&allowfullscreen=true`;
+      const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=1280&${autoPlayParam}&allowfullscreen=true&muted=0`;
+
+      const isShareLink = parsed.pathname.includes('/share/v/') || parsed.pathname.includes('/share/r/') || hostname.includes('fb.watch');
 
       return {
         isValid: true,
         platform: 'facebook',
-        embedUrl
+        embedUrl,
+        videoId: vParam || parsed.pathname.split('/').filter(Boolean).pop(),
+        error: isShareLink ? 'Facebook share links (/share/v/) may require public embed permissions or direct video link.' : undefined
       };
     }
 

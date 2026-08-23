@@ -65,10 +65,12 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [isPollModalOpen, setIsPollModalOpen] = useState<boolean>(false);
   const [heroSavedMsg, setHeroSavedMsg] = useState<boolean>(false);
 
-  // Live Streams Form State
+  // Live Streams Form State & Deletion
   const [editingStream, setEditingStream] = useState<Partial<LiveStreamItem> | null>(null);
   const [isStreamModalOpen, setIsStreamModalOpen] = useState(false);
   const [streamUrlError, setStreamUrlError] = useState('');
+  const [streamToDelete, setStreamToDelete] = useState<LiveStreamItem | null>(null);
+  const [isDeletingStream, setIsDeletingStream] = useState(false);
 
   // Editing Forms States
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -250,6 +252,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       autoplay: true,
       logo_position: 'top-right',
       logo_type: 'badge',
+      logo_size: 'xlarge',
       custom_logo_url: '',
       enable_custom_controls: true,
       default_volume: 85
@@ -264,6 +267,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       autoplay: item.autoplay !== undefined ? item.autoplay : true,
       logo_position: item.logo_position || 'top-right',
       logo_type: item.logo_type || 'badge',
+      logo_size: item.logo_size || 'xlarge',
       custom_logo_url: item.custom_logo_url || '',
       enable_custom_controls: item.enable_custom_controls !== undefined ? item.enable_custom_controls : true,
       default_volume: item.default_volume !== undefined ? item.default_volume : 85,
@@ -273,7 +277,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setIsStreamModalOpen(true);
   };
 
-  const handleSaveStream = (e: React.FormEvent) => {
+  const handleSaveStream = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingStream || !editingStream.title || !editingStream.video_url) {
       setStreamUrlError('Stream title and video URL are required.');
@@ -312,22 +316,44 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       autoplay: autoPlaySetting,
       logo_position: editingStream.logo_position || 'top-right',
       logo_type: editingStream.logo_type || 'badge',
+      logo_size: editingStream.logo_size || 'xlarge',
       custom_logo_url: editingStream.custom_logo_url?.trim() || '',
       enable_custom_controls: editingStream.enable_custom_controls !== undefined ? editingStream.enable_custom_controls : true,
       default_volume: editingStream.default_volume !== undefined ? Number(editingStream.default_volume) : 85,
     };
 
-    DB.saveLiveStream(streamDataToSave);
-    setIsStreamModalOpen(false);
-    setEditingStream(null);
-    setStreamUrlError('');
-    refreshData();
+    try {
+      await DB.saveLiveStream(streamDataToSave);
+      setIsStreamModalOpen(false);
+      setEditingStream(null);
+      setStreamUrlError('');
+      refreshData();
+    } catch (err) {
+      console.error("Error saving stream:", err);
+      setStreamUrlError('Failed to save stream. Please try again.');
+    }
   };
 
-  const handleDeleteStream = (id: string) => {
-    if (confirm("Are you sure you want to delete this live stream item?")) {
-      DB.deleteLiveStream(id);
+  const handleDeleteStream = (stream: LiveStreamItem) => {
+    setStreamToDelete(stream);
+  };
+
+  const handleConfirmDeleteStream = async () => {
+    if (!streamToDelete) return;
+    setIsDeletingStream(true);
+    try {
+      await DB.deleteLiveStream(streamToDelete.id);
+      setLiveStreams(prev => prev.filter(s => s.id !== streamToDelete.id));
+      if (editingStream?.id === streamToDelete.id) {
+        setIsStreamModalOpen(false);
+        setEditingStream(null);
+      }
+      setStreamToDelete(null);
       refreshData();
+    } catch (err) {
+      console.error("Error deleting stream:", err);
+    } finally {
+      setIsDeletingStream(false);
     }
   };
 
@@ -1728,6 +1754,60 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
 
           {/* Hero Form */}
           <form onSubmit={handleSaveHeroSettings} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+            {/* WEBSITE HEADER & BRAND LOGO SIZE CONTROLS */}
+            <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 border border-emerald-800/80 p-4 rounded-2xl text-white space-y-4 shadow-sm">
+              <div className="flex items-center justify-between border-b border-emerald-800/60 pb-2.5">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#22c55e]"></span>
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+                    Website Brand Logo &amp; Header Size Settings
+                  </h4>
+                </div>
+                <span className="text-[10px] font-mono bg-emerald-900/80 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-full font-bold">
+                  Global Branding
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-200 uppercase mb-1">
+                    Website Header Logo Size (Global Display)
+                  </label>
+                  <select
+                    value={heroConfigState.logo_size || 'large'}
+                    onChange={(e) => setHeroConfigState({ ...heroConfigState, logo_size: e.target.value as any })}
+                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3.5 py-2.5 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                  >
+                    <option value="giant">👑 Giant Logo (Maximum Bold Impact)</option>
+                    <option value="2xl">🚀 2X-Large Logo (Very Prominent)</option>
+                    <option value="xlarge">🌟 Extra Large (Recommended for Sports Network)</option>
+                    <option value="large">✨ Large Display (Standard Bold)</option>
+                    <option value="medium">🔹 Medium Display</option>
+                    <option value="small">▪️ Compact Header Display</option>
+                  </select>
+                  <p className="text-[10px] text-slate-400 mt-1 font-mono">
+                    Directly controls the size of The Sports Room logo across the Navbar header, hero cards, and footer.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-200 uppercase mb-1">
+                    Custom Brand Logo Image URL (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={heroConfigState.custom_logo_url || ''}
+                    onChange={(e) => setHeroConfigState({ ...heroConfigState, custom_logo_url: e.target.value })}
+                    placeholder="https://thesportsroom.online/logo-preview.png"
+                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-3.5 py-2.5 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1 font-mono">
+                    Leave blank to use the official 3D The Sports Room master logo (/logo-preview.png).
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
@@ -2490,7 +2570,7 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                           <Edit3 className="h-3.5 w-3.5" />
                         </button>
                         <button
-                          onClick={() => handleDeleteStream(stream.id)}
+                          onClick={() => handleDeleteStream(stream)}
                           className="p-1.5 border border-slate-200 hover:border-red-600 rounded text-slate-600 hover:text-red-600 transition bg-white"
                           title="Delete Stream"
                         >
@@ -4147,12 +4227,24 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
                       embed_url: res.embedUrl || editingStream.embed_url
                     });
                   }}
-                  placeholder="Paste any live video stream link or iframe..."
+                  placeholder="Paste Facebook/YouTube video URL or iframe code..."
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs font-mono focus:outline-none focus:border-[#22c55e]"
                 />
                 <p className="text-[11px] text-slate-500 mt-1 font-mono">
-                  Paste any match video link. The origin account/source branding is automatically shielded on the public broadcast page.
+                  Supports YouTube, Facebook Live, Tamasha, StreamYard, Twitch, MP4, and direct &lt;iframe&gt; embed codes.
                 </p>
+
+                {/* Facebook Tip Notice */}
+                {editingStream.video_url && (editingStream.video_url.includes('facebook') || editingStream.video_url.includes('fb.watch')) && (
+                  <div className="mt-2 bg-blue-50 border border-blue-200 rounded-xl p-2.5 text-[11px] font-mono text-blue-900 space-y-1">
+                    <p className="font-bold text-blue-700 flex items-center gap-1.5">
+                      <span>📘 Facebook Live Embed Guide:</span>
+                    </p>
+                    <p className="text-slate-600 font-sans">
+                      Facebook short links (<code className="bg-blue-100 px-1 rounded">/share/v/</code>) are auto-converted. If a video is privacy-restricted by Facebook, viewers on the live match page are automatically provided with a 1-click <strong>Watch on Facebook Live HD</strong> viewer button. For guaranteed 100% iframe playback, you can also paste the video's direct URL or the iframe embed code from Facebook (Video ⋯ &gt; Embed).
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Auto Detected Embed Preview Indicator */}
@@ -4264,11 +4356,13 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
                         Logo Size On Screen
                       </label>
                       <select
-                        value={editingStream.logo_size || 'large'}
+                        value={editingStream.logo_size || 'xlarge'}
                         onChange={(e) => setEditingStream({ ...editingStream, logo_size: e.target.value as any })}
                         className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#22c55e]"
                       >
-                        <option value="large">🌟 Big & Authoritative (Recommended)</option>
+                        <option value="giant">👑 Giant Master Broadcast (Maximum Impact)</option>
+                        <option value="xlarge">🌟 Extra Large & Prominent (Recommended)</option>
+                        <option value="large">✨ Big & Authoritative</option>
                         <option value="medium">🔹 Medium Display</option>
                         <option value="small">▪️ Compact Corner Tag</option>
                       </select>
@@ -4477,20 +4571,40 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
                 />
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setIsStreamModalOpen(false)}
-                  className="text-xs px-4 py-2 text-slate-600 font-mono font-bold uppercase hover:bg-slate-100 rounded-xl transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="text-xs px-6 py-2.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] font-mono font-bold uppercase rounded-xl border border-emerald-950 shadow-md transition"
-                >
-                  Save & Publish Live Stream
-                </button>
+              <div className="flex items-center justify-between pt-4 border-t">
+                {editingStream.id ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const streamItem = liveStreams.find(s => s.id === editingStream.id);
+                      if (streamItem) {
+                        setStreamToDelete(streamItem);
+                      } else {
+                        setStreamToDelete(editingStream as LiveStreamItem);
+                      }
+                    }}
+                    className="text-xs px-3.5 py-2 text-rose-600 hover:bg-rose-50 border border-rose-200 font-mono font-bold uppercase rounded-xl transition flex items-center space-x-1.5 cursor-pointer"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span>Delete Stream</span>
+                  </button>
+                ) : <div />}
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsStreamModalOpen(false)}
+                    className="text-xs px-4 py-2 text-slate-600 font-mono font-bold uppercase hover:bg-slate-100 rounded-xl transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="text-xs px-6 py-2.5 bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] font-mono font-bold uppercase rounded-xl border border-emerald-950 shadow-md transition"
+                  >
+                    Save & Publish Live Stream
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -4649,6 +4763,57 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* LIVE STREAM DELETION CONFIRMATION DIALOG */}
+      {streamToDelete && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-scale-up">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 border border-rose-200 flex items-center justify-center text-rose-600 mx-auto">
+              <Trash2 className="h-6 w-6" />
+            </div>
+
+            <div className="text-center space-y-1.5">
+              <h3 className="font-display font-black text-lg text-slate-900 uppercase">
+                Delete Live Match Stream?
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed font-sans">
+                Are you sure you want to permanently delete <strong className="text-slate-800">"{streamToDelete.title}"</strong> ({streamToDelete.tournament || streamToDelete.match_name})? This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-[11px] font-mono text-slate-600 flex items-center justify-between">
+              <span className="text-slate-400">Stream ID:</span>
+              <span className="font-bold text-slate-700 truncate max-w-[200px]">{streamToDelete.id}</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                disabled={isDeletingStream}
+                onClick={() => setStreamToDelete(null)}
+                className="w-full py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 font-mono font-bold text-xs uppercase hover:bg-slate-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingStream}
+                onClick={handleConfirmDeleteStream}
+                className="w-full py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-mono font-bold text-xs uppercase shadow-md transition disabled:opacity-50 flex items-center justify-center space-x-1.5 cursor-pointer"
+              >
+                {isDeletingStream ? (
+                  <span>Deleting...</span>
+                ) : (
+                  <>
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span>Yes, Delete</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
