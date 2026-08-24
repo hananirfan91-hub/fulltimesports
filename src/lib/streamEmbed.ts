@@ -199,8 +199,9 @@ export function validateAndConvertStreamUrl(
       }
 
       const autoPlayParam = autoPlay ? 'autoplay=1' : 'autoplay=0';
-      // Use YouTube-nocookie with enablejsapi=1, modestbranding=1, playsinline=1, rel=0, showinfo=0, controls=1, iv_load_policy=3, disablekb=0
-      const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?${autoPlayParam}&mute=0&enablejsapi=1&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1&fs=1&disablekb=0`;
+      const originParam = typeof window !== 'undefined' && window.location.origin ? `&origin=${encodeURIComponent(window.location.origin)}` : '';
+      // Use standard www.youtube.com/embed (not youtube-nocookie which triggers YouTube Kids block)
+      const embedUrl = `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&mute=0&playsinline=1&rel=0&enablejsapi=1${originParam}`;
       return {
         isValid: true,
         platform: 'youtube',
@@ -277,3 +278,46 @@ export function validateAndConvertStreamUrl(
     };
   }
 }
+
+/**
+ * Ensures any stream URL (whether already stored in DB, raw YouTube link, or legacy youtube-nocookie)
+ * is cleanly translated to the most compatible playable embed URL on the current page.
+ */
+export function getPlayableStreamEmbedUrl(
+  urlOrEmbed?: string | null,
+  platform?: 'facebook' | 'youtube' | 'streamyard' | 'tamasha' | 'twitch' | 'custom' | string,
+  autoPlay: boolean = true
+): string {
+  if (!urlOrEmbed || typeof urlOrEmbed !== 'string') return '';
+
+  const trimmed = urlOrEmbed.trim();
+  if (!trimmed) return '';
+
+  // If it's a YouTube link or contains youtube-nocookie or youtube.com
+  if (
+    trimmed.includes('youtube.com') ||
+    trimmed.includes('youtu.be') ||
+    trimmed.includes('youtube-nocookie.com') ||
+    platform === 'youtube'
+  ) {
+    // Extract video ID safely
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/;
+    const match = trimmed.match(regExp);
+    const videoId = match && match[1] ? match[1] : trimmed.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 11);
+
+    if (videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+      const autoPlayParam = autoPlay ? 'autoplay=1' : 'autoplay=0';
+      const originParam = typeof window !== 'undefined' && window.location.origin ? `&origin=${encodeURIComponent(window.location.origin)}` : '';
+      return `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&mute=0&playsinline=1&rel=0&enablejsapi=1${originParam}`;
+    }
+  }
+
+  // If it's Facebook, Twitch, Tamasha, StreamYard or already processed URL
+  const conversion = validateAndConvertStreamUrl(trimmed, platform as any, autoPlay);
+  if (conversion.isValid && conversion.embedUrl) {
+    return conversion.embedUrl;
+  }
+
+  return trimmed;
+}
+

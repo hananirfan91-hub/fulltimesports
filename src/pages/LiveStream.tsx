@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { LiveStreamItem } from '../types';
 import { DB } from '../lib/db';
+import { getPlayableStreamEmbedUrl } from '../lib/streamEmbed';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
 
 interface LiveStreamProps {
@@ -577,19 +578,18 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                     <div className="absolute inset-0 overflow-hidden bg-black flex items-center justify-center">
                       <iframe
                         key={`${activeStream.id}-${mediaMode}-${playerKey}`}
-                        src={
+                        src={getPlayableStreamEmbedUrl(
                           mediaMode === 'highlights' && (activeStream.highlight_embed_url || activeStream.highlight_url)
                             ? (activeStream.highlight_embed_url || activeStream.highlight_url)
-                            : activeStream.embed_url
-                        }
+                            : (activeStream.embed_url || activeStream.video_url),
+                          activeStream.platform,
+                          activeStream.autoplay !== false
+                        )}
                         title={mediaMode === 'highlights' ? "Post-Match Highlights Broadcast" : "The Sports Room Live Match Broadcast"}
                         onLoad={() => setLoadingPlayer(false)}
-                        className={`absolute left-0 w-full border-0 pointer-events-auto select-none ${
-                          (mediaMode === 'highlights' || activeStream.platform === 'youtube')
-                            ? 'h-[126%] -top-[13%]'
-                            : 'h-full top-0'
-                        }`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; camera; microphone"
+                        className="absolute inset-0 w-full h-full border-0 pointer-events-auto select-none"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
                         allowFullScreen
                       ></iframe>
                     </div>
