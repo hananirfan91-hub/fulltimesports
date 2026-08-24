@@ -589,7 +589,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                         onLoad={() => setLoadingPlayer(false)}
                         className="absolute inset-0 w-full h-full border-0 pointer-events-auto select-none"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
+                        referrerPolicy="no-referrer-when-downgrade"
                         allowFullScreen
                       ></iframe>
                     </div>
@@ -612,7 +612,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                             <span>REPLAY</span>
                           </div>
                         )}
-                        <span className="text-[11px] font-mono font-bold text-slate-200 truncate max-w-[150px] sm:max-w-xs">
+                        <span className="text-[11px] font-mono font-bold text-slate-200 truncate max-w-[140px] sm:max-w-xs">
                           {activeStream.team_one} vs {activeStream.team_two}
                         </span>
                       </div>
@@ -623,7 +623,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                             href={mediaMode === 'highlights' ? (activeStream.highlight_url || activeStream.video_url) : activeStream.video_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hidden sm:flex items-center space-x-1 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 bg-slate-900/90 border border-emerald-800/60 px-2 py-1 rounded-lg transition"
+                            className="flex items-center space-x-1 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 bg-slate-900/90 border border-emerald-800/60 px-2 py-1 rounded-lg transition"
                           >
                             <ExternalLink className="h-3 w-3" />
                             <span>{mediaMode === 'highlights' ? 'YouTube' : 'HD Popout'}</span>
@@ -646,6 +646,28 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                       </div>
                     </div>
                   </div>
+
+                  {/* YouTube Mobile / Restricted Mode Assistant */}
+                  {activeStream.platform === 'youtube' && (
+                    <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-3 sm:p-3.5 text-xs font-mono flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+                      <div className="flex items-center space-x-2.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-red-500 shrink-0"></span>
+                        <div className="text-[11px] text-slate-300 font-sans">
+                          <span className="font-bold text-white font-mono mr-1.5">Direct HD Access:</span>
+                          If your device or browser account has restricted settings, watch directly in YouTube HD.
+                        </div>
+                      </div>
+                      <a
+                        href={mediaMode === 'highlights' ? (activeStream.highlight_url || activeStream.video_url) : activeStream.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-red-600 hover:bg-red-500 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 transition shrink-0 ml-auto sm:ml-0 shadow"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        <span>Watch in YouTube App</span>
+                      </a>
+                    </div>
+                  )}
 
                   {/* Facebook / Third-Party Stream Playback Fallback Assistant */}
                   {(activeStream.platform === 'facebook' || activeStream.video_url.includes('facebook') || activeStream.video_url.includes('fb.watch')) && (

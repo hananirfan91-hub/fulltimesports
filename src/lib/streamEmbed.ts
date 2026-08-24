@@ -199,9 +199,8 @@ export function validateAndConvertStreamUrl(
       }
 
       const autoPlayParam = autoPlay ? 'autoplay=1' : 'autoplay=0';
-      const originParam = typeof window !== 'undefined' && window.location.origin ? `&origin=${encodeURIComponent(window.location.origin)}` : '';
-      // Use standard www.youtube.com/embed (not youtube-nocookie which triggers YouTube Kids block)
-      const embedUrl = `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&mute=0&playsinline=1&rel=0&enablejsapi=1${originParam}`;
+      // Clean standard YouTube embed URL without restrictive API origin/JS flags that trigger YouTube Kids/Restricted mode on mobile devices
+      const embedUrl = `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&playsinline=1&rel=0`;
       return {
         isValid: true,
         platform: 'youtube',
@@ -307,8 +306,7 @@ export function getPlayableStreamEmbedUrl(
 
     if (videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
       const autoPlayParam = autoPlay ? 'autoplay=1' : 'autoplay=0';
-      const originParam = typeof window !== 'undefined' && window.location.origin ? `&origin=${encodeURIComponent(window.location.origin)}` : '';
-      return `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&mute=0&playsinline=1&rel=0&enablejsapi=1${originParam}`;
+      return `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&playsinline=1&rel=0`;
     }
   }
 
