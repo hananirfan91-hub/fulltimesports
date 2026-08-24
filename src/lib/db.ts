@@ -903,6 +903,8 @@ export class DB {
         stream_end: s.stream_end || null,
         created_by: String(s.created_by || 'Hanan Irfan'),
         enable_chat: s.enable_chat !== undefined ? Boolean(s.enable_chat) : true,
+        highlight_url: s.highlight_url || '',
+        highlight_embed_url: s.highlight_embed_url || '',
       };
 
       if (mode === 'standard') return standard;
@@ -1229,6 +1231,8 @@ export class DB {
                 updated_at: String(rs.updated_at || rs.updatedAt || new Date().toISOString()),
                 enable_chat: rs.enable_chat !== undefined ? Boolean(rs.enable_chat) : true,
                 views: Number(rs.views) || 0,
+                highlight_url: String(rs.highlight_url || rs.highlightUrl || ''),
+                highlight_embed_url: String(rs.highlight_embed_url || rs.highlightEmbedUrl || ''),
                 autoplay: rs.autoplay !== undefined ? Boolean(rs.autoplay) : true,
                 logo_position: rs.logo_position || 'top-right',
                 logo_type: rs.logo_type || 'badge',
@@ -1244,10 +1248,11 @@ export class DB {
 
           const unsyncedStreams: LiveStreamItem[] = [];
 
-          if (streams.length === 0 && deletedIds.length === 0) {
-            // First time initialization: if Supabase table is completely empty, seed it once
-            localStreams.forEach(ls => {
-              if (ls.id && !deletedIds.includes(ls.id)) {
+          if (streams.length === 0) {
+            // When remote table in Supabase has 0 streams (admin deleted all), respect cloud state!
+            // Only keep genuinely new local drafts created by admin (not legacy seeds)
+            localStreams.forEach((ls: LiveStreamItem) => {
+              if (ls.id && !deletedIds.includes(ls.id) && (ls as any).is_synced === false && !ls.id.startsWith('stream-1') && !ls.id.startsWith('stream-2')) {
                 (ls as any).is_synced = true;
                 streamMap.set(ls.id, ls);
                 unsyncedStreams.push(ls);
@@ -1266,7 +1271,7 @@ export class DB {
                   streamMap.set(ls.id, { ...existingRemote, ...ls });
                   unsyncedStreams.push(ls);
                 }
-              } else if ((ls as any).is_synced === false) {
+              } else if ((ls as any).is_synced === false && !ls.id.startsWith('stream-1') && !ls.id.startsWith('stream-2')) {
                 // Only push local streams if they were explicitly created locally and not yet synced
                 (ls as any).is_synced = true;
                 streamMap.set(ls.id, ls);
@@ -1441,9 +1446,7 @@ export class DB {
       localStorage.setItem(STORAGE_KEYS.SUBSCRIBERS, JSON.stringify([]));
     }
     if (!localStorage.getItem(STORAGE_KEYS.LIVE_STREAMS)) {
-      const deletedIds = this.getDeletedStreamIds();
-      const initialStreams = SEED_STREAMS.filter(s => !deletedIds.includes(s.id));
-      localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify(initialStreams));
+      localStorage.setItem(STORAGE_KEYS.LIVE_STREAMS, JSON.stringify([]));
     }
     
     // Start background sync from Supabase database

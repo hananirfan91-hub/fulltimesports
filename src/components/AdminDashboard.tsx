@@ -255,7 +255,9 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       logo_size: 'xlarge',
       custom_logo_url: '',
       enable_custom_controls: true,
-      default_volume: 85
+      default_volume: 85,
+      highlight_url: '',
+      highlight_embed_url: ''
     });
     setIsStreamModalOpen(true);
   };
@@ -271,6 +273,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       custom_logo_url: item.custom_logo_url || '',
       enable_custom_controls: item.enable_custom_controls !== undefined ? item.enable_custom_controls : true,
       default_volume: item.default_volume !== undefined ? item.default_volume : 85,
+      highlight_url: item.highlight_url || '',
+      highlight_embed_url: item.highlight_embed_url || '',
       stream_start: item.stream_start ? item.stream_start.slice(0, 16) : new Date().toISOString().slice(0, 16),
       stream_end: item.stream_end ? item.stream_end.slice(0, 16) : new Date(Date.now() + 14400000).toISOString().slice(0, 16),
     });
@@ -290,6 +294,12 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     if (!conversion.isValid || !conversion.embedUrl) {
       setStreamUrlError(conversion.error || 'Invalid video stream URL. Please provide a valid stream link.');
       return;
+    }
+
+    let highlightEmbed = '';
+    if (editingStream.highlight_url && editingStream.highlight_url.trim()) {
+      const hlConversion = validateAndConvertStreamUrl(editingStream.highlight_url.trim(), 'youtube', false);
+      highlightEmbed = hlConversion.embedUrl || '';
     }
 
     const streamDataToSave: Omit<LiveStreamItem, 'id'> & { id?: string } = {
@@ -313,6 +323,8 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       updated_at: new Date().toISOString(),
       enable_chat: editingStream.enable_chat !== undefined ? editingStream.enable_chat : true,
       views: editingStream.views || 0,
+      highlight_url: editingStream.highlight_url?.trim() || '',
+      highlight_embed_url: highlightEmbed || editingStream.highlight_embed_url || '',
       autoplay: autoPlaySetting,
       logo_position: editingStream.logo_position || 'top-right',
       logo_type: editingStream.logo_type || 'badge',
@@ -2529,20 +2541,35 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                       </td>
 
                       <td className="py-3.5 px-4 font-mono text-xs">
-                        {stream.status === 'active' ? (
-                          <span className="bg-rose-100 text-rose-700 border border-rose-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase inline-flex items-center space-x-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping"></span>
-                            <span>🔴 Live Now</span>
-                          </span>
-                        ) : stream.status === 'upcoming' ? (
-                          <span className="bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                            ⏳ Upcoming
-                          </span>
-                        ) : (
-                          <span className="bg-slate-100 text-slate-600 border border-slate-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                            🏁 Ended
-                          </span>
-                        )}
+                        <div className="space-y-1">
+                          {stream.status === 'active' ? (
+                            <span className="bg-rose-100 text-rose-700 border border-rose-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase inline-flex items-center space-x-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping"></span>
+                              <span>🔴 Live Now</span>
+                            </span>
+                          ) : stream.status === 'upcoming' ? (
+                            <span className="bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase block w-fit">
+                              ⏳ Upcoming
+                            </span>
+                          ) : (
+                            <span className="bg-slate-100 text-slate-600 border border-slate-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase block w-fit">
+                              🏁 Ended
+                            </span>
+                          )}
+
+                          {stream.highlight_url ? (
+                            <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase inline-flex items-center space-x-1">
+                              <span>🎬 Highlights Active</span>
+                            </span>
+                          ) : stream.status === 'ended' ? (
+                            <button
+                              onClick={() => openEditStream(stream)}
+                              className="text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase flex items-center space-x-0.5 cursor-pointer"
+                            >
+                              <span>+ Add YT Highlight</span>
+                            </button>
+                          ) : null}
+                        </div>
                       </td>
 
                       <td className="py-3.5 px-4">
@@ -4486,7 +4513,7 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
                   >
                     <option value="active">🔴 Live Now</option>
                     <option value="upcoming">⏳ Upcoming Stream</option>
-                    <option value="ended">🏁 Stream Ended</option>
+                    <option value="ended">🏁 Stream Ended (Post-Match)</option>
                   </select>
                 </div>
 
@@ -4517,6 +4544,66 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
                     <option value="false">Disabled</option>
                   </select>
                 </div>
+              </div>
+
+              {/* POST-MATCH YOUTUBE HIGHLIGHTS CONFIGURATION */}
+              <div className={`p-4 rounded-2xl border transition-all duration-200 space-y-2.5 ${
+                editingStream.status === 'ended'
+                  ? 'bg-amber-50/90 border-amber-300 ring-2 ring-amber-400/20'
+                  : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base">🎬</span>
+                    <label className="text-xs font-mono font-bold text-slate-900 uppercase">
+                      Post-Match YouTube Highlights Video URL {editingStream.status === 'ended' && <span className="text-amber-700 font-bold">(Live is Ended)</span>}
+                    </label>
+                  </div>
+                  {editingStream.status === 'ended' ? (
+                    <span className="bg-amber-200 text-amber-900 border border-amber-300 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase">
+                      Active On Ended Match
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono text-slate-400">
+                      Optional
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-[11px] text-slate-600">
+                  When the live stream finishes, paste the official YouTube highlights video link below. The match page on <span className="font-mono text-emerald-800 font-bold">/live-stream</span> will display the YouTube highlights player directly to visitors.
+                </p>
+
+                <input
+                  type="text"
+                  value={editingStream.highlight_url || ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    let embedUrl = '';
+                    if (val.trim()) {
+                      const hlConversion = validateAndConvertStreamUrl(val.trim(), 'youtube', false);
+                      embedUrl = hlConversion.embedUrl || '';
+                    }
+                    setEditingStream({ 
+                      ...editingStream, 
+                      highlight_url: val,
+                      highlight_embed_url: embedUrl
+                    });
+                  }}
+                  placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-mono focus:outline-none focus:border-amber-500"
+                />
+
+                {editingStream.highlight_url && (
+                  <div className="bg-slate-900 border border-slate-800 p-2.5 rounded-xl text-slate-200 font-mono text-[11px] flex items-center justify-between">
+                    <span className="text-amber-400 font-bold truncate mr-2">
+                      ▶ Highlights Embed: {editingStream.highlight_embed_url || validateAndConvertStreamUrl(editingStream.highlight_url, 'youtube', false).embedUrl || 'Processing YouTube embed...'}
+                    </span>
+                    <span className="bg-emerald-700 text-white px-2 py-0.5 rounded text-[10px] uppercase font-bold shrink-0">
+                      Embed Ready
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

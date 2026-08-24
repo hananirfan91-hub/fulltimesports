@@ -36,6 +36,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [playerKey, setPlayerKey] = useState<number>(Date.now());
+  const [mediaMode, setMediaMode] = useState<'live' | 'highlights'>('live');
 
   const playerContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -54,6 +55,14 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
     window.addEventListener('fts_db_sync', handleSync);
     return () => window.removeEventListener('fts_db_sync', handleSync);
   }, []);
+
+  useEffect(() => {
+    if (activeStream?.status === 'ended' && (activeStream.highlight_embed_url || activeStream.highlight_url)) {
+      setMediaMode('highlights');
+    } else {
+      setMediaMode('live');
+    }
+  }, [activeStream?.id, activeStream?.status, activeStream?.highlight_url]);
 
   const loadStreams = () => {
     const list = DB.getLiveStreams();
@@ -216,6 +225,13 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                       </span>
                     )}
 
+                    {/* Highlights Active Tag */}
+                    {activeStream.highlight_url && (
+                      <span className="bg-amber-950 text-amber-400 border border-amber-800 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold uppercase flex items-center space-x-1">
+                        <span>🎬 Highlights Ready</span>
+                      </span>
+                    )}
+
                     {/* Tournament Tag */}
                     <span className="bg-emerald-950 text-[#22c55e] border border-emerald-850 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold uppercase">
                       {activeStream.tournament}
@@ -244,26 +260,62 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Action Buttons & Highlights Switch */}
                 <div className="flex flex-wrap items-center gap-2 shrink-0 pt-1 md:pt-0">
+                  {/* Highlights vs Stream Switch */}
+                  {activeStream.highlight_url && (
+                    <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 font-mono text-xs shadow-inner">
+                      <button
+                        onClick={() => {
+                          setMediaMode('highlights');
+                          setLoadingPlayer(true);
+                          setPlayerKey(Date.now());
+                        }}
+                        className={`px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 transition cursor-pointer ${
+                          mediaMode === 'highlights'
+                            ? 'bg-amber-500 text-slate-950 shadow'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <span>🎬 Highlights</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setMediaMode('live');
+                          setLoadingPlayer(true);
+                          setPlayerKey(Date.now());
+                        }}
+                        className={`px-2.5 py-1 rounded-lg font-bold flex items-center space-x-1 transition cursor-pointer ${
+                          mediaMode === 'live'
+                            ? 'bg-[#22c55e] text-slate-950 shadow'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <span>📡 Full Stream</span>
+                      </button>
+                    </div>
+                  )}
+
                   {activeStream.video_url && (
                     <a
-                      href={activeStream.video_url}
+                      href={mediaMode === 'highlights' && activeStream.highlight_url ? activeStream.highlight_url : activeStream.video_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition border shadow-sm ${
-                        activeStream.platform === 'facebook' || activeStream.video_url.includes('facebook') || activeStream.video_url.includes('fb.watch')
+                        mediaMode === 'highlights'
+                          ? 'bg-amber-600 hover:bg-amber-500 text-slate-950 border-amber-400/40'
+                          : activeStream.platform === 'facebook' || activeStream.video_url.includes('facebook') || activeStream.video_url.includes('fb.watch')
                           ? 'bg-[#1877F2] hover:bg-[#1877F2]/90 text-white border-blue-400/40'
                           : 'bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 border-emerald-700/50'
                       }`}
                       title="Open Direct Match Stream"
                     >
                       <ExternalLink className="h-4 w-4" />
-                      <span>{activeStream.platform === 'facebook' || activeStream.video_url.includes('facebook') ? 'Watch on Facebook HD' : 'Open Source Stream'}</span>
+                      <span>{mediaMode === 'highlights' ? 'Watch Highlights on YT' : (activeStream.platform === 'facebook' || activeStream.video_url.includes('facebook') ? 'Watch on Facebook HD' : 'Open Source Stream')}</span>
                     </a>
                   )}
 
-                  {activeStream.enable_chat && (
+                  {activeStream.enable_chat && activeStream.status === 'active' && (
                     <button
                       onClick={() => setShowLiveChat(!showLiveChat)}
                       className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition border ${showLiveChat ? 'bg-[#22c55e] text-slate-950 border-[#22c55e]' : 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700'}`}
@@ -275,7 +327,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
 
                   <button
                     onClick={handleReloadPlayer}
-                    className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition"
+                    className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition cursor-pointer"
                     title="Re-sync Stream"
                   >
                     <RotateCcw className="h-4 w-4 text-[#22c55e]" />
@@ -284,7 +336,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
 
                   <button
                     onClick={handleToggleFullscreen}
-                    className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition"
+                    className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition cursor-pointer"
                     title="Fullscreen"
                   >
                     {isFullscreen ? <Minimize2 className="h-4 w-4 text-[#22c55e]" /> : <Maximize2 className="h-4 w-4 text-[#22c55e]" />}
@@ -293,25 +345,68 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
 
                   <button
                     onClick={handleCopyShareLink}
-                    className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition"
+                    className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition cursor-pointer"
+                    title="Copy Share Link"
                   >
-                    {copiedLink ? <Check className="h-4 w-4 text-[#22c55e]" /> : <Copy className="h-4 w-4" />}
+                    {copiedLink ? <Check className="h-4 w-4 text-[#22c55e]" /> : <Share2 className="h-4 w-4 text-[#22c55e]" />}
                     <span>{copiedLink ? 'Copied!' : 'Share'}</span>
                   </button>
 
                   <div className="flex items-center space-x-1 bg-slate-950 p-1 border border-slate-800 rounded-xl">
-                    <button onClick={() => handleSocialShare('whatsapp')} title="Share on WhatsApp" className="p-1.5 hover:bg-emerald-950 rounded text-emerald-400 transition">
+                    <button onClick={() => handleSocialShare('whatsapp')} title="Share on WhatsApp" className="p-1.5 hover:bg-emerald-950 rounded text-emerald-400 transition cursor-pointer">
                       📱
                     </button>
-                    <button onClick={() => handleSocialShare('twitter')} title="Share on Twitter" className="p-1.5 hover:bg-slate-800 rounded text-sky-400 transition">
+                    <button onClick={() => handleSocialShare('twitter')} title="Share on Twitter" className="p-1.5 hover:bg-slate-800 rounded text-sky-400 transition cursor-pointer">
                       🐦
                     </button>
-                    <button onClick={() => handleSocialShare('facebook')} title="Share on Facebook" className="p-1.5 hover:bg-blue-950 rounded text-blue-400 transition">
+                    <button onClick={() => handleSocialShare('facebook')} title="Share on Facebook" className="p-1.5 hover:bg-blue-950 rounded text-blue-400 transition cursor-pointer">
                       📘
                     </button>
                   </div>
                 </div>
               </div>
+
+              {/* POST-MATCH CONCLUDED HIGHLIGHTS BANNER */}
+              {activeStream.status === 'ended' && (
+                <div className="bg-amber-950/70 border border-amber-800/80 rounded-2xl p-3.5 sm:p-4 text-xs font-mono shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center space-x-2.5">
+                    <span className="text-xl">🎬</span>
+                    <div>
+                      <div className="text-amber-300 font-bold uppercase flex items-center gap-2">
+                        <span>Match Concluded</span>
+                        {activeStream.highlight_url ? (
+                          <span className="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-[10px] font-black">
+                            {mediaMode === 'highlights' ? 'PLAYING HIGHLIGHTS' : 'HIGHLIGHTS READY'}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-[10px] font-normal">
+                            Full Match Archive
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-300 font-sans mt-0.5">
+                        {activeStream.highlight_url
+                          ? (mediaMode === 'highlights' ? "Now playing official post-match YouTube highlights." : "Full match recording loaded. Click 'Watch YT Highlights' to switch to post-match highlights.")
+                          : "The live broadcast has ended. The match recording is available in the player below."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {activeStream.highlight_url && (
+                    <button
+                      onClick={() => {
+                        setMediaMode(mediaMode === 'highlights' ? 'live' : 'highlights');
+                        setLoadingPlayer(true);
+                        setPlayerKey(Date.now());
+                      }}
+                      className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs font-mono flex items-center space-x-1.5 transition shadow shrink-0 cursor-pointer"
+                    >
+                      <Play className="h-3.5 w-3.5 fill-current" />
+                      <span>{mediaMode === 'highlights' ? 'Watch Full Broadcast' : 'Watch YT Highlights'}</span>
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* PLAYER + CHAT GRID */}
               <div className={`grid grid-cols-1 ${showLiveChat ? 'lg:grid-cols-12' : 'lg:grid-cols-1'} gap-4`}>
@@ -481,12 +576,16 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                     {/* 📺 EMBEDDED IFRAME WITH OPTIMIZED VIEWING */}
                     <div className="absolute inset-0 overflow-hidden bg-black flex items-center justify-center">
                       <iframe
-                        key={`${activeStream.id}-${playerKey}`}
-                        src={activeStream.embed_url}
-                        title="The Sports Room Live Match Broadcast"
+                        key={`${activeStream.id}-${mediaMode}-${playerKey}`}
+                        src={
+                          mediaMode === 'highlights' && (activeStream.highlight_embed_url || activeStream.highlight_url)
+                            ? (activeStream.highlight_embed_url || activeStream.highlight_url)
+                            : activeStream.embed_url
+                        }
+                        title={mediaMode === 'highlights' ? "Post-Match Highlights Broadcast" : "The Sports Room Live Match Broadcast"}
                         onLoad={() => setLoadingPlayer(false)}
                         className={`absolute left-0 w-full border-0 pointer-events-auto select-none ${
-                          activeStream.platform === 'youtube'
+                          (mediaMode === 'highlights' || activeStream.platform === 'youtube')
                             ? 'h-[126%] -top-[13%]'
                             : 'h-full top-0'
                         }`}
@@ -498,25 +597,36 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                     {/* 🎮 BOTTOM CUSTOM SPORTS ROOM BROADCAST CONTROL BAR & SHIELD */}
                     <div className="absolute bottom-0 left-0 right-0 h-10 sm:h-12 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent z-25 pointer-events-auto px-3 sm:px-4 pb-1.5 flex items-center justify-between border-b border-emerald-500/20">
                       <div className="flex items-center space-x-2">
-                        <div className="flex items-center space-x-1.5 bg-red-950/80 border border-red-800/80 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-red-400">
-                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                          <span>LIVE</span>
-                        </div>
+                        {mediaMode === 'highlights' ? (
+                          <div className="flex items-center space-x-1.5 bg-amber-950/90 border border-amber-600/80 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-amber-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                            <span>HIGHLIGHTS</span>
+                          </div>
+                        ) : activeStream.status === 'active' ? (
+                          <div className="flex items-center space-x-1.5 bg-red-950/80 border border-red-800/80 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-red-400">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                            <span>LIVE</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-1.5 bg-slate-900 border border-slate-700 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-slate-300">
+                            <span>REPLAY</span>
+                          </div>
+                        )}
                         <span className="text-[11px] font-mono font-bold text-slate-200 truncate max-w-[150px] sm:max-w-xs">
                           {activeStream.team_one} vs {activeStream.team_two}
                         </span>
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        {activeStream.video_url && (
+                        {(mediaMode === 'highlights' ? (activeStream.highlight_url || activeStream.video_url) : activeStream.video_url) && (
                           <a
-                            href={activeStream.video_url}
+                            href={mediaMode === 'highlights' ? (activeStream.highlight_url || activeStream.video_url) : activeStream.video_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="hidden sm:flex items-center space-x-1 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 bg-slate-900/90 border border-emerald-800/60 px-2 py-1 rounded-lg transition"
                           >
                             <ExternalLink className="h-3 w-3" />
-                            <span>HD Popout</span>
+                            <span>{mediaMode === 'highlights' ? 'YouTube' : 'HD Popout'}</span>
                           </a>
                         )}
                         <button
@@ -772,6 +882,10 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                             <span className="bg-amber-600 text-white px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase shadow">
                               UPCOMING
                             </span>
+                          ) : stream.highlight_url ? (
+                            <span className="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-[10px] font-mono font-black uppercase shadow flex items-center space-x-1">
+                              <span>🎬 HIGHLIGHTS</span>
+                            </span>
                           ) : (
                             <span className="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase">
                               ENDED
@@ -781,7 +895,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
 
                         {/* Play Icon Center Hover Overlay */}
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 bg-slate-950/40">
-                          <div className="w-12 h-12 rounded-full bg-[#22c55e] text-slate-950 flex items-center justify-center shadow-2xl transform scale-90 group-hover:scale-100 transition">
+                          <div className={`w-12 h-12 rounded-full ${stream.highlight_url && stream.status === 'ended' ? 'bg-amber-400 text-slate-950' : 'bg-[#22c55e] text-slate-950'} flex items-center justify-center shadow-2xl transform scale-90 group-hover:scale-100 transition`}>
                             <Play className="h-6 w-6 fill-current ml-1" />
                           </div>
                         </div>
@@ -816,10 +930,16 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
 
                       <button
                         onClick={() => handleSelectStream(stream)}
-                        className={`px-3 py-1.5 rounded-lg font-bold text-[11px] uppercase tracking-wider flex items-center space-x-1 transition ${isCurrent ? 'bg-[#22c55e] text-slate-950' : 'bg-slate-800 text-slate-200 group-hover:bg-[#22c55e] group-hover:text-slate-950'}`}
+                        className={`px-3 py-1.5 rounded-lg font-bold text-[11px] uppercase tracking-wider flex items-center space-x-1 transition ${
+                          isCurrent 
+                            ? 'bg-[#22c55e] text-slate-950' 
+                            : stream.highlight_url && stream.status === 'ended'
+                            ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                            : 'bg-slate-800 text-slate-200 group-hover:bg-[#22c55e] group-hover:text-slate-950'
+                        }`}
                       >
                         <Play className="h-3 w-3 fill-current" />
-                        <span>{isCurrent ? 'Watching Now' : 'Watch Stream'}</span>
+                        <span>{isCurrent ? 'Watching Now' : (stream.highlight_url && stream.status === 'ended' ? 'Highlights' : 'Watch Stream')}</span>
                       </button>
                     </div>
                   </motion.div>

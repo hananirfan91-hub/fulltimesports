@@ -144,6 +144,10 @@ export interface LiveStreamItem {
   enable_chat?: boolean;
   views?: number;
   
+  // Post-Match Highlights & Replay (YouTube)
+  highlight_url?: string; // YouTube video URL for post-match highlights
+  highlight_embed_url?: string; // Embedded YouTube player URL for highlights
+  
   // Custom Controls & Website Watermark Options
   autoplay?: boolean; // Auto-play video on stream load
   logo_position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'; // Admin set logo watermark corner

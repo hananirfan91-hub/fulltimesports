@@ -125,8 +125,24 @@ async function getSitemapXML(host: string): Promise<string> {
         });
       });
     }
+
+    // Query active and recent live streams
+    const { data: streams } = await supabase
+      .from("fts_live_streams")
+      .select("id, status, updated_at")
+      .order("created_at", { ascending: false });
+
+    if (streams && streams.length > 0) {
+      streams.forEach((stream: any) => {
+        postUrls.push({
+          loc: `${baseUrl}/live-stream?id=${stream.id}`,
+          changefreq: stream.status === 'active' ? 'always' : 'weekly',
+          priority: stream.status === 'active' ? '0.95' : '0.7'
+        });
+      });
+    }
   } catch (err) {
-    console.warn("[Sitemap Builder] Could not query Supabase posts for sitemap, falling back to static:", err);
+    console.warn("[Sitemap Builder] Could not query Supabase posts/streams for sitemap, falling back to static:", err);
   }
 
   // Fallback posts if Supabase is offline or empty during generation
