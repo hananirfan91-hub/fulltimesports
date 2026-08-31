@@ -3496,6 +3496,7 @@ CREATE TABLE IF NOT EXISTS public.fts_posts (
     geo_entities TEXT[] DEFAULT '{}',
     aeo_direct_answer TEXT DEFAULT '',
     aeo_faq JSONB DEFAULT '[]'::jsonb,
+    related_x_posts JSONB DEFAULT '[]'::jsonb,
     schema_type VARCHAR(64) DEFAULT 'NewsArticle',
     meta_robots VARCHAR(64) DEFAULT 'index, follow'
 );
@@ -3654,6 +3655,7 @@ ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS geo_summary TEXT;
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS geo_entities TEXT[];
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS aeo_direct_answer TEXT;
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS aeo_faq JSONB;
+ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS related_x_posts JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS schema_type TEXT DEFAULT 'NewsArticle';
 ALTER TABLE public.fts_posts ADD COLUMN IF NOT EXISTS meta_robots TEXT DEFAULT 'index, follow';
 

@@ -350,17 +350,19 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {tableRows.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/50 transition">
-                    {row.map((cell, cidx) => {
-                      return (
-                        <td key={cidx} className="p-3 text-slate-700">
-                          {parseInlineElements(cell)}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
+                {tableRows.map((row, idx) => {
+                  return (
+                    <tr key={idx} className="hover:bg-slate-50/50 transition">
+                      {row.map((cell, cidx) => {
+                        return (
+                          <td key={cidx} className="p-3 text-slate-700">
+                            {parseInlineElements(cell)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
