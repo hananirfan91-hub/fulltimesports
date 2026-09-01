@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { 
   ArrowLeft, Clock, Eye, Share2, Facebook, Twitter, Linkedin, Youtube, Mail, Link as LinkIcon, 
-  CheckCircle, MessageSquare, Compass, Send, ShieldAlert, Award, List, Sparkles, BookOpen, Calendar
+  CheckCircle, MessageSquare, Compass, Send, ShieldAlert, Award, List, Sparkles, BookOpen, Calendar,
+  BookmarkPlus, ExternalLink
 } from 'lucide-react';
 import { Post } from '../types';
 import { DB } from '../lib/db';
@@ -783,6 +784,24 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
 
           {/* Dynamic AdSense Inline Placement */}
           <AdSensePlaceholder slot="article-mid-content" format="horizontal" />
+
+          {/* Google Preferred Source Callout */}
+          <div className="my-8 p-5 sm:p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center flex flex-col items-center justify-center space-y-3 shadow-2xs" id="google-preferred-source-card">
+            <p className="text-sm sm:text-base font-semibold text-slate-800 font-sans">
+              Enjoying our content? Make us a preferred source on Google.
+            </p>
+            <a
+              href="https://www.google.com/preferences/source?q=thesportsroom.online"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center space-x-2 bg-[#022c22] hover:bg-[#034434] text-[#22c55e] border border-emerald-800/80 text-xs sm:text-sm font-mono font-bold px-5 py-3 rounded-xl transition duration-200 shadow-xs hover:shadow-md cursor-pointer"
+              id="google-preferred-source-btn"
+            >
+              <BookmarkPlus className="w-4 h-4 shrink-0" />
+              <span>Add us as a Preferred Source on Google</span>
+              <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-80" />
+            </a>
+          </div>
 
           {/* Keyword tags cluster */}
           {post.tags && Array.isArray(post.tags) && post.tags.length > 0 && (
