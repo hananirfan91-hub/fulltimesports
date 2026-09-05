@@ -16,25 +16,25 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/logo-preview.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo-preview.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/logo-preview.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo-preview.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -46,28 +46,28 @@
       "short_name": "Quiz",
       "description": "Play today's daily sports knowledge quiz and rank on leaderboard",
       "url": "/?quiz=open&source=pwa_shortcut",
-      "icons": [{ "src": "/logo-preview.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Live Match Streams",
       "short_name": "Live Stream",
       "description": "Watch live sports matches, cricket, football, and highlights",
       "url": "/live-stream?source=pwa_shortcut",
-      "icons": [{ "src": "/logo-preview.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Cricket Central Hub",
       "short_name": "Cricket",
       "description": "Live cricket news, ball-by-ball updates, and PSL/IPL telemetry",
       "url": "/sport/cricket?source=pwa_shortcut",
-      "icons": [{ "src": "/logo-preview.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Monthly Leaderboard",
       "short_name": "Leaderboard",
       "description": "Check monthly Top 5 fan rankings and scores",
       "url": "/?leaderboard=open&source=pwa_shortcut",
-      "icons": [{ "src": "/logo-preview.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

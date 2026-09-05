@@ -78,11 +78,11 @@ export default function AppSplashScreen() {
             >
               <div className="absolute -inset-2 bg-gradient-to-r from-[#22c55e] to-emerald-400 rounded-3xl blur-xl opacity-30 group-hover:opacity-60 transition duration-500 animate-pulse"></div>
               
-              <div className="relative bg-[#022c22] p-3 rounded-3xl border border-[#22c55e]/40 shadow-2xl shadow-[#22c55e]/20 flex items-center justify-center">
+              <div className="relative bg-white p-3 rounded-3xl shadow-2xl shadow-[#22c55e]/20 flex items-center justify-center border border-white/80">
                 <img
                   src="/logo-preview.png"
                   alt="The Sports Room App Featured Logo"
-                  className="w-24 h-24 sm:w-28 sm:h-28 object-contain rounded-2xl drop-shadow-md"
+                  className="w-28 h-28 sm:w-36 sm:h-36 object-contain rounded-2xl"
                   referrerPolicy="no-referrer"
                   loading="eager"
                   decoding="async"

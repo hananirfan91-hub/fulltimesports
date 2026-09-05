@@ -46,71 +46,51 @@ export default function Logo({
     giant: 'h-64 w-auto',
   };
 
-  const textSizeClasses: Record<string, { title: string; subtitle: string }> = {
-    sm: { title: 'text-base sm:text-lg', subtitle: 'text-[7px] sm:text-[8px]' },
-    md: { title: 'text-lg sm:text-xl md:text-2xl', subtitle: 'text-[8px] sm:text-[9px]' },
-    lg: { title: 'text-xl sm:text-2xl md:text-3xl', subtitle: 'text-[8.5px] sm:text-[10px]' },
-    xl: { title: 'text-2xl sm:text-3xl md:text-4xl', subtitle: 'text-[9.5px] sm:text-[11px]' },
-    '2xl': { title: 'text-3xl sm:text-4xl md:text-5xl', subtitle: 'text-[11px] sm:text-[13px]' },
-    giant: { title: 'text-4xl sm:text-5xl md:text-6xl', subtitle: 'text-[13px] sm:text-[15px]' },
-  };
-
   // 1. Icon variant: renders the high-quality logo in a square aspect ratio thumbnail
   if (variant === 'icon') {
     return (
-      <img
-        src={logoUrl}
-        alt="The Sports Room - TSR Official Sports Lounge Logo"
-        className={`${iconSizeClasses[effectiveSize] || iconSizeClasses.lg} rounded-xl object-contain drop-shadow ${className}`}
-        id="tsr-logo-icon"
-        referrerPolicy="no-referrer"
-        loading="eager"
-        decoding="async"
-      />
-    );
-  }
-
-  // 2. Horizontal layout: renders prominent logo badge alongside crisp, bold brand typography
-  if (variant === 'horizontal') {
-    const textStyle = textSizeClasses[effectiveSize] || textSizeClasses.lg;
-    const iconStyle = iconSizeClasses[effectiveSize] || iconSizeClasses.lg;
-
-    return (
-      <div className={`flex items-center space-x-2.5 sm:space-x-3.5 cursor-pointer select-none group ${className}`} id="tsr-logo-horizontal">
+      <div className={`inline-flex items-center justify-center rounded-xl bg-white p-1 shadow-md ${className}`} id="tsr-logo-icon">
         <img
           src={logoUrl}
           alt="The Sports Room - TSR Official Sports Lounge Logo"
-          className={`${iconStyle} shrink-0 rounded-xl object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_4px_12px_rgba(34,197,94,0.25)]`}
+          className={`${iconSizeClasses[effectiveSize] || iconSizeClasses.lg} object-contain rounded-lg`}
           referrerPolicy="no-referrer"
           loading="eager"
           decoding="async"
         />
-        <div className="flex flex-col text-left">
-          <div className={`flex items-baseline font-black tracking-tight uppercase font-display text-white leading-none ${textStyle.title}`}>
-            <span className="text-white drop-shadow-sm">THE SPORTS</span>
-            <span className="text-[#22c55e] ml-1.5 drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]">ROOM</span>
-          </div>
-          {showTagline && (
-            <span className={`${textStyle.subtitle} font-mono tracking-[0.22em] text-[#22c55e] font-black uppercase mt-1 whitespace-nowrap opacity-90`}>
-              SCIENTIFIC COVERAGE • METRIC DRIVEN
-            </span>
-          )}
-        </div>
       </div>
     );
   }
 
-  // 3. Full layout: Center-aligned display brand logo
+  // 2. Horizontal layout: renders prominent white background logo card seamlessly
+  if (variant === 'horizontal') {
+    return (
+      <div className={`inline-flex items-center rounded-xl bg-white px-2.5 py-1 shadow-md transition-transform duration-300 hover:scale-[1.02] cursor-pointer select-none group ${className}`} id="tsr-logo-horizontal">
+        <img
+          src={logoUrl}
+          alt="The Sports Room - TSR Official Sports Lounge Logo"
+          className="h-9 sm:h-11 md:h-12 w-auto max-w-[220px] sm:max-w-[280px] object-contain rounded-lg"
+          referrerPolicy="no-referrer"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+    );
+  }
+
+  // 3. Full layout: Center-aligned display brand logo with white card
   return (
-    <div className={`flex flex-col items-center justify-center text-center p-3 font-sans ${className}`} id="tsr-logo-full">
-      <img
-        src={logoUrl}
-        alt="The Sports Room - TSR Official Sports Lounge Brand Logo"
-        className={`${fullSizeClasses[effectiveSize] || fullSizeClasses.lg} rounded-2xl shadow-2xl object-contain border border-slate-800/60 bg-slate-950/40 p-2 transition-transform duration-300 hover:scale-[1.03]`}
-        referrerPolicy="no-referrer"
-        loading="eager"
-        decoding="async"
-      />
+    <div className={`flex flex-col items-center justify-center text-center ${className}`} id="tsr-logo-full">
+      <div className="rounded-2xl bg-white p-3 shadow-xl border border-slate-200/20 transition-transform duration-300 hover:scale-[1.02]">
+        <img
+          src={logoUrl}
+          alt="The Sports Room - TSR Official Sports Lounge Brand Logo"
+          className={`${fullSizeClasses[effectiveSize] || fullSizeClasses.lg} object-contain rounded-xl`}
+          referrerPolicy="no-referrer"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
     </div>
   );
 }

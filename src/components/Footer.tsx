@@ -17,7 +17,7 @@ export default function Footer({ onNavigate }: FooterProps) {
     "name": "The Sports Room",
     "alternateName": "TSR News",
     "url": "https://thesportsroom.online",
-    "logo": "https://images.unsplash.com/photo-1540747737956-378724044282?w=150",
+    "logo": "https://thesportsroom.online/logo-preview.png",
     "email": "thesportsroom01@gmail.com",
     "sameAs": [
       "https://x.com/TSRVerse?s=20",

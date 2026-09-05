@@ -147,7 +147,7 @@ export default function PWAInstallPrompt() {
                 <img
                   src="/logo-preview.png"
                   alt="The Sports Room App Logo"
-                  className="w-11 h-11 rounded-xl object-contain bg-[#01140f] p-1 border border-[#22c55e]/30 shadow-md"
+                  className="w-12 h-12 object-contain bg-white rounded-xl p-0.5 shadow-md"
                   referrerPolicy="no-referrer"
                 />
                 <span className="absolute -bottom-1 -right-1 bg-[#22c55e] text-slate-950 p-0.5 rounded-full ring-2 ring-[#022c22]">
@@ -233,7 +233,7 @@ export default function PWAInstallPrompt() {
                   <img
                     src="/logo-preview.png"
                     alt="The Sports Room App"
-                    className="w-8 h-8 rounded-lg object-contain bg-[#01140f] p-0.5 border border-[#22c55e]/30"
+                    className="w-9 h-9 object-contain bg-white rounded-lg p-0.5"
                   />
                   <div>
                     <h3 className="font-display font-bold text-base text-white">Install on iPhone / iPad</h3>

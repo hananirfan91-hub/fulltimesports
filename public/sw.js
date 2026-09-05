@@ -1,9 +1,13 @@
 // The Sports Room (TSR) Official PWA Service Worker
-const CACHE_NAME = 'tsr-pwa-cache-v2';
+const CACHE_NAME = 'tsr-pwa-cache-v7';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/logo-preview.png',
+  '/favicon.ico',
+  '/favicon-32x32.png',
+  '/icon-192.png',
+  '/icon-512.png',
   '/site.webmanifest',
   '/manifest.json',
   '/robots.txt',
