@@ -246,6 +246,13 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                     >
                       <span>🌍 World Cup &amp; Rankings</span>
                     </button>
+                    <button
+                      onClick={() => { onNavigate('/rc24-apk-download'); setShowCricketDropdown(false); }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg bg-emerald-950 border border-[#22c55e]/40 hover:bg-[#022c22] transition flex items-center justify-between font-bold text-white hover:text-[#22c55e]"
+                    >
+                      <span>🎮 Real Cricket 24 (RC24 APK)</span>
+                      <span className="text-[10px] text-slate-950 font-mono font-black bg-[#22c55e] px-1.5 py-0.5 rounded">APK</span>
+                    </button>
                   </div>
                 </motion.div>
               )}
@@ -280,6 +287,18 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
           >
             <Trophy className="w-3.5 h-3.5 text-amber-400" />
             <span>Leaderboard</span>
+          </button>
+
+          {/* RC24 APK Button */}
+          <button
+            onClick={() => onNavigate('/rc24-apk-download')}
+            className={`flex items-center space-x-1.5 font-display text-xs font-bold tracking-wide uppercase transition duration-150 px-3 py-1 rounded-full border shadow-sm ${
+              currentPath === '/rc24-apk-download'
+                ? 'bg-[#22c55e] text-slate-950 border-[#22c55e] font-black'
+                : 'bg-emerald-950/80 text-[#22c55e] hover:bg-[#22c55e] hover:text-slate-950 border-[#22c55e]/50'
+            }`}
+          >
+            <span>🎮 RC24 APK</span>
           </button>
 
           {/* 4. Football */}
@@ -523,6 +542,16 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                       <button onClick={() => { onNavigate('/topic/ipl'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🏆 IPL</button>
                       <button onClick={() => { onNavigate('/sport/cricket'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">🏏 All Cricket</button>
                       <button onClick={() => { onNavigate('/knowledge-hub'); setMobileMenuOpen(false); }} className="text-left p-1.5 hover:text-[#22c55e]">📚 Knowledge</button>
+                    </div>
+
+                    <div className="pt-2 border-t border-emerald-950">
+                      <button
+                        onClick={() => { onNavigate('/rc24-apk-download'); setMobileMenuOpen(false); }}
+                        className="w-full text-left p-2 rounded-lg bg-emerald-950/80 border border-[#22c55e]/40 font-bold text-[#22c55e] flex items-center justify-between"
+                      >
+                        <span>🎮 Real Cricket 24 (RC24 APK)</span>
+                        <span className="text-[10px] bg-[#22c55e] text-slate-950 font-black px-1.5 py-0.5 rounded">DOWNLOAD</span>
+                      </button>
                     </div>
                   </div>
                 )}

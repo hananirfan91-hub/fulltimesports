@@ -21,6 +21,7 @@ const LiveStream = lazy(() => import('./pages/LiveStream'));
 const WhyChooseUs = lazy(() => import('./pages/WhyChooseUs'));
 const WhatIsTheSportsRoom = lazy(() => import('./pages/WhatIsTheSportsRoom'));
 const AuthorProfile = lazy(() => import('./pages/AuthorProfile'));
+const RC24ApkDownload = lazy(() => import('./pages/RC24ApkDownload'));
 
 function PageSkeleton() {
   return (
@@ -145,6 +146,16 @@ export default function App() {
     if (currentPath.startsWith('/article/')) {
       const slug = currentPath.replace('/article/', '');
       return <ArticleDetail slug={slug} onNavigate={handleNavigate} />;
+    }
+
+    // RC 24 APK Download dedicated portal
+    if (
+      currentPath === '/rc24-apk-download' || 
+      currentPath === '/rc24-apk' || 
+      currentPath === '/real-cricket-24-apk-download' ||
+      currentPath === '/rc24'
+    ) {
+      return <RC24ApkDownload onNavigate={handleNavigate} />;
     }
 
     // Dynamic Editorial Topic Hubs (/topic/:topicSlug)

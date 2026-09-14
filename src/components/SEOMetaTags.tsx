@@ -646,6 +646,62 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "https://www.pinterest.com/thesportsroomonline"
         ]
       };
+    } else if (currentPath === '/rc24-apk-download' || currentPath === '/rc24-apk' || currentPath === '/real-cricket-24-apk-download') {
+      title = "RC24 APK Download - Real Cricket 24 Official APK for Android (870 MB) | The Sports Room";
+      description = "Download RC 24 APK (870 MB) with one-click direct Google Drive install. Experience Real Cricket 24 with 650+ shots, realistic 3D graphics, multiplayer modes, authentic stadiums and full cricket simulation.";
+      keywords = ["RC24 APK Download", "RC 24 APK Download", "Real Cricket 24 APK", "RC24 download", "Real Cricket 24 latest version", "RC 24 Android download", "Real Cricket APK download", "RC24 mobile cricket", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
+      pageType = "website";
+      ogImage = `${origin}/rc24-hero-banner.jpg`;
+      
+      ldJsonData = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "@id": `${canonicalUrl}#software`,
+        "name": "Real Cricket 24 (RC 24)",
+        "alternateName": ["RC24 APK", "RC 24 APK Download", "Real Cricket 24", "Real Cricket 5.2"],
+        "operatingSystem": "Android 6.0 and up",
+        "fileSize": "870MB",
+        "softwareVersion": "5.2 (Latest 2026)",
+        "applicationCategory": "GameApplication",
+        "downloadUrl": "https://drive.google.com/uc?export=download&id=1c7fYbKqPgjnPz47ptAK9rpTSJx72AYoz",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "ratingCount": "1280000"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Nautilus Mobile & KRAFTON"
+        },
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": origin
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Cricket",
+              "item": `${origin}/sport/cricket`
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "RC24 APK Download",
+              "item": canonicalUrl
+            }
+          ]
+        }
+      };
     } else if (currentPath === '/why-choose-us' || currentPath === '/why-choose-the-sports-room') {
       title = "Why Choose The Sports Room? | Independent Sports Journalism & Analytics";
       description = "Discover why sports fans, researchers, and AI engines choose The Sports Room. Co-Founded by Hanan Irfan & Urwah Farooq, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.";
