@@ -647,8 +647,8 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         ]
       };
     } else if (currentPath === '/rc24-apk-download' || currentPath === '/rc24-apk' || currentPath === '/real-cricket-24-apk-download') {
-      title = "RC24 APK Download - Real Cricket 24 Official APK for Android (870 MB) | The Sports Room";
-      description = "Download RC 24 APK (870 MB) with one-click direct Google Drive install. Experience Real Cricket 24 with 650+ shots, realistic 3D graphics, multiplayer modes, authentic stadiums and full cricket simulation.";
+      title = "RC24 APK Download - Real Cricket 24 Official APK";
+      description = "RC24 APK download for Android (870 MB). Get Real Cricket 24 with 650+ shots, authentic stadiums, realistic fielding, and multiplayer cricket matches.";
       keywords = ["RC24 APK Download", "RC 24 APK Download", "Real Cricket 24 APK", "RC24 download", "Real Cricket 24 latest version", "RC 24 Android download", "Real Cricket APK download", "RC24 mobile cricket", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
       pageType = "website";
       ogImage = `${origin}/rc24-hero-banner.jpg`;
