@@ -68,6 +68,7 @@ async function getSitemapXML(host: string): Promise<string> {
   const coreUrls = [
     { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0" },
     { loc: `${baseUrl}/live-stream`, changefreq: "always", priority: "0.98" },
+    { loc: `${baseUrl}/rc24-apk-download`, changefreq: "daily", priority: "0.95" },
     { loc: `${baseUrl}/topic/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9" },
     { loc: `${baseUrl}/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9" },
     { loc: `${baseUrl}/author/hanan-irfan`, changefreq: "daily", priority: "0.9" },
