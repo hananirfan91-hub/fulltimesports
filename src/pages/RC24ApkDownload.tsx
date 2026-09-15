@@ -27,7 +27,10 @@ import {
   Calendar,
   History,
   Activity,
-  CheckCircle
+  CheckCircle,
+  User,
+  Award,
+  ArrowRight
 } from 'lucide-react';
 
 interface RC24ApkDownloadProps {
@@ -170,6 +173,37 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-display tracking-tight text-white leading-tight">
                 RC 24 APK Download <span className="text-[#22c55e] block sm:inline">Real Cricket 24</span>
               </h1>
+
+              {/* Author Byline */}
+              <div className="flex flex-wrap items-center gap-3 py-2 border-y border-slate-800/80">
+                <button
+                  onClick={() => onNavigate('/author/hanan-irfan')}
+                  className="flex items-center space-x-2.5 group cursor-pointer"
+                >
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-[#22c55e]/50 flex items-center justify-center text-[#22c55e] font-bold text-xs group-hover:scale-105 transition">
+                    HI
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs font-bold text-white group-hover:text-[#22c55e] transition flex items-center space-x-1">
+                      <span>By Hanan Irfan</span>
+                      <CheckCircle className="w-3.5 h-3.5 text-[#22c55e]" />
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      Co-Founder &amp; Lead Sports Analyst
+                    </div>
+                  </div>
+                </button>
+                <span className="text-slate-600 hidden sm:inline">•</span>
+                <div className="flex items-center space-x-1.5 text-xs text-slate-400 font-mono">
+                  <Calendar className="w-3.5 h-3.5 text-[#22c55e]" />
+                  <span>Updated September 2026</span>
+                </div>
+                <span className="text-slate-600 hidden sm:inline">•</span>
+                <div className="inline-flex items-center space-x-1 text-xs text-emerald-400 font-mono">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#22c55e]" />
+                  <span>Verified Safe APK</span>
+                </div>
+              </div>
 
               {/* Exact User Intro Paragraphs */}
               <div className="space-y-4 text-slate-300 text-base sm:text-lg leading-relaxed bg-slate-900/70 p-5 sm:p-6 rounded-2xl border border-slate-800 shadow-lg">
@@ -1447,6 +1481,43 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
           </p>
           <p className="text-slate-300 text-base leading-relaxed">
             That makes it easier to find the version and avoids confusion between different Real Cricket games.
+          </p>
+        </section>
+
+        {/* Author Bio Section (Hanan Irfan) */}
+        <section className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-[#22c55e]/50 flex items-center justify-center text-[#22c55e] font-black text-xl shadow-lg">
+                HI
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-lg sm:text-xl font-bold font-display text-white">
+                    Hanan Irfan
+                  </h3>
+                  <span className="bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/40 font-mono text-[10px] font-bold uppercase px-2 py-0.5 rounded-md flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" />
+                    Verified Author
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Co-Founder, Lead Architect &amp; Cricket Specialist at The Sports Room
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => onNavigate('/author/hanan-irfan')}
+              className="inline-flex items-center space-x-2 bg-emerald-950/80 hover:bg-[#022c22] text-[#22c55e] border border-[#22c55e]/40 px-4 py-2 rounded-xl text-xs font-mono font-bold transition"
+            >
+              <span>View Full Profile</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <p className="text-sm text-slate-300 leading-relaxed font-sans">
+            Hanan Irfan is the Co-Founder and Lead Sports Editor of The Sports Room. With in-depth technical expertise in cricket biomechanics, gaming simulations, and sports mobile applications, Hanan tests and verifies all APK packages to ensure 100% clean, authentic, and fast installations for cricket fans.
           </p>
         </section>
 
