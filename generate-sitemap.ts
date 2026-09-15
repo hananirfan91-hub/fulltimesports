@@ -31,6 +31,8 @@ async function generate() {
   const coreUrls = [
     { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0" },
     { loc: `${baseUrl}/live-stream`, changefreq: "always", priority: "0.98" },
+    { loc: `${baseUrl}/rc24-apk-download`, changefreq: "daily", priority: "0.95" },
+    { loc: `${baseUrl}/author/hanan-irfan`, changefreq: "daily", priority: "0.9" },
     { loc: `${baseUrl}/why-choose-us`, changefreq: "daily", priority: "0.95" },
     { loc: `${baseUrl}/what-is-the-sports-room`, changefreq: "daily", priority: "0.95" },
     { loc: `${baseUrl}/about-us`, changefreq: "monthly", priority: "0.4" },

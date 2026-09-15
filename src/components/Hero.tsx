@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Tv, Newspaper, BarChart3, Radio, Play, ArrowRight, Flame, Sparkles, ShieldCheck, Building2, HelpCircle, Info, Globe, Gamepad2, Download } from 'lucide-react';
+import { Tv, Newspaper, BarChart3, Radio, Play, ArrowRight, Flame, Sparkles, ShieldCheck, Building2, HelpCircle, Info, Globe } from 'lucide-react';
 import { Post, HeroConfig } from '../types';
 import { DB } from '../lib/db';
 import { getYouTubeId } from '../lib/videoUtils';
@@ -129,76 +129,20 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
           {/* LEFT SIDE: MAIN HERO EDITORIAL TITLE & BUTTONS */}
           <div className="md:col-span-7 lg:col-span-8 space-y-5 sm:space-y-6">
             
-            {/* Top Badges & RC24 Free Banner */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              {/* Live Status Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="inline-flex items-center space-x-2 bg-[#022c22]/90 border border-[#22c55e]/40 rounded-full px-3.5 py-1.5 backdrop-blur-md shadow-lg w-fit"
-              >
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#22c55e]"></span>
-                </span>
-                <span className="font-mono font-bold text-[11px] uppercase tracking-wider text-[#22c55e]">
-                  {heroConfig.liveBadgeText || "🔴 LIVE MATCH STREAMS • DAILY NEWS • TACTICAL METRICS"}
-                </span>
-              </motion.div>
-
-              {/* RC24 Free Game Banner Pill */}
-              <motion.button
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => onNavigate('/rc24-apk-download')}
-                className="inline-flex items-center space-x-2 bg-gradient-to-r from-emerald-950/90 via-[#022c22] to-emerald-900/90 border border-[#22c55e]/60 hover:border-[#22c55e] text-white rounded-full px-3.5 py-1.5 shadow-lg shadow-[#22c55e]/10 group transition cursor-pointer w-fit"
-                id="hero-rc24-pill-banner"
-              >
-                <span className="flex h-2 w-2 rounded-full bg-[#22c55e] animate-pulse" />
-                <Gamepad2 className="w-3.5 h-3.5 text-[#22c55e]" />
-                <span className="font-mono font-bold text-[11px] uppercase tracking-wider text-emerald-300 group-hover:text-white transition">
-                  RC 24 Cricket Game is Available for Free
-                </span>
-                <span className="bg-[#22c55e] text-slate-950 font-mono font-black text-[9px] px-1.5 py-0.5 rounded tracking-tight uppercase">
-                  870 MB APK
-                </span>
-              </motion.button>
-            </div>
-
-            {/* Dedicated Hero Highlight Banner for RC 24 */}
+            {/* Live Status Badge */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.05 }}
-              onClick={() => onNavigate('/rc24-apk-download')}
-              className="bg-gradient-to-r from-emerald-950/95 via-[#022c22]/90 to-slate-950 border-2 border-[#22c55e]/50 hover:border-[#22c55e] p-3 sm:p-4 rounded-2xl shadow-xl shadow-emerald-950/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 cursor-pointer group transition duration-200"
-              id="hero-rc24-featured-banner"
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center space-x-2 bg-[#022c22]/90 border border-[#22c55e]/40 rounded-full px-3.5 py-1.5 backdrop-blur-md shadow-lg"
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-[#22c55e]/20 border border-[#22c55e]/50 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                  <Gamepad2 className="w-5 h-5 text-[#22c55e]" />
-                </div>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-display font-black text-sm sm:text-base text-white group-hover:text-[#22c55e] transition tracking-tight">
-                      RC 24 Cricket Game is Available for Free
-                    </span>
-                    <span className="bg-[#22c55e] text-slate-950 font-mono font-black text-[10px] px-2 py-0.5 rounded-full uppercase">
-                      Free Download
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-300 font-sans mt-0.5">
-                    Official 870 MB APK with 650+ realistic shots, authentic 3D stadiums &amp; multiplayer.
-                  </p>
-                </div>
-              </div>
-              <div className="inline-flex items-center space-x-1.5 bg-[#22c55e] group-hover:bg-emerald-400 text-slate-950 font-mono font-black text-xs px-3.5 py-2 rounded-xl shrink-0 shadow-md transition">
-                <Download className="w-4 h-4 stroke-[2.5]" />
-                <span>Get RC 24 APK</span>
-              </div>
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#22c55e]"></span>
+              </span>
+              <span className="font-mono font-bold text-[11px] uppercase tracking-wider text-[#22c55e]">
+                {heroConfig.liveBadgeText || "🔴 LIVE MATCH STREAMS • DAILY NEWS • TACTICAL METRICS"}
+              </span>
             </motion.div>
 
             {/* Headline */}

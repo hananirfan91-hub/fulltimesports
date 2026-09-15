@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Search, Trophy, Calendar, Globe, ChevronDown, User, Heart, Bell, Download } from 'lucide-react';
+import { Menu, X, Search, Trophy, Calendar, Globe, ChevronDown, User, Heart, Bell, Download, Gamepad2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DB } from '../lib/db';
 import Logo from './Logo';
@@ -88,6 +88,33 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
 
   return (
     <header className="sticky top-0 z-50 bg-[#01140f] border-b border-emerald-950 shadow-md text-white" id="main-header">
+      {/* Top Header Ad / Announcement Note */}
+      <div 
+        onClick={() => onNavigate('/rc24-apk-download')}
+        className="bg-gradient-to-r from-emerald-950 via-[#022c22] to-slate-950 border-b border-[#22c55e]/30 px-3 sm:px-4 py-1.5 cursor-pointer hover:bg-[#033a2e] transition group select-none"
+        id="top-header-ad-note"
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 text-xs">
+          <div className="flex items-center space-x-2.5 overflow-hidden">
+            <span className="bg-amber-400 text-slate-950 font-mono font-black text-[9px] uppercase px-1.5 py-0.5 rounded tracking-wider shrink-0 shadow-sm">
+              Ad Note
+            </span>
+            <span className="flex h-2 w-2 rounded-full bg-[#22c55e] animate-pulse shrink-0" />
+            <p className="text-slate-200 text-xs truncate group-hover:text-white transition">
+              <span className="font-bold text-white group-hover:text-[#22c55e] transition">RC 24 Cricket Game is Available for Free</span>
+              <span className="hidden sm:inline text-slate-300"> — Official 870 MB APK with 650+ shots &amp; real 3D stadiums</span>
+            </p>
+          </div>
+          <div className="flex items-center space-x-1.5 shrink-0 text-[#22c55e] group-hover:text-emerald-300 font-mono font-bold text-[11px]">
+            <span className="hidden md:inline bg-[#22c55e]/15 border border-[#22c55e]/40 text-[#22c55e] px-2 py-0.5 rounded-full text-[10px] mr-1">
+              870 MB APK
+            </span>
+            <span className="underline sm:no-underline font-semibold">Download Free APK</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </div>
+      </div>
+
       {/* Editorial Utility Top bar */}
       <div className="bg-[#022c22] text-slate-200 text-xs py-2 px-4 shadow-inner hidden md:block border-b border-emerald-950">
         <div className="max-w-7xl mx-auto flex justify-between items-center font-mono">
