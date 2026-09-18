@@ -558,9 +558,9 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
       console.warn("[SSR Render] Could not fetch post for SSR:", e);
     }
   } else if (cleanPath === "/players") {
-    title = "Players | The Sports Room";
-    description = "Explore player profiles, career information, achievements and statistics from the world of sports on The Sports Room.";
-    keywords = "Players, sports athletes, cricket players, football players, basketball players, tennis players, F1 drivers, athlete biographies, career statistics, The Sports Room";
+    title = "Sports Player Profiles, Stats & Career Records | The Sports Room";
+    description = "Explore sports player profiles, career statistics, teams, achievements, records and latest news from cricket, football, basketball, tennis and F1.";
+    keywords = "player profiles, sports player profiles, cricket player profiles, football player profiles, player statistics, sports player statistics, cricket player stats, football player stats, player career records, athlete profiles, sports player database, The Sports Room";
     canonicalUrl = `${baseUrl}/players`;
     pageType = "website";
 
@@ -577,7 +577,7 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           "@id": `${canonicalUrl}#players-directory`,
-          "name": "Players Directory | The Sports Room",
+          "name": "Player Profiles, Statistics & Career Records | The Sports Room",
           "description": description,
           "url": canonicalUrl,
           "breadcrumb": {
@@ -604,7 +604,7 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
           <div class="flex items-center space-x-4">
             ${p.photo_url ? `<img src="${p.photo_url}" alt="${p.name}" class="w-16 h-16 rounded-full object-cover border-2 border-[#22c55e]/40" />` : `<div class="w-16 h-16 rounded-full bg-emerald-950 flex items-center justify-center text-xl font-bold text-emerald-400 border border-emerald-800">${p.name.charAt(0)}</div>`}
             <div>
-              <h2 class="text-lg font-bold text-white"><a href="/player/${p.slug}" class="hover:text-[#22c55e]">${p.name}</a></h2>
+              <h3 class="text-lg font-bold text-white"><a href="/player/${p.slug}" class="hover:text-[#22c55e]">${p.name}</a></h3>
               <p class="text-xs text-emerald-400 font-mono">${p.playing_role || 'Athlete'} &bull; ${p.country || ''}</p>
               ${p.current_team ? `<p class="text-xs text-slate-300 mt-1 font-mono">${p.current_team}</p>` : ''}
             </div>
@@ -625,11 +625,51 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
               <li><span class="text-[#22c55e]">Players</span></li>
             </ol>
           </nav>
-          <h1 class="text-3xl sm:text-4xl font-black font-display text-white mb-2">Players</h1>
-          <p class="text-sm text-slate-300 mb-8 max-w-3xl">Explore player profiles, career information, achievements and statistics from the world of sports.</p>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <h1 class="text-3xl sm:text-4xl font-black font-display text-white mb-2">Player Profiles, Statistics &amp; Career Records</h1>
+          <p class="text-sm text-slate-300 mb-8 max-w-3xl leading-relaxed">Explore detailed player profiles, sports statistics, career records and achievements from cricket, football, basketball, tennis, Formula 1 and other major sports. The Sports Room brings player information together in one place, making it easier to follow your favorite athletes, their teams, performances and career journeys.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             ${playersCards || '<p class="text-slate-400">Player profiles directory loading...</p>'}
           </div>
+
+          <section class="border-t border-emerald-900/40 pt-8 space-y-6 text-sm text-slate-300">
+            <h2 class="text-2xl font-bold text-white">Explore Sports Player Profiles</h2>
+            <p>Find sports player profiles featuring important career information, playing roles, teams, countries, statistics and major achievements. Whether you follow international cricket, football leagues, basketball, tennis or motorsport, our player profiles help you quickly learn more about the athletes making an impact in their sport.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+              <div>
+                <h2 class="text-lg font-bold text-white mb-2">Cricket Player Profiles &amp; Statistics</h2>
+                <p>Follow cricket player profiles with career statistics, teams, playing roles, major performances and achievements. Explore information about international cricketers and players from major cricket competitions, including their career records and latest related news.</p>
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-white mb-2">Football Player Profiles &amp; Career Stats</h2>
+                <p>Discover football player profiles covering clubs, national teams, positions, appearances, goals, assists and career highlights. Follow established stars and emerging players while keeping up with the latest football news connected to their careers.</p>
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-white mb-2">Basketball, Tennis &amp; F1 Players</h2>
+                <p>Explore player information from basketball, tennis, Formula 1 and other popular sports. Each profile focuses on useful information such as career achievements, teams, statistics and notable performances, giving sports fans a quick way to learn more about their favorite athletes.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+              <div>
+                <h2 class="text-lg font-bold text-white mb-2">Player Statistics &amp; Career Records</h2>
+                <p>Looking for a player's career statistics or major records? Our profiles bring important numbers and career milestones together where reliable information is available. Statistics may include matches, appearances, runs, goals, points, wins, podiums and other sport-specific records.</p>
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-white mb-2">Latest News About Your Favorite Players</h2>
+                <p>Player careers are constantly changing. Follow the latest sports news, match performances, transfers, milestones and major updates connected to the players featured on The Sports Room. Related articles are linked from player profiles so you can move from a player's career information directly to the latest coverage.</p>
+              </div>
+            </div>
+
+            <div class="pt-4 space-y-4">
+              <h2 class="text-lg font-bold text-white">Find Your Favorite Player</h2>
+              <p>Use the player directory to search for athletes by name, sport or country. From international cricket players to football stars, basketball athletes, tennis players and Formula 1 drivers, The Sports Room is building a growing collection of sports player profiles for fans around the world.</p>
+
+              <h2 class="text-lg font-bold text-white">About The Sports Room Player Directory</h2>
+              <p>The Sports Room is building a simple and useful sports player database covering different sports, teams and competitions. Our goal is to make player information easy to find while connecting profiles with relevant news, match coverage and sports analysis.</p>
+              <p class="text-emerald-400 font-medium">Explore the profiles below and discover more about the players shaping the world of sport.</p>
+            </div>
+          </section>
         </main>
       `;
     } catch (err) {

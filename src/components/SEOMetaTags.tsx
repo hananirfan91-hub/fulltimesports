@@ -821,9 +821,9 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         }
       ];
     } else if (currentPath === '/players' || currentPath === '/players/') {
-      title = "Players | The Sports Room";
-      description = "Explore player profiles, career information, achievements and statistics from the world of sports on The Sports Room.";
-      keywords = ["Player profiles", "athlete directory", "sports statistics", "cricket players", "football players", "F1 drivers", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
+      title = "Sports Player Profiles, Stats & Career Records | The Sports Room";
+      description = "Explore sports player profiles, career statistics, teams, achievements, records and latest news from cricket, football, basketball, tennis and F1.";
+      keywords = ["player profiles", "sports player profiles", "cricket player profiles", "football player profiles", "player statistics", "sports player statistics", "cricket player stats", "football player stats", "player career records", "athlete profiles", "sports player database", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
       pageType = "website";
 
       const publishedPlayers = DB.getPlayers().filter(p => p.is_published !== false);
@@ -833,7 +833,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           "@id": `${canonicalUrl}#players-collection`,
-          "name": "Players Directory | The Sports Room",
+          "name": "Player Profiles, Statistics & Career Records | The Sports Room",
           "description": description,
           "url": canonicalUrl,
           "breadcrumb": {
