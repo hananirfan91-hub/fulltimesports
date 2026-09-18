@@ -139,10 +139,24 @@ input::placeholder, textarea::placeholder {
 #daily-quiz-dialog select option,
 #public-leaderboard-dialog select option,
 .leaderboard-date option,
-#homepage-quiz-leaderboard-banner select option {
-  background-color: #01140f !important;
-  color: #f8fafc !important;
+#homepage-quiz-leaderboard-banner select option,
+#players-list-page select option,
+#player-sport-filter option,
+#player-country-filter option,
+select.bg-\[\#01140f\] option,
+select.bg-\[\#022c22\] option,
+.dark-select option {
+  background-color: #022c22 !important;
+  color: #ffffff !important;
   font-weight: 500;
+  padding: 6px 10px;
+}
+
+#player-sport-filter,
+#player-country-filter,
+#players-list-page select {
+  color: #ffffff !important;
+  background-color: #01140f !important;
 }
 
 /* ADMIN PANEL & LOGIN INPUT FONT COLORS */

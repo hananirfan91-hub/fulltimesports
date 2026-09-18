@@ -510,8 +510,8 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               </div>
 
               {/* Geo Grid inside mobile */}
-              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Regional Sport Focus</p>
+              <div className="bg-[#022c22] p-2.5 rounded-xl border border-emerald-900/60">
+                <p className="text-[10px] font-bold text-emerald-400 font-mono uppercase mb-2">Regional Sport Focus</p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs">
                   {GEO_COUNTRIES.map((c) => (
                     <button
@@ -520,7 +520,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                         onChangeGeo(c.code);
                         setMobileMenuOpen(false);
                       }}
-                      className={`text-left px-2 py-1.5 rounded transition ${activeGeo === c.code ? 'bg-[#16a34a] text-white font-bold' : 'hover:bg-slate-200 text-slate-700'}`}
+                      className={`text-left px-2 py-1.5 rounded transition font-medium ${activeGeo === c.code ? 'bg-[#22c55e] text-slate-950 font-bold' : 'hover:bg-emerald-950 text-slate-200'}`}
                     >
                       {c.name}
                     </button>
@@ -529,14 +529,14 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
               </div>
 
               {/* Main Links */}
-              <div className="space-y-2 text-slate-800 py-2 font-display text-sm font-semibold uppercase">
+              <div className="space-y-2 text-slate-100 py-2 font-display text-sm font-semibold uppercase">
                 <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={() => {
                       onNavigate('/');
                       setMobileMenuOpen(false);
                     }}
-                    className="text-left py-2 border-b border-slate-200 text-[#16a34a] font-bold"
+                    className="text-left py-2 border-b border-emerald-900/60 text-[#22c55e] font-bold"
                   >
                     Home
                   </button>
@@ -545,14 +545,14 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                       onNavigate('/live-stream');
                       setMobileMenuOpen(false);
                     }}
-                    className="text-left py-2 border-b border-slate-200 text-rose-600 font-bold flex items-center space-x-1"
+                    className="text-left py-2 border-b border-emerald-900/60 text-rose-400 hover:text-rose-300 font-bold flex items-center space-x-1"
                   >
                     <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
                     <span>Live Stream</span>
                   </button>
                   <button
                     onClick={() => setMobileCricketOpen(!mobileCricketOpen)}
-                    className="text-left py-2 border-b border-slate-200 flex items-center justify-between text-[#16a34a] font-bold"
+                    className="text-left py-2 border-b border-emerald-900/60 flex items-center justify-between text-[#22c55e] font-bold"
                   >
                     <span>Cricket</span>
                     <ChevronDown className={`h-4 w-4 transform transition ${mobileCricketOpen ? 'rotate-180' : ''}`} />
@@ -595,15 +595,15 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     onClick={() => {
                       onNavigate('/players');
                       setMobileMenuOpen(false);
                     }}
-                    className={`text-left py-2 border-b border-emerald-950 font-bold ${currentPath.startsWith('/player') ? 'text-[#22c55e]' : 'text-slate-800'}`}
+                    className={`text-left py-2.5 px-2 rounded-lg border-b border-emerald-900/40 font-bold transition flex items-center gap-1.5 ${currentPath.startsWith('/player') ? 'text-[#22c55e] bg-emerald-950/80 font-bold' : 'text-slate-100 hover:text-[#22c55e] hover:bg-emerald-950/40'}`}
                   >
-                    ⭐ Players Directory
+                    <span>⭐ Players Directory</span>
                   </button>
                   {categories.filter(c => c.slug !== 'cricket').map((cat) => (
                     <button
@@ -612,7 +612,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                         onNavigate(`/sport/${cat.slug}`);
                         setMobileMenuOpen(false);
                       }}
-                      className="text-left py-2 border-b border-emerald-950"
+                      className={`text-left py-2.5 px-2 rounded-lg border-b border-emerald-900/40 transition font-semibold capitalize ${currentPath === `/sport/${cat.slug}` ? 'text-[#22c55e] bg-emerald-950/80 font-bold' : 'text-slate-100 hover:text-[#22c55e] hover:bg-emerald-950/40'}`}
                     >
                       {cat.name}
                     </button>

@@ -182,7 +182,7 @@ export default function PlayersList({ onNavigate }: PlayersListProps) {
                 aria-label="Filter by sport"
               >
                 {SPORT_OPTIONS.map(opt => (
-                  <option key={opt.value} value={opt.value}>
+                  <option key={opt.value} value={opt.value} className="bg-[#022c22] text-white">
                     {opt.label}
                   </option>
                 ))}
@@ -198,9 +198,9 @@ export default function PlayersList({ onNavigate }: PlayersListProps) {
                 id="player-country-filter"
                 aria-label="Filter by country"
               >
-                <option value="all">All Countries</option>
+                <option value="all" className="bg-[#022c22] text-white">All Countries</option>
                 {countries.map(c => (
-                  <option key={c} value={c}>
+                  <option key={c} value={c} className="bg-[#022c22] text-white">
                     {c}
                   </option>
                 ))}
