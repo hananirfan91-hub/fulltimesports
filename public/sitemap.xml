@@ -16,6 +16,11 @@
     <priority>0.95</priority>
   </url>
   <url>
+    <loc>https://thesportsroom.online/author/hanan-irfan</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://thesportsroom.online/why-choose-us</loc>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
@@ -59,6 +64,26 @@
     <loc>https://thesportsroom.online/sports-atlas</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/players</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.92</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/babar-azam</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/shaheen-shah-afridi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/max-verstappen</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
   </url>
   <url>
     <loc>https://thesportsroom.online/sport/football</loc>
@@ -204,6 +229,46 @@
     <loc>https://thesportsroom.online/topic/barcelona</loc>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/india-vs-afghanistan-3rd-t20i</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/bangladesh-tour-nepal-2027-t20is</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/pakistan-women-vs-thailand-women-asian-games-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/india-bench-strength-naveen-fitness</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/bangladesh-govt-committee-says-national-team-should-have-played-t20-world-cup</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/india-vs-afghanistan-2nd-t20i-samson-57-series-win</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/babar-azam-domestic-cricket</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/england-vs-sri-lanka-1st-t20i-live-stream</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thesportsroom.online/blog/zimbabwe-topple-australia-world-cup</loc>
@@ -1076,9 +1141,29 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://thesportsroom.online/live-stream?id=stream-1789692309431</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/live-stream?id=stream-1789649152633</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/live-stream?id=stream-1789573788423</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/live-stream?id=stream-1789481431944</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://thesportsroom.online/live-stream?id=stream-1789395454461</loc>
-    <changefreq>always</changefreq>
-    <priority>0.95</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://thesportsroom.online/live-stream?id=stream-1789308004622</loc>

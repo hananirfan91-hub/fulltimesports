@@ -297,6 +297,16 @@ export default function AdminPlayers({ onNavigate }: AdminPlayersProps) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <a
+            href="/sitemap.xml"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-[#01140f] hover:bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition"
+            title="Open live dynamic XML sitemap with all player slugs"
+          >
+            <Globe className="w-4 h-4" />
+            <span>Sitemap XML</span>
+          </a>
           <button
             onClick={() => setIsSqlModalOpen(true)}
             className="inline-flex items-center gap-2 bg-[#01140f] hover:bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition"

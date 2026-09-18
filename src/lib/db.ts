@@ -2,6 +2,7 @@ import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketM
 import { supabase } from './supabase';
 import { normalizeSlug } from './slugUtils';
 import { ensureFullSeoGeoAeo } from './seoGenerator';
+import { submitToIndexNow } from './indexNow';
 
 const memoryStore: Record<string, string> = {};
 
@@ -1873,11 +1874,31 @@ export class DB {
 
   static updateSitemapRegistry() {
     try {
-      const publicPosts = this.getPosts();
+      const publicPosts = this.getPosts().filter(p => !p.is_draft && p.scheduled_for !== 'draft');
+      const publicPlayers = this.getPlayers().filter(p => p.is_published !== false);
       const baseUrl = "https://thesportsroom.online";
-      const sitemapUrls = publicPosts.map(p => `${baseUrl}/blog/${p.slug}`);
-      localStorage.setItem('fts_sitemap_post_urls', JSON.stringify(sitemapUrls));
-      window.dispatchEvent(new CustomEvent('fts_sitemap_updated', { detail: { urls: sitemapUrls } }));
+      const postUrls = publicPosts.map(p => `${baseUrl}/blog/${p.slug}`);
+      const playerUrls = publicPlayers.map(p => `${baseUrl}/player/${p.slug}`);
+      const allUrls = [
+        `${baseUrl}/`,
+        `${baseUrl}/players`,
+        `${baseUrl}/live-stream`,
+        `${baseUrl}/rc24-apk-download`,
+        `${baseUrl}/sports-atlas`,
+        ...postUrls,
+        ...playerUrls
+      ];
+      localStorage.setItem('fts_sitemap_post_urls', JSON.stringify(postUrls));
+      localStorage.setItem('fts_sitemap_player_urls', JSON.stringify(playerUrls));
+      localStorage.setItem('fts_sitemap_all_urls', JSON.stringify(allUrls));
+      window.dispatchEvent(new CustomEvent('fts_sitemap_updated', { 
+        detail: { 
+          urls: allUrls, 
+          postUrls, 
+          playerUrls,
+          totalPlayerUrls: playerUrls.length 
+        } 
+      }));
     } catch (e) {
       console.warn("Sitemap registry update warning:", e);
     }
@@ -4326,6 +4347,17 @@ export class DB {
     }
 
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
+    this.updateSitemapRegistry();
+
+    // Auto-ping search engines (Bing, IndexNow) when published
+    if (savedPlayer.is_published) {
+      try {
+        submitToIndexNow([`/player/${savedPlayer.slug}`, '/players']).catch(() => {});
+      } catch (e) {
+        // ignore
+      }
+    }
+
     return savedPlayer;
   }
 
@@ -4350,6 +4382,7 @@ export class DB {
     }
 
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
+    this.updateSitemapRegistry();
   }
 
   static async togglePublishPlayerAsync(id: string, is_published: boolean): Promise<Player> {
@@ -4379,6 +4412,16 @@ export class DB {
         // ignore
       }
       window.dispatchEvent(new CustomEvent('fts_db_sync'));
+      this.updateSitemapRegistry();
+
+      if (is_published) {
+        try {
+          submitToIndexNow([`/player/${player.slug}`, '/players']).catch(() => {});
+        } catch (e) {
+          // ignore
+        }
+      }
+
       return player;
     }
 

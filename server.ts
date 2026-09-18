@@ -67,32 +67,34 @@ function getRandomSportImage(category: string): string {
 async function getSitemapXML(host: string): Promise<string> {
   const protocol = host.includes("localhost") || host.includes("0.0.0.0") || host.includes("127.0.0.1") ? "http" : "https";
   const baseUrl = `${protocol}://${host}`;
+  const todayIso = new Date().toISOString().split('T')[0];
 
   // Core static URLs
   const coreUrls = [
-    { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0" },
-    { loc: `${baseUrl}/live-stream`, changefreq: "always", priority: "0.98" },
-    { loc: `${baseUrl}/rc24-apk-download`, changefreq: "daily", priority: "0.95" },
-    { loc: `${baseUrl}/topic/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9" },
-    { loc: `${baseUrl}/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9" },
-    { loc: `${baseUrl}/author/hanan-irfan`, changefreq: "daily", priority: "0.9" },
-    { loc: `${baseUrl}/why-choose-us`, changefreq: "weekly", priority: "0.8" },
-    { loc: `${baseUrl}/what-is-the-sports-room`, changefreq: "weekly", priority: "0.8" },
-    { loc: `${baseUrl}/about-us`, changefreq: "monthly", priority: "0.4" },
-    { loc: `${baseUrl}/contact-us`, changefreq: "monthly", priority: "0.4" },
-    { loc: `${baseUrl}/privacy-policy`, changefreq: "monthly", priority: "0.3" },
-    { loc: `${baseUrl}/terms`, changefreq: "monthly", priority: "0.3" },
-    { loc: `${baseUrl}/disclaimer`, changefreq: "monthly", priority: "0.3" },
-    { loc: `${baseUrl}/google-policies`, changefreq: "daily", priority: "0.7" },
-    { loc: `${baseUrl}/sports-atlas`, changefreq: "weekly", priority: "0.6" },
-    { loc: `${baseUrl}/players`, changefreq: "daily", priority: "0.9" }
+    { loc: `${baseUrl}/`, changefreq: "always", priority: "1.0", lastmod: todayIso },
+    { loc: `${baseUrl}/live-stream`, changefreq: "always", priority: "0.98", lastmod: todayIso },
+    { loc: `${baseUrl}/rc24-apk-download`, changefreq: "daily", priority: "0.95", lastmod: todayIso },
+    { loc: `${baseUrl}/players`, changefreq: "daily", priority: "0.92", lastmod: todayIso },
+    { loc: `${baseUrl}/topic/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9", lastmod: todayIso },
+    { loc: `${baseUrl}/cricket-world-cup-2027`, changefreq: "daily", priority: "0.9", lastmod: todayIso },
+    { loc: `${baseUrl}/author/hanan-irfan`, changefreq: "daily", priority: "0.9", lastmod: todayIso },
+    { loc: `${baseUrl}/why-choose-us`, changefreq: "weekly", priority: "0.8", lastmod: todayIso },
+    { loc: `${baseUrl}/what-is-the-sports-room`, changefreq: "weekly", priority: "0.8", lastmod: todayIso },
+    { loc: `${baseUrl}/about-us`, changefreq: "monthly", priority: "0.4", lastmod: todayIso },
+    { loc: `${baseUrl}/contact-us`, changefreq: "monthly", priority: "0.4", lastmod: todayIso },
+    { loc: `${baseUrl}/privacy-policy`, changefreq: "monthly", priority: "0.3", lastmod: todayIso },
+    { loc: `${baseUrl}/terms`, changefreq: "monthly", priority: "0.3", lastmod: todayIso },
+    { loc: `${baseUrl}/disclaimer`, changefreq: "monthly", priority: "0.3", lastmod: todayIso },
+    { loc: `${baseUrl}/google-policies`, changefreq: "daily", priority: "0.7", lastmod: todayIso },
+    { loc: `${baseUrl}/sports-atlas`, changefreq: "weekly", priority: "0.6", lastmod: todayIso }
   ];
 
   // Dynamic category paths
   const categoryUrls = CATEGORIES_ROTATION.map(c => ({
     loc: `${baseUrl}/sport/${c}`,
     changefreq: "daily",
-    priority: "0.9"
+    priority: "0.9",
+    lastmod: todayIso
   }));
 
   // Topic Hub URLs
@@ -106,15 +108,19 @@ async function getSitemapXML(host: string): Promise<string> {
   const topicUrls = topicSlugs.map(t => ({
     loc: `${baseUrl}/topic/${t}`,
     changefreq: "daily",
-    priority: "0.85"
+    priority: "0.85",
+    lastmod: todayIso
   }));
 
-  // Query Supabase for posts to add dynamic blog paths
-  const postUrls: Array<{ loc: string; changefreq: string; priority: string }> = [];
+  // Query Supabase for dynamic entities (posts, streams, players)
+  const postUrls: Array<{ loc: string; changefreq: string; priority: string; lastmod?: string }> = [];
+  const playerUrls: Array<{ loc: string; changefreq: string; priority: string; lastmod?: string }> = [];
+  const seenPlayerSlugs = new Set<string>();
+
   try {
     const { data: posts, error } = await supabase
       .from("fts_posts")
-      .select("slug, created_at, scheduled_for")
+      .select("slug, created_at, scheduled_for, updated_at")
       .order("created_at", { ascending: false });
 
     if (!error && posts) {
@@ -124,10 +130,15 @@ async function getSitemapXML(host: string): Promise<string> {
         if (post.scheduled_for === "draft") return;
         if (post.scheduled_for && new Date(post.scheduled_for).getTime() > now) return;
 
+        const lastmod = post.updated_at || post.created_at 
+          ? new Date(post.updated_at || post.created_at).toISOString().split('T')[0] 
+          : todayIso;
+
         postUrls.push({
           loc: `${baseUrl}/blog/${post.slug}`,
           changefreq: "weekly",
-          priority: "0.8"
+          priority: "0.8",
+          lastmod
         });
       });
     }
@@ -135,38 +146,71 @@ async function getSitemapXML(host: string): Promise<string> {
     // Query active and recent live streams
     const { data: streams } = await supabase
       .from("fts_live_streams")
-      .select("id, status, updated_at")
+      .select("id, status, updated_at, created_at")
       .order("created_at", { ascending: false });
 
     if (streams && streams.length > 0) {
       streams.forEach((stream: any) => {
+        const lastmod = stream.updated_at || stream.created_at
+          ? new Date(stream.updated_at || stream.created_at).toISOString().split('T')[0]
+          : todayIso;
+
         postUrls.push({
           loc: `${baseUrl}/live-stream?id=${stream.id}`,
           changefreq: stream.status === 'active' ? 'always' : 'weekly',
-          priority: stream.status === 'active' ? '0.95' : '0.7'
+          priority: stream.status === 'active' ? '0.95' : '0.7',
+          lastmod
         });
       });
     }
 
-    // Query active player profiles
+    // Query active player profiles directly from Supabase
     const { data: players } = await supabase
       .from("players")
-      .select("slug, is_published, updated_at")
+      .select("slug, is_published, updated_at, created_at")
       .order("created_at", { ascending: false });
 
     if (players && players.length > 0) {
       players.forEach((player: any) => {
         if (player.is_published === false) return;
-        postUrls.push({
-          loc: `${baseUrl}/player/${player.slug}`,
+        const rawSlug = String(player.slug || '').trim().toLowerCase();
+        if (!rawSlug || seenPlayerSlugs.has(rawSlug)) return;
+        seenPlayerSlugs.add(rawSlug);
+
+        const lastmod = player.updated_at || player.created_at
+          ? new Date(player.updated_at || player.created_at).toISOString().split('T')[0]
+          : todayIso;
+
+        playerUrls.push({
+          loc: `${baseUrl}/player/${rawSlug}`,
           changefreq: "weekly",
-          priority: "0.85"
+          priority: "0.88",
+          lastmod
         });
       });
     }
   } catch (err) {
     console.warn("[Sitemap Builder] Could not query Supabase posts/streams/players for sitemap, falling back to static:", err);
   }
+
+  // Ensure default/seed player profiles are always present in the sitemap even if Supabase is offline
+  const fallbackPlayerSlugs = [
+    "babar-azam",
+    "shaheen-shah-afridi",
+    "max-verstappen",
+    "lionel-messi"
+  ];
+  fallbackPlayerSlugs.forEach(slug => {
+    if (!seenPlayerSlugs.has(slug)) {
+      seenPlayerSlugs.add(slug);
+      playerUrls.push({
+        loc: `${baseUrl}/player/${slug}`,
+        changefreq: "weekly",
+        priority: "0.88",
+        lastmod: todayIso
+      });
+    }
+  });
 
   // Fallback posts if Supabase is offline or empty during generation
   if (postUrls.length === 0) {
@@ -184,16 +228,17 @@ async function getSitemapXML(host: string): Promise<string> {
       postUrls.push({
         loc: `${baseUrl}/blog/${slug}`,
         changefreq: "weekly",
-        priority: "0.8"
+        priority: "0.8",
+        lastmod: todayIso
       });
     });
   }
 
-  const allUrls = [...coreUrls, ...categoryUrls, ...topicUrls, ...postUrls];
+  const allUrls = [...coreUrls, ...categoryUrls, ...topicUrls, ...playerUrls, ...postUrls];
   
   const xmlItems = allUrls.map(item => `  <url>
     <loc>${item.loc}</loc>
-    <changefreq>${item.changefreq}</changefreq>
+    ${item.lastmod ? `<lastmod>${item.lastmod}</lastmod>\n    ` : ''}<changefreq>${item.changefreq}</changefreq>
     <priority>${item.priority}</priority>
   </url>`).join("\n");
 
