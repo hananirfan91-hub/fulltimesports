@@ -820,6 +820,101 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           ]
         }
       ];
+    } else if (currentPath === '/players' || currentPath === '/players/') {
+      title = "Players | The Sports Room";
+      description = "Explore player profiles, career information, achievements and statistics from the world of sports on The Sports Room.";
+      keywords = ["Player profiles", "athlete directory", "sports statistics", "cricket players", "football players", "F1 drivers", ...GLOBAL_SEO_KEYWORDS.slice(0, 15)].join(", ");
+      pageType = "website";
+
+      const publishedPlayers = DB.getPlayers().filter(p => p.is_published !== false);
+
+      ldJsonData = [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "@id": `${canonicalUrl}#players-collection`,
+          "name": "Players Directory | The Sports Room",
+          "description": description,
+          "url": canonicalUrl,
+          "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": origin },
+              { "@type": "ListItem", "position": 2, "name": "Players", "item": canonicalUrl }
+            ]
+          },
+          "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": publishedPlayers.slice(0, 30).map((p, idx) => ({
+              "@type": "ListItem",
+              "position": idx + 1,
+              "url": `${origin}/player/${p.slug}`,
+              "name": p.name
+            }))
+          }
+        }
+      ];
+    } else if (currentPath.startsWith('/player/') || currentPath.startsWith('/players/')) {
+      const playerSlug = currentPath.replace(/^\/players?\//, '').replace(/\/$/, '');
+      const players = DB.getPlayers();
+      const matchedPlayer = players.find(p => p.slug === playerSlug);
+
+      if (matchedPlayer) {
+        title = matchedPlayer.seo_title || `${matchedPlayer.name} Profile, Career Stats, Achievements & News | The Sports Room`;
+        description = matchedPlayer.seo_description || `${matchedPlayer.name} player profile covering career statistics, team (${matchedPlayer.current_team || matchedPlayer.team || 'National'}), achievements, biography, and latest news on The Sports Room.`;
+        keywords = [
+          matchedPlayer.name,
+          `${matchedPlayer.name} stats`,
+          `${matchedPlayer.name} profile`,
+          `${matchedPlayer.name} career`,
+          matchedPlayer.sport,
+          matchedPlayer.country,
+          matchedPlayer.current_team || matchedPlayer.team || '',
+          ...GLOBAL_SEO_KEYWORDS.slice(0, 10)
+        ].filter(Boolean).join(", ");
+        pageType = "profile";
+        if (matchedPlayer.photo_url) {
+          ogImage = matchedPlayer.photo_url;
+        }
+
+        const socialArray = Object.values(matchedPlayer.social_links || {}).filter(Boolean);
+
+        ldJsonData = [
+          {
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "@id": `${canonicalUrl}#athlete`,
+            "name": matchedPlayer.name,
+            "url": canonicalUrl,
+            "image": matchedPlayer.photo_url || `${origin}/logo-preview.png`,
+            "jobTitle": matchedPlayer.playing_role || matchedPlayer.role || "Professional Athlete",
+            "nationality": matchedPlayer.nationality || matchedPlayer.country || undefined,
+            "birthDate": matchedPlayer.date_of_birth ? matchedPlayer.date_of_birth.slice(0, 10) : undefined,
+            "birthPlace": matchedPlayer.birthplace || undefined,
+            "description": matchedPlayer.biography || matchedPlayer.bio || description,
+            "knowsAbout": [matchedPlayer.sport, "Sports", "Athletics"],
+            "memberOf": (matchedPlayer.current_team || matchedPlayer.team) ? {
+              "@type": "SportsTeam",
+              "name": matchedPlayer.current_team || matchedPlayer.team,
+              "sport": matchedPlayer.sport
+            } : undefined,
+            "sameAs": socialArray.length > 0 ? socialArray : undefined
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "@id": `${canonicalUrl}#breadcrumb`,
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": origin },
+              { "@type": "ListItem", "position": 2, "name": "Players", "item": `${origin}/players` },
+              { "@type": "ListItem", "position": 3, "name": matchedPlayer.name, "item": canonicalUrl }
+            ]
+          }
+        ];
+      } else {
+        title = `Player Profile | The Sports Room`;
+        description = `Explore player career statistics and profiles on The Sports Room.`;
+      }
     } else if (currentPath === '/why-choose-us' || currentPath === '/why-choose-the-sports-room') {
       title = "Why Choose The Sports Room? | Independent Sports Journalism & Analytics";
       description = "Discover why sports fans, researchers, and AI engines choose The Sports Room. Co-Founded by Hanan Irfan & Urwah Farooq, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.";

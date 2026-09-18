@@ -41,7 +41,8 @@ async function generate() {
     { loc: `${baseUrl}/terms`, changefreq: "monthly", priority: "0.3" },
     { loc: `${baseUrl}/disclaimer`, changefreq: "monthly", priority: "0.3" },
     { loc: `${baseUrl}/google-policies`, changefreq: "daily", priority: "0.7" },
-    { loc: `${baseUrl}/sports-atlas`, changefreq: "weekly", priority: "0.6" }
+    { loc: `${baseUrl}/sports-atlas`, changefreq: "weekly", priority: "0.6" },
+    { loc: `${baseUrl}/players`, changefreq: "daily", priority: "0.9" }
   ];
 
   // Sport category URLs
@@ -109,6 +110,24 @@ async function generate() {
         });
       });
       console.log(`[Sitemap Generator] Successfully compiled ${streams.length} stream paths from Supabase.`);
+    }
+
+    // Query active player profiles
+    const { data: players } = await supabase
+      .from("players")
+      .select("slug, is_published, updated_at")
+      .order("created_at", { ascending: false });
+
+    if (players && players.length > 0) {
+      players.forEach((player: any) => {
+        if (player.is_published === false) return;
+        postUrls.push({
+          loc: `${baseUrl}/player/${player.slug}`,
+          changefreq: "weekly",
+          priority: "0.85"
+        });
+      });
+      console.log(`[Sitemap Generator] Successfully compiled ${players.length} player profile paths from Supabase.`);
     }
   } catch (err) {
     console.warn("[Sitemap Generator] Supabase dynamic fetch failed. Using fallback posts lists:", err);

@@ -1,4 +1,4 @@
-import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber, SubscriberInboxMessage, LiveStreamItem, HeroConfig, FanPoll, DailyQuiz, QuizQuestion, QuizSubmission, QuizAnswerChoice, MonthlyLeaderboard, MonthlyLeaderboardWinner, MonthlyUserAggregation } from '../types';
+import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber, SubscriberInboxMessage, LiveStreamItem, HeroConfig, FanPoll, DailyQuiz, QuizQuestion, QuizSubmission, QuizAnswerChoice, MonthlyLeaderboard, MonthlyLeaderboardWinner, MonthlyUserAggregation, Player } from '../types';
 import { supabase } from './supabase';
 import { normalizeSlug } from './slugUtils';
 import { ensureFullSeoGeoAeo } from './seoGenerator';
@@ -51,6 +51,7 @@ const STORAGE_KEYS = {
   QUIZZES: 'fts_quizzes',
   QUIZ_SUBMISSIONS: 'fts_quiz_submissions',
   MONTHLY_LEADERBOARDS: 'fts_monthly_leaderboards',
+  PLAYERS: 'fts_players',
 };
 
 // Seed Categories
@@ -3871,6 +3872,517 @@ export class DB {
 
     DB._memoryLeaderboards = DB._memoryLeaderboards.filter(l => l.id !== id && l.month_year !== id);
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
+  }
+
+  // ==========================================
+  // PLAYER PROFILES SYSTEM
+  // ==========================================
+  static _memoryPlayers: Player[] = [];
+  static _playersInitialized = false;
+
+  static parseRemotePlayer(p: any): Player {
+    return {
+      id: String(p.id || `player-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`),
+      name: String(p.name || ''),
+      slug: String(p.slug || normalizeSlug(p.name || '')),
+      photo_url: p.photo_url || p.photoUrl || '',
+      country: p.country || '',
+      country_code: p.country_code || p.countryCode || '',
+      sport: String(p.sport || 'cricket').toLowerCase().trim(),
+      playing_role: p.playing_role || p.role || '',
+      role: p.role || p.playing_role || '',
+      current_team: p.current_team || p.team || '',
+      team: p.team || p.current_team || '',
+      jersey_number: p.jersey_number ? String(p.jersey_number) : (p.jerseyNumber ? String(p.jerseyNumber) : ''),
+      date_of_birth: p.date_of_birth || p.dateOfBirth || '',
+      birthplace: p.birthplace || '',
+      nationality: p.nationality || p.country || '',
+      biography: p.biography || p.bio || '',
+      bio: p.bio || p.biography || '',
+      career_highlights: p.career_highlights || p.careerHighlights || '',
+      statistics: typeof p.statistics === 'object' && p.statistics !== null ? p.statistics : {},
+      achievements: Array.isArray(p.achievements) ? p.achievements : [],
+      social_links: typeof p.social_links === 'object' && p.social_links !== null ? p.social_links : (typeof p.socialLinks === 'object' && p.socialLinks !== null ? p.socialLinks : {}),
+      seo_title: p.seo_title || p.seoTitle || '',
+      seo_description: p.seo_description || p.seoDescription || '',
+      is_published: p.is_published !== undefined ? Boolean(p.is_published) : (p.isPublished !== undefined ? Boolean(p.isPublished) : true),
+      created_at: p.created_at || p.createdAt || new Date().toISOString(),
+      updated_at: p.updated_at || p.updatedAt || new Date().toISOString(),
+    };
+  }
+
+  static getSeedPlayers(): Player[] {
+    return [
+      {
+        id: 'player-babar-azam',
+        name: 'Babar Azam',
+        slug: 'babar-azam',
+        photo_url: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&auto=format&fit=crop&q=80',
+        country: 'Pakistan',
+        country_code: 'PK',
+        sport: 'cricket',
+        playing_role: 'Top-order Batter',
+        role: 'Top-order Batter',
+        current_team: 'Pakistan / Peshawar Zalmi',
+        team: 'Pakistan / Peshawar Zalmi',
+        jersey_number: '56',
+        date_of_birth: '1994-10-15',
+        birthplace: 'Lahore, Punjab, Pakistan',
+        nationality: 'Pakistani',
+        biography: 'Mohammad Babar Azam is a world-renowned Pakistani international cricketer and former captain across all formats. Celebrated for his classical cover drives, wristwork, and temperament, Babar has consistently ranked among the top batters in ICC rankings across Tests, ODIs, and T20Is.',
+        bio: 'Mohammad Babar Azam is a world-renowned Pakistani international cricketer and former captain across all formats. Celebrated for his classical cover drives, wristwork, and temperament, Babar has consistently ranked among the top batters in ICC rankings across Tests, ODIs, and T20Is.',
+        career_highlights: 'Fastest batter to reach 5,000 ODI runs (97 innings).\nICC Men\'s Cricketer of the Year (Sir Garfield Sobers Trophy) 2022.\nICC Men\'s ODI Cricketer of the Year (2021, 2022).\nLed Pakistan to the final of the ICC Men\'s T20 World Cup 2022.',
+        statistics: {
+          Matches: 290,
+          Runs: 13500,
+          Average: 49.2,
+          Hundreds: 31,
+          Fifties: 92,
+          Strike_Rate: 88.5
+        },
+        achievements: [
+          {
+            title: 'Sir Garfield Sobers Trophy (ICC Cricketer of the Year)',
+            year: '2022',
+            competition: 'ICC Awards',
+            description: 'Recognized as the premier male cricketer globally across all formats.'
+          },
+          {
+            title: 'ICC Men\'s ODI Cricketer of the Year',
+            year: '2021 & 2022',
+            competition: 'ICC Awards',
+            description: 'Consecutive year honors for batting dominance in 50-over international cricket.'
+          },
+          {
+            title: 'Fastest to 5,000 ODI Runs',
+            year: '2023',
+            competition: 'International Cricket',
+            description: 'Completed 5,000 runs in just 97 innings, surpassing Hashim Amla and Viv Richards.'
+          }
+        ],
+        social_links: {
+          twitter: 'https://twitter.com/babarazam258',
+          instagram: 'https://instagram.com/babarazam'
+        },
+        seo_title: 'Babar Azam Profile, Stats, Career Records & News | The Sports Room',
+        seo_description: 'Babar Azam player profile covering career batting statistics, centuries, Pakistan captaincy records, achievements, and latest sports updates.',
+        is_published: true,
+        created_at: '2026-01-10T12:00:00Z',
+        updated_at: '2026-09-01T12:00:00Z'
+      },
+      {
+        id: 'player-shaheen-afridi',
+        name: 'Shaheen Shah Afridi',
+        slug: 'shaheen-shah-afridi',
+        photo_url: 'https://images.unsplash.com/photo-1540747737956-378724044282?w=800&auto=format&fit=crop&q=80',
+        country: 'Pakistan',
+        country_code: 'PK',
+        sport: 'cricket',
+        playing_role: 'Left-arm Fast Bowler',
+        role: 'Left-arm Fast Bowler',
+        current_team: 'Pakistan / Lahore Qalandars',
+        team: 'Pakistan / Lahore Qalandars',
+        jersey_number: '10',
+        date_of_birth: '2000-04-06',
+        birthplace: 'Landi Kotal, Khyber Pakhtunkhwa, Pakistan',
+        nationality: 'Pakistani',
+        biography: 'Shaheen Shah Afridi is a premier Pakistani fast bowler known for his lethal first-over swing, towering pace, and pin-point yorkers. As the youngest recipient of the Sir Garfield Sobers Trophy, Shaheen spearheads Pakistan\'s bowling attack in all three formats.',
+        bio: 'Shaheen Shah Afridi is a premier Pakistani fast bowler known for his lethal first-over swing, towering pace, and pin-point yorkers. As the youngest recipient of the Sir Garfield Sobers Trophy, Shaheen spearheads Pakistan\'s bowling attack in all three formats.',
+        career_highlights: 'Sir Garfield Sobers Trophy (ICC Cricketer of the Year) 2021.\nLed Lahore Qalandars to consecutive PSL titles in 2022 and 2023.\nFastest pacer to 100 ODI wickets in terms of matches played.',
+        statistics: {
+          Matches: 160,
+          Wickets: 320,
+          Bowling_Average: 23.4,
+          Economy: 5.12,
+          Best_Bowling: '6/35',
+          Five_Wicket_Hauls: 7
+        },
+        achievements: [
+          {
+            title: 'Sir Garfield Sobers Trophy',
+            year: '2021',
+            competition: 'ICC Awards',
+            description: 'Awarded ICC Men\'s Cricketer of the Year at age 21.'
+          },
+          {
+            title: 'Back-to-Back PSL Championships',
+            year: '2022, 2023',
+            competition: 'Pakistan Super League',
+            description: 'Captained Lahore Qalandars to historic consecutive titles.'
+          }
+        ],
+        social_links: {
+          twitter: 'https://twitter.com/iShaheenAfridi',
+          instagram: 'https://instagram.com/ishaheenafridi10'
+        },
+        seo_title: 'Shaheen Shah Afridi Profile, Stats, Bowling Records | The Sports Room',
+        seo_description: 'Shaheen Shah Afridi player profile covering career bowling statistics, wickets, pace analysis, Pakistan records, and news on The Sports Room.',
+        is_published: true,
+        created_at: '2026-01-15T12:00:00Z',
+        updated_at: '2026-09-01T12:00:00Z'
+      },
+      {
+        id: 'player-lionel-messi',
+        name: 'Lionel Messi',
+        slug: 'lionel-messi',
+        photo_url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80',
+        country: 'Argentina',
+        country_code: 'AR',
+        sport: 'football',
+        playing_role: 'Forward / Playmaker',
+        role: 'Forward / Playmaker',
+        current_team: 'Inter Miami / Argentina',
+        team: 'Inter Miami / Argentina',
+        jersey_number: '10',
+        date_of_birth: '1987-06-24',
+        birthplace: 'Rosario, Santa Fe, Argentina',
+        nationality: 'Argentine',
+        biography: 'Lionel Andrés Messi is an Argentine professional footballer regarded as one of the greatest players in the history of the sport. Winner of a record 8 Ballon d\'Or awards and the 2022 FIFA World Cup, Messi has scored over 800 senior career goals.',
+        bio: 'Lionel Andrés Messi is an Argentine professional footballer regarded as one of the greatest players in the history of the sport. Winner of a record 8 Ballon d\'Or awards and the 2022 FIFA World Cup, Messi has scored over 800 senior career goals.',
+        career_highlights: 'FIFA World Cup Champion & Golden Ball winner (Qatar 2022).\nRecord 8 Ballon d\'Or awards.\n4 UEFA Champions League titles and 10 La Liga titles with FC Barcelona.\nAll-time top scorer in La Liga history (474 goals).',
+        statistics: {
+          Appearances: 1080,
+          Goals: 845,
+          Assists: 375,
+          Trophies: 45,
+          Free_Kick_Goals: 65
+        },
+        achievements: [
+          {
+            title: 'FIFA World Cup Champion',
+            year: '2022',
+            competition: 'FIFA World Cup',
+            description: 'Captained Argentina to their third World Cup title in Qatar.'
+          },
+          {
+            title: '8x Ballon d\'Or Winner',
+            year: '2009–2023',
+            competition: 'France Football',
+            description: 'Most Ballon d\'Or awards won by any player in history.'
+          },
+          {
+            title: 'Copa América Champion',
+            year: '2021, 2024',
+            competition: 'CONMEBOL',
+            description: 'Led Argentina to consecutive continental crowns.'
+          }
+        ],
+        social_links: {
+          instagram: 'https://instagram.com/leomessi',
+          facebook: 'https://facebook.com/leomessi'
+        },
+        seo_title: 'Lionel Messi Profile, Stats, Goals, Career & News | The Sports Room',
+        seo_description: 'Lionel Messi player profile covering career statistics, goals, assists, Ballon d\'Or records, World Cup triumph, and latest updates.',
+        is_published: true,
+        created_at: '2026-01-20T12:00:00Z',
+        updated_at: '2026-09-01T12:00:00Z'
+      },
+      {
+        id: 'player-max-verstappen',
+        name: 'Max Verstappen',
+        slug: 'max-verstappen',
+        photo_url: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&auto=format&fit=crop&q=80',
+        country: 'Netherlands',
+        country_code: 'NL',
+        sport: 'f1',
+        playing_role: 'Formula 1 Racing Driver',
+        role: 'Formula 1 Racing Driver',
+        current_team: 'Red Bull Racing',
+        team: 'Red Bull Racing',
+        jersey_number: '1',
+        date_of_birth: '1997-09-30',
+        birthplace: 'Hasselt, Belgium',
+        nationality: 'Dutch',
+        biography: 'Max Emilian Verstappen is a Dutch racing driver and multiple Formula One World Drivers\' Champion competing for Red Bull Racing. Known for his aggressive racecraft and consistency, Verstappen set the all-time F1 record with 19 Grand Prix victories in a single season (2023).',
+        bio: 'Max Emilian Verstappen is a Dutch racing driver and multiple Formula One World Drivers\' Champion competing for Red Bull Racing. Known for his aggressive racecraft and consistency, Verstappen set the all-time F1 record with 19 Grand Prix victories in a single season (2023).',
+        career_highlights: '4x FIA Formula One World Drivers\' Champion (2021, 2022, 2023, 2024).\nRecord 19 Grand Prix victories in a single season (2023).\nYoungest driver to start an F1 race and youngest race winner (Spanish GP 2016).',
+        statistics: {
+          Races: 210,
+          Wins: 63,
+          Podiums: 112,
+          Pole_Positions: 41,
+          Career_Points: 3020.5
+        },
+        achievements: [
+          {
+            title: 'FIA F1 World Drivers\' Championship',
+            year: '2021, 2022, 2023, 2024',
+            competition: 'FIA Formula One',
+            description: 'Four consecutive world championship titles with Red Bull Racing.'
+          },
+          {
+            title: 'Single Season Record 19 Wins',
+            year: '2023',
+            competition: 'FIA Formula One',
+            description: 'Highest winning percentage in a single F1 season in history (86.4%).'
+          }
+        ],
+        social_links: {
+          twitter: 'https://twitter.com/Max33Verstappen',
+          instagram: 'https://instagram.com/maxverstappen1'
+        },
+        seo_title: 'Max Verstappen Profile, F1 Stats, Wins & Career | The Sports Room',
+        seo_description: 'Max Verstappen racing driver profile covering Formula 1 championship records, race wins, podiums, pole positions, and Red Bull news.',
+        is_published: true,
+        created_at: '2026-01-25T12:00:00Z',
+        updated_at: '2026-09-01T12:00:00Z'
+      }
+    ];
+  }
+
+  static getPlayers(): Player[] {
+    if (DB._memoryPlayers && DB._memoryPlayers.length > 0) {
+      return DB._memoryPlayers;
+    }
+
+    try {
+      const cached = localStorage.getItem(STORAGE_KEYS.PLAYERS);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          DB._memoryPlayers = parsed.map(DB.parseRemotePlayer);
+          return DB._memoryPlayers;
+        }
+      }
+    } catch (e) {
+      console.warn("Error reading cached players:", e);
+    }
+
+    const seeds = DB.getSeedPlayers();
+    DB._memoryPlayers = seeds;
+    try {
+      localStorage.setItem(STORAGE_KEYS.PLAYERS, JSON.stringify(seeds));
+    } catch (e) {
+      // ignore
+    }
+    return DB._memoryPlayers;
+  }
+
+  static async getPlayersAsync(): Promise<Player[]> {
+    try {
+      const { data, error } = await supabase
+        .from('players')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (!error && data && Array.isArray(data) && data.length > 0) {
+        const players = data.map(DB.parseRemotePlayer);
+        DB._memoryPlayers = players;
+        try {
+          localStorage.setItem(STORAGE_KEYS.PLAYERS, JSON.stringify(players));
+        } catch (e) {
+          // ignore
+        }
+        return players;
+      }
+    } catch (err) {
+      console.warn("Supabase getPlayersAsync notice (falling back to local cache):", err);
+    }
+
+    return DB.getPlayers();
+  }
+
+  static async getPublishedPlayersAsync(): Promise<Player[]> {
+    try {
+      const { data, error } = await supabase
+        .from('players')
+        .select('*')
+        .eq('is_published', true)
+        .order('name', { ascending: true });
+
+      if (!error && data && Array.isArray(data) && data.length > 0) {
+        const players = data.map(DB.parseRemotePlayer);
+        return players;
+      }
+    } catch (err) {
+      console.warn("Supabase getPublishedPlayersAsync notice:", err);
+    }
+
+    return DB.getPlayers().filter(p => p.is_published);
+  }
+
+  static async getPlayerBySlugAsync(slug: string): Promise<Player | null> {
+    const cleanSlug = normalizeSlug(slug || '');
+    if (!cleanSlug) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('players')
+        .select('*')
+        .ilike('slug', cleanSlug)
+        .maybeSingle();
+
+      if (!error && data) {
+        return DB.parseRemotePlayer(data);
+      }
+    } catch (err) {
+      console.warn("Supabase getPlayerBySlugAsync notice:", err);
+    }
+
+    const localPlayers = DB.getPlayers();
+    const found = localPlayers.find(p => normalizeSlug(p.slug) === cleanSlug);
+    return found || null;
+  }
+
+  static async savePlayerAsync(playerData: Partial<Player>): Promise<Player> {
+    const now = new Date().toISOString();
+    const cleanName = String(playerData.name || '').trim();
+    if (!cleanName) {
+      throw new Error("Player name is required.");
+    }
+
+    const cleanSport = String(playerData.sport || 'cricket').toLowerCase().trim();
+    const rawSlug = playerData.slug ? normalizeSlug(playerData.slug) : normalizeSlug(cleanName);
+    const cleanSlug = rawSlug || `player-${Date.now()}`;
+
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(playerData.id || '');
+    const idToUse = isUUID ? playerData.id! : undefined;
+
+    const payload: any = {
+      name: cleanName,
+      slug: cleanSlug,
+      photo_url: playerData.photo_url || '',
+      country: playerData.country || '',
+      country_code: playerData.country_code || '',
+      sport: cleanSport,
+      playing_role: playerData.playing_role || playerData.role || '',
+      role: playerData.role || playerData.playing_role || '',
+      current_team: playerData.current_team || playerData.team || '',
+      team: playerData.team || playerData.current_team || '',
+      jersey_number: playerData.jersey_number || '',
+      date_of_birth: playerData.date_of_birth || null,
+      birthplace: playerData.birthplace || '',
+      nationality: playerData.nationality || playerData.country || '',
+      biography: playerData.biography || playerData.bio || '',
+      bio: playerData.bio || playerData.biography || '',
+      career_highlights: playerData.career_highlights || '',
+      statistics: typeof playerData.statistics === 'object' && playerData.statistics !== null ? playerData.statistics : {},
+      achievements: Array.isArray(playerData.achievements) ? playerData.achievements : [],
+      social_links: typeof playerData.social_links === 'object' && playerData.social_links !== null ? playerData.social_links : {},
+      seo_title: playerData.seo_title || '',
+      seo_description: playerData.seo_description || '',
+      is_published: playerData.is_published !== undefined ? Boolean(playerData.is_published) : true,
+      updated_at: now
+    };
+
+    if (idToUse) {
+      payload.id = idToUse;
+    }
+
+    let savedPlayer: Player | null = null;
+
+    try {
+      if (idToUse) {
+        const { data, error } = await supabase
+          .from('players')
+          .upsert([payload])
+          .select()
+          .single();
+
+        if (!error && data) {
+          savedPlayer = DB.parseRemotePlayer(data);
+        } else if (error) {
+          console.warn("Supabase savePlayerAsync upsert notice:", error.message);
+        }
+      } else {
+        const { data, error } = await supabase
+          .from('players')
+          .insert([payload])
+          .select()
+          .single();
+
+        if (!error && data) {
+          savedPlayer = DB.parseRemotePlayer(data);
+        } else if (error) {
+          console.warn("Supabase savePlayerAsync insert notice:", error.message);
+        }
+      }
+    } catch (e: any) {
+      console.warn("Supabase savePlayerAsync error:", e?.message || e);
+    }
+
+    if (!savedPlayer) {
+      savedPlayer = {
+        ...DB.parseRemotePlayer(payload),
+        id: playerData.id || `local-player-${Date.now()}`,
+        created_at: playerData.created_at || now,
+        updated_at: now
+      };
+    }
+
+    // Update local cache
+    const currentList = DB.getPlayers();
+    const existingIndex = currentList.findIndex(p => p.id === savedPlayer!.id || p.slug === savedPlayer!.slug);
+    if (existingIndex >= 0) {
+      currentList[existingIndex] = savedPlayer;
+    } else {
+      currentList.unshift(savedPlayer);
+    }
+    DB._memoryPlayers = currentList;
+    try {
+      localStorage.setItem(STORAGE_KEYS.PLAYERS, JSON.stringify(currentList));
+    } catch (e) {
+      // ignore
+    }
+
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+    return savedPlayer;
+  }
+
+  static async deletePlayerAsync(id: string): Promise<void> {
+    try {
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      if (isUUID) {
+        await supabase.from('players').delete().eq('id', id);
+      } else {
+        await supabase.from('players').delete().eq('slug', id);
+      }
+    } catch (e: any) {
+      console.warn("Supabase deletePlayerAsync notice:", e?.message || e);
+    }
+
+    const currentList = DB.getPlayers().filter(p => p.id !== id && p.slug !== id);
+    DB._memoryPlayers = currentList;
+    try {
+      localStorage.setItem(STORAGE_KEYS.PLAYERS, JSON.stringify(currentList));
+    } catch (e) {
+      // ignore
+    }
+
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
+  }
+
+  static async togglePublishPlayerAsync(id: string, is_published: boolean): Promise<Player> {
+    const now = new Date().toISOString();
+    try {
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      const query = supabase.from('players').update({ is_published, updated_at: now });
+      if (isUUID) {
+        query.eq('id', id);
+      } else {
+        query.eq('slug', id);
+      }
+      await query;
+    } catch (e: any) {
+      console.warn("Supabase togglePublishPlayerAsync notice:", e?.message || e);
+    }
+
+    const currentList = DB.getPlayers();
+    const player = currentList.find(p => p.id === id || p.slug === id);
+    if (player) {
+      player.is_published = is_published;
+      player.updated_at = now;
+      DB._memoryPlayers = currentList;
+      try {
+        localStorage.setItem(STORAGE_KEYS.PLAYERS, JSON.stringify(currentList));
+      } catch (e) {
+        // ignore
+      }
+      window.dispatchEvent(new CustomEvent('fts_db_sync'));
+      return player;
+    }
+
+    throw new Error("Player not found");
   }
 }
 

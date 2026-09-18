@@ -347,7 +347,15 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             Basketball
           </button>
 
-          {/* 6. More Dropdown */}
+          {/* 6. Players Directory */}
+          <button
+            onClick={() => onNavigate('/players')}
+            className={`font-display text-sm font-bold tracking-wide uppercase transition duration-150 ${currentPath === '/players' || currentPath.startsWith('/player/') ? 'text-[#22c55e]' : 'text-slate-200 hover:text-[#22c55e]'}`}
+          >
+            Players
+          </button>
+
+          {/* 7. More Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
@@ -588,6 +596,15 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                 )}
 
                 <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      onNavigate('/players');
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`text-left py-2 border-b border-emerald-950 font-bold ${currentPath.startsWith('/player') ? 'text-[#22c55e]' : 'text-slate-800'}`}
+                  >
+                    ⭐ Players Directory
+                  </button>
                   {categories.filter(c => c.slug !== 'cricket').map((cat) => (
                     <button
                       key={cat.id}

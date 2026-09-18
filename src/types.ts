@@ -282,3 +282,49 @@ export interface MonthlyUserAggregation {
   correct_answers: number;
   last_submission_at: string;
 }
+
+export interface PlayerAchievement {
+  title: string;
+  year?: string | number;
+  competition?: string;
+  description?: string;
+}
+
+export interface PlayerSocialLinks {
+  instagram?: string;
+  twitter?: string;
+  x?: string;
+  facebook?: string;
+  youtube?: string;
+  website?: string;
+}
+
+export interface Player {
+  id: string;
+  name: string;
+  slug: string;
+  photo_url?: string;
+  country?: string;
+  country_code?: string;
+  sport: string; // 'cricket' | 'football' | 'basketball' | 'f1' | 'tennis' | 'hockey' | 'volleyball' | 'esports' | etc.
+  playing_role?: string;
+  role?: string;
+  current_team?: string;
+  team?: string;
+  jersey_number?: string;
+  date_of_birth?: string;
+  birthplace?: string;
+  nationality?: string;
+  biography?: string;
+  bio?: string;
+  career_highlights?: string;
+  statistics: Record<string, string | number>;
+  achievements: PlayerAchievement[];
+  social_links: PlayerSocialLinks;
+  seo_title?: string;
+  seo_description?: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+

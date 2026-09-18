@@ -22,6 +22,8 @@ const WhyChooseUs = lazy(() => import('./pages/WhyChooseUs'));
 const WhatIsTheSportsRoom = lazy(() => import('./pages/WhatIsTheSportsRoom'));
 const AuthorProfile = lazy(() => import('./pages/AuthorProfile'));
 const RC24ApkDownload = lazy(() => import('./pages/RC24ApkDownload'));
+const PlayersList = lazy(() => import('./pages/PlayersList'));
+const PlayerDetail = lazy(() => import('./pages/PlayerDetail'));
 
 function PageSkeleton() {
   return (
@@ -156,6 +158,19 @@ export default function App() {
       currentPath === '/rc24'
     ) {
       return <RC24ApkDownload onNavigate={handleNavigate} />;
+    }
+
+    // Player Profiles Directory & Individual Profile Routes
+    if (currentPath === '/players' || currentPath === '/players/') {
+      return <PlayersList onNavigate={handleNavigate} />;
+    }
+    if (currentPath.startsWith('/player/')) {
+      const slug = currentPath.replace('/player/', '').replace(/\/$/, '');
+      return <PlayerDetail slug={slug} onNavigate={handleNavigate} />;
+    }
+    if (currentPath.startsWith('/players/')) {
+      const slug = currentPath.replace('/players/', '').replace(/\/$/, '');
+      return <PlayerDetail slug={slug} onNavigate={handleNavigate} />;
     }
 
     // Dynamic Editorial Topic Hubs (/topic/:topicSlug)

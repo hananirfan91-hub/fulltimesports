@@ -84,7 +84,8 @@ async function getSitemapXML(host: string): Promise<string> {
     { loc: `${baseUrl}/terms`, changefreq: "monthly", priority: "0.3" },
     { loc: `${baseUrl}/disclaimer`, changefreq: "monthly", priority: "0.3" },
     { loc: `${baseUrl}/google-policies`, changefreq: "daily", priority: "0.7" },
-    { loc: `${baseUrl}/sports-atlas`, changefreq: "weekly", priority: "0.6" }
+    { loc: `${baseUrl}/sports-atlas`, changefreq: "weekly", priority: "0.6" },
+    { loc: `${baseUrl}/players`, changefreq: "daily", priority: "0.9" }
   ];
 
   // Dynamic category paths
@@ -146,8 +147,25 @@ async function getSitemapXML(host: string): Promise<string> {
         });
       });
     }
+
+    // Query active player profiles
+    const { data: players } = await supabase
+      .from("players")
+      .select("slug, is_published, updated_at")
+      .order("created_at", { ascending: false });
+
+    if (players && players.length > 0) {
+      players.forEach((player: any) => {
+        if (player.is_published === false) return;
+        postUrls.push({
+          loc: `${baseUrl}/player/${player.slug}`,
+          changefreq: "weekly",
+          priority: "0.85"
+        });
+      });
+    }
   } catch (err) {
-    console.warn("[Sitemap Builder] Could not query Supabase posts/streams for sitemap, falling back to static:", err);
+    console.warn("[Sitemap Builder] Could not query Supabase posts/streams/players for sitemap, falling back to static:", err);
   }
 
   // Fallback posts if Supabase is offline or empty during generation
@@ -538,6 +556,234 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
       }
     } catch (e) {
       console.warn("[SSR Render] Could not fetch post for SSR:", e);
+    }
+  } else if (cleanPath === "/players") {
+    title = "Players | The Sports Room";
+    description = "Explore player profiles, career information, achievements and statistics from the world of sports on The Sports Room.";
+    keywords = "Players, sports athletes, cricket players, football players, basketball players, tennis players, F1 drivers, athlete biographies, career statistics, The Sports Room";
+    canonicalUrl = `${baseUrl}/players`;
+    pageType = "website";
+
+    try {
+      const { data: playersList } = await supabase
+        .from("players")
+        .select("name, slug, sport, country, playing_role, current_team, photo_url, is_published")
+        .order("created_at", { ascending: false });
+
+      const activePlayers = (playersList || []).filter((p: any) => p.is_published !== false);
+
+      jsonLdData = [
+        {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "@id": `${canonicalUrl}#players-directory`,
+          "name": "Players Directory | The Sports Room",
+          "description": description,
+          "url": canonicalUrl,
+          "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
+              { "@type": "ListItem", "position": 2, "name": "Players", "item": canonicalUrl }
+            ]
+          },
+          "mainEntity": {
+            "@type": "ItemList",
+            "itemListElement": activePlayers.slice(0, 50).map((p: any, idx: number) => ({
+              "@type": "ListItem",
+              "position": idx + 1,
+              "url": `${baseUrl}/player/${p.slug}`,
+              "name": p.name
+            }))
+          }
+        }
+      ];
+
+      const playersCards = activePlayers.map((p: any) => `
+        <div class="bg-[#022c22] border border-[#22c55e]/20 rounded-2xl p-5 hover:border-[#22c55e]/60 transition">
+          <div class="flex items-center space-x-4">
+            ${p.photo_url ? `<img src="${p.photo_url}" alt="${p.name}" class="w-16 h-16 rounded-full object-cover border-2 border-[#22c55e]/40" />` : `<div class="w-16 h-16 rounded-full bg-emerald-950 flex items-center justify-center text-xl font-bold text-emerald-400 border border-emerald-800">${p.name.charAt(0)}</div>`}
+            <div>
+              <h2 class="text-lg font-bold text-white"><a href="/player/${p.slug}" class="hover:text-[#22c55e]">${p.name}</a></h2>
+              <p class="text-xs text-emerald-400 font-mono">${p.playing_role || 'Athlete'} &bull; ${p.country || ''}</p>
+              ${p.current_team ? `<p class="text-xs text-slate-300 mt-1 font-mono">${p.current_team}</p>` : ''}
+            </div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-emerald-950 flex justify-between items-center text-xs">
+            <span class="text-emerald-400 font-mono font-bold uppercase">${p.sport || 'Sports'}</span>
+            <a href="/player/${p.slug}" class="text-[#22c55e] font-bold hover:underline">View Profile &rarr;</a>
+          </div>
+        </div>
+      `).join("");
+
+      preRenderedBody = `
+        <main class="max-w-7xl mx-auto px-4 py-8 text-slate-100">
+          <nav aria-label="Breadcrumb" class="mb-4 text-xs font-mono">
+            <ol class="flex items-center space-x-2 text-slate-400">
+              <li><a href="/" class="hover:text-[#22c55e]">Home</a></li>
+              <li>/</li>
+              <li><span class="text-[#22c55e]">Players</span></li>
+            </ol>
+          </nav>
+          <h1 class="text-3xl sm:text-4xl font-black font-display text-white mb-2">Players</h1>
+          <p class="text-sm text-slate-300 mb-8 max-w-3xl">Explore player profiles, career information, achievements and statistics from the world of sports.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${playersCards || '<p class="text-slate-400">Player profiles directory loading...</p>'}
+          </div>
+        </main>
+      `;
+    } catch (err) {
+      console.warn("[SSR Render] Could not load players list for SSR:", err);
+    }
+  } else if (cleanPath.startsWith("/player/") || cleanPath.startsWith("/players/")) {
+    const playerSlug = cleanPath.replace(/^\/players?\//, '').replace(/\/$/, '');
+    canonicalUrl = `${baseUrl}/player/${playerSlug}`;
+    pageType = "profile";
+
+    try {
+      const { data: player } = await supabase
+        .from("players")
+        .select("*")
+        .eq("slug", playerSlug)
+        .maybeSingle();
+
+      if (player) {
+        title = player.seo_title || `${player.name} Profile, Career Stats, Achievements & News | The Sports Room`;
+        description = player.seo_description || `${player.name} player profile covering career statistics, team (${player.current_team || 'National'}), achievements, biography, and latest news on The Sports Room.`;
+        keywords = `${player.name}, ${player.name} stats, ${player.name} profile, ${player.sport}, ${player.country}, ${player.current_team || ''}, athlete biography, The Sports Room`;
+        if (player.photo_url) {
+          ogImage = player.photo_url;
+        }
+
+        const socialArray = Object.values(player.social_links || {}).filter(Boolean);
+
+        jsonLdData = [
+          {
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "@id": `${canonicalUrl}#athlete`,
+            "name": player.name,
+            "url": canonicalUrl,
+            "image": player.photo_url || `${baseUrl}/logo-preview.png`,
+            "jobTitle": player.playing_role || "Professional Athlete",
+            "nationality": player.nationality || player.country || undefined,
+            "birthDate": player.date_of_birth ? player.date_of_birth.slice(0, 10) : undefined,
+            "birthPlace": player.birthplace || undefined,
+            "description": player.biography || description,
+            "knowsAbout": [player.sport, "Sports", "Athletics"],
+            "memberOf": player.current_team ? {
+              "@type": "SportsTeam",
+              "name": player.current_team,
+              "sport": player.sport
+            } : undefined,
+            "sameAs": socialArray.length > 0 ? socialArray : undefined
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "@id": `${canonicalUrl}#breadcrumb`,
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": baseUrl },
+              { "@type": "ListItem", "position": 2, "name": "Players", "item": `${baseUrl}/players` },
+              { "@type": "ListItem", "position": 3, "name": player.name, "item": canonicalUrl }
+            ]
+          }
+        ];
+
+        // Format stats cards if available
+        let statsHtml = '';
+        if (player.statistics && typeof player.statistics === 'object') {
+          const statEntries = Object.entries(player.statistics);
+          if (statEntries.length > 0) {
+            statsHtml = `
+              <div class="my-6">
+                <h2 class="text-xl font-bold text-white mb-3">Career Statistics</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  ${statEntries.map(([k, v]) => `
+                    <div class="bg-[#022c22] border border-emerald-900/60 p-3 rounded-xl text-center">
+                      <div class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">${k.replace(/_/g, ' ')}</div>
+                      <div class="text-lg font-bold text-[#22c55e] mt-1">${v}</div>
+                    </div>
+                  `).join("")}
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        // Format achievements if available
+        let achievementsHtml = '';
+        if (player.achievements && Array.isArray(player.achievements) && player.achievements.length > 0) {
+          achievementsHtml = `
+            <div class="my-6">
+              <h2 class="text-xl font-bold text-white mb-3">Key Achievements</h2>
+              <ul class="space-y-2">
+                ${player.achievements.map((ach: any) => `
+                  <li class="bg-[#022c22] border border-emerald-900/60 p-3 rounded-xl flex items-center justify-between text-xs">
+                    <span class="font-bold text-white">${typeof ach === 'string' ? ach : (ach.title || '')}</span>
+                    ${ach.year ? `<span class="text-[#22c55e] font-mono font-bold">${ach.year}</span>` : ''}
+                  </li>
+                `).join("")}
+              </ul>
+            </div>
+          `;
+        }
+
+        preRenderedBody = `
+          <article class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
+            <nav aria-label="Breadcrumb" class="mb-4 text-xs font-mono">
+              <ol class="flex items-center space-x-2 text-slate-400">
+                <li><a href="/" class="hover:text-[#22c55e]">Home</a></li>
+                <li>/</li>
+                <li><a href="/players" class="hover:text-[#22c55e]">Players</a></li>
+                <li>/</li>
+                <li><span class="text-[#22c55e]">${player.name}</span></li>
+              </ol>
+            </nav>
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 bg-[#022c22] border border-[#22c55e]/30 rounded-2xl p-6 mb-6">
+              ${player.photo_url ? `<img src="${player.photo_url}" alt="${player.name}" class="w-32 h-32 rounded-2xl object-cover border-2 border-[#22c55e]" />` : ''}
+              <div class="flex-1 text-center sm:text-left">
+                <div class="flex flex-wrap gap-2 justify-center sm:justify-start mb-2">
+                  <span class="text-[10px] font-mono font-bold bg-[#22c55e] text-slate-950 px-2 py-0.5 rounded uppercase">${player.sport || 'Sports'}</span>
+                  ${player.country ? `<span class="text-[10px] font-mono font-bold bg-emerald-950 border border-emerald-800 text-emerald-300 px-2 py-0.5 rounded">${player.country}</span>` : ''}
+                  ${player.jersey_number ? `<span class="text-[10px] font-mono font-bold bg-slate-800 text-slate-200 px-2 py-0.5 rounded">#${player.jersey_number}</span>` : ''}
+                </div>
+                <h1 class="text-3xl font-black text-white">${player.name}</h1>
+                <p class="text-sm text-[#22c55e] font-mono mt-1">${player.playing_role || ''} ${player.current_team ? `&bull; ${player.current_team}` : ''}</p>
+                <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono text-slate-300">
+                  ${player.date_of_birth ? `<div><span class="text-slate-500 block text-[10px]">DOB</span>${player.date_of_birth.slice(0, 10)}</div>` : ''}
+                  ${player.birthplace ? `<div><span class="text-slate-500 block text-[10px]">BIRTHPLACE</span>${player.birthplace}</div>` : ''}
+                  ${player.nationality ? `<div><span class="text-slate-500 block text-[10px]">NATIONALITY</span>${player.nationality}</div>` : ''}
+                  ${player.current_team ? `<div><span class="text-slate-500 block text-[10px]">TEAM</span>${player.current_team}</div>` : ''}
+                </div>
+              </div>
+            </div>
+
+            ${player.biography ? `
+              <div class="my-6">
+                <h2 class="text-xl font-bold text-white mb-3">Biography</h2>
+                <div class="prose prose-invert max-w-none text-slate-300 leading-relaxed text-sm bg-[#001712] border border-emerald-950 p-5 rounded-2xl">
+                  ${player.biography.split('\n\n').map((p: string) => `<p>${p}</p>`).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            ${player.career_highlights ? `
+              <div class="my-6">
+                <h2 class="text-xl font-bold text-white mb-3">Career Highlights</h2>
+                <div class="prose prose-invert max-w-none text-slate-300 leading-relaxed text-sm bg-[#001712] border border-emerald-950 p-5 rounded-2xl">
+                  ${player.career_highlights.split('\n\n').map((p: string) => `<p>${p}</p>`).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            ${statsHtml}
+            ${achievementsHtml}
+          </article>
+        `;
+      }
+    } catch (err) {
+      console.warn("[SSR Render] Could not load player profile for SSR:", err);
     }
   } else if (cleanPath.startsWith("/author/")) {
     title = "Hanan Irfan | Co-Founder, Editorial Director & Lead Analyst - The Sports Room";

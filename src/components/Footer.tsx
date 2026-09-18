@@ -193,6 +193,12 @@ export default function Footer({ onNavigate }: FooterProps) {
               </button>
             </li>
             <li>
+              <button onClick={() => onNavigate('/players')} className="text-slate-400 hover:text-[#22c55e] transition flex items-center space-x-1.5 group font-medium text-emerald-400">
+                <ChevronRight className="w-3 h-3 text-emerald-800 group-hover:text-[#22c55e] transition shrink-0" />
+                <span>Player Profiles Directory</span>
+              </button>
+            </li>
+            <li>
               <button onClick={() => onNavigate('/live-stream')} className="text-slate-400 hover:text-[#22c55e] transition flex items-center space-x-1.5 group font-semibold">
                 <span className="w-2 h-2 rounded-full bg-[#22c55e] shrink-0 animate-pulse"></span>
                 <span className="text-emerald-300">Live Telemetry &amp; Scores</span>

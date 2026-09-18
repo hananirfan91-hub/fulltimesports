@@ -13,6 +13,7 @@ import { detectEntitiesInText } from '../lib/entityRegistry';
 import { validateAndConvertStreamUrl } from '../lib/streamEmbed';
 import { ensureFullSeoGeoAeo } from '../lib/seoGenerator';
 import AdminQuizLeaderboard from './AdminQuizLeaderboard';
+import AdminPlayers from './AdminPlayers';
 
 const alert = (msg: string) => {
   try {
@@ -40,7 +41,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'live_streams' | 'fan_polls' | 'users' | 'quiz_leaderboard'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'live_streams' | 'fan_polls' | 'users' | 'quiz_leaderboard' | 'players'>('posts');
   
   // States
   const [posts, setPosts] = useState<Post[]>([]);
@@ -1304,6 +1305,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </button>
 
         <button
+          onClick={() => setActiveTab('players')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'players' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <Users className="h-4 w-4 text-[#22c55e]" />
+          <span>Player Profiles</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('quiz_leaderboard')}
           className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'quiz_leaderboard' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
         >
@@ -1321,6 +1330,11 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       </div>
 
       {/* TAB CONTENT PANELS */}
+
+      {/* PLAYER PROFILES CMS MODULE */}
+      {activeTab === 'players' && (
+        <AdminPlayers onNavigate={onNavigate} />
+      )}
 
       {/* QUIZ & LEADERBOARD MODULE */}
       {activeTab === 'quiz_leaderboard' && (
