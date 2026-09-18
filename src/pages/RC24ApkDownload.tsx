@@ -116,50 +116,38 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-[#22c55e] selection:text-slate-950">
-      {/* Schema JSON-LD for rich Google Snippets */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": "Real Cricket 24 (RC 24)",
-            "alternateName": ["RC24 APK", "RC 24 APK Download", "Real Cricket 24 Download", "Real Cricket 5.2"],
-            "operatingSystem": "Android 6.0 and up",
-            "fileSize": "870MB",
-            "softwareVersion": "5.2 (Latest 2026)",
-            "applicationCategory": "GameApplication",
-            "downloadUrl": downloadUrl,
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "USD"
-            },
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "ratingCount": "1280000"
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "Nautilus Mobile & KRAFTON"
-            }
-          })
-        }}
-      />
-
       {/* Hero Section */}
       <section className="relative pt-8 pb-14 overflow-hidden border-b border-emerald-950/80 bg-gradient-to-b from-[#01140f] via-slate-950 to-slate-950">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(34,197,94,0.15),rgba(255,255,255,0))] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
-          {/* Breadcrumbs */}
-          <nav className="flex items-center space-x-2 text-xs text-slate-400 mb-6 font-mono">
-            <button onClick={() => onNavigate('/')} className="hover:text-[#22c55e] transition">Home</button>
-            <span>/</span>
-            <button onClick={() => onNavigate('/sport/cricket')} className="hover:text-[#22c55e] transition">Cricket</button>
-            <span>/</span>
-            <span className="text-[#22c55e] font-semibold">RC24 APK Download</span>
+          {/* Crawlable Breadcrumbs */}
+          <nav aria-label="Breadcrumb" className="mb-6 text-xs font-mono">
+            <ol className="flex items-center space-x-2 text-slate-400">
+              <li>
+                <a 
+                  href="/" 
+                  onClick={(e) => { e.preventDefault(); onNavigate('/'); }} 
+                  className="hover:text-[#22c55e] transition"
+                >
+                  Home
+                </a>
+              </li>
+              <li>/</li>
+              <li>
+                <a 
+                  href="/sport/cricket" 
+                  onClick={(e) => { e.preventDefault(); onNavigate('/sport/cricket'); }} 
+                  className="hover:text-[#22c55e] transition"
+                >
+                  Cricket
+                </a>
+              </li>
+              <li>/</li>
+              <li>
+                <span className="text-[#22c55e] font-semibold">RC24 APK Download</span>
+              </li>
+            </ol>
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -167,17 +155,21 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center space-x-2 bg-emerald-950/80 border border-[#22c55e]/40 rounded-full px-3.5 py-1.5 text-xs font-mono text-[#22c55e] shadow-sm">
                 <Sparkles className="w-3.5 h-3.5 text-[#22c55e] animate-pulse" />
-                <span>OFFICIAL VERIFIED BUILD • RC 24 APK (870 MB)</span>
+                <span>TESTED BUILD • RC 24 APK (870 MB)</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-display tracking-tight text-white leading-tight">
-                RC 24 APK Download <span className="text-[#22c55e] block sm:inline">Real Cricket 24</span>
+              <h1 id="rc24-main-heading" className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-display tracking-tight text-white leading-tight">
+                RC24 APK Download
               </h1>
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+                Download and learn about RC24 APK, including its latest version, features, installation steps, requirements, and important details.
+              </p>
 
               {/* Author Byline */}
               <div className="flex flex-wrap items-center gap-3 py-2 border-y border-slate-800/80">
-                <button
-                  onClick={() => onNavigate('/author/hanan-irfan')}
+                <a
+                  href="/author/hanan-irfan"
+                  onClick={(e) => { e.preventDefault(); onNavigate('/author/hanan-irfan'); }}
                   className="flex items-center space-x-2.5 group cursor-pointer"
                 >
                   <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-[#22c55e]/50 flex items-center justify-center text-[#22c55e] font-bold text-xs group-hover:scale-105 transition">
@@ -192,7 +184,7 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
                       Co-Founder &amp; Lead Sports Analyst
                     </div>
                   </div>
-                </button>
+                </a>
                 <span className="text-slate-600 hidden sm:inline">•</span>
                 <div className="flex items-center space-x-1.5 text-xs text-slate-400 font-mono">
                   <Calendar className="w-3.5 h-3.5 text-[#22c55e]" />
@@ -201,17 +193,17 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
                 <span className="text-slate-600 hidden sm:inline">•</span>
                 <div className="inline-flex items-center space-x-1 text-xs text-emerald-400 font-mono">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#22c55e]" />
-                  <span>Verified Safe APK</span>
+                  <span>Verified File Integrity</span>
                 </div>
               </div>
 
-              {/* Exact User Intro Paragraphs */}
-              <div className="space-y-4 text-slate-300 text-base sm:text-lg leading-relaxed bg-slate-900/70 p-5 sm:p-6 rounded-2xl border border-slate-800 shadow-lg">
+              {/* User Intro Paragraphs */}
+              <div className="space-y-4 text-slate-300 text-base leading-relaxed bg-slate-900/70 p-5 sm:p-6 rounded-2xl border border-slate-800 shadow-lg">
                 <p className="font-medium text-slate-200">
-                  I know it can be frustrating when you download an APK file and then face problems setting it up. That’s why I provide a simple one-click RC 24 APK download button. Just click the download button, install the game, and start enjoying the Real Cricket 24 experience.
+                  I know it can be frustrating when you download an APK file and then face problems setting it up. That’s why I provide a simple direct RC 24 APK download button. Just click the download button, install the game, and start enjoying the Real Cricket 24 experience.
                 </p>
                 <p className="text-sm sm:text-base text-slate-300">
-                  RC 24 is a realistic 3D cricket game for Android featuring 650+ realistic shots, multiplayer modes, original stadiums with different names and pitch conditions, realistic fielding and catches, detailed player characters, multiple game modes, and realistic sledging. You can also play the game on a laptop or computer using supported devices.
+                  RC 24 is a realistic 3D cricket game for Android featuring 650+ realistic shots, multiplayer modes, original stadiums with different names and pitch conditions, realistic fielding and catches, detailed player characters, multiple game modes, and realistic sledging. You can also play the game on a laptop or computer using supported emulators.
                 </p>
               </div>
 
@@ -238,7 +230,7 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
                   </button>
                 </div>
 
-                {/* Google Drive Virus Warning Note (Requested by User) */}
+                {/* Google Drive Virus Warning Note */}
                 <div className="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3.5 text-xs text-amber-200 flex items-start space-x-3 shadow-md">
                   <Info className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <div className="space-y-1">
@@ -246,7 +238,7 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
                       Google Drive Large File Notice:
                     </p>
                     <p className="text-amber-200/90 leading-relaxed">
-                      When you click on the download button in Google Drive, you will see a notice saying <em>"Google Drive can't scan this file for viruses because the file is large (870 MB)"</em>. <strong>Don't worry! This file is 100% authentic, verified, clean, and completely safe.</strong> Feel free to click <strong>"Download anyway"</strong> and install your game.
+                      When you click on the download button in Google Drive, you will see a notice saying <em>"Google Drive can't scan this file for viruses because the file is large (870 MB)"</em>. The uploaded package is the direct untampered APK for your device. Feel free to click <strong>"Download anyway"</strong> to begin your download.
                     </p>
                   </div>
                 </div>
@@ -410,10 +402,10 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
             <div className="lg:col-span-4 bg-gradient-to-br from-[#022c22] to-slate-900 p-6 rounded-2xl border border-emerald-800/80 space-y-4">
               <div className="flex items-center space-x-3 text-[#22c55e]">
                 <ShieldCheck className="w-7 h-7" />
-                <h3 className="text-lg font-bold text-white font-display">100% Safe Verification</h3>
+                <h3 className="text-lg font-bold text-white font-display">File Verification &amp; Details</h3>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                When downloading from Google Drive, bypass the large file warning by choosing "Download anyway". The package signature is authentic and verified.
+                When downloading from Google Drive, you may bypass the large file notice by choosing "Download anyway". The package contains the direct installation file.
               </p>
               <ul className="text-xs space-y-2 text-slate-300 pt-2 border-t border-emerald-900">
                 <li className="flex items-center space-x-2">
@@ -422,11 +414,11 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
                 </li>
                 <li className="flex items-center space-x-2">
                   <CheckCircle2 className="w-4 h-4 text-[#22c55e] shrink-0" />
-                  <span>No root access required</span>
+                  <span>Standard Android package (No root needed)</span>
                 </li>
                 <li className="flex items-center space-x-2">
                   <CheckCircle2 className="w-4 h-4 text-[#22c55e] shrink-0" />
-                  <span>Original sound and commentary files</span>
+                  <span>Complete sound, commentary, and asset files</span>
                 </li>
               </ul>
             </div>
@@ -1093,7 +1085,7 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
           </p>
           {/* Note about Drive safety */}
           <div className="mt-3 p-3.5 bg-emerald-900/40 rounded-xl border border-emerald-700/50 text-xs text-emerald-200">
-            <strong>Important Safety Notice:</strong> When downloading our RC 24 APK via Google Drive, you may see Google's automatic notification regarding file scanning limits on 870 MB files. Rest assured, our uploaded file is 100% verified, untampered, virus-free, and safe for your device.
+            <strong>Important Safety Notice:</strong> When downloading the RC 24 APK via Google Drive, you may see Google's automatic notification regarding file scanning limits on 870 MB files. The uploaded package is the direct APK file ready for installation on supported Android devices.
           </div>
         </section>
 
@@ -1507,17 +1499,18 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
               </div>
             </div>
 
-            <button
-              onClick={() => onNavigate('/author/hanan-irfan')}
+            <a
+              href="/author/hanan-irfan"
+              onClick={(e) => { e.preventDefault(); onNavigate('/author/hanan-irfan'); }}
               className="inline-flex items-center space-x-2 bg-emerald-950/80 hover:bg-[#022c22] text-[#22c55e] border border-[#22c55e]/40 px-4 py-2 rounded-xl text-xs font-mono font-bold transition"
             >
               <span>View Full Profile</span>
               <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            </a>
           </div>
 
           <p className="text-sm text-slate-300 leading-relaxed font-sans">
-            Hanan Irfan is the Co-Founder and Lead Sports Editor of The Sports Room. With in-depth technical expertise in cricket biomechanics, gaming simulations, and sports mobile applications, Hanan tests and verifies all APK packages to ensure 100% clean, authentic, and fast installations for cricket fans.
+            Hanan Irfan is the Co-Founder and Lead Sports Editor of The Sports Room. With technical expertise in cricket biomechanics, gaming simulations, and sports mobile applications, Hanan tests and documents APK packages to provide clear installation guides for cricket fans.
           </p>
         </section>
 
@@ -1527,7 +1520,7 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
             Ready to Play Real Cricket 24?
           </h2>
           <p className="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-            Download the official RC 24 APK (870 MB) now to experience 650+ shots, multiplayer seasons, and authentic stadium cricket on your Android phone or PC.
+            Download the RC 24 APK (870 MB) now to experience 650+ shots, multiplayer seasons, and authentic stadium cricket on your Android phone or PC emulator.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
@@ -1538,14 +1531,15 @@ export default function RC24ApkDownload({ onNavigate, customDownloadUrl }: RC24A
               className="inline-flex items-center space-x-3 bg-[#22c55e] hover:bg-emerald-400 text-slate-950 font-black text-lg px-8 py-4 rounded-xl shadow-xl shadow-[#22c55e]/25 hover:shadow-2xl transition transform hover:-translate-y-0.5"
             >
               <Download className="w-5 h-5 stroke-[2.5]" />
-              <span>One-Click RC 24 Download (870 MB)</span>
+              <span>Direct RC 24 Download (870 MB)</span>
             </a>
-            <button
-              onClick={() => onNavigate('/sport/cricket')}
+            <a
+              href="/sport/cricket"
+              onClick={(e) => { e.preventDefault(); onNavigate('/sport/cricket'); }}
               className="inline-flex items-center space-x-2 bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-slate-700 px-6 py-4 rounded-xl text-sm font-semibold transition"
             >
-              <span>Explore Cricket News</span>
-            </button>
+              <span>Explore Cricket Hub</span>
+            </a>
           </div>
         </section>
 

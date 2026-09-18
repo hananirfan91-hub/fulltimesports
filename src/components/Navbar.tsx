@@ -89,9 +89,10 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
   return (
     <header className="sticky top-0 z-50 bg-[#01140f] border-b border-emerald-950 shadow-md text-white" id="main-header">
       {/* Top Header Ad / Announcement Note */}
-      <div 
-        onClick={() => onNavigate('/rc24-apk-download')}
-        className="bg-gradient-to-r from-emerald-950 via-[#022c22] to-slate-950 border-b border-[#22c55e]/30 px-3 sm:px-4 py-1.5 cursor-pointer hover:bg-[#033a2e] transition group select-none"
+      <a 
+        href="/rc24-apk-download"
+        onClick={(e) => { e.preventDefault(); onNavigate('/rc24-apk-download'); }}
+        className="block bg-gradient-to-r from-emerald-950 via-[#022c22] to-slate-950 border-b border-[#22c55e]/30 px-3 sm:px-4 py-1.5 cursor-pointer hover:bg-[#033a2e] transition group select-none"
         id="top-header-ad-note"
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 text-xs">
@@ -113,7 +114,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </div>
         </div>
-      </div>
+      </a>
 
       {/* Editorial Utility Top bar */}
       <div className="bg-[#022c22] text-slate-200 text-xs py-2 px-4 shadow-inner hidden md:block border-b border-emerald-950">
@@ -273,13 +274,14 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                     >
                       <span>🌍 World Cup &amp; Rankings</span>
                     </button>
-                    <button
-                      onClick={() => { onNavigate('/rc24-apk-download'); setShowCricketDropdown(false); }}
+                    <a
+                      href="/rc24-apk-download"
+                      onClick={(e) => { e.preventDefault(); onNavigate('/rc24-apk-download'); setShowCricketDropdown(false); }}
                       className="w-full text-left px-2.5 py-1.5 rounded-lg bg-emerald-950 border border-[#22c55e]/40 hover:bg-[#022c22] transition flex items-center justify-between font-bold text-white hover:text-[#22c55e]"
                     >
                       <span>🎮 Real Cricket 24 (RC24 APK)</span>
                       <span className="text-[10px] text-slate-950 font-mono font-black bg-[#22c55e] px-1.5 py-0.5 rounded">APK</span>
-                    </button>
+                    </a>
                   </div>
                 </motion.div>
               )}
@@ -317,8 +319,9 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
           </button>
 
           {/* RC24 APK Button */}
-          <button
-            onClick={() => onNavigate('/rc24-apk-download')}
+          <a
+            href="/rc24-apk-download"
+            onClick={(e) => { e.preventDefault(); onNavigate('/rc24-apk-download'); }}
             className={`flex items-center space-x-1.5 font-display text-xs font-bold tracking-wide uppercase transition duration-150 px-3 py-1 rounded-full border shadow-sm ${
               currentPath === '/rc24-apk-download'
                 ? 'bg-[#22c55e] text-slate-950 border-[#22c55e] font-black'
@@ -326,7 +329,7 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
             }`}
           >
             <span>🎮 RC24 APK</span>
-          </button>
+          </a>
 
           {/* 4. Football */}
           <button
@@ -572,13 +575,14 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
                     </div>
 
                     <div className="pt-2 border-t border-emerald-950">
-                      <button
-                        onClick={() => { onNavigate('/rc24-apk-download'); setMobileMenuOpen(false); }}
+                      <a
+                        href="/rc24-apk-download"
+                        onClick={(e) => { e.preventDefault(); onNavigate('/rc24-apk-download'); setMobileMenuOpen(false); }}
                         className="w-full text-left p-2 rounded-lg bg-emerald-950/80 border border-[#22c55e]/40 font-bold text-[#22c55e] flex items-center justify-between"
                       >
                         <span>🎮 Real Cricket 24 (RC24 APK)</span>
                         <span className="text-[10px] bg-[#22c55e] text-slate-950 font-black px-1.5 py-0.5 rounded">DOWNLOAD</span>
-                      </button>
+                      </a>
                     </div>
                   </div>
                 )}

@@ -229,10 +229,14 @@ export default function Footer({ onNavigate }: FooterProps) {
               </button>
             </li>
             <li>
-              <button onClick={() => onNavigate('/rc24-apk-download')} className="text-emerald-300 hover:text-[#22c55e] transition flex items-center space-x-1.5 group font-bold">
+              <a 
+                href="/rc24-apk-download"
+                onClick={(e) => { e.preventDefault(); onNavigate('/rc24-apk-download'); }} 
+                className="text-emerald-300 hover:text-[#22c55e] transition flex items-center space-x-1.5 group font-bold"
+              >
                 <ChevronRight className="w-3 h-3 text-emerald-800 group-hover:text-[#22c55e] transition shrink-0" />
                 <span>🎮 RC24 APK Download</span>
-              </button>
+              </a>
             </li>
             <li>
               <button 

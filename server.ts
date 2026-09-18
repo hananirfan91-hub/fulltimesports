@@ -25,6 +25,10 @@ app.use((req, res, next) => {
     const slug = reqPath.replace('/article/', '');
     return res.redirect(301, `/blog/${slug}`);
   }
+  // Redirect alternate RC24 paths to primary canonical URL
+  if (reqPath === '/rc24-apk' || reqPath === '/real-cricket-24-apk-download' || reqPath === '/rc24') {
+    return res.redirect(301, '/rc24-apk-download');
+  }
   next();
 });
 
@@ -645,6 +649,170 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
         <h1 class="text-3xl font-bold text-white mb-2">What is The Sports Room?</h1>
         <p class="text-sm text-slate-300 leading-relaxed">The Sports Room is a premier digital publication co-founded and run by Hanan Irfan and Urwah Farooq, delivering independent sports journalism and live match updates across international sports.</p>
       </section>
+    `;
+  } else if (cleanPath === "/rc24-apk-download") {
+    title = "RC24 APK Download – Latest Version, Features & Guide";
+    description = "Download and learn about RC24 APK, including its latest version, features, installation steps, requirements, and important details.";
+    keywords = "RC24 APK Download, RC 24 APK, Real Cricket 24 APK, RC24 download, Real Cricket 24 latest version, RC 24 Android download, Real Cricket APK download, RC24 mobile cricket";
+    canonicalUrl = `${baseUrl}/rc24-apk-download`;
+    ogImage = `${baseUrl}/rc24-hero-banner.webp`;
+    pageType = "website";
+
+    jsonLdData = [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        "name": title,
+        "description": description,
+        "url": canonicalUrl,
+        "isPartOf": {
+          "@id": `${baseUrl}/#website`
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "The Sports Room",
+          "url": baseUrl,
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${baseUrl}/logo-preview.png`
+          }
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "@id": `${canonicalUrl}#breadcrumb`,
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": baseUrl
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Cricket",
+            "item": `${baseUrl}/sport/cricket`
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "RC24 APK Download",
+            "item": canonicalUrl
+          }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "@id": `${canonicalUrl}#software`,
+        "name": "Real Cricket 24 (RC 24)",
+        "alternateName": ["RC24 APK", "RC 24 APK Download", "Real Cricket 24", "Real Cricket 5.2"],
+        "operatingSystem": "Android 6.0 and up",
+        "fileSize": "870MB",
+        "softwareVersion": "5.2",
+        "applicationCategory": "GameApplication",
+        "downloadUrl": "https://drive.google.com/uc?export=download&id=1c7fYbKqPgjnPz47ptAK9rpTSJx72AYoz",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Nautilus Mobile & KRAFTON"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "@id": `${canonicalUrl}#faq`,
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is RC 24?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "RC 24 is a common short name for Real Cricket 24, a premier cricket game associated with Nautilus Mobile and KRAFTON."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What does RC24 download mean?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "RC24 download usually refers to downloading the Android installation package (APK/XAPK) for Real Cricket 24."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is RC 24 the same as Real Cricket 24?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. RC 24 and RC24 are commonly used short names for Real Cricket 24."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What Android version does RC 24 require?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The requirement depends on the version. Some Real Cricket 24 releases require Android 6.0 or later, while newer Real Cricket releases (v5.2) require Android 7.0 or later."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How much storage does Real Cricket need?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The RC 24 APK package is 870 MB. After installation and downloading audio commentary packs and high-res stadium textures, you should keep at least 2 GB to 2.5 GB of free phone memory."
+            }
+          }
+        ]
+      }
+    ];
+
+    preRenderedBody = `
+      <main class="max-w-7xl mx-auto px-4 py-8 text-slate-100">
+        <nav aria-label="Breadcrumb" class="mb-4 text-xs font-mono">
+          <ol class="flex items-center space-x-2 text-slate-400">
+            <li><a href="/" class="hover:text-[#22c55e]">Home</a></li>
+            <li>/</li>
+            <li><a href="/sport/cricket" class="hover:text-[#22c55e]">Cricket</a></li>
+            <li>/</li>
+            <li><span class="text-[#22c55e]">RC24 APK Download</span></li>
+          </ol>
+        </nav>
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold font-display tracking-tight text-white mb-4">RC24 APK Download</h1>
+        <p class="text-sm sm:text-base text-slate-300 mb-6 leading-relaxed">Download and learn about RC24 APK, including its latest version, features, installation steps, requirements, and important details.</p>
+        
+        <div class="mb-8">
+          <a href="https://drive.google.com/uc?export=download&id=1c7fYbKqPgjnPz47ptAK9rpTSJx72AYoz" target="_blank" rel="noopener noreferrer" class="inline-block bg-[#22c55e] text-slate-950 font-bold px-6 py-3 rounded-xl text-center">
+            Download RC 24 APK (870 MB)
+          </a>
+        </div>
+
+        <section class="mb-8">
+          <h2 class="text-2xl font-bold text-white mb-3">RC 24 APK Information</h2>
+          <p class="text-sm text-slate-300 leading-relaxed">RC 24 is a 3D cricket simulation game for Android featuring 650+ realistic shots, authentic stadiums, multiple formats, and multiplayer options. Package size is 870 MB with Android 6.0+ compatibility.</p>
+        </section>
+
+        <section class="mb-8">
+          <h2 class="text-2xl font-bold text-white mb-3">Real Cricket 24 Features &amp; Gameplay</h2>
+          <p class="text-sm text-slate-300 leading-relaxed">Real Cricket 24 offers deep batting control, bowling variations, realistic fielding physics, commentary tracks, and tournament modes.</p>
+        </section>
+
+        <section class="mb-8">
+          <h2 class="text-2xl font-bold text-white mb-3">Frequently Asked Questions</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-base font-semibold text-emerald-400">What is RC 24?</h3>
+              <p class="text-sm text-slate-300">RC 24 is a common short name for Real Cricket 24, a premier cricket game developed by Nautilus Mobile and KRAFTON.</p>
+            </div>
+            <div>
+              <h3 class="text-base font-semibold text-emerald-400">What Android version does RC 24 require?</h3>
+              <p class="text-sm text-slate-300">RC 24 requires Android 6.0 or higher with at least 2 GB to 2.5 GB of free device memory for full assets.</p>
+            </div>
+          </div>
+        </section>
+      </main>
     `;
   } else if (cleanPath === "/live-stream") {
     title = "Live Sports Streaming | Cricket, Football & More";

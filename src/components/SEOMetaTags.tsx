@@ -698,40 +698,43 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "https://www.pinterest.com/thesportsroomonline"
         ]
       };
-    } else if (currentPath === '/rc24-apk-download' || currentPath === '/rc24-apk' || currentPath === '/real-cricket-24-apk-download') {
-      title = "RC24 APK Download - Real Cricket 24 Official APK";
-      description = "RC24 APK download for Android (870 MB). Get Real Cricket 24 with 650+ shots, authentic stadiums, realistic fielding, and multiplayer cricket matches.";
-      keywords = ["RC24 APK Download", "RC 24 APK Download", "Real Cricket 24 APK", "RC24 download", "Real Cricket 24 latest version", "RC 24 Android download", "Real Cricket APK download", "RC24 mobile cricket", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
+    } else if (
+      currentPath === '/rc24-apk-download' || 
+      currentPath === '/rc24-apk' || 
+      currentPath === '/real-cricket-24-apk-download' ||
+      currentPath === '/rc24'
+    ) {
+      title = "RC24 APK Download – Latest Version, Features & Guide";
+      description = "Download and learn about RC24 APK, including its latest version, features, installation steps, requirements, and important details.";
+      keywords = ["RC24 APK Download", "RC 24 APK", "Real Cricket 24 APK", "RC24 download", "Real Cricket 24 latest version", "RC 24 Android download", "Real Cricket APK download", "RC24 mobile cricket", ...GLOBAL_SEO_KEYWORDS.slice(0, 10)].join(", ");
       pageType = "website";
-      ogImage = `${origin}/rc24-hero-banner.jpg`;
+      ogImage = `${origin}/rc24-hero-banner.webp`;
       
-      ldJsonData = {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "@id": `${canonicalUrl}#software`,
-        "name": "Real Cricket 24 (RC 24)",
-        "alternateName": ["RC24 APK", "RC 24 APK Download", "Real Cricket 24", "Real Cricket 5.2"],
-        "operatingSystem": "Android 6.0 and up",
-        "fileSize": "870MB",
-        "softwareVersion": "5.2 (Latest 2026)",
-        "applicationCategory": "GameApplication",
-        "downloadUrl": "https://drive.google.com/uc?export=download&id=1c7fYbKqPgjnPz47ptAK9rpTSJx72AYoz",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
+      ldJsonData = [
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "@id": `${origin}/rc24-apk-download#webpage`,
+          "name": "RC24 APK Download – Latest Version, Features & Guide",
+          "description": "Download and learn about RC24 APK, including its latest version, features, installation steps, requirements, and important details.",
+          "url": `${origin}/rc24-apk-download`,
+          "isPartOf": {
+            "@id": `${origin}/#website`
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "The Sports Room",
+            "url": origin,
+            "logo": {
+              "@type": "ImageObject",
+              "url": `${origin}/logo-preview.png`
+            }
+          }
         },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.8",
-          "ratingCount": "1280000"
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Nautilus Mobile & KRAFTON"
-        },
-        "breadcrumb": {
+        {
+          "@context": "https://schema.org",
           "@type": "BreadcrumbList",
+          "@id": `${origin}/rc24-apk-download#breadcrumb`,
           "itemListElement": [
             {
               "@type": "ListItem",
@@ -749,11 +752,74 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
               "@type": "ListItem",
               "position": 3,
               "name": "RC24 APK Download",
-              "item": canonicalUrl
+              "item": `${origin}/rc24-apk-download`
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "@id": `${origin}/rc24-apk-download#software`,
+          "name": "Real Cricket 24 (RC 24)",
+          "alternateName": ["RC24 APK", "RC 24 APK Download", "Real Cricket 24", "Real Cricket 5.2"],
+          "operatingSystem": "Android 6.0 and up",
+          "fileSize": "870MB",
+          "softwareVersion": "5.2",
+          "applicationCategory": "GameApplication",
+          "downloadUrl": "https://drive.google.com/uc?export=download&id=1c7fYbKqPgjnPz47ptAK9rpTSJx72AYoz",
+          "publisher": {
+            "@type": "Organization",
+            "name": "Nautilus Mobile & KRAFTON"
+          }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "@id": `${origin}/rc24-apk-download#faq`,
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is RC 24?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "RC 24 is a common short name for Real Cricket 24, a premier cricket game associated with Nautilus Mobile and KRAFTON."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What does RC24 download mean?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "RC24 download usually refers to downloading the Android installation package (APK/XAPK) for Real Cricket 24."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is RC 24 the same as Real Cricket 24?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. RC 24 and RC24 are commonly used short names for Real Cricket 24."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What Android version does RC 24 require?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The requirement depends on the version. Some Real Cricket 24 releases require Android 6.0 or later, while newer Real Cricket releases (v5.2) require Android 7.0 or later."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How much storage does Real Cricket need?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The RC 24 APK package is 870 MB. After installation and downloading audio commentary packs and high-res stadium textures, you should keep at least 2 GB to 2.5 GB of free phone memory."
+              }
             }
           ]
         }
-      };
+      ];
     } else if (currentPath === '/why-choose-us' || currentPath === '/why-choose-the-sports-room') {
       title = "Why Choose The Sports Room? | Independent Sports Journalism & Analytics";
       description = "Discover why sports fans, researchers, and AI engines choose The Sports Room. Co-Founded by Hanan Irfan & Urwah Farooq, offering independent journalism, fast breaking news, and deep match analysis across 10+ sports.";
