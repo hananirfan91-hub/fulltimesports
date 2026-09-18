@@ -163,34 +163,82 @@ select.bg-\[\#022c22\] option,
 #admin-login-sec input,
 #admin-login-sec textarea,
 #admin-login-sec select,
-#admin-panel-container input,
-#admin-panel-container textarea,
-#admin-panel-container select,
-.admin-dashboard-panel input,
-.admin-dashboard-panel textarea,
-.admin-dashboard-panel select,
 .admin-input {
-  color: #0f172a !important; /* Sharp, deep dark slate font color for maximum contrast */
+  color: #0f172a !important; /* Sharp, deep dark slate font color for light containers */
   caret-color: #22c55e !important;
   font-weight: 500;
 }
 
-/* Placeholder font color in Admin Panel */
+/* Light background panels in Admin Panel */
+#admin-panel-container .bg-white input,
+#admin-panel-container .bg-white textarea,
+#admin-panel-container .bg-white select,
+#admin-panel-container .bg-slate-50 input,
+#admin-panel-container .bg-slate-50 textarea,
+#admin-panel-container .bg-slate-50 select {
+  color: #0f172a !important;
+  caret-color: #22c55e !important;
+  font-weight: 500;
+}
+
 #admin-login-sec input::placeholder,
 #admin-login-sec textarea::placeholder,
-#admin-panel-container input::placeholder,
-#admin-panel-container textarea::placeholder,
-.admin-dashboard-panel input::placeholder,
-.admin-dashboard-panel textarea::placeholder {
+#admin-panel-container .bg-white input::placeholder,
+#admin-panel-container .bg-white textarea::placeholder {
   color: #64748b !important;
   font-weight: 400;
 }
 
-/* Dark background input fields inside Admin Panel (e.g. read-only SQL editor, dark inputs) */
+/* DARK INPUT FIELDS ACROSS ADMIN CMS, PLAYER MANAGEMENT & POPUPS (HIGH CONTRAST WHITE TEXT) */
+#admin-players-tab input,
+#admin-players-tab textarea,
+#admin-players-tab select,
+#admin-player-form-modal input,
+#admin-player-form-modal textarea,
+#admin-player-form-modal select,
+.admin-players-modal input,
+.admin-players-modal textarea,
+.admin-players-modal select,
+#admin-panel-container input[class*="bg-[#01140f]"],
+#admin-panel-container textarea[class*="bg-[#01140f]"],
+#admin-panel-container select[class*="bg-[#01140f]"],
+#admin-panel-container input[class*="bg-[#022c22]"],
+#admin-panel-container textarea[class*="bg-[#022c22]"],
+#admin-panel-container select[class*="bg-[#022c22]"],
+#admin-panel-container input[class*="text-white"],
+#admin-panel-container textarea[class*="text-white"],
+#admin-panel-container select[class*="text-white"],
 #admin-panel-container textarea[readonly],
 #admin-panel-container input.bg-slate-900,
-#admin-panel-container textarea.bg-slate-900 {
-  color: #f8fafc !important;
+#admin-panel-container textarea.bg-slate-900,
+input.bg-\[\#01140f\],
+textarea.bg-\[\#01140f\],
+select.bg-\[\#01140f\],
+input.bg-\[\#022c22\],
+textarea.bg-\[\#022c22\],
+select.bg-\[\#022c22\],
+input.text-white,
+textarea.text-white,
+select.text-white {
+  color: #ffffff !important; /* High-contrast white font when typing */
+  caret-color: #22c55e !important;
+  font-weight: 500;
+}
+
+#admin-players-tab input::placeholder,
+#admin-players-tab textarea::placeholder,
+#admin-player-form-modal input::placeholder,
+#admin-player-form-modal textarea::placeholder,
+.admin-players-modal input::placeholder,
+.admin-players-modal textarea::placeholder,
+input[class*="bg-[#01140f]"]::placeholder,
+textarea[class*="bg-[#01140f]"]::placeholder,
+input[class*="bg-[#022c22]"]::placeholder,
+textarea[class*="bg-[#022c22]"]::placeholder,
+input.text-white::placeholder,
+textarea.text-white::placeholder {
+  color: #94a3b8 !important; /* Clear slate placeholder text */
+  font-weight: 400;
 }
 
 .line-clamp-3 {

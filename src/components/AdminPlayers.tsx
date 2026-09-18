@@ -509,7 +509,7 @@ export default function AdminPlayers({ onNavigate }: AdminPlayersProps) {
 
       {/* ADD / EDIT PLAYER MODAL */}
       {isFormModalOpen && editingPlayer && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div id="admin-player-form-modal" className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto admin-players-modal">
           <div className="bg-[#022c22] border border-emerald-800/80 rounded-3xl max-w-4xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-emerald-900/60 pb-4">
