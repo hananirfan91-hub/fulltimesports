@@ -647,13 +647,143 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
       </section>
     `;
   } else if (cleanPath === "/live-stream") {
-    title = "Live Sports Streams & Match Audio Broadcasts | The Sports Room";
-    description = "Watch live sports streams, legal match embeds, real-time commentary, and fan polls for ICC cricket tournaments, football leagues, and international events.";
+    title = "Live Sports Streaming | Cricket, Football & More";
+    description = "Watch live sports online with The Sports Room. Find cricket, football, basketball, tennis, F1 and more with live match updates.";
+    keywords = "Live sports streaming, live cricket streaming, live football streaming, watch live sports online, live match updates, The Sports Room live stream, ICC cricket live, UEFA Champions League live, NBA live";
+    jsonLdData = [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": `${canonicalUrl}#webpage`,
+        "name": "Live Sports Streaming | Cricket, Football & More",
+        "description": description,
+        "url": canonicalUrl,
+        "isPartOf": {
+          "@id": `${baseUrl}/#website`
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "The Sports Room",
+          "url": baseUrl,
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${baseUrl}/logo-preview.png`
+          }
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "@id": `${canonicalUrl}#breadcrumb`,
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": baseUrl
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Live Streams",
+            "item": canonicalUrl
+          }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "@id": `${canonicalUrl}#faq`,
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How can I watch live sports on The Sports Room?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "You can watch live sports directly on this page by selecting any active match card from the list. The player will load the official live stream embed or broadcast link automatically."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What sports are available for live streaming?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The Sports Room features live streams and match updates for cricket, football, Formula 1, tennis, basketball, and field hockey whenever official broadcasts or embed feeds are active."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is live sports streaming free on The Sports Room?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, accessing the live match player, live scorecards, match analysis, and community chat on The Sports Room is completely free."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What should I do if a stream does not play?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "If a stream appears blank or shows a playback notice, click the \"Re-sync Broadcast\" button or use the \"Open Live Player\" button to view the broadcast directly on the provider's platform."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How often are live match streams updated?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The live match list and streaming feeds are updated continuously before and during every scheduled match day."
+            }
+          }
+        ]
+      }
+    ];
     preRenderedBody = `
-      <section class="max-w-4xl mx-auto px-4 py-8 text-slate-100">
-        <h1 class="text-3xl font-bold text-white mb-2">Live Sports Streams &amp; Match Center</h1>
-        <p class="text-sm text-slate-300 leading-relaxed">Stream live sports coverage, interactive match chat rooms, fan prediction polls, and real-time scoreboards on The Sports Room.</p>
-      </section>
+      <main class="max-w-7xl mx-auto px-4 py-8 text-slate-100">
+        <nav aria-label="Breadcrumb" class="mb-4 text-xs font-mono">
+          <ol class="flex items-center space-x-2 text-slate-400">
+            <li><a href="/" class="hover:text-[#22c55e]">Home</a></li>
+            <li>/</li>
+            <li><span class="text-[#22c55e]">Live Streams</span></li>
+          </ol>
+        </nav>
+        <h1 class="text-3xl sm:text-4xl font-black font-display text-white mb-2">Live Sports Streaming</h1>
+        <p class="text-sm text-slate-300 mb-8 max-w-3xl">Watch live sports online with The Sports Room. Find cricket, football, basketball, tennis, F1 and more with live match updates.</p>
+        
+        <section class="mb-8">
+          <h2 class="text-2xl font-bold text-white mb-3">Watch Live Sports Online</h2>
+          <p class="text-sm text-slate-300 leading-relaxed">Follow live sports coverage from around the world on The Sports Room. Watch cricket matches, football games, tennis tournaments, basketball showdowns, and motorsport events in real time. Whether you want to follow international series, major league rivalries, or championship finals, The Sports Room provides match streaming embeds, live scorecards, and real-time updates for passionate sports fans.</p>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <section>
+            <h2 class="text-xl font-bold text-white mb-2">Live Cricket Streaming</h2>
+            <p class="text-sm text-slate-300 leading-relaxed">Cricket fans can track major tournaments and bilateral series across all formats—Test cricket, One Day Internationals (ODIs), and T20 leagues. Follow live matches from the ICC Cricket World Cup, ICC Champions Trophy, Asia Cup, Pakistan Super League (PSL), Indian Premier League (IPL), Big Bash League (BBL), and bilateral international series. Stay updated with ball-by-ball developments, batting strike rates, bowling figures, and live commentary feeds.</p>
+          </section>
+          <section>
+            <h2 class="text-xl font-bold text-white mb-2">Live Football Streaming</h2>
+            <p class="text-sm text-slate-300 leading-relaxed">Catch live football matches from top domestic leagues and continental competitions across Europe and worldwide. Follow the UEFA Champions League, English Premier League (EPL), La Liga, Serie A, Bundesliga, and international fixtures including the FIFA World Cup and UEFA European Championship. Track live scores, goal alerts, lineup formations, and tactical match moments.</p>
+          </section>
+        </div>
+
+        <section class="mb-8">
+          <h2 class="text-2xl font-bold text-white mb-3">Frequently Asked Questions</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-base font-semibold text-emerald-400">How can I watch live sports on The Sports Room?</h3>
+              <p class="text-sm text-slate-300">You can watch live sports directly on this page by selecting any active match card from the list above. The player will load the official live stream embed or broadcast link automatically.</p>
+            </div>
+            <div>
+              <h3 class="text-base font-semibold text-emerald-400">What sports are available for live streaming?</h3>
+              <p class="text-sm text-slate-300">The Sports Room features live streams and match updates for cricket, football, Formula 1, tennis, basketball, and field hockey whenever official broadcasts or embed feeds are active.</p>
+            </div>
+            <div>
+              <h3 class="text-base font-semibold text-emerald-400">Is live sports streaming free on The Sports Room?</h3>
+              <p class="text-sm text-slate-300">Yes, accessing the live match player, live scorecards, match analysis, and community chat on The Sports Room is completely free.</p>
+            </div>
+          </div>
+        </section>
+      </main>
     `;
   } else if (cleanPath === "/about-us") {
     title = "About Us | The Sports Room - Independent Sports Media";

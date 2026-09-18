@@ -166,16 +166,102 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
   const upcomingCount = streams.filter(s => s.status === 'upcoming').length;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 pb-16 selection:bg-[#22c55e] selection:text-slate-950">
-      {/* Dynamic Structured JSON-LD VideoObject & Breadcrumbs Schema */}
-      {activeStream && (
-        <script type="application/ld+json">
-          {JSON.stringify({
+    <main className="min-h-screen bg-slate-950 text-slate-100 pb-16 selection:bg-[#22c55e] selection:text-slate-950">
+      {/* Dynamic Structured JSON-LD Data for SEO Crawlers (WebPage, BreadcrumbList, FAQPage & VideoObject) */}
+      <script type="application/ld+json">
+        {JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "@id": "https://thesportsroom.online/live-stream#webpage",
+            "name": "Live Sports Streaming | Cricket, Football & More",
+            "description": "Watch live sports online with The Sports Room. Find cricket, football, basketball, tennis, F1 and more with live match updates.",
+            "url": "https://thesportsroom.online/live-stream",
+            "isPartOf": {
+              "@id": "https://thesportsroom.online/#website"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "The Sports Room",
+              "url": "https://thesportsroom.online",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://thesportsroom.online/logo-preview.png"
+              }
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "@id": "https://thesportsroom.online/live-stream#breadcrumb",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://thesportsroom.online/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Live Streams",
+                "item": "https://thesportsroom.online/live-stream"
+              }
+            ]
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "@id": "https://thesportsroom.online/live-stream#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How can I watch live sports on The Sports Room?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "You can watch live sports directly on this page by selecting any active match card from the list. The player will load the official live stream embed or broadcast link automatically."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What sports are available for live streaming?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The Sports Room features live streams and match updates for cricket, football, Formula 1, tennis, basketball, and field hockey whenever official broadcasts or embed feeds are active."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is live sports streaming free on The Sports Room?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, accessing the live match player, live scorecards, match analysis, and community chat on The Sports Room is completely free."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What should I do if a stream does not play?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "If a stream appears blank or shows a playback notice, click the \"Re-sync Broadcast\" button or use the \"Open Live Player\" button to view the broadcast directly on the provider's platform."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How often are live match streams updated?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "The live match list and streaming feeds are updated continuously before and during every scheduled match day."
+                }
+              }
+            ]
+          },
+          ...(activeStream ? [{
             "@context": "https://schema.org",
             "@type": "VideoObject",
             "name": activeStream.title,
             "description": activeStream.description,
-            "thumbnailUrl": activeStream.thumbnail || `${window.location.origin}/logo-preview.png`,
+            "thumbnailUrl": activeStream.thumbnail || "https://thesportsroom.online/logo-preview.png",
             "uploadDate": activeStream.created_at,
             "embedUrl": activeStream.embed_url,
             "publication": {
@@ -193,12 +279,57 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                 "url": "https://thesportsroom.online/logo-preview.png"
               }
             }
-          })}
-        </script>
-      )}
+          }] : [])
+        ])}
+      </script>
+
+      {/* TOP HEADER & BREADCRUMB SECTION (REAL HTML H1 & VISIBLE BREADCRUMBS) */}
+      <div className="max-w-7xl mx-auto pt-3 sm:pt-5 pb-2 px-4 md:px-6">
+        <nav aria-label="Breadcrumb" className="mb-2 text-xs font-mono">
+          <ol className="flex items-center space-x-2 text-slate-400">
+            <li>
+              <a 
+                href="/" 
+                onClick={(e) => { e.preventDefault(); onNavigate('/'); }} 
+                className="hover:text-[#22c55e] transition"
+              >
+                Home
+              </a>
+            </li>
+            <li><span className="text-slate-600">/</span></li>
+            <li>
+              <span className="text-[#22c55e] font-semibold" aria-current="page">
+                Live Streams
+              </span>
+            </li>
+          </ol>
+        </nav>
+
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-slate-800 pb-3">
+          <div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black font-display text-white tracking-tight uppercase">
+              Live Sports Streaming
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed mt-1 font-sans">
+              Watch live sports online with The Sports Room. Find cricket, football, basketball, tennis, F1 and more with live match updates.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="inline-flex items-center space-x-1.5 bg-red-950/80 border border-red-800/80 px-2.5 py-1 rounded-lg text-xs font-mono font-bold text-red-400">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+              <span>{activeCount} Live Now</span>
+            </span>
+            <span className="inline-flex items-center space-x-1.5 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-mono font-bold text-slate-300">
+              <Clock className="w-3 h-3 text-amber-400" />
+              <span>{upcomingCount} Upcoming</span>
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* TOP BROADCAST SECTION (PLAYER DIRECTLY AT TOP WITH 95VW MOBILE COVERAGE) */}
-      <div className="w-[95vw] sm:w-full max-w-7xl mx-auto pt-2 sm:pt-4 pb-3 px-1 sm:px-4 md:px-6">
+      <div className="w-[95vw] sm:w-full max-w-7xl mx-auto pt-2 sm:pt-3 pb-3 px-1 sm:px-4 md:px-6">
         <div className="space-y-4">
           
           {/* MAIN EMBEDDED PLAYER CONTAINER */}
@@ -244,9 +375,9 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                     </span>
                   </div>
 
-                  <h1 className="text-lg sm:text-2xl md:text-3xl font-black font-display text-white tracking-tight leading-tight pt-1">
+                  <h2 className="text-lg sm:text-2xl md:text-3xl font-black font-display text-white tracking-tight leading-tight pt-1">
                     {activeStream.title}
-                  </h1>
+                  </h2>
 
                   <div className="flex flex-wrap items-center gap-2 text-xs text-slate-400 font-mono">
                     <span className="text-slate-200 font-bold">🏆 {activeStream.match_name}</span>
@@ -825,14 +956,14 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
         </div>
       </div>
 
-      {/* ALL CRICKET MATCHES CARDS GRID */}
+      {/* ALL CRICKET & SPORTS MATCHES CARDS GRID */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 pt-4 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
             <div>
-              <h3 className="text-2xl font-black font-display text-white uppercase tracking-tight flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-black font-display text-white uppercase tracking-tight flex items-center gap-2">
                 <Tv className="h-6 w-6 text-[#22c55e]" />
-                <span>More Live & Upcoming Sports Matches</span>
-              </h3>
+                <span>More Live &amp; Upcoming Sports Matches</span>
+              </h2>
               <p className="text-xs text-slate-400">
                 Select any match to switch the main live video stream immediately.
               </p>
@@ -913,9 +1044,9 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                         <span className="text-[10px] font-mono font-bold text-[#22c55e] uppercase tracking-wider block">
                           {stream.tournament}
                         </span>
-                        <h4 className="text-sm font-bold font-display text-slate-100 group-hover:text-[#22c55e] transition line-clamp-2 leading-tight">
+                        <h3 className="text-sm font-bold font-display text-slate-100 group-hover:text-[#22c55e] transition line-clamp-2 leading-tight">
                           {stream.title}
-                        </h4>
+                        </h3>
                         <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed font-sans">
                           {stream.description}
                         </p>
@@ -952,8 +1083,8 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
             </div>
           )}
 
-          {/* BOTTOM INFORMATIONAL BRANDING CARD */}
-          <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-950 border border-emerald-900/40 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* BOTTOM INFORMATIONAL BROADCAST SUBMISSION BANNER */}
+          <div className="bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-950 border border-emerald-900/40 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
             <div className="space-y-2 text-center md:text-left">
               <h3 className="text-xl md:text-2xl font-black font-display text-white uppercase tracking-tight">
                 Want to Broadcast a Match on The Sports Room?
@@ -969,7 +1100,329 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
               Submit Stream Request
             </button>
           </div>
+
+          {/* ========================================================================= */}
+          {/* SEO SECTION 1: WATCH LIVE SPORTS ONLINE */}
+          {/* ========================================================================= */}
+          <section className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 md:p-8 space-y-3 shadow-lg">
+            <h2 className="text-xl sm:text-2xl font-bold font-display text-white tracking-tight">
+              Watch Live Sports Online
+            </h2>
+            <p className="text-sm text-slate-300 leading-relaxed font-sans">
+              Follow live sports coverage from around the world on The Sports Room. Watch cricket matches, football games, tennis tournaments, basketball showdowns, and motorsport events in real time. Whether you want to follow international series, major league rivalries, or championship finals, The Sports Room provides match streaming embeds, live scorecards, and real-time updates for passionate sports fans.
+            </p>
+          </section>
+
+          {/* ========================================================================= */}
+          {/* SEO SECTIONS 2 & 3: CRICKET & FOOTBALL STREAMING */}
+          {/* ========================================================================= */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 md:p-8 space-y-3 shadow-lg flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xl">🏏</span>
+                  <h2 className="text-xl font-bold font-display text-white tracking-tight">
+                    Live Cricket Streaming
+                  </h2>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed font-sans">
+                  Cricket fans can track major tournaments and bilateral series across all formats—Test cricket, One Day Internationals (ODIs), and T20 leagues. Follow live matches from the ICC Cricket World Cup, ICC Champions Trophy, Asia Cup, Pakistan Super League (PSL), Indian Premier League (IPL), Big Bash League (BBL), and bilateral international series. Stay updated with ball-by-ball developments, batting strike rates, bowling figures, and live commentary feeds.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs font-mono text-emerald-400">
+                <span>ICC • PSL • IPL • Tests • ODIs • T20Is</span>
+              </div>
+            </section>
+
+            <section className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 md:p-8 space-y-3 shadow-lg flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xl">⚽</span>
+                  <h2 className="text-xl font-bold font-display text-white tracking-tight">
+                    Live Football Streaming
+                  </h2>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed font-sans">
+                  Catch live football matches from top domestic leagues and continental competitions across Europe and worldwide. Follow the UEFA Champions League, English Premier League (EPL), La Liga, Serie A, Bundesliga, and international fixtures including the FIFA World Cup and UEFA European Championship. Track live scores, goal alerts, lineup formations, and tactical match moments.
+                </p>
+              </div>
+              <div className="pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs font-mono text-emerald-400">
+                <span>EPL • UCL • La Liga • Serie A • FIFA</span>
+              </div>
+            </section>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* SEO SECTIONS 4 & 5: LIVE MATCHES & LIVE UPDATES */}
+          {/* ========================================================================= */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 md:p-8 space-y-4 shadow-lg">
+              <div>
+                <h2 className="text-xl font-bold font-display text-white tracking-tight">
+                  Live Matches and Sports Events
+                </h2>
+                <p className="text-xs text-slate-400 font-mono mt-1">
+                  The Sports Room covers a comprehensive lineup of global sporting events:
+                </p>
+              </div>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-slate-300 font-sans">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span><strong className="text-white">Cricket:</strong> ICC World Cup, PSL, IPL, Test Matches, ODIs, and T20 Internationals</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span><strong className="text-white">Football:</strong> Premier League, UEFA Champions League, La Liga, Serie A, and International Friendlies</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span><strong className="text-white">Formula 1:</strong> Grand Prix race weekends, qualifying sessions, and telemetry analysis</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span><strong className="text-white">Tennis:</strong> Grand Slams (Wimbledon, US Open, Australian Open, Roland-Garros) and ATP/WTA tours</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span><strong className="text-white">Basketball:</strong> NBA regular season games, playoffs, and international FIBA tournaments</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span><strong className="text-white">Field Hockey:</strong> FIH Pro League, World Cup, and Asian Champions Trophy</span>
+                </li>
+              </ul>
+            </section>
+
+            <section className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 md:p-8 space-y-4 shadow-lg">
+              <div>
+                <h2 className="text-xl font-bold font-display text-white tracking-tight">
+                  Live Match Updates
+                </h2>
+                <p className="text-xs text-slate-400 font-mono mt-1">
+                  Get instant access to real-time sports information alongside video and audio broadcasts:
+                </p>
+              </div>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-slate-300 font-sans">
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span>Live scorecards with real-time ball-by-ball tracking and milestone alerts</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span>Embedded official streaming players from Facebook Live, YouTube, and verified broadcast partners</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span>Up-to-the-minute match schedules and start times in your local time zone</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span>Tactical team analysis, key player statistics, and post-match breakdowns</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[#22c55e] font-bold font-mono shrink-0">✓</span>
+                  <span>Interactive fan chat room and live reaction features with sports enthusiasts worldwide</span>
+                </li>
+              </ul>
+            </section>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* SEO SECTION 6 & 7: FIND TODAY'S SPORTS & WHY FOLLOW */}
+          {/* ========================================================================= */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 md:p-8 space-y-3 shadow-lg">
+              <h2 className="text-xl font-bold font-display text-white tracking-tight">
+                Find Today's Live Sports
+              </h2>
+              <p className="text-sm text-slate-300 leading-relaxed font-sans">
+                Use the match selector above to browse currently active broadcasts, upcoming fixtures, and recent match highlights. Filter matches by sport, tournament, or status to jump directly into the live broadcast of your favorite team.
+              </p>
+            </section>
+
+            <section className="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-6 md:p-8 space-y-3 shadow-lg">
+              <h2 className="text-xl font-bold font-display text-white tracking-tight">
+                Why Follow Live Sports on The Sports Room?
+              </h2>
+              <p className="text-sm text-slate-300 leading-relaxed font-sans">
+                The Sports Room brings fans closer to the action through verified live embeds, real-time sports telemetry, tactical analysis, and community engagement. Unlike generic streaming directories, The Sports Room combines live match feeds with human-authored editorial journalism, comprehensive sports science breakdowns, and community discussion boards.
+              </p>
+            </section>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* SEO SECTION 8: FREQUENTLY ASKED QUESTIONS */}
+          {/* ========================================================================= */}
+          <section className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-xl">
+            <div className="border-b border-slate-800 pb-3">
+              <h2 className="text-xl sm:text-2xl font-bold font-display text-white tracking-tight">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-xs text-slate-400 font-mono mt-1">
+                Common questions about streaming live sports and match center features on The Sports Room.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 sm:p-5 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-[#22c55e] font-display">
+                  How can I watch live sports on The Sports Room?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                  You can watch live sports directly on this page by selecting any active match card from the list above. The player will load the official live stream embed or broadcast link automatically.
+                </p>
+              </div>
+
+              <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 sm:p-5 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-[#22c55e] font-display">
+                  What sports are available for live streaming?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                  The Sports Room features live streams and match updates for cricket, football, Formula 1, tennis, basketball, and field hockey whenever official broadcasts or embed feeds are active.
+                </p>
+              </div>
+
+              <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 sm:p-5 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-[#22c55e] font-display">
+                  Is live sports streaming free on The Sports Room?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                  Yes, accessing the live match player, live scorecards, match analysis, and community chat on The Sports Room is completely free.
+                </p>
+              </div>
+
+              <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 sm:p-5 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-[#22c55e] font-display">
+                  What should I do if a stream does not play?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                  If a stream appears blank or shows a playback notice, click the "Re-sync Broadcast" button or use the "Open Live Player" button to view the broadcast directly on the provider's platform.
+                </p>
+              </div>
+
+              <div className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 sm:p-5 space-y-2">
+                <h3 className="text-sm sm:text-base font-bold text-[#22c55e] font-display">
+                  How often are live match streams updated?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+                  The live match list and streaming feeds are updated continuously before and during every scheduled match day.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* ========================================================================= */}
+          {/* SEO SECTION 9: STAY CONNECTED WITH THE SPORTS ROOM (INTERNAL LINKS) */}
+          {/* ========================================================================= */}
+          <section className="bg-gradient-to-br from-emerald-950/50 via-slate-900 to-slate-950 border border-emerald-900/60 rounded-2xl p-6 md:p-8 space-y-4 shadow-xl">
+            <div className="border-b border-emerald-900/50 pb-3">
+              <h2 className="text-xl sm:text-2xl font-bold font-display text-white tracking-tight">
+                Stay Connected With The Sports Room
+              </h2>
+              <p className="text-xs text-slate-300 mt-1 font-sans">
+                Explore more sports coverage, daily quizzes, tournament hubs, and exclusive content across our platform:
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+              <a
+                href="/sport/cricket"
+                onClick={(e) => { e.preventDefault(); onNavigate('/sport/cricket'); }}
+                className="p-3.5 bg-slate-950/80 hover:bg-[#022c22] border border-emerald-900/60 hover:border-[#22c55e] rounded-xl transition flex items-center justify-between group shadow-sm"
+              >
+                <div>
+                  <span className="block font-bold text-xs text-white group-hover:text-[#22c55e] transition">
+                    🏏 Cricket News &amp; Articles
+                  </span>
+                  <span className="block text-[11px] text-slate-400 font-mono">
+                    Read today's sports analysis
+                  </span>
+                </div>
+                <span className="text-emerald-400 group-hover:translate-x-1 transition font-bold font-mono text-sm">→</span>
+              </a>
+
+              <a
+                href="/topic/cricket-world-cup-2027"
+                onClick={(e) => { e.preventDefault(); onNavigate('/topic/cricket-world-cup-2027'); }}
+                className="p-3.5 bg-slate-950/80 hover:bg-[#022c22] border border-emerald-900/60 hover:border-[#22c55e] rounded-xl transition flex items-center justify-between group shadow-sm"
+              >
+                <div>
+                  <span className="block font-bold text-xs text-white group-hover:text-[#22c55e] transition">
+                    🌍 Cricket World Cup 2027
+                  </span>
+                  <span className="block text-[11px] text-slate-400 font-mono">
+                    Schedules, hosts &amp; teams
+                  </span>
+                </div>
+                <span className="text-emerald-400 group-hover:translate-x-1 transition font-bold font-mono text-sm">→</span>
+              </a>
+
+              <a
+                href="/quiz"
+                onClick={(e) => { e.preventDefault(); onNavigate('/quiz'); }}
+                className="p-3.5 bg-slate-950/80 hover:bg-[#022c22] border border-emerald-900/60 hover:border-[#22c55e] rounded-xl transition flex items-center justify-between group shadow-sm"
+              >
+                <div>
+                  <span className="block font-bold text-xs text-white group-hover:text-[#22c55e] transition">
+                    ⚡ Daily Sports Quiz
+                  </span>
+                  <span className="block text-[11px] text-slate-400 font-mono">
+                    Play daily &amp; earn points
+                  </span>
+                </div>
+                <span className="text-emerald-400 group-hover:translate-x-1 transition font-bold font-mono text-sm">→</span>
+              </a>
+
+              <a
+                href="/leaderboard"
+                onClick={(e) => { e.preventDefault(); onNavigate('/leaderboard'); }}
+                className="p-3.5 bg-slate-950/80 hover:bg-[#022c22] border border-emerald-900/60 hover:border-[#22c55e] rounded-xl transition flex items-center justify-between group shadow-sm"
+              >
+                <div>
+                  <span className="block font-bold text-xs text-white group-hover:text-[#22c55e] transition">
+                    🏆 Monthly Leaderboard
+                  </span>
+                  <span className="block text-[11px] text-slate-400 font-mono">
+                    View fan rankings &amp; badges
+                  </span>
+                </div>
+                <span className="text-emerald-400 group-hover:translate-x-1 transition font-bold font-mono text-sm">→</span>
+              </a>
+
+              <a
+                href="/rc24-apk-download"
+                onClick={(e) => { e.preventDefault(); onNavigate('/rc24-apk-download'); }}
+                className="p-3.5 bg-slate-950/80 hover:bg-[#022c22] border border-emerald-900/60 hover:border-[#22c55e] rounded-xl transition flex items-center justify-between group shadow-sm"
+              >
+                <div>
+                  <span className="block font-bold text-xs text-white group-hover:text-[#22c55e] transition">
+                    🎮 Real Cricket 24 APK
+                  </span>
+                  <span className="block text-[11px] text-slate-400 font-mono">
+                    Download latest RC24 APK
+                  </span>
+                </div>
+                <span className="text-emerald-400 group-hover:translate-x-1 transition font-bold font-mono text-sm">→</span>
+              </a>
+
+              <a
+                href="/about-us"
+                onClick={(e) => { e.preventDefault(); onNavigate('/about-us'); }}
+                className="p-3.5 bg-slate-950/80 hover:bg-[#022c22] border border-emerald-900/60 hover:border-[#22c55e] rounded-xl transition flex items-center justify-between group shadow-sm"
+              >
+                <div>
+                  <span className="block font-bold text-xs text-white group-hover:text-[#22c55e] transition">
+                    📰 About The Sports Room
+                  </span>
+                  <span className="block text-[11px] text-slate-400 font-mono">
+                    Editorial team &amp; mission
+                  </span>
+                </div>
+                <span className="text-emerald-400 group-hover:translate-x-1 transition font-bold font-mono text-sm">→</span>
+              </a>
+            </div>
+          </section>
         </div>
-      </div>
-  );
-}
+      </main>
+    );
+  }

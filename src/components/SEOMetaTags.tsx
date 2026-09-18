@@ -335,9 +335,9 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
         }
       ];
     } else if (currentPath === '/live-stream' || currentPath.startsWith('/live-stream')) {
-      title = "Live Sports Streaming | The Sports Room";
-      description = "Watch official embedded Facebook Live and YouTube Live sports streams directly on The Sports Room. Stay updated with live cricket, football, Formula 1, tennis, basketball and more.";
-      keywords = "The Sports Room live stream, live cricket streaming, Facebook live cricket, YouTube live sports, live match stream, live football streaming, F1 live streaming, embedded sports live stream";
+      title = "Live Sports Streaming | Cricket, Football & More";
+      description = "Watch live sports online with The Sports Room. Find cricket, football, basketball, tennis, F1 and more with live match updates.";
+      keywords = "Live sports streaming, live cricket streaming, live football streaming, watch live sports online, live match updates, The Sports Room live stream, ICC cricket live, UEFA Champions League live, NBA live, Formula 1 live telemetry";
       pageType = "website";
 
       ldJsonData = [
@@ -345,25 +345,11 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           "@context": "https://schema.org",
           "@type": "WebPage",
           "@id": `${canonicalUrl}#webpage`,
-          "name": "Live Sports Streaming | The Sports Room",
+          "name": "Live Sports Streaming | Cricket, Football & More",
           "description": description,
           "url": canonicalUrl,
-          "breadcrumb": {
-            "@type": "BreadcrumbList",
-            "itemListElement": [
-              {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Home",
-                "item": origin
-              },
-              {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "Live Stream",
-                "item": canonicalUrl
-              }
-            ]
+          "isPartOf": {
+            "@id": `${origin}/#website`
           },
           "publisher": {
             "@type": "Organization",
@@ -374,6 +360,72 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
               "url": `${origin}/logo-preview.png`
             }
           }
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "@id": `${canonicalUrl}#breadcrumb`,
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": origin
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Live Streams",
+              "item": canonicalUrl
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "@id": `${canonicalUrl}#faq`,
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How can I watch live sports on The Sports Room?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "You can watch live sports directly on this page by selecting any active match card from the list. The player will load the official live stream embed or broadcast link automatically."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What sports are available for live streaming?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The Sports Room features live streams and match updates for cricket, football, Formula 1, tennis, basketball, and field hockey whenever official broadcasts or embed feeds are active."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is live sports streaming free on The Sports Room?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, accessing the live match player, live scorecards, match analysis, and community chat on The Sports Room is completely free."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What should I do if a stream does not play?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "If a stream appears blank or shows a playback notice, click the \"Re-sync Broadcast\" button or use the \"Open Live Player\" button to view the broadcast directly on the provider's platform."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How often are live match streams updated?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The live match list and streaming feeds are updated continuously before and during every scheduled match day."
+              }
+            }
+          ]
         }
       ];
     } else if (currentPath.startsWith('/sport/')) {
@@ -871,6 +923,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     // Standard Tags
     updateOrCreateMeta("description", description);
     updateOrCreateMeta("keywords", keywords);
+    updateOrCreateMeta("robots", "index, follow");
 
     // Canonical link tag
     let canonicalLink = document.querySelector('link[rel="canonical"]');
