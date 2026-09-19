@@ -405,28 +405,28 @@ export default function PlayerDetail({ slug, onNavigate }: PlayerDetailProps) {
 
             {/* 3. CAREER STATISTICS SECTION */}
             {statsEntries.length > 0 && (
-              <div className="bg-[#022c22]/90 border border-emerald-900/50 rounded-2xl p-6 sm:p-8 shadow-xl space-y-4" id="player-stats-section">
+              <div className="bg-[#022c22]/90 border border-emerald-900/50 rounded-2xl p-6 sm:p-8 shadow-xl space-y-5" id="player-stats-section">
                 <div className="flex items-center justify-between border-b border-emerald-900/50 pb-3">
                   <div className="flex items-center gap-2.5 text-[#22c55e]">
                     <Activity className="w-5 h-5" />
-                    <h2 className="text-xl font-bold text-white font-display">
+                    <h2 className="text-xl sm:text-2xl font-bold text-white font-display tracking-tight">
                       Career Statistics
                     </h2>
                   </div>
-                  <span className="text-[11px] font-mono text-emerald-400/80 uppercase">
+                  <span className="text-[11px] font-mono font-bold tracking-widest text-emerald-400 uppercase">
                     {player.sport} Record
                   </span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 pt-1">
                   {statsEntries.map(([key, val]) => (
                     <div
                       key={key}
-                      className="bg-[#01140f] border border-emerald-900/60 rounded-xl p-4 text-center hover:border-emerald-500/50 transition"
+                      className="bg-[#01140f] border border-emerald-900/70 hover:border-emerald-500/50 rounded-xl p-4 sm:p-5 text-center flex flex-col justify-center items-center transition shadow-sm group"
                     >
-                      <span className="text-[11px] font-mono uppercase text-slate-400 block mb-1">
+                      <span className="text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 block mb-1.5 transition group-hover:text-emerald-300">
                         {formatStatKey(key)}
                       </span>
-                      <span className="text-xl sm:text-2xl font-black text-white font-display">
+                      <span className="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight">
                         {String(val)}
                       </span>
                     </div>
@@ -437,39 +437,41 @@ export default function PlayerDetail({ slug, onNavigate }: PlayerDetailProps) {
 
             {/* 4. MAJOR ACHIEVEMENTS SECTION */}
             {hasAchievements && (
-              <div className="bg-[#022c22]/90 border border-emerald-900/50 rounded-2xl p-6 sm:p-8 shadow-xl space-y-4" id="player-achievements-section">
-                <div className="flex items-center gap-2.5 text-[#22c55e] border-b border-emerald-900/50 pb-3">
-                  <Trophy className="w-5 h-5" />
-                  <h2 className="text-xl font-bold text-white font-display">
+              <div className="bg-[#022c22]/90 border border-emerald-900/50 rounded-2xl p-6 sm:p-8 shadow-xl space-y-5" id="player-achievements-section">
+                <div className="flex items-center gap-3 text-[#22c55e]">
+                  <Trophy className="w-6 h-6 text-[#22c55e]" />
+                  <h2 className="text-xl sm:text-2xl font-bold text-white font-display tracking-tight">
                     Major Honors &amp; Achievements
                   </h2>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                   {player.achievements.map((ach, idx) => (
                     <div
                       key={idx}
-                      className="bg-[#01140f] border border-emerald-900/60 rounded-xl p-4 space-y-2 hover:border-emerald-500/50 transition"
+                      className="bg-[#01140f] border border-emerald-900/70 hover:border-emerald-500/50 transition-all rounded-xl p-4 sm:p-5 flex flex-col justify-between group shadow-sm"
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-sm font-bold text-white leading-snug">
-                          {ach.title}
-                        </h3>
-                        {ach.year && (
-                          <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950 border border-emerald-800/60 px-2 py-0.5 rounded whitespace-nowrap">
-                            {ach.year}
-                          </span>
+                      <div>
+                        <div className="flex items-start justify-between gap-3">
+                          <h3 className="text-[15px] sm:text-base font-bold text-white leading-snug font-sans">
+                            {ach.title}
+                          </h3>
+                          {ach.year && (
+                            <span className="text-xs font-mono font-semibold text-[#22c55e] bg-[#022c22] border border-emerald-800/80 px-2.5 py-0.5 rounded-md shrink-0 whitespace-nowrap shadow-inner">
+                              {ach.year}
+                            </span>
+                          )}
+                        </div>
+                        {ach.competition && (
+                          <div className="text-xs sm:text-[13px] font-mono text-[#22c55e] font-medium mt-1.5">
+                            {ach.competition}
+                          </div>
+                        )}
+                        {ach.description && (
+                          <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed mt-2.5 pt-0.5">
+                            {ach.description}
+                          </p>
                         )}
                       </div>
-                      {ach.competition && (
-                        <span className="text-xs font-mono text-emerald-400 block">
-                          {ach.competition}
-                        </span>
-                      )}
-                      {ach.description && (
-                        <p className="text-xs text-slate-300 leading-relaxed">
-                          {ach.description}
-                        </p>
-                      )}
                     </div>
                   ))}
                 </div>
