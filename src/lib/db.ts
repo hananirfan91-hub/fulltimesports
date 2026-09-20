@@ -47,6 +47,11 @@ const STORAGE_KEYS = {
   SUBSCRIBERS: 'fts_subscribers',
   LIVE_STREAMS: 'fts_live_streams',
   DELETED_STREAM_IDS: 'fts_deleted_stream_ids',
+  DELETED_POST_IDS: 'fts_deleted_post_ids',
+  DELETED_CATEGORY_IDS: 'fts_deleted_category_ids',
+  DELETED_RANKING_IDS: 'fts_deleted_ranking_ids',
+  DELETED_FIXTURE_IDS: 'fts_deleted_fixture_ids',
+  DELETED_MEDIA_IDS: 'fts_deleted_media_ids',
   HERO_CONFIG: 'fts_hero_config',
   FAN_POLLS: 'fts_fan_polls',
   QUIZZES: 'fts_quizzes',
@@ -1069,45 +1074,24 @@ export class DB {
             localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(localPosts));
           }
         } else {
-          // Build canonical map from Supabase
+          // Build canonical map from Supabase, strictly filtering out deleted tombstone IDs
+          const deletedPostIds = this.getDeletedPostIds();
           const postsMap = new Map<string, Post>();
 
           parsedRemote.forEach((rp: Post) => {
-            if (rp.id) {
+            if (rp.id && !deletedPostIds.includes(rp.id) && !deletedPostIds.includes(normalizeSlug(rp.slug))) {
               (rp as any).is_synced = true;
               postsMap.set(rp.id, rp);
             }
           });
 
-          // Always ensure default seed posts across all sports are retained if absent from remote
-          SEED_POSTS.forEach(dp => {
-            if (!postsMap.has(dp.id)) {
-              postsMap.set(dp.id, dp);
-            }
-          });
-
-          const unsyncedToPush: Post[] = [];
+          // Preserve full content from local cache if local post already fetched full article body
           localPosts.forEach((lp: Post) => {
             if (!lp.id) return;
             const existing = postsMap.get(lp.id);
-            if (!existing) {
-              // If this local post was newly written locally and not yet synced to Supabase, push it now!
-              (lp as any).is_synced = true;
-              postsMap.set(lp.id, lp);
-              unsyncedToPush.push(lp);
-            } else {
-              // Preserve full content if local post already fetched full article body
+            if (existing) {
               if (lp.content && lp.content.length > (existing.content || '').length) {
                 existing.content = lp.content;
-              }
-
-              // Compare timestamps if both exist
-              const existingTime = new Date(existing.updated_at || existing.created_at).getTime() || 0;
-              const localTime = new Date(lp.updated_at || lp.created_at).getTime() || 0;
-              if (lp.updated_at && localTime > existingTime) {
-                (lp as any).is_synced = true;
-                postsMap.set(lp.id, lp);
-                unsyncedToPush.push(lp);
               }
             }
           });
@@ -1115,10 +1099,6 @@ export class DB {
           const mergedList = Array.from(postsMap.values());
           mergedList.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
           localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(mergedList));
-
-          if (unsyncedToPush.length > 0) {
-            await this.safeUpsertPosts(unsyncedToPush);
-          }
         }
       }
 
@@ -1527,6 +1507,39 @@ export class DB {
     }
   }
 
+  // POSTS DELETED IDS (Tombstone tracker to prevent resurrection)
+  static getDeletedPostIds(): string[] {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.DELETED_POST_IDS || 'fts_deleted_post_ids');
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  static addDeletedPostId(id: string, slug?: string) {
+    try {
+      const deleted = this.getDeletedPostIds();
+      let changed = false;
+      if (id && !deleted.includes(id)) {
+        deleted.push(id);
+        changed = true;
+      }
+      if (slug) {
+        const clean = normalizeSlug(slug);
+        if (clean && !deleted.includes(clean)) {
+          deleted.push(clean);
+          changed = true;
+        }
+      }
+      if (changed) {
+        localStorage.setItem(STORAGE_KEYS.DELETED_POST_IDS || 'fts_deleted_post_ids', JSON.stringify(deleted));
+      }
+    } catch (e) {
+      console.warn("Deleted post store notice:", e);
+    }
+  }
+
   static getLiveStreams(): LiveStreamItem[] {
     const data = localStorage.getItem(STORAGE_KEYS.LIVE_STREAMS);
     let streams: LiveStreamItem[] = data ? JSON.parse(data) : [];
@@ -1746,7 +1759,11 @@ export class DB {
   // POSTS
   static getPosts(): Post[] {
     const data = localStorage.getItem(STORAGE_KEYS.POSTS);
-    const posts = data ? JSON.parse(data) : [];
+    let posts = data ? JSON.parse(data) : [];
+    const deletedIds = this.getDeletedPostIds();
+    if (deletedIds.length > 0) {
+      posts = posts.filter((p: Post) => !deletedIds.includes(p.id) && !deletedIds.includes(normalizeSlug(p.slug)));
+    }
     const now = new Date().getTime();
     return posts.filter((p: Post) => {
       if (p.is_draft || p.scheduled_for === 'draft') {
@@ -1766,17 +1783,9 @@ export class DB {
     // Admins can see all posts, even future scheduled ones
     const data = localStorage.getItem(STORAGE_KEYS.POSTS);
     let posts: Post[] = data ? JSON.parse(data) : [];
-    let updated = false;
-
-    SEED_POSTS.forEach(dp => {
-      if (!posts.some(p => p.id === dp.id || p.slug === dp.slug)) {
-        posts.push(dp);
-        updated = true;
-      }
-    });
-
-    if (updated || !data) {
-      localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(posts));
+    const deletedIds = this.getDeletedPostIds();
+    if (deletedIds.length > 0) {
+      posts = posts.filter((p: Post) => !deletedIds.includes(p.id) && !deletedIds.includes(normalizeSlug(p.slug)));
     }
 
     return posts.sort((a: Post, b: Post) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -1944,8 +1953,10 @@ export class DB {
   }
 
   static async deletePost(id: string) {
-    const posts = this.getAdminAllPosts();
     const cleanId = normalizeSlug(id);
+    this.addDeletedPostId(id, cleanId);
+
+    const posts = this.getAdminAllPosts();
     const filtered = posts.filter(p => p.id !== id && p.slug !== id && normalizeSlug(p.id) !== cleanId && normalizeSlug(p.slug) !== cleanId);
     localStorage.setItem(STORAGE_KEYS.POSTS, JSON.stringify(filtered));
     window.dispatchEvent(new CustomEvent('fts_db_sync'));
@@ -2015,15 +2026,19 @@ export class DB {
     }
   }
 
-  static deleteCategory(id: string) {
+  static async deleteCategory(id: string) {
     const list = this.getCategories();
     const filtered = list.filter(c => c.id !== id);
     localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(filtered));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     // Sync
-    supabase.from('fts_categories').delete().eq('id', id).then(({ error }) => {
+    try {
+      const { error } = await supabase.from('fts_categories').delete().eq('id', id);
       if (error) console.warn("Supabase delete fts_categories error:", error);
-    });
+    } catch (e) {
+      console.warn("Supabase deleteCategory exception:", e);
+    }
   }
 
   // RANKINGS
@@ -2063,15 +2078,19 @@ export class DB {
     return newItem;
   }
 
-  static deleteRanking(id: string) {
+  static async deleteRanking(id: string) {
     const list = this.getRankings();
     const filtered = list.filter(r => r.id !== id);
     localStorage.setItem(STORAGE_KEYS.RANKINGS, JSON.stringify(filtered));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     // Sync
-    supabase.from('fts_rankings').delete().eq('id', id).then(({ error }) => {
+    try {
+      const { error } = await supabase.from('fts_rankings').delete().eq('id', id);
       if (error) console.warn("Supabase delete fts_rankings error:", error);
-    });
+    } catch (e) {
+      console.warn("Supabase deleteRanking exception:", e);
+    }
   }
 
   // FIXTURES
@@ -2111,15 +2130,19 @@ export class DB {
     return newItem;
   }
 
-  static deleteFixture(id: string) {
+  static async deleteFixture(id: string) {
     const list = this.getFixtures();
     const filtered = list.filter(f => f.id !== id);
     localStorage.setItem(STORAGE_KEYS.FIXTURES, JSON.stringify(filtered));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     // Sync
-    supabase.from('fts_fixtures').delete().eq('id', id).then(({ error }) => {
+    try {
+      const { error } = await supabase.from('fts_fixtures').delete().eq('id', id);
       if (error) console.warn("Supabase delete fts_fixtures error:", error);
-    });
+    } catch (e) {
+      console.warn("Supabase deleteFixture exception:", e);
+    }
   }
 
   // ADMINS & WRITERS MANAGEMENT
@@ -2285,15 +2308,19 @@ export class DB {
     return newItem;
   }
 
-  static deleteMedia(id: string) {
+  static async deleteMedia(id: string) {
     const list = this.getMedia();
     const filtered = list.filter(m => m.id !== id);
     localStorage.setItem(STORAGE_KEYS.MEDIA, JSON.stringify(filtered));
+    window.dispatchEvent(new CustomEvent('fts_db_sync'));
 
     // Sync
-    supabase.from('fts_media').delete().eq('id', id).then(({ error }) => {
+    try {
+      const { error } = await supabase.from('fts_media').delete().eq('id', id);
       if (error) console.warn("Supabase delete fts_media error:", error);
-    });
+    } catch (e) {
+      console.warn("Supabase deleteMedia exception:", e);
+    }
   }
 
   static getTickets(): TicketMessage[] {
