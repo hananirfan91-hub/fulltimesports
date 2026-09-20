@@ -16,11 +16,6 @@
     <priority>0.95</priority>
   </url>
   <url>
-<loc>https://thesportsroom.online/blog/asian-games-2026</loc>
-<changefreq>daily</changefreq>
-<priority>0.95</priority>
-</url>
-  <url>
     <loc>https://thesportsroom.online/author/hanan-irfan</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -73,22 +68,7 @@
   <url>
     <loc>https://thesportsroom.online/players</loc>
     <changefreq>daily</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://thesportsroom.online/player/babar-azam</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://thesportsroom.online/player/shaheen-shah-afridi</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://thesportsroom.online/player/max-verstappen</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.88</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://thesportsroom.online/sport/football</loc>
@@ -234,6 +214,26 @@
     <loc>https://thesportsroom.online/topic/barcelona</loc>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/the-blaze-beat-hampshire-women-by-3-wickets-metro-bank-one-day-cup-final</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/rachin-ravindra-injury-india-t20is</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/england-t20i-adaptation-brook</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/blog/sri-lanka-vs-malaysia-women-asian-games-2026</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://thesportsroom.online/blog/india-vs-afghanistan-3rd-t20i</loc>
@@ -1146,6 +1146,26 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://thesportsroom.online/live-stream?id=stream-1789886203871</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/live-stream?id=stream-1789885157983</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/live-stream?id=stream-1789821868511</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/live-stream?id=stream-1789809266420</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://thesportsroom.online/live-stream?id=stream-1789692309431</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -1294,5 +1314,50 @@
     <loc>https://thesportsroom.online/live-stream?id=stream-1785760535006</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/joe-root</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/mohamed-salah</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/shaheen-shah-afridi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/lebron-james</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/lionel-messi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/virat-kohli</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/novak-djokovic</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/cristiano-ronaldo</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://thesportsroom.online/player/babar-azam</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 </urlset>
