@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -8,17 +7,14 @@ import {
   CheckCircle2, 
   Calendar, 
   Trophy, 
-  ExternalLink, 
   Filter, 
   Sparkles,
   RefreshCw,
   LayoutGrid,
   SlidersHorizontal,
-  ChevronDown,
-  Info
+  AlertCircle
 } from 'lucide-react';
 import { CricketMatch } from '../types';
-import { DB } from '../lib/db';
 
 interface CricketScoreTickerProps {
   onNavigate?: (path: string) => void;
@@ -26,34 +22,213 @@ interface CricketScoreTickerProps {
 }
 
 export default function CricketScoreTicker({ onNavigate, showAllViewToggle = true }: CricketScoreTickerProps) {
-  const [matches, setMatches] = useState<CricketMatch[]>(() => DB.getCricketMatches());
+  const [matches, setMatches] = useState<CricketMatch[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  // Filters & Views
   const [filterStatus, setFilterStatus] = useState<'all' | 'live' | 'finished' | 'upcoming'>('all');
   const [selectedCompetition, setSelectedCompetition] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'ticker' | 'grid'>('ticker');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // Carousel scroll state
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Sync listener
-  useEffect(() => {
-    const handleSync = () => {
-      setMatches(DB.getCricketMatches());
-    };
-    window.addEventListener('fts_db_sync', handleSync);
-    return () => window.removeEventListener('fts_db_sync', handleSync);
+  // Helper to determine match state from SportScore API fields
+  const isMatchLive = useCallback((m: CricketMatch): boolean => {
+    const s = (m.status || '').toLowerCase();
+    const st = (m.status_text || '').toLowerCase();
+    return s === 'live' || 
+      st.includes('live') || 
+      st.includes('innings') || 
+      st.includes('in progress') || 
+      st.includes('stumps') || 
+      st.includes('tea') || 
+      st.includes('rain') ||
+      st.includes('break');
   }, []);
 
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setMatches(DB.getCricketMatches());
-    setTimeout(() => setIsRefreshing(false), 500);
-  };
+  const isMatchFinished = useCallback((m: CricketMatch): boolean => {
+    const s = (m.status || '').toLowerCase();
+    const st = (m.status_text || '').toLowerCase();
+    return s === 'finished' || 
+      st.includes('finished') || 
+      st.includes('won') || 
+      st.includes('lost') || 
+      st.includes('tied') || 
+      st.includes('drawn') || 
+      st.includes('result') || 
+      st.includes('abandoned');
+  }, []);
 
-  // Check scroll position to enable/disable buttons & calculate current visible card
+  // Format team cricket score, runs, wickets, overs, or live batting state
+  const formatTeamScore = useCallback((
+    rawScore: any, 
+    isHome: boolean, 
+    match: CricketMatch
+  ): { text: string; isLiveBatting: boolean; hasNumericScore: boolean } => {
+    const live = isMatchLive(match);
+    const finished = isMatchFinished(match);
+    const statusText = (match.status_text || '').toLowerCase();
+
+    // Check if team is currently batting based on status_text
+    const isHomeBatting = statusText.includes('home') || (statusText.includes('1st innings') && !statusText.includes('away'));
+    const isAwayBatting = statusText.includes('away') || (statusText.includes('2nd innings') && !statusText.includes('home'));
+    const isBattingTeam = live && (isHome ? isHomeBatting : isAwayBatting);
+
+    // 1. Handle object structure (if SportScore returns nested score object)
+    if (rawScore && typeof rawScore === 'object') {
+      const runs = rawScore.runs ?? rawScore.score ?? rawScore.r;
+      const wickets = rawScore.wickets ?? rawScore.w;
+      const overs = rawScore.overs ?? rawScore.ov ?? rawScore.o;
+      if (runs !== undefined && runs !== null) {
+        let str = `${runs}`;
+        if (wickets !== undefined && wickets !== null) str += `/${wickets}`;
+        if (overs !== undefined && overs !== null) str += ` (${overs} ov)`;
+        return { text: str, isLiveBatting: isBattingTeam, hasNumericScore: true };
+      }
+    }
+
+    // 2. Handle string or number score
+    if (rawScore !== null && rawScore !== undefined) {
+      const strVal = String(rawScore).trim();
+      // If score contains numeric digits e.g. "102/10" or "156/4 (18.2 ov)" or "165"
+      if (strVal !== '-' && /\d/.test(strVal)) {
+        if (strVal === '0/0' && live && !isBattingTeam && statusText.includes('1st innings')) {
+          return {
+            text: 'Yet to bat',
+            isLiveBatting: false,
+            hasNumericScore: false
+          };
+        }
+        return { 
+          text: strVal, 
+          isLiveBatting: isBattingTeam, 
+          hasNumericScore: true 
+        };
+      }
+    }
+
+    // 3. Score is null, undefined, or "-"
+    if (live) {
+      if (isBattingTeam) {
+        return { 
+          text: '🏏 Batting', 
+          isLiveBatting: true, 
+          hasNumericScore: false 
+        };
+      }
+      if (statusText.includes('in progress')) {
+        return { 
+          text: isHome ? '🏏 1st Innings' : 'Yet to bat', 
+          isLiveBatting: isHome, 
+          hasNumericScore: false 
+        };
+      }
+      return { 
+        text: 'Yet to bat', 
+        isLiveBatting: false, 
+        hasNumericScore: false 
+      };
+    }
+
+    if (finished) {
+      return { 
+        text: rawScore && rawScore !== '-' ? String(rawScore) : '-', 
+        isLiveBatting: false, 
+        hasNumericScore: false 
+      };
+    }
+
+    // Upcoming matches
+    return { 
+      text: '—', 
+      isLiveBatting: false, 
+      hasNumericScore: false 
+    };
+  }, [isMatchLive, isMatchFinished]);
+
+  // Real-time Fetch from /api/cricket/matches with fallback to direct SportScore endpoint
+  const fetchMatches = useCallback(async (isManualRefresh = false) => {
+    if (isManualRefresh) {
+      setIsRefreshing(true);
+    }
+
+    try {
+      let data: any = null;
+
+      // 1. Try internal proxy API route first (/api/cricket/matches)
+      try {
+        const response = await fetch('/api/cricket/matches?limit=50', {
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          data = await response.json();
+        }
+      } catch (proxyErr) {
+        console.warn('[Cricket Match Center] Local proxy failed, attempting direct endpoint fallback:', proxyErr);
+      }
+
+      // 2. Direct browser fallback if proxy failed or returned error
+      if (!data || !Array.isArray(data.matches)) {
+        const directUrl = 'https://sportscore.com/api/widget/matches/?sport=cricket&limit=50';
+        const directRes = await fetch(directUrl);
+        if (directRes.ok) {
+          data = await directRes.json();
+        } else {
+          throw new Error(`SportScore returned status ${directRes.status}`);
+        }
+      }
+
+      if (data && Array.isArray(data.matches)) {
+        // Debugging logs for live match score structure verification
+        if (process.env.NODE_ENV !== 'production') {
+          console.log("SportScore cricket matches:", data.matches);
+          const liveMatches = data.matches.filter((m: CricketMatch) => isMatchLive(m));
+          liveMatches.forEach((m: CricketMatch) => {
+            console.log("Live cricket match:", m);
+          });
+        }
+
+        setMatches(data.matches);
+        setLastUpdated(data.updated || new Date().toISOString());
+        setError(null);
+      } else {
+        throw new Error('Invalid match data structure received');
+      }
+    } catch (err: any) {
+      console.error('[Cricket Match Center] Error fetching live cricket matches:', err);
+      if (matches.length === 0) {
+        setError('Cricket matches are temporarily unavailable.');
+      }
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [matches.length, isMatchLive]);
+
+  // Initial load and 60-second automatic polling interval
+  useEffect(() => {
+    fetchMatches();
+
+    const intervalId = setInterval(() => {
+      fetchMatches();
+    }, 60000); // 60 seconds interval
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [fetchMatches]);
+
+  // Check scroll position to manage arrows & active index
   const checkScrollPosition = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
@@ -62,8 +237,7 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
     setCanScrollLeft(scrollLeft > 10);
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
 
-    // Calculate approximate index
-    const cardWidth = 320; // approximate card width + gap
+    const cardWidth = 320;
     const idx = Math.round(scrollLeft / cardWidth);
     setCurrentIndex(Math.max(0, Math.min(idx, matches.length - 1)));
   }, [matches.length]);
@@ -80,12 +254,11 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
       el.removeEventListener('scroll', checkScrollPosition);
       window.removeEventListener('resize', checkScrollPosition);
     };
-  }, [checkScrollPosition, filterStatus, selectedCompetition, viewMode]);
+  }, [checkScrollPosition, filterStatus, selectedCompetition, viewMode, matches.length]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      // Scroll by one card viewport step (minimum 280px or 80% of container width)
       const scrollStep = Math.max(280, Math.min(340, container.clientWidth * 0.85));
       container.scrollBy({
         left: direction === 'left' ? -scrollStep : scrollStep,
@@ -94,30 +267,18 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
     }
   };
 
-  const scrollToIndex = (index: number) => {
-    if (scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      const card = container.children[index] as HTMLElement;
-      if (card) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      }
-    }
-  };
-
   // Competitions list
   const competitions = Array.from(new Set(matches.map(m => m.competition))).filter(Boolean);
 
   const filteredMatches = matches.filter(match => {
-    // Status filter
-    const isLive = match.status === 'live' || match.status_text?.toLowerCase().includes('live') || match.status_text?.toLowerCase().includes('innings');
-    const isFinished = match.status === 'finished' || match.status_text?.toLowerCase().includes('finished') || match.status_text?.toLowerCase().includes('won');
-    const isUpcoming = match.status === 'upcoming' || (!isLive && !isFinished);
+    const isLive = isMatchLive(match);
+    const isFinished = isMatchFinished(match);
+    const isUpcoming = !isLive && !isFinished;
 
     if (filterStatus === 'live' && !isLive) return false;
     if (filterStatus === 'finished' && !isFinished) return false;
     if (filterStatus === 'upcoming' && !isUpcoming) return false;
 
-    // Competition filter
     if (selectedCompetition !== 'all' && match.competition !== selectedCompetition) {
       return false;
     }
@@ -125,9 +286,9 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
     return true;
   });
 
-  const liveCount = matches.filter(m => m.status === 'live' || m.status_text?.toLowerCase().includes('live') || m.status_text?.toLowerCase().includes('innings')).length;
-  const finishedCount = matches.filter(m => m.status === 'finished').length;
-  const upcomingCount = matches.filter(m => m.status === 'upcoming' || (!m.status && m.status !== 'finished' && m.status !== 'live')).length;
+  const liveCount = matches.filter(m => isMatchLive(m)).length;
+  const finishedCount = matches.filter(m => isMatchFinished(m)).length;
+  const upcomingCount = matches.filter(m => !isMatchLive(m) && !isMatchFinished(m)).length;
 
   const formatMatchTime = (isoTime: string) => {
     try {
@@ -152,142 +313,132 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
       className="w-full bg-[#02231b] border-y border-[#22c55e]/25 text-white shadow-xl relative overflow-hidden" 
       id="cricket-live-ticker"
     >
-      {/* Top Header & Mobile Responsive Filters */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3.5 pb-2.5">
+      {/* Top Header with Section Title & Controls */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-2.5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-emerald-900/60 pb-3">
           
-          {/* Left Title & Status Filter Pills */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 flex-wrap">
-            {/* Title Badge */}
-            <div className="flex items-center justify-between sm:justify-start">
-              <div className="flex items-center space-x-2 bg-[#01140f] border border-[#22c55e]/40 px-3 py-1.5 rounded-full shadow-inner">
-                <span className="text-base animate-bounce">🏏</span>
-                <span className="font-mono font-black text-xs uppercase tracking-wider text-[#22c55e]">
-                  CRICKET MATCH CENTER
-                </span>
-                <span className="bg-[#22c55e] text-[#022c22] font-mono font-bold text-[10px] px-2 py-0.2 rounded-full">
-                  {matches.length} Matches
-                </span>
+          {/* Section Title & Subtitle + SportScore Attribution */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap">
+            <div className="flex items-center space-x-2.5">
+              <span className="text-xl">🏏</span>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h2 className="font-mono font-black text-sm md:text-base uppercase tracking-wider text-[#22c55e]">
+                    Cricket Match Center
+                  </h2>
+                  <span className="bg-[#22c55e] text-[#022c22] font-mono font-bold text-[10px] px-2 py-0.5 rounded-full">
+                    {matches.length} Matches
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 font-sans">
+                  Live & Recent Cricket Matches
+                </p>
               </div>
+            </div>
 
-              {/* Mobile Refresh + View Switcher (Quick Access) */}
-              <div className="flex items-center space-x-1.5 sm:hidden">
-                {showAllViewToggle && (
-                  <button
-                    onClick={() => setViewMode(viewMode === 'ticker' ? 'grid' : 'ticker')}
-                    className="bg-[#01140f] border border-emerald-900 active:border-[#22c55e] text-slate-300 p-1.5 rounded-lg text-xs flex items-center"
-                    aria-label="Toggle Grid / Ticker View"
-                  >
-                    {viewMode === 'ticker' ? <LayoutGrid className="w-3.5 h-3.5 text-[#22c55e]" /> : <SlidersHorizontal className="w-3.5 h-3.5 text-[#22c55e]" />}
-                  </button>
-                )}
-                
-                {/* SportScore Attribution Link */}
-                <a
-                  href="https://sportscore.com/"
-                  rel="dofollow"
-                  title="Powered by SportScore"
-                  aria-label="Powered by SportScore"
-                  target="_blank"
-                  className="bg-[#01140f] border border-emerald-900 active:border-[#22c55e] text-[#22c55e] hover:text-emerald-300 rounded-lg w-7 h-7 inline-flex items-center justify-center text-[11px] font-bold font-mono transition no-underline shadow-xs"
-                >
-                  SS
-                </a>
-
+            {/* Quick Status Filter Pills */}
+            {!isLoading && !error && matches.length > 0 && (
+              <div className="flex items-center overflow-x-auto no-scrollbar space-x-1 bg-[#01140f]/90 p-0.5 rounded-lg border border-emerald-950 font-mono text-[11px] w-full sm:w-auto">
                 <button
-                  onClick={handleRefresh}
-                  className={`bg-[#01140f] border border-emerald-900 active:border-[#22c55e] text-slate-300 p-1.5 rounded-lg ${isRefreshing ? 'animate-spin text-[#22c55e]' : ''}`}
-                  aria-label="Refresh Scores"
+                  onClick={() => setFilterStatus('all')}
+                  className={`px-2.5 py-1 rounded-md transition font-bold uppercase whitespace-nowrap cursor-pointer ${filterStatus === 'all' ? 'bg-[#22c55e] text-[#022c22] shadow' : 'text-slate-300 hover:text-white'}`}
                 >
-                  <RefreshCw className="w-3.5 h-3.5" />
+                  All ({matches.length})
+                </button>
+                <button
+                  onClick={() => setFilterStatus('live')}
+                  className={`px-2.5 py-1 rounded-md transition font-bold uppercase whitespace-nowrap flex items-center space-x-1 cursor-pointer ${filterStatus === 'live' ? 'bg-red-600 text-white shadow' : 'text-rose-400 hover:text-white'}`}
+                >
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                  <span>Live ({liveCount})</span>
+                </button>
+                <button
+                  onClick={() => setFilterStatus('upcoming')}
+                  className={`px-2.5 py-1 rounded-md transition font-bold uppercase whitespace-nowrap cursor-pointer ${filterStatus === 'upcoming' ? 'bg-[#22c55e] text-[#022c22] shadow' : 'text-amber-400 hover:text-white'}`}
+                >
+                  Upcoming ({upcomingCount})
+                </button>
+                <button
+                  onClick={() => setFilterStatus('finished')}
+                  className={`px-2.5 py-1 rounded-md transition font-bold uppercase whitespace-nowrap cursor-pointer ${filterStatus === 'finished' ? 'bg-[#22c55e] text-[#022c22] shadow' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Results ({finishedCount})
                 </button>
               </div>
-            </div>
-
-            {/* Quick Status Filter Tabs - Scrollable on very small screens */}
-            <div className="flex items-center overflow-x-auto no-scrollbar space-x-1 bg-[#01140f]/90 p-0.5 rounded-lg border border-emerald-950 font-mono text-[11px] w-full sm:w-auto">
-              <button
-                onClick={() => setFilterStatus('all')}
-                className={`px-2.5 py-1 rounded-md transition font-bold uppercase whitespace-nowrap cursor-pointer ${filterStatus === 'all' ? 'bg-[#22c55e] text-[#022c22] shadow' : 'text-slate-300 hover:text-white'}`}
-              >
-                All ({matches.length})
-              </button>
-              <button
-                onClick={() => setFilterStatus('live')}
-                className={`px-2.5 py-1 rounded-md transition font-bold uppercase whitespace-nowrap flex items-center space-x-1 cursor-pointer ${filterStatus === 'live' ? 'bg-red-600 text-white shadow' : 'text-rose-400 hover:text-white'}`}
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                </span>
-                <span>Live ({liveCount})</span>
-              </button>
-              <button
-                onClick={() => setFilterStatus('upcoming')}
-                className={`px-2.5 py-1 rounded-md transition font-bold uppercase whitespace-nowrap cursor-pointer ${filterStatus === 'upcoming' ? 'bg-[#22c55e] text-[#022c22] shadow' : 'text-amber-400 hover:text-white'}`}
-              >
-                Upcoming ({upcomingCount})
-              </button>
-              <button
-                onClick={() => setFilterStatus('finished')}
-                className={`px-2.5 py-1 rounded-md transition font-bold uppercase whitespace-nowrap cursor-pointer ${filterStatus === 'finished' ? 'bg-[#22c55e] text-[#022c22] shadow' : 'text-slate-400 hover:text-white'}`}
-              >
-                Results ({finishedCount})
-              </button>
-            </div>
+            )}
           </div>
 
-          {/* Desktop/Tablet Right Controls */}
+          {/* Right Action Controls: Competition Filter, SportScore Button, Refresh & View Mode */}
           <div className="flex items-center justify-between sm:justify-end space-x-2">
-            {/* Tournament Filter Dropdown */}
-            <div className="relative flex-1 sm:flex-none">
-              <select
-                value={selectedCompetition}
-                onChange={(e) => setSelectedCompetition(e.target.value)}
-                className="w-full sm:w-auto bg-[#01140f] border border-emerald-900 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 font-mono focus:outline-none focus:border-[#22c55e] appearance-none pr-7 cursor-pointer"
-              >
-                <option value="all">All Tournaments</option>
-                {competitions.map((comp) => (
-                  <option key={comp} value={comp}>{comp}</option>
-                ))}
-              </select>
-              <Filter className="w-3 h-3 text-emerald-400 absolute right-2 top-2.5 pointer-events-none" />
-            </div>
+            
+            {/* Tournament Selector */}
+            {competitions.length > 0 && (
+              <div className="relative flex-1 sm:flex-none">
+                <select
+                  value={selectedCompetition}
+                  onChange={(e) => setSelectedCompetition(e.target.value)}
+                  className="w-full sm:w-auto bg-[#01140f] border border-emerald-900 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 font-mono focus:outline-none focus:border-[#22c55e] appearance-none pr-7 cursor-pointer"
+                >
+                  <option value="all">All Tournaments</option>
+                  {competitions.map((comp) => (
+                    <option key={comp} value={comp}>{comp}</option>
+                  ))}
+                </select>
+                <Filter className="w-3 h-3 text-emerald-400 absolute right-2 top-2.5 pointer-events-none" />
+              </div>
+            )}
 
-            {/* Desktop View Mode Toggle */}
-            {showAllViewToggle && (
+            {/* View Mode Toggle (Grid vs Ticker) */}
+            {showAllViewToggle && !isLoading && !error && (
               <button
                 onClick={() => setViewMode(viewMode === 'ticker' ? 'grid' : 'ticker')}
-                className="hidden sm:flex bg-[#01140f] border border-emerald-900 hover:border-[#22c55e] text-slate-300 hover:text-white p-1.5 rounded-lg transition text-xs items-center space-x-1 cursor-pointer"
+                className="bg-[#01140f] border border-emerald-900 hover:border-[#22c55e] text-slate-300 hover:text-white p-1.5 rounded-lg transition text-xs flex items-center space-x-1 cursor-pointer"
                 title={viewMode === 'ticker' ? "Switch to Grid View" : "Switch to Ticker View"}
+                aria-label="Toggle Grid / Ticker View"
               >
                 {viewMode === 'ticker' ? <LayoutGrid className="w-4 h-4 text-[#22c55e]" /> : <SlidersHorizontal className="w-4 h-4 text-[#22c55e]" />}
               </button>
             )}
 
-            {/* SportScore Attribution Link */}
-            <a
-              href="https://sportscore.com/"
-              rel="dofollow"
-              title="Powered by SportScore"
-              aria-label="Powered by SportScore"
+            {/* SportScore Exact Attribution Button */}
+            <a 
+              href="https://sportscore.com/" 
+              rel="dofollow" 
+              title="Powered by SportScore" 
+              aria-label="Powered by SportScore" 
               target="_blank"
-              className="hidden sm:inline-flex bg-[#01140f] border border-emerald-900 hover:border-[#22c55e] hover:bg-[#022c22] text-[#22c55e] hover:text-emerald-300 w-7 h-7 rounded-lg items-center justify-center text-[11px] font-mono font-bold transition shadow-xs no-underline"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '28px',
+                height: '28px',
+                background: '#0a1e3d',
+                color: '#fff',
+                borderRadius: '50%',
+                textDecoration: 'none',
+                font: '700 .78rem system-ui,sans-serif'
+              }}
             >
               SS
             </a>
 
-            {/* Desktop Refresh Button */}
+            {/* Manual Refresh Button */}
             <button
-              onClick={handleRefresh}
-              className={`hidden sm:flex bg-[#01140f] border border-emerald-900 hover:border-[#22c55e] text-slate-300 hover:text-white p-1.5 rounded-lg transition cursor-pointer ${isRefreshing ? 'animate-spin text-[#22c55e]' : ''}`}
-              title="Refresh Live Scores"
+              onClick={() => fetchMatches(true)}
+              disabled={isRefreshing}
+              className={`bg-[#01140f] border border-emerald-900 hover:border-[#22c55e] text-slate-300 hover:text-white p-1.5 rounded-lg transition cursor-pointer ${isRefreshing ? 'animate-spin text-[#22c55e]' : ''}`}
+              title="Refresh Live Scores (Auto-updates every 60s)"
+              aria-label="Refresh Scores"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
 
-            {/* Desktop Ticker Prev/Next Arrows */}
-            {viewMode === 'ticker' && (
+            {/* Desktop Ticker Navigation Arrows */}
+            {viewMode === 'ticker' && !isLoading && !error && (
               <div className="hidden sm:flex items-center space-x-1 pl-1">
                 <button
                   onClick={() => scroll('left')}
@@ -311,17 +462,86 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
         </div>
       </div>
 
-      {/* Matches Content Area */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-3 relative">
-        {filteredMatches.length === 0 ? (
-          <div className="py-8 text-center text-slate-400 font-mono text-xs">
-            No cricket matches match the selected filter.
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-3.5 relative">
+        
+        {/* 1. LOADING SKELETON STATE */}
+        {isLoading && (
+          <div className="flex space-x-3 overflow-x-auto pb-2 pt-1 no-scrollbar">
+            {[1, 2, 3, 4].map((n) => (
+              <div
+                key={n}
+                className="w-[84vw] xs:w-[295px] sm:w-[320px] max-w-[340px] shrink-0 bg-[#01140f] border border-emerald-950 rounded-2xl p-4 animate-pulse space-y-3"
+              >
+                <div className="flex justify-between items-center border-b border-emerald-950 pb-2">
+                  <div className="h-3 bg-emerald-900/50 rounded w-28"></div>
+                  <div className="h-3 bg-emerald-900/50 rounded w-12"></div>
+                </div>
+                <div className="space-y-2 py-1">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-emerald-900/60"></div>
+                      <div className="h-3.5 bg-emerald-900/50 rounded w-24"></div>
+                    </div>
+                    <div className="h-3.5 bg-emerald-900/50 rounded w-8"></div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-emerald-900/60"></div>
+                      <div className="h-3.5 bg-emerald-900/50 rounded w-24"></div>
+                    </div>
+                    <div className="h-3.5 bg-emerald-900/50 rounded w-8"></div>
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-emerald-950 flex justify-between">
+                  <div className="h-2.5 bg-emerald-900/40 rounded w-20"></div>
+                  <div className="h-2.5 bg-emerald-900/40 rounded w-16"></div>
+                </div>
+              </div>
+            ))}
           </div>
-        ) : viewMode === 'ticker' ? (
-          /* Responsive Carousel Track with Native Mobile Swipe & Desktop Drag Controls */
+        )}
+
+        {/* 2. ERROR STATE WITH RETRY BUTTON */}
+        {!isLoading && error && (
+          <div className="py-8 px-4 text-center bg-[#01140f]/80 rounded-2xl border border-rose-900/50 my-2">
+            <div className="flex flex-col items-center justify-center space-y-3">
+              <div className="w-10 h-10 rounded-full bg-rose-950/80 border border-rose-800 flex items-center justify-center text-rose-400">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <p className="text-slate-300 font-mono text-xs sm:text-sm">
+                {error}
+              </p>
+              <button
+                onClick={() => fetchMatches(true)}
+                className="px-4 py-1.5 bg-[#22c55e] hover:bg-emerald-400 text-[#022c22] font-mono font-bold text-xs rounded-lg transition shadow-md cursor-pointer flex items-center space-x-1.5 active:scale-95"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Retry</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* 3. EMPTY STATE */}
+        {!isLoading && !error && matches.length === 0 && (
+          <div className="py-8 text-center text-slate-400 font-mono text-xs bg-[#01140f]/60 rounded-2xl border border-emerald-950 my-2">
+            No cricket matches available right now.
+          </div>
+        )}
+
+        {/* 4. FILTERED EMPTY STATE */}
+        {!isLoading && !error && matches.length > 0 && filteredMatches.length === 0 && (
+          <div className="py-8 text-center text-slate-400 font-mono text-xs bg-[#01140f]/60 rounded-2xl border border-emerald-950 my-2">
+            No cricket matches found matching the selected filter.
+          </div>
+        )}
+
+        {/* 5. MATCHES DISPLAY (TICKER / CAROUSEL VIEW) */}
+        {!isLoading && !error && filteredMatches.length > 0 && viewMode === 'ticker' && (
           <div className="relative group/carousel">
             
-            {/* Left Overlay Scroll Button (visible when scrollable left) */}
+            {/* Left Overlay Scroll Button */}
             {canScrollLeft && (
               <button
                 onClick={() => scroll('left')}
@@ -332,7 +552,7 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
               </button>
             )}
 
-            {/* Right Overlay Scroll Button (visible when scrollable right) */}
+            {/* Right Overlay Scroll Button */}
             {canScrollRight && (
               <button
                 onClick={() => scroll('right')}
@@ -343,7 +563,7 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
               </button>
             )}
 
-            {/* Horizontal Scroll Track */}
+            {/* Horizontal Scrollable Matches Track */}
             <div 
               ref={scrollContainerRef}
               className="flex space-x-3 overflow-x-auto pb-3 pt-1 scroll-smooth snap-x snap-mandatory touch-pan-x select-none"
@@ -354,13 +574,15 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
               }}
             >
               {filteredMatches.map((match, idx) => {
-                const isLive = match.status === 'live' || match.status_text?.toLowerCase().includes('live') || match.status_text?.toLowerCase().includes('innings');
-                const isFinished = match.status === 'finished' || match.status_text?.toLowerCase().includes('finished');
+                const isLive = isMatchLive(match);
+                const isFinished = isMatchFinished(match);
+                const homeScoreInfo = formatTeamScore(match.home_score, true, match);
+                const awayScoreInfo = formatTeamScore(match.away_score, false, match);
 
                 return (
                   <div
                     key={`${match.home}-${match.away}-${idx}`}
-                    className="w-[84vw] xs:w-[295px] sm:w-[320px] max-w-[340px] shrink-0 bg-gradient-to-b from-[#011c15] to-[#01140f] border border-emerald-900/80 hover:border-[#22c55e]/70 rounded-2xl p-3.5 shadow-lg flex flex-col justify-between transition-all duration-200 snap-center sm:snap-start group relative"
+                    className={`w-[84vw] xs:w-[295px] sm:w-[320px] max-w-[340px] shrink-0 bg-gradient-to-b from-[#011c15] to-[#01140f] border ${isLive ? 'border-red-500/40 shadow-red-950/30' : 'border-emerald-900/80'} hover:border-[#22c55e]/70 rounded-2xl p-3.5 shadow-lg flex flex-col justify-between transition-all duration-200 snap-center sm:snap-start group relative`}
                   >
                     {/* Tournament & Status Header */}
                     <div className="flex items-center justify-between gap-2 border-b border-emerald-950 pb-2 mb-2.5">
@@ -368,7 +590,7 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                         {match.competition_logo ? (
                           <img 
                             src={match.competition_logo} 
-                            alt={match.competition}
+                            alt={match.competition || "Tournament"}
                             className="w-4 h-4 object-contain shrink-0 rounded-xs"
                             referrerPolicy="no-referrer"
                             onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
@@ -376,8 +598,8 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                         ) : (
                           <Trophy className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         )}
-                        <span className="font-mono text-[10px] font-bold text-slate-300 truncate uppercase tracking-tight">
-                          {match.competition}
+                        <span className="font-mono text-[10px] font-bold text-slate-300 truncate uppercase tracking-tight" title={match.competition}>
+                          {match.competition || "Cricket Match"}
                         </span>
                       </div>
 
@@ -401,7 +623,7 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                     </div>
 
                     {/* Teams & Scores */}
-                    <div className="space-y-2 py-1">
+                    <div className="space-y-2.5 py-1">
                       {/* Home Team */}
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center space-x-2 min-w-0">
@@ -415,15 +637,15 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                             />
                           ) : (
                             <div className="w-6 h-6 rounded-full bg-emerald-950 border border-emerald-800 flex items-center justify-center text-[10px] font-mono font-bold text-[#22c55e] shrink-0">
-                              {match.home.slice(0, 2).toUpperCase()}
+                              {match.home?.slice(0, 2).toUpperCase() || 'H'}
                             </div>
                           )}
-                          <span className="font-display font-bold text-xs sm:text-sm text-white truncate">
+                          <span className={`font-display font-bold text-xs sm:text-sm truncate ${homeScoreInfo.isLiveBatting ? 'text-[#22c55e]' : 'text-white'}`} title={match.home}>
                             {match.home}
                           </span>
                         </div>
-                        <div className="font-mono font-bold text-xs sm:text-sm text-[#22c55e] text-right shrink-0">
-                          {match.home_score || (isFinished ? '-' : '—')}
+                        <div className={`font-mono font-bold text-xs sm:text-sm text-right shrink-0 ${homeScoreInfo.isLiveBatting ? 'text-[#22c55e] bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-800/60' : homeScoreInfo.hasNumericScore ? 'text-[#22c55e]' : 'text-slate-400'}`}>
+                          {homeScoreInfo.text}
                         </div>
                       </div>
 
@@ -440,22 +662,22 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                             />
                           ) : (
                             <div className="w-6 h-6 rounded-full bg-emerald-950 border border-emerald-800 flex items-center justify-center text-[10px] font-mono font-bold text-[#22c55e] shrink-0">
-                              {match.away.slice(0, 2).toUpperCase()}
+                              {match.away?.slice(0, 2).toUpperCase() || 'A'}
                             </div>
                           )}
-                          <span className="font-display font-bold text-xs sm:text-sm text-white truncate">
+                          <span className={`font-display font-bold text-xs sm:text-sm truncate ${awayScoreInfo.isLiveBatting ? 'text-[#22c55e]' : 'text-white'}`} title={match.away}>
                             {match.away}
                           </span>
                         </div>
-                        <div className="font-mono font-bold text-xs sm:text-sm text-[#22c55e] text-right shrink-0">
-                          {match.away_score || (isFinished ? '-' : '—')}
+                        <div className={`font-mono font-bold text-xs sm:text-sm text-right shrink-0 ${awayScoreInfo.isLiveBatting ? 'text-[#22c55e] bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-800/60' : awayScoreInfo.hasNumericScore ? 'text-[#22c55e]' : 'text-slate-400'}`}>
+                          {awayScoreInfo.text}
                         </div>
                       </div>
                     </div>
 
                     {/* Match Footer: Status Note or Time */}
                     <div className="mt-2.5 pt-2 border-t border-emerald-950/60 flex items-center justify-between text-[10px] font-mono text-slate-400">
-                      <span className="text-emerald-400/90 font-medium truncate max-w-[65%]">
+                      <span className={`font-medium truncate max-w-[65%] ${isLive ? 'text-emerald-400 font-bold' : 'text-slate-400'}`} title={match.status_text || ""}>
                         {match.status_text || (isFinished ? "Match Finished" : "Scheduled")}
                       </span>
                       <span className="shrink-0 text-slate-400">
@@ -500,24 +722,28 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
             </div>
 
           </div>
-        ) : (
-          /* Grid View (Responsive 1-col on mobile, 2-col on tablet, 4-col on desktop) */
+        )}
+
+        {/* 6. MATCHES DISPLAY (FULL GRID VIEW) */}
+        {!isLoading && !error && filteredMatches.length > 0 && viewMode === 'grid' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 pt-1">
             {filteredMatches.map((match, idx) => {
-              const isLive = match.status === 'live' || match.status_text?.toLowerCase().includes('live') || match.status_text?.toLowerCase().includes('innings');
-              const isFinished = match.status === 'finished' || match.status_text?.toLowerCase().includes('finished');
+              const isLive = isMatchLive(match);
+              const isFinished = isMatchFinished(match);
+              const homeScoreInfo = formatTeamScore(match.home_score, true, match);
+              const awayScoreInfo = formatTeamScore(match.away_score, false, match);
 
               return (
                 <div
                   key={`${match.home}-${match.away}-${idx}`}
-                  className="bg-gradient-to-b from-[#011c15] to-[#01140f] border border-emerald-900/80 hover:border-[#22c55e]/70 rounded-2xl p-4 shadow-lg flex flex-col justify-between transition group"
+                  className={`bg-gradient-to-b from-[#011c15] to-[#01140f] border ${isLive ? 'border-red-500/40 shadow-red-950/30' : 'border-emerald-900/80'} hover:border-[#22c55e]/70 rounded-2xl p-4 shadow-lg flex flex-col justify-between transition group`}
                 >
                   <div className="flex items-center justify-between gap-2 border-b border-emerald-950 pb-2 mb-3">
                     <div className="flex items-center space-x-1.5 min-w-0">
                       {match.competition_logo ? (
                         <img 
                           src={match.competition_logo} 
-                          alt={match.competition}
+                          alt={match.competition || "Tournament"}
                           className="w-4 h-4 object-contain shrink-0"
                           referrerPolicy="no-referrer"
                           onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
@@ -525,8 +751,8 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                       ) : (
                         <Trophy className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       )}
-                      <span className="font-mono text-[10px] font-bold text-slate-300 truncate uppercase">
-                        {match.competition}
+                      <span className="font-mono text-[10px] font-bold text-slate-300 truncate uppercase" title={match.competition}>
+                        {match.competition || "Cricket Match"}
                       </span>
                     </div>
 
@@ -548,6 +774,7 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                   </div>
 
                   <div className="space-y-2.5 py-1">
+                    {/* Home Team */}
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center space-x-2 min-w-0">
                         {match.home_logo ? (
@@ -560,18 +787,19 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                           />
                         ) : (
                           <div className="w-6 h-6 rounded-full bg-emerald-950 border border-emerald-800 flex items-center justify-center text-[10px] font-mono font-bold text-[#22c55e] shrink-0">
-                            {match.home.slice(0, 2).toUpperCase()}
+                            {match.home?.slice(0, 2).toUpperCase() || 'H'}
                           </div>
                         )}
-                        <span className="font-display font-bold text-xs text-white truncate">
+                        <span className={`font-display font-bold text-xs sm:text-sm truncate ${homeScoreInfo.isLiveBatting ? 'text-[#22c55e]' : 'text-white'}`} title={match.home}>
                           {match.home}
                         </span>
                       </div>
-                      <div className="font-mono font-bold text-xs text-[#22c55e] text-right shrink-0">
-                        {match.home_score || (isFinished ? '-' : '—')}
+                      <div className={`font-mono font-bold text-xs sm:text-sm text-right shrink-0 ${homeScoreInfo.isLiveBatting ? 'text-[#22c55e] bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-800/60' : homeScoreInfo.hasNumericScore ? 'text-[#22c55e]' : 'text-slate-400'}`}>
+                        {homeScoreInfo.text}
                       </div>
                     </div>
 
+                    {/* Away Team */}
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center space-x-2 min-w-0">
                         {match.away_logo ? (
@@ -584,21 +812,21 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                           />
                         ) : (
                           <div className="w-6 h-6 rounded-full bg-emerald-950 border border-emerald-800 flex items-center justify-center text-[10px] font-mono font-bold text-[#22c55e] shrink-0">
-                            {match.away.slice(0, 2).toUpperCase()}
+                            {match.away?.slice(0, 2).toUpperCase() || 'A'}
                           </div>
                         )}
-                        <span className="font-display font-bold text-xs text-white truncate">
+                        <span className={`font-display font-bold text-xs sm:text-sm truncate ${awayScoreInfo.isLiveBatting ? 'text-[#22c55e]' : 'text-white'}`} title={match.away}>
                           {match.away}
                         </span>
                       </div>
-                      <div className="font-mono font-bold text-xs text-[#22c55e] text-right shrink-0">
-                        {match.away_score || (isFinished ? '-' : '—')}
+                      <div className={`font-mono font-bold text-xs sm:text-sm text-right shrink-0 ${awayScoreInfo.isLiveBatting ? 'text-[#22c55e] bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-800/60' : awayScoreInfo.hasNumericScore ? 'text-[#22c55e]' : 'text-slate-400'}`}>
+                        {awayScoreInfo.text}
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-3 pt-2 border-t border-emerald-950/60 flex items-center justify-between text-[10px] font-mono text-slate-400">
-                    <span className="text-emerald-400/90 font-medium truncate">
+                    <span className={`font-medium truncate max-w-[65%] ${isLive ? 'text-emerald-400 font-bold' : 'text-slate-400'}`} title={match.status_text || ""}>
                       {match.status_text || (isFinished ? "Match Finished" : "Upcoming")}
                     </span>
                     <span className="shrink-0 text-slate-400">

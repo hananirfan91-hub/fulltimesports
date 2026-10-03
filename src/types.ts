@@ -87,6 +87,15 @@ export interface FixtureItem {
   stage?: string; // e.g. 'Group Stage', 'Grand Finale', 'British GP'
 }
 
+export interface CricketScore {
+  runs: number | null;
+  wickets: number | null;
+  overs: string | null;
+  formatted: string;
+  isBatting: boolean;
+  hasNumericScore: boolean;
+}
+
 export interface CricketMatch {
   home: string;
   away: string;
@@ -100,12 +109,15 @@ export interface CricketMatch {
   competition: string;
   competition_logo?: string;
   url?: string;
+  home_score_parsed?: CricketScore;
+  away_score_parsed?: CricketScore;
 }
 
 export interface CricketApiResponse {
-  sport: string;
-  count: number;
+  sport?: string;
+  count?: number;
   matches: CricketMatch[];
+  updated?: string;
 }
 
 export interface Comment {

@@ -6,7 +6,6 @@ import {
 import { Post, Category, RankingItem, FixtureItem } from '../types';
 import { DB } from '../lib/db';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
-import CricketScoreTicker from '../components/CricketScoreTicker';
 import { SPORT_TACTICAL_MANUALS } from '../data/sportManuals';
 
 interface SportCategoryProps {
@@ -310,13 +309,6 @@ export default function SportCategory({ categorySlug, onNavigate, activeGeo, onC
 
       {/* AdSense Placement */}
       <AdSensePlaceholder slot="sport-top-banner" format="horizontal" />
-
-      {/* CRICKET LIVE MATCH SCORES & FIXTURES */}
-      {categorySlug === 'cricket' && (
-        <div className="mb-8">
-          <CricketScoreTicker onNavigate={onNavigate} />
-        </div>
-      )}
 
 
       {/* GRID SYSTEM: FILTRATION FEED vs RELEVANT MANUAL STANDINGS */}

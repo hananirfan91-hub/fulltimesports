@@ -102,7 +102,7 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
   return (
     <div className="bg-[#01140f] text-slate-100 min-h-screen pb-16 space-y-12 font-sans selection:bg-[#22c55e] selection:text-[#022c22]" id="home-page-container">
       
-      {/* 1. LIVE CRICKET SCORE TICKER & MATCH CENTER (Just Below Header / Navbar & Above Hero) */}
+      {/* 1. CRICKET MATCH CENTER (Below Header & Above Hero) */}
       <CricketScoreTicker onNavigate={onNavigate} />
 
       {/* 2. HERO SECTION (Main H1 Heading) */}
