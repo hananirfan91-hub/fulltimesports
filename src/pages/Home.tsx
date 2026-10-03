@@ -8,6 +8,7 @@ import {
 import { Post, FixtureItem } from '../types';
 import { DB } from '../lib/db';
 import Hero from '../components/Hero';
+import CricketScoreTicker from '../components/CricketScoreTicker';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
 import HomepageFanChallenge from '../components/HomepageFanChallenge';
 
@@ -101,127 +102,13 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
   return (
     <div className="bg-[#01140f] text-slate-100 min-h-screen pb-16 space-y-12 font-sans selection:bg-[#22c55e] selection:text-[#022c22]" id="home-page-container">
       
-      {/* 1. HERO SECTION (Main H1 Heading) */}
+      {/* 1. LIVE CRICKET SCORE TICKER & MATCH CENTER (Just Below Header / Navbar & Above Hero) */}
+      <CricketScoreTicker onNavigate={onNavigate} />
+
+      {/* 2. HERO SECTION (Main H1 Heading) */}
       <Hero onNavigate={onNavigate} activeGeo={activeGeo} />
 
-      {/* TOP OVERVIEW, 40-60 WORD SUMMARY & KEY TAKEAWAYS (AEO/GEO/SEO Core Module) */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6" id="home-top-overview-section">
-        <div className="bg-gradient-to-r from-[#022c22] via-[#011c15] to-[#022c22] border border-[#22c55e]/30 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
-          
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-900/60 pb-4">
-            <div className="flex items-center space-x-2">
-              <span className="bg-[#22c55e] text-[#022c22] font-mono text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider">
-                PLATFORM OVERVIEW
-              </span>
-              <h2 className="text-lg sm:text-xl font-mono font-bold text-white uppercase tracking-wide">
-                About The Sports Room &amp; Live Sports Coverage
-              </h2>
-            </div>
-            <div className="inline-flex items-center space-x-1.5 bg-[#01140f] border border-emerald-800 text-[11px] font-mono text-emerald-400 px-3 py-1 rounded-full">
-              <Calendar className="w-3.5 h-3.5 text-[#22c55e]" />
-              <span>Updated Daily • Real-Time Match Telemetry</span>
-            </div>
-          </div>
-
-          {/* 40-60 Word Top Summary */}
-          <div className="space-y-3">
-            <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-sans font-medium" id="home-core-summary-text">
-              The Sports Room (TSR) is an independent digital sports platform delivering the latest sports news, live match updates, tactical football analysis, and cricket telemetry. Built for dedicated sports fans and analytical enthusiasts worldwide, users can follow breaking headlines, watch live coverage, play daily sports quizzes, and compete on monthly leaderboards.
-            </p>
-
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-sans">
-              <strong className="text-emerald-300">Target Audience &amp; Use Cases:</strong> The Sports Room is designed for sports enthusiasts, tactical analysts, and trivia competitors seeking reliable sports news, live match streams, tournament calendars, daily sports quizzes, and verified fan rankings.
-            </p>
-          </div>
-
-          {/* Key Takeaways Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
-            <div className="bg-[#01140f] border border-emerald-900/70 p-3.5 rounded-2xl space-y-1">
-              <div className="text-[11px] font-mono font-bold text-[#22c55e] uppercase flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Independent Journalism</span>
-              </div>
-              <p className="text-[11px] text-slate-300">
-                100% human-authored reporting verified against official ICC, UEFA, and FIA governing data.
-              </p>
-            </div>
-
-            <div className="bg-[#01140f] border border-emerald-900/70 p-3.5 rounded-2xl space-y-1">
-              <div className="text-[11px] font-mono font-bold text-[#22c55e] uppercase flex items-center gap-1.5">
-                <Tv className="w-3.5 h-3.5" />
-                <span>Live Match Streams</span>
-              </div>
-              <p className="text-[11px] text-slate-300">
-                Embedded official feeds, ball-by-ball commentary, and live scores for major championships.
-              </p>
-            </div>
-
-            <div className="bg-[#01140f] border border-emerald-900/70 p-3.5 rounded-2xl space-y-1">
-              <div className="text-[11px] font-mono font-bold text-[#22c55e] uppercase flex items-center gap-1.5">
-                <Trophy className="w-3.5 h-3.5" />
-                <span>Daily Quiz &amp; Ranking</span>
-              </div>
-              <p className="text-[11px] text-slate-300">
-                Daily 5-question sports challenge with verified points scoring on the official monthly fan leaderboard.
-              </p>
-            </div>
-
-            <div className="bg-[#01140f] border border-emerald-900/70 p-3.5 rounded-2xl space-y-1">
-              <div className="text-[11px] font-mono font-bold text-[#22c55e] uppercase flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>Tactical Telemetry</span>
-              </div>
-              <p className="text-[11px] text-slate-300">
-                Pitch friction mechanics, passing networks, F1 ground effect aerodynamics, and shot charts.
-              </p>
-            </div>
-          </div>
-
-          {/* Descriptive Internal Navigation Hub */}
-          <div className="pt-2 border-t border-emerald-900/60 flex flex-wrap items-center gap-2">
-            <span className="text-[11px] font-mono font-bold text-slate-400 uppercase mr-1">Quick Links:</span>
-            <button
-              onClick={() => onNavigate('/sport/cricket')}
-              className="text-xs font-mono text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
-            >
-              Explore Latest Cricket &amp; Sports News →
-            </button>
-            <button
-              onClick={() => onNavigate('/live-streams')}
-              className="text-xs font-mono text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
-            >
-              Watch Live Sports Coverage &amp; Match Feeds →
-            </button>
-            <button
-              onClick={() => onNavigate('/quiz')}
-              className="text-xs font-mono text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
-            >
-              Take Today's Daily Sports Quiz Challenge →
-            </button>
-            <button
-              onClick={() => onNavigate('/leaderboard')}
-              className="text-xs font-mono text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
-            >
-              Check Monthly Fan Leaderboard Standings →
-            </button>
-            <button
-              onClick={() => onNavigate('/glossary')}
-              className="text-xs font-mono text-slate-300 hover:text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
-            >
-              Sports Science &amp; Telemetry Glossary →
-            </button>
-          </div>
-
-        </div>
-      </section>
-
-      {/* FAN ENGAGEMENT & DAILY SPORTS QUIZ BANNER */}
-      <HomepageFanChallenge 
-        onOpenQuiz={onOpenQuiz || (() => onNavigate('/quiz'))} 
-        onOpenLeaderboard={onOpenLeaderboard || (() => onNavigate('/leaderboard'))} 
-      />
-
-      {/* 2. THE SPORTS ROOM SPOTLIGHT SECTION */}
+      {/* 3. THE SPORTS ROOM SPOTLIGHT SECTION */}
       {spotlightPost && (
         <section className="max-w-7xl mx-auto px-4 md:px-6" id="home-spotlight-section">
           <div className="bg-gradient-to-br from-[#022c22] via-[#011c15] to-[#01140f] border-2 border-[#22c55e]/40 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
@@ -445,7 +332,13 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
         </div>
       </section>
 
-      {/* 5. LATEST ARTICLES SECTION */}
+      {/* DAILY SPORTS KNOWLEDGE & FAN ENGAGEMENT BANNER */}
+      <HomepageFanChallenge 
+        onOpenQuiz={onOpenQuiz || (() => onNavigate('/quiz'))} 
+        onOpenLeaderboard={onOpenLeaderboard || (() => onNavigate('/leaderboard'))} 
+      />
+
+      {/* 5. LATEST ARTICLES / EDITORIALS & COLUMNS SECTION */}
       <section className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between mb-6 border-b border-[#22c55e]/20 pb-3">
           <div className="flex items-center space-x-2">
@@ -541,7 +434,7 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
         </section>
       )}
 
-      {/* 7. LATEST VIDEOS SECTION */}
+      {/* 7. LATEST VIDEOS / MATCH HIGHLIGHTS SECTION */}
       <section className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between mb-6 border-b border-[#22c55e]/20 pb-3">
           <div className="flex items-center space-x-2">
@@ -587,7 +480,118 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
         </div>
       </section>
 
-      {/* 8. AEO (ANSWER ENGINE OPTIMIZATION) DIRECT ANSWERS FAQ MODULE */}
+      {/* 8. TOP OVERVIEW, 40-60 WORD SUMMARY & KEY TAKEAWAYS (AEO/GEO/SEO Core Module) */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6" id="home-top-overview-section">
+        <div className="bg-gradient-to-r from-[#022c22] via-[#011c15] to-[#022c22] border border-[#22c55e]/30 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+          
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-900/60 pb-4">
+            <div className="flex items-center space-x-2">
+              <span className="bg-[#22c55e] text-[#022c22] font-mono text-[10px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider">
+                PLATFORM OVERVIEW
+              </span>
+              <h2 className="text-lg sm:text-xl font-mono font-bold text-white uppercase tracking-wide">
+                About The Sports Room &amp; Live Sports Coverage
+              </h2>
+            </div>
+            <div className="inline-flex items-center space-x-1.5 bg-[#01140f] border border-emerald-800 text-[11px] font-mono text-emerald-400 px-3 py-1 rounded-full">
+              <Calendar className="w-3.5 h-3.5 text-[#22c55e]" />
+              <span>Updated Daily • Real-Time Match Telemetry</span>
+            </div>
+          </div>
+
+          {/* 40-60 Word Top Summary */}
+          <div className="space-y-3">
+            <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-sans font-medium" id="home-core-summary-text">
+              The Sports Room (TSR) is an independent digital sports platform delivering the latest sports news, live match updates, tactical football analysis, and cricket telemetry. Built for dedicated sports fans and analytical enthusiasts worldwide, users can follow breaking headlines, watch live coverage, play daily sports quizzes, and compete on monthly leaderboards.
+            </p>
+
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-sans">
+              <strong className="text-emerald-300">Target Audience &amp; Use Cases:</strong> The Sports Room is designed for sports enthusiasts, tactical analysts, and trivia competitors seeking reliable sports news, live match streams, tournament calendars, daily sports quizzes, and verified fan rankings.
+            </p>
+          </div>
+
+          {/* Key Takeaways Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-2">
+            <div className="bg-[#01140f] border border-emerald-900/70 p-3.5 rounded-2xl space-y-1">
+              <div className="text-[11px] font-mono font-bold text-[#22c55e] uppercase flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Independent Journalism</span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                100% human-authored reporting verified against official ICC, UEFA, and FIA governing data.
+              </p>
+            </div>
+
+            <div className="bg-[#01140f] border border-emerald-900/70 p-3.5 rounded-2xl space-y-1">
+              <div className="text-[11px] font-mono font-bold text-[#22c55e] uppercase flex items-center gap-1.5">
+                <Tv className="w-3.5 h-3.5" />
+                <span>Live Match Streams</span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                Embedded official feeds, ball-by-ball commentary, and live scores for major championships.
+              </p>
+            </div>
+
+            <div className="bg-[#01140f] border border-emerald-900/70 p-3.5 rounded-2xl space-y-1">
+              <div className="text-[11px] font-mono font-bold text-[#22c55e] uppercase flex items-center gap-1.5">
+                <Trophy className="w-3.5 h-3.5" />
+                <span>Daily Quiz &amp; Ranking</span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                Daily 5-question sports challenge with verified points scoring on the official monthly fan leaderboard.
+              </p>
+            </div>
+
+            <div className="bg-[#01140f] border border-emerald-900/70 p-3.5 rounded-2xl space-y-1">
+              <div className="text-[11px] font-mono font-bold text-[#22c55e] uppercase flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5" />
+                <span>Tactical Telemetry</span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                Pitch friction mechanics, passing networks, F1 ground effect aerodynamics, and shot charts.
+              </p>
+            </div>
+          </div>
+
+          {/* Descriptive Internal Navigation Hub */}
+          <div className="pt-2 border-t border-emerald-900/60 flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-mono font-bold text-slate-400 uppercase mr-1">Quick Links:</span>
+            <button
+              onClick={() => onNavigate('/sport/cricket')}
+              className="text-xs font-mono text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
+            >
+              Explore Latest Cricket &amp; Sports News →
+            </button>
+            <button
+              onClick={() => onNavigate('/live-streams')}
+              className="text-xs font-mono text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
+            >
+              Watch Live Sports Coverage &amp; Match Feeds →
+            </button>
+            <button
+              onClick={() => onNavigate('/quiz')}
+              className="text-xs font-mono text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
+            >
+              Take Today's Daily Sports Quiz Challenge →
+            </button>
+            <button
+              onClick={() => onNavigate('/leaderboard')}
+              className="text-xs font-mono text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
+            >
+              Check Monthly Fan Leaderboard Standings →
+            </button>
+            <button
+              onClick={() => onNavigate('/glossary')}
+              className="text-xs font-mono text-slate-300 hover:text-[#22c55e] hover:underline bg-[#01140f] border border-emerald-900 px-3 py-1.5 rounded-xl transition cursor-pointer"
+            >
+              Sports Science &amp; Telemetry Glossary →
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 9. AEO (ANSWER ENGINE OPTIMIZATION) DIRECT ANSWERS FAQ MODULE */}
       <section className="max-w-7xl mx-auto px-4 md:px-6" id="home-aeo-faq-section">
         <div className="bg-[#022c22] border border-[#22c55e]/30 rounded-3xl p-6 md:p-10 text-slate-200 space-y-6 shadow-2xl">
           

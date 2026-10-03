@@ -5,7 +5,7 @@ import {
   Tag, Upload, CalendarClock, Globe, PlusCircle, ArrowUpRight, MessageSquare, Mail,
   Radio, Tv, Video, Eye, Play, ExternalLink, RefreshCw, Inbox, Bell, X, CheckCircle2
 } from 'lucide-react';
-import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, LiveStreamItem, HeroConfig, FanPoll } from '../types';
+import { Post, Category, RankingItem, FixtureItem, MediaItem, AdminUser, TicketMessage, LiveStreamItem, HeroConfig, FanPoll, CricketMatch, CricketApiResponse } from '../types';
 import { DB } from '../lib/db';
 import { supabase } from '../lib/supabase';
 import { normalizeSlug } from '../lib/slugUtils';
@@ -41,7 +41,7 @@ interface AdminDashboardProps {
 
 export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'live_streams' | 'fan_polls' | 'users' | 'quiz_leaderboard' | 'players'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'rankings' | 'fixtures' | 'media' | 'homepage' | 'profile' | 'tickets' | 'live_streams' | 'fan_polls' | 'users' | 'quiz_leaderboard' | 'players' | 'cricket_api'>('posts');
   
   // States
   const [posts, setPosts] = useState<Post[]>([]);
@@ -52,6 +52,11 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [tickets, setTickets] = useState<TicketMessage[]>([]);
   const [liveStreams, setLiveStreams] = useState<LiveStreamItem[]>([]);
+  const [cricketMatches, setCricketMatches] = useState<CricketMatch[]>(() => DB.getCricketMatches());
+  const [cricketJsonInput, setCricketJsonInput] = useState<string>(() => JSON.stringify(DB.getCricketApiRaw(), null, 2));
+  const [cricketJsonMsg, setCricketJsonMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [editingCricketMatch, setEditingCricketMatch] = useState<{ match: Partial<CricketMatch>; index: number } | null>(null);
+  const [isCricketModalOpen, setIsCricketModalOpen] = useState<boolean>(false);
 
   const [directMsgTitle, setDirectMsgTitle] = useState('');
   const [directMsgBody, setDirectMsgBody] = useState('');
@@ -175,6 +180,9 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     setLiveStreams(DB.getLiveStreams());
     setHeroConfigState(DB.getHeroConfig());
     setFanPolls(DB.getFanPolls());
+    const cMatches = DB.getCricketMatches();
+    setCricketMatches(cMatches);
+    setCricketJsonInput(JSON.stringify(DB.getCricketApiRaw(), null, 2));
   };
 
   // HERO CONFIG HANDLERS
@@ -1313,6 +1321,14 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </button>
 
         <button
+          onClick={() => setActiveTab('cricket_api')}
+          className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'cricket_api' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
+        >
+          <span className="text-sm">🏏</span>
+          <span>Cricket API &amp; Scores ({cricketMatches.length})</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('quiz_leaderboard')}
           className={`flex items-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider font-mono transition ${activeTab === 'quiz_leaderboard' ? 'bg-[#022c22] text-[#22c55e] border border-emerald-800' : 'hover:bg-slate-100 text-slate-600'}`}
         >
@@ -1339,6 +1355,258 @@ export default function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       {/* QUIZ & LEADERBOARD MODULE */}
       {activeTab === 'quiz_leaderboard' && (
         <AdminQuizLeaderboard />
+      )}
+
+      {/* CRICKET API & LIVE MATCH SCORES FEED */}
+      {activeTab === 'cricket_api' && (
+        <div className="space-y-6">
+          {/* Top Info Card */}
+          <div className="bg-[#022c22] border border-emerald-900/80 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-[#22c55e]/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="bg-[#22c55e] text-[#022c22] font-mono font-black text-[10px] uppercase px-2.5 py-1 rounded-md tracking-wider">
+                    CRICKET API FEED
+                  </span>
+                  <span className="text-xs font-mono text-emerald-400 font-bold">
+                    • Real-Time Match Data Center
+                  </span>
+                </div>
+                <h3 className="font-display font-extrabold text-2xl text-white">
+                  LIVE CRICKET MATCHES &amp; SCORES INTEGRATION
+                </h3>
+                <p className="text-xs text-slate-300 mt-1 max-w-2xl font-sans leading-relaxed">
+                  Manage the official 19-match cricket tournament feed covering T20 Asian Games, Canada Super 60, CSA T20 &amp; Pro League, ODI Series, Emirates D10, and T20 World Championship of Legends.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingCricketMatch({
+                      index: -1,
+                      match: {
+                        home: '',
+                        away: '',
+                        home_logo: '',
+                        away_logo: '',
+                        home_score: '',
+                        away_score: '',
+                        status: 'live',
+                        status_text: 'Live - 1st Innings',
+                        time: new Date().toISOString(),
+                        competition: 'T20 Asian Games',
+                        competition_logo: '',
+                        url: ''
+                      }
+                    });
+                    setIsCricketModalOpen(true);
+                  }}
+                  className="bg-[#22c55e] hover:bg-emerald-400 text-[#022c22] font-mono font-black text-xs uppercase px-4 py-2.5 rounded-xl transition flex items-center space-x-1.5 shadow-md cursor-pointer"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Add Cricket Match</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Raw JSON API Payload Manager */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <h4 className="font-display font-bold text-base text-slate-900 uppercase">
+                  RAW CRICKET API KEY &amp; PAYLOAD IMPORT
+                </h4>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">
+                  Paste raw JSON dataset with matches array to update all fixtures &amp; live scores in one click.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      const parsed = JSON.parse(cricketJsonInput);
+                      let matchesToSave: CricketMatch[] = [];
+                      if (Array.isArray(parsed)) {
+                        matchesToSave = parsed;
+                      } else if (parsed && Array.isArray(parsed.matches)) {
+                        matchesToSave = parsed.matches;
+                      } else {
+                        throw new Error("JSON must contain an array of matches or a 'matches' key.");
+                      }
+                      DB.saveCricketMatches(matchesToSave);
+                      setCricketMatches(matchesToSave);
+                      setCricketJsonMsg({ type: 'success', text: `✅ Successfully imported and saved ${matchesToSave.length} cricket matches!` });
+                      setTimeout(() => setCricketJsonMsg(null), 4000);
+                    } catch (e: any) {
+                      setCricketJsonMsg({ type: 'error', text: `❌ Invalid JSON format: ${e.message}` });
+                    }
+                  }}
+                  className="bg-[#022c22] hover:bg-[#01140f] text-[#22c55e] border border-emerald-900 text-xs font-mono font-bold uppercase px-4 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-sm cursor-pointer"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-[#22c55e]" />
+                  <span>Apply API Payload</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const raw = DB.getCricketApiRaw();
+                    setCricketJsonInput(JSON.stringify(raw, null, 2));
+                    copyToClipboard(JSON.stringify(raw, null, 2));
+                    setCricketJsonMsg({ type: 'success', text: '📋 Current Cricket API JSON copied to clipboard!' });
+                    setTimeout(() => setCricketJsonMsg(null), 3000);
+                  }}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono font-bold uppercase px-3.5 py-2 rounded-xl border border-slate-300 transition flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <span>Copy JSON</span>
+                </button>
+              </div>
+            </div>
+
+            {cricketJsonMsg && (
+              <div className={`p-3 rounded-xl text-xs font-mono font-bold flex items-center space-x-2 ${cricketJsonMsg.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
+                {cricketJsonMsg.type === 'success' ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" /> : <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />}
+                <span>{cricketJsonMsg.text}</span>
+              </div>
+            )}
+
+            <div>
+              <textarea
+                value={cricketJsonInput}
+                onChange={(e) => setCricketJsonInput(e.target.value)}
+                rows={7}
+                className="w-full font-mono text-xs p-4 bg-slate-950 text-emerald-400 rounded-xl border border-slate-800 focus:outline-none focus:border-[#22c55e] selection:bg-[#22c55e] selection:text-slate-950 leading-relaxed"
+                placeholder='{"sport": "cricket", "count": 19, "matches": [...]}'
+              />
+            </div>
+          </div>
+
+          {/* Matches List Table */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+              <div>
+                <h4 className="font-display font-bold text-base text-slate-900 uppercase">
+                  ACTIVE CRICKET MATCHES DIRECTORY ({cricketMatches.length})
+                </h4>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">
+                  Live scores, innings status, team details and tournament affiliations.
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-slate-700 text-xs">
+                <thead>
+                  <tr className="bg-slate-100 text-slate-500 border-b border-slate-200 font-mono text-[10px] uppercase text-left">
+                    <th className="py-3 px-3">Tournament</th>
+                    <th className="py-3 px-3">Home Contender</th>
+                    <th className="py-3 px-3">Home Score</th>
+                    <th className="py-3 px-3">Away Score</th>
+                    <th className="py-3 px-3">Away Contender</th>
+                    <th className="py-3 px-3">Status</th>
+                    <th className="py-3 px-3">Match Time</th>
+                    <th className="py-3 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {cricketMatches.map((m, idx) => (
+                    <tr key={`${m.home}-${m.away}-${idx}`} className="hover:bg-slate-50 transition">
+                      <td className="py-3 px-3 font-mono font-bold text-slate-900">
+                        <div className="flex items-center space-x-1.5">
+                          {m.competition_logo && (
+                            <img src={m.competition_logo} alt="" className="w-4 h-4 object-contain rounded-xs" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                          )}
+                          <span className="truncate max-w-[140px]">{m.competition}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 font-bold text-slate-900">
+                        <div className="flex items-center space-x-1.5">
+                          {m.home_logo ? (
+                            <img src={m.home_logo} alt="" className="w-5 h-5 object-contain rounded-full bg-slate-100 p-0.5" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                          ) : (
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-bold flex items-center justify-center font-mono">
+                              {m.home.slice(0, 2).toUpperCase()}
+                            </span>
+                          )}
+                          <span className="truncate max-w-[120px]">{m.home}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 font-mono font-bold text-emerald-700 bg-emerald-50/60 rounded">
+                        {m.home_score || '—'}
+                      </td>
+                      <td className="py-3 px-3 font-mono font-bold text-emerald-700 bg-emerald-50/60 rounded">
+                        {m.away_score || '—'}
+                      </td>
+                      <td className="py-3 px-3 font-bold text-slate-900">
+                        <div className="flex items-center space-x-1.5">
+                          {m.away_logo ? (
+                            <img src={m.away_logo} alt="" className="w-5 h-5 object-contain rounded-full bg-slate-100 p-0.5" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                          ) : (
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-bold flex items-center justify-center font-mono">
+                              {m.away.slice(0, 2).toUpperCase()}
+                            </span>
+                          )}
+                          <span className="truncate max-w-[120px]">{m.away}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 font-mono text-[10px]">
+                        {m.status === 'live' ? (
+                          <span className="inline-flex items-center gap-1 bg-red-100 text-red-700 px-2 py-0.5 rounded font-black uppercase">
+                            <span className="h-1.5 w-1.5 rounded-full bg-red-600 animate-pulse"></span>
+                            <span>LIVE</span>
+                          </span>
+                        ) : m.status === 'finished' ? (
+                          <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded uppercase font-semibold">
+                            Final
+                          </span>
+                        ) : (
+                          <span className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded uppercase font-semibold">
+                            Upcoming
+                          </span>
+                        )}
+                        <div className="text-[9px] text-slate-400 mt-0.5 truncate max-w-[110px]">{m.status_text}</div>
+                      </td>
+                      <td className="py-3 px-3 font-mono text-[10px] text-slate-500 whitespace-nowrap">
+                        {new Date(m.time).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                        <div className="text-slate-400">{new Date(m.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                      </td>
+                      <td className="py-3 px-3 text-right whitespace-nowrap">
+                        <div className="flex justify-end items-center space-x-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingCricketMatch({ index: idx, match: { ...m } });
+                              setIsCricketModalOpen(true);
+                            }}
+                            className="p-1 px-2 border border-slate-200 hover:border-slate-800 hover:text-slate-800 text-slate-600 rounded bg-white text-xs cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Remove match ${m.home} vs ${m.away}?`)) {
+                                DB.deleteCricketMatch(idx);
+                                refreshData();
+                              }
+                            }}
+                            className="p-1 px-2 border border-slate-200 hover:border-rose-600 hover:text-rose-600 text-slate-500 rounded bg-white text-xs cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* 1. POSTS COLUMN */}
@@ -4917,6 +5185,230 @@ ON CONFLICT (email) DO UPDATE SET is_approved = TRUE, is_writer = TRUE, role = '
                 )}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* F. CRICKET MATCH EDIT/ADD MODAL */}
+      {isCricketModalOpen && editingCricketMatch && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white border rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 my-8">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div>
+                <span className="bg-[#22c55e] text-slate-950 font-mono text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                  🏏 Cricket Match Node
+                </span>
+                <h3 className="font-display font-black text-xl text-slate-900 uppercase tracking-tight mt-1">
+                  {editingCricketMatch.index >= 0 ? 'Edit Cricket Match & Scores' : 'Add New Cricket Match'}
+                </h3>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => { setIsCricketModalOpen(false); setEditingCricketMatch(null); }} 
+                className="text-slate-400 hover:text-slate-700 font-bold text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const m = editingCricketMatch.match as CricketMatch;
+                if (!m.home || !m.away || !m.competition) {
+                  alert("Please provide Home Team, Away Team, and Tournament Competition.");
+                  return;
+                }
+                if (editingCricketMatch.index >= 0) {
+                  DB.updateCricketMatch(editingCricketMatch.index, m);
+                } else {
+                  DB.addCricketMatch(m);
+                }
+                refreshData();
+                setIsCricketModalOpen(false);
+                setEditingCricketMatch(null);
+              }}
+              className="space-y-4 font-sans text-xs"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Tournament / Competition *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingCricketMatch.match.competition || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, competition: e.target.value }
+                    })}
+                    placeholder="e.g. T20 Asian Games"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#22c55e]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Tournament Logo URL
+                  </label>
+                  <input
+                    type="text"
+                    value={editingCricketMatch.match.competition_logo || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, competition_logo: e.target.value }
+                    })}
+                    placeholder="https://img.thesports.com/..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#22c55e]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <div className="space-y-2">
+                  <label className="block text-xs font-mono font-bold text-slate-800 uppercase">
+                    Home Team *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingCricketMatch.match.home || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, home: e.target.value }
+                    })}
+                    placeholder="e.g. Pakistan"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#22c55e]"
+                  />
+                  <input
+                    type="text"
+                    value={editingCricketMatch.match.home_logo || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, home_logo: e.target.value }
+                    })}
+                    placeholder="Home Team Logo URL"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none text-[11px]"
+                  />
+                  <input
+                    type="text"
+                    value={editingCricketMatch.match.home_score || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, home_score: e.target.value }
+                    })}
+                    placeholder="Home Score (e.g. 192/6)"
+                    className="w-full bg-white border border-emerald-300 font-mono font-bold text-emerald-800 rounded-lg px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-mono font-bold text-slate-800 uppercase">
+                    Away Team *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editingCricketMatch.match.away || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, away: e.target.value }
+                    })}
+                    placeholder="e.g. India"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#22c55e]"
+                  />
+                  <input
+                    type="text"
+                    value={editingCricketMatch.match.away_logo || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, away_logo: e.target.value }
+                    })}
+                    placeholder="Away Team Logo URL"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none text-[11px]"
+                  />
+                  <input
+                    type="text"
+                    value={editingCricketMatch.match.away_score || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, away_score: e.target.value }
+                    })}
+                    placeholder="Away Score (e.g. 211/6)"
+                    className="w-full bg-white border border-emerald-300 font-mono font-bold text-emerald-800 rounded-lg px-3 py-2 text-xs focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Match Status
+                  </label>
+                  <select
+                    value={editingCricketMatch.match.status || 'upcoming'}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, status: e.target.value }
+                    })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#22c55e]"
+                  >
+                    <option value="live">Live Now 🔴</option>
+                    <option value="finished">Finished / Result</option>
+                    <option value="upcoming">Upcoming / Scheduled</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Status Notes / Innings
+                  </label>
+                  <input
+                    type="text"
+                    value={editingCricketMatch.match.status_text || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, status_text: e.target.value }
+                    })}
+                    placeholder="e.g. 1st innings (home) / Won by 4 wkts"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#22c55e]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
+                    Match Date &amp; Time
+                  </label>
+                  <input
+                    type="text"
+                    value={editingCricketMatch.match.time || ''}
+                    onChange={(e) => setEditingCricketMatch({
+                      ...editingCricketMatch,
+                      match: { ...editingCricketMatch.match, time: e.target.value }
+                    })}
+                    placeholder="2026-10-03T08:30:00+00:00"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#22c55e] font-mono text-[11px]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t">
+                <button
+                  type="button"
+                  onClick={() => { setIsCricketModalOpen(false); setEditingCricketMatch(null); }}
+                  className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 font-mono font-bold text-xs uppercase hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#022c22] hover:bg-[#22c55e] hover:text-[#022c22] text-[#22c55e] border border-emerald-900 font-mono font-black text-xs uppercase shadow-md transition cursor-pointer"
+                >
+                  Save Cricket Match
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

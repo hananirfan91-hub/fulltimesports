@@ -1,4 +1,5 @@
-import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber, SubscriberInboxMessage, LiveStreamItem, HeroConfig, FanPoll, DailyQuiz, QuizQuestion, QuizSubmission, QuizAnswerChoice, MonthlyLeaderboard, MonthlyLeaderboardWinner, MonthlyUserAggregation, Player } from '../types';
+import { Post, Category, AdminUser, MediaItem, RankingItem, FixtureItem, TicketMessage, Subscriber, SubscriberInboxMessage, LiveStreamItem, HeroConfig, FanPoll, DailyQuiz, QuizQuestion, QuizSubmission, QuizAnswerChoice, MonthlyLeaderboard, MonthlyLeaderboardWinner, MonthlyUserAggregation, Player, CricketMatch, CricketApiResponse } from '../types';
+import { INITIAL_CRICKET_MATCHES } from '../data/cricketMatchesData';
 import { supabase } from './supabase';
 import { normalizeSlug } from './slugUtils';
 import { ensureFullSeoGeoAeo } from './seoGenerator';
@@ -58,6 +59,8 @@ const STORAGE_KEYS = {
   QUIZ_SUBMISSIONS: 'fts_quiz_submissions',
   MONTHLY_LEADERBOARDS: 'fts_monthly_leaderboards',
   PLAYERS: 'fts_players',
+  CRICKET_MATCHES: 'fts_cricket_matches',
+  CRICKET_API_RAW: 'fts_cricket_api_raw',
 };
 
 // Seed Categories
@@ -2143,6 +2146,83 @@ export class DB {
     } catch (e) {
       console.warn("Supabase deleteFixture exception:", e);
     }
+  }
+
+  // CRICKET MATCHES (Real-Time API & Manual Feed)
+  static getCricketMatches(): CricketMatch[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.CRICKET_MATCHES);
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn("Error reading cricket matches from localStorage:", e);
+    }
+    return INITIAL_CRICKET_MATCHES;
+  }
+
+  static saveCricketMatches(matches: CricketMatch[]): void {
+    try {
+      localStorage.setItem(STORAGE_KEYS.CRICKET_MATCHES, JSON.stringify(matches));
+      const rawApi: CricketApiResponse = {
+        sport: 'cricket',
+        count: matches.length,
+        matches: matches
+      };
+      localStorage.setItem(STORAGE_KEYS.CRICKET_API_RAW, JSON.stringify(rawApi));
+      window.dispatchEvent(new CustomEvent('fts_db_sync'));
+    } catch (e) {
+      console.warn("Error saving cricket matches:", e);
+    }
+  }
+
+  static saveCricketApiResponse(response: CricketApiResponse): void {
+    try {
+      if (response && Array.isArray(response.matches)) {
+        localStorage.setItem(STORAGE_KEYS.CRICKET_MATCHES, JSON.stringify(response.matches));
+        localStorage.setItem(STORAGE_KEYS.CRICKET_API_RAW, JSON.stringify(response));
+        window.dispatchEvent(new CustomEvent('fts_db_sync'));
+      }
+    } catch (e) {
+      console.warn("Error saving cricket API response:", e);
+    }
+  }
+
+  static getCricketApiRaw(): CricketApiResponse {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.CRICKET_API_RAW);
+      if (raw) {
+        return JSON.parse(raw);
+      }
+    } catch (e) {
+      console.warn("Error reading raw cricket API:", e);
+    }
+    return {
+      sport: 'cricket',
+      count: INITIAL_CRICKET_MATCHES.length,
+      matches: INITIAL_CRICKET_MATCHES
+    };
+  }
+
+  static updateCricketMatch(index: number, updated: CricketMatch): void {
+    const list = [...this.getCricketMatches()];
+    if (index >= 0 && index < list.length) {
+      list[index] = updated;
+      this.saveCricketMatches(list);
+    }
+  }
+
+  static addCricketMatch(match: CricketMatch): void {
+    const list = [match, ...this.getCricketMatches()];
+    this.saveCricketMatches(list);
+  }
+
+  static deleteCricketMatch(index: number): void {
+    const list = this.getCricketMatches().filter((_, i) => i !== index);
+    this.saveCricketMatches(list);
   }
 
   // ADMINS & WRITERS MANAGEMENT

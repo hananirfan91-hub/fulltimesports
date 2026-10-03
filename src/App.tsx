@@ -7,7 +7,6 @@ import { ChatBot } from './components/ChatBot';
 import { DB } from './lib/db';
 import DailyQuizModal from './components/DailyQuizModal';
 import LeaderboardModal from './components/LeaderboardModal';
-import AppSplashScreen from './components/AppSplashScreen';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 // Lazy load non-homepage route chunks to optimize initial JS payload and eliminate unused JS on mobile FCP/LCP
@@ -287,9 +286,6 @@ export default function App() {
           setIsQuizModalOpen(true);
         }}
       />
-
-      {/* PWA Mobile App Starting Screen & Splash Transition */}
-      <AppSplashScreen />
 
       {/* PWA Web App Install Prompt & Floating Banner */}
       <PWAInstallPrompt />

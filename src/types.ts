@@ -87,6 +87,27 @@ export interface FixtureItem {
   stage?: string; // e.g. 'Group Stage', 'Grand Finale', 'British GP'
 }
 
+export interface CricketMatch {
+  home: string;
+  away: string;
+  home_logo?: string;
+  away_logo?: string;
+  home_score?: string | null;
+  away_score?: string | null;
+  status: 'live' | 'finished' | 'upcoming' | string;
+  status_text?: string;
+  time: string;
+  competition: string;
+  competition_logo?: string;
+  url?: string;
+}
+
+export interface CricketApiResponse {
+  sport: string;
+  count: number;
+  matches: CricketMatch[];
+}
+
 export interface Comment {
   id: string;
   post_id: string;
