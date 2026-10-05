@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import compression from "compression";
 import { createServer as createViteServer } from "vite";
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
@@ -8,6 +9,9 @@ dotenv.config();
 
 const app = express();
 const PORT = 3000;
+
+// High-Performance Gzip/Brotli Compression for all textual and JSON responses
+app.use(compression());
 
 app.use(express.json());
 
@@ -1347,8 +1351,20 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", ftsBroadcastNode: "active" });
 });
 
-// SportScore Cricket Matches Proxy Endpoint with Live Detail Enrichment
+// In-Memory Fast Cache for Cricket Matches to prevent duplicate external HTTP loops & improve API response time
+let matchesCache: { data: any; timestamp: number } | null = null;
+const MATCHES_CACHE_TTL_MS = 25000; // 25 seconds server cache
+
+// SportScore Cricket Matches Proxy Endpoint with Live Detail Enrichment & In-Memory Cache
 app.get("/api/cricket/matches", async (req, res) => {
+  const now = Date.now();
+  if (matchesCache && (now - matchesCache.timestamp < MATCHES_CACHE_TTL_MS)) {
+    res.setHeader("Cache-Control", "public, s-maxage=30, stale-while-revalidate=60");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("X-Cache-Status", "HIT");
+    return res.json(matchesCache.data);
+  }
+
   try {
     const limit = req.query.limit ? Number(req.query.limit) : 50;
     const apiUrl = `https://sportscore.com/api/widget/matches/?sport=cricket&limit=${limit}`;
@@ -1360,6 +1376,10 @@ app.get("/api/cricket/matches", async (req, res) => {
     });
 
     if (!response.ok) {
+      if (matchesCache) {
+        // Return stale cache if external endpoint has transient failure
+        return res.json(matchesCache.data);
+      }
       throw new Error(`SportScore API returned status ${response.status}`);
     }
 
@@ -1380,7 +1400,7 @@ app.get("/api/cricket/matches", async (req, res) => {
                   "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
                   "Accept": "application/json"
                 },
-                signal: AbortSignal.timeout(3000)
+                signal: AbortSignal.timeout(2000)
               });
               if (detailRes.ok) {
                 const detailData = await detailRes.json();
@@ -1408,13 +1428,19 @@ app.get("/api/cricket/matches", async (req, res) => {
           return m;
         })
       );
+
+      matchesCache = { data, timestamp: Date.now() };
     }
 
     res.setHeader("Cache-Control", "public, s-maxage=30, stale-while-revalidate=60");
     res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("X-Cache-Status", "MISS");
     return res.json(data);
   } catch (error: any) {
     console.error("[Cricket API] Error fetching matches from SportScore:", error);
+    if (matchesCache) {
+      return res.json(matchesCache.data);
+    }
     return res.status(502).json({
       error: "Cricket matches are temporarily unavailable.",
       message: error?.message || "Failed to fetch from SportScore",
@@ -1433,10 +1459,21 @@ async function configureApp() {
     });
     app.use(vite.middlewares);
   } else {
-    console.log("[FTS] Configuring Express static directory assets serving...");
+    console.log("[FTS] Configuring Express static directory assets serving with caching...");
     const distPath = path.join(process.cwd(), "dist");
     const fs = await import("fs");
-    app.use(express.static(distPath, { index: false }));
+    app.use(express.static(distPath, { 
+      index: false,
+      maxAge: "7d",
+      setHeaders: (res, filePath) => {
+        if (filePath.includes("/assets/")) {
+          // Hashed Vite assets can be cached for 1 year
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        } else if (/\.(jpg|jpeg|png|webp|avif|svg|ico)$/i.test(filePath)) {
+          res.setHeader("Cache-Control", "public, max-age=86400");
+        }
+      }
+    }));
     app.get("*", async (req, res) => {
       const host = req.get("host") || "thesportsroom.online";
       const indexPath = path.join(distPath, "index.html");
@@ -1444,6 +1481,7 @@ async function configureApp() {
         const rawHtml = fs.readFileSync(indexPath, "utf8");
         const renderedHtml = await renderSSRPage(req.url, rawHtml, host);
         res.setHeader("Content-Type", "text/html");
+        res.setHeader("Cache-Control", "public, max-age=60, s-maxage=120");
         res.send(renderedHtml);
       } else {
         res.status(404).send("Application build index missing");

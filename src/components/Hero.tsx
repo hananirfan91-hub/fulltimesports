@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
 import { Tv, Newspaper, BarChart3, Radio, Play, ArrowRight, Flame, Sparkles, ShieldCheck, Building2, HelpCircle, Info, Globe } from 'lucide-react';
 import { Post, HeroConfig } from '../types';
 import { DB } from '../lib/db';
@@ -42,6 +41,7 @@ const sortPostsByGeo = (postsList: Post[], geoCode?: string): Post[] => {
 export default function Hero({ onNavigate, activeGeo }: HeroProps) {
   const [heroConfig, setHeroConfig] = useState<HeroConfig>(() => DB.getHeroConfig());
   const [rawPosts, setRawPosts] = useState<Post[]>(() => DB.getPosts());
+  const [shouldLoadIframe, setShouldLoadIframe] = useState(false);
 
   useEffect(() => {
     const handleSync = () => {
@@ -56,6 +56,24 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
     };
   }, []);
 
+  // Defer heavy background YouTube iframe to idle time so initial FCP/LCP are immediate
+  useEffect(() => {
+    if (!heroConfig.backgroundVideoUrl) return;
+    
+    let timer: NodeJS.Timeout;
+    if ('requestIdleCallback' in window) {
+      const handle = (window as any).requestIdleCallback(() => {
+        setShouldLoadIframe(true);
+      }, { timeout: 3000 });
+      return () => (window as any).cancelIdleCallback(handle);
+    } else {
+      timer = setTimeout(() => {
+        setShouldLoadIframe(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [heroConfig.backgroundVideoUrl]);
+
   const allPosts = sortPostsByGeo(rawPosts, activeGeo);
 
   if (heroConfig.enabled === false) {
@@ -69,7 +87,7 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
 
   // Determine Background Media
   const videoUrl = heroConfig.backgroundVideoUrl || featuredArticle?.video_url || '';
-  const imageUrl = heroConfig.backgroundImageUrl || featuredArticle?.featured_image || 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1600&q=80';
+  const imageUrl = heroConfig.backgroundImageUrl || featuredArticle?.featured_image || 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&auto=format&fit=crop&q=75';
 
   // Video embed helper
   const youtubeId = videoUrl ? getYouTubeId(videoUrl, '') : '';
@@ -78,16 +96,17 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
   const trendingPosts = allPosts.filter(p => p.is_trending).slice(0, 3);
 
   return (
-    <header className="relative w-full overflow-hidden bg-[#01140f] text-white border-b border-emerald-950" id="hero-header-section">
-      {/* Background Media Container */}
+    <header className="relative w-full overflow-hidden bg-[#01140f] text-white border-b border-emerald-950 min-h-[480px] sm:min-h-[520px]" id="hero-header-section">
+      {/* Background Media Container with Instant LCP Poster & Deferred Heavy Iframe */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {youtubeId ? (
+        {youtubeId && shouldLoadIframe ? (
           <div className="relative w-full h-full pointer-events-none overflow-hidden">
             <iframe
               src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&enablejsapi=1`}
               className="absolute top-1/2 left-1/2 w-[300%] h-[300%] -translate-x-1/2 -translate-y-1/2 object-cover scale-125 opacity-40 filter contrast-110 brightness-90"
               allow="autoplay; encrypted-media; picture-in-picture"
               title="Hero Background Media"
+              loading="lazy"
             />
           </div>
         ) : isDirectMp4 ? (
@@ -108,8 +127,8 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
             loading="eager"
             decoding="async"
             fetchPriority="high"
-            width={1600}
-            height={900}
+            width={1200}
+            height={675}
           />
         )}
 
@@ -130,12 +149,7 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
           <div className="md:col-span-7 lg:col-span-8 space-y-5 sm:space-y-6">
             
             {/* Live Status Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="inline-flex items-center space-x-2 bg-[#022c22]/90 border border-[#22c55e]/40 rounded-full px-3.5 py-1.5 backdrop-blur-md shadow-lg"
-            >
+            <div className="inline-flex items-center space-x-2 bg-[#022c22]/90 border border-[#22c55e]/40 rounded-full px-3.5 py-1.5 backdrop-blur-md shadow-lg">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22c55e] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#22c55e]"></span>
@@ -143,40 +157,29 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
               <span className="font-mono font-bold text-[11px] uppercase tracking-wider text-[#22c55e]">
                 {heroConfig.liveBadgeText || "🔴 LIVE MATCH STREAMS • DAILY NEWS • TACTICAL METRICS"}
               </span>
-            </motion.div>
+            </div>
 
             {/* Headline */}
-            <motion.h1 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+            <h1 
               className="font-display font-black text-2xl sm:text-4xl lg:text-5xl xl:text-6xl text-white tracking-tight leading-[1.1] uppercase"
               id="hero-main-heading"
             >
               {heroConfig.heading}
-            </motion.h1>
+            </h1>
 
             {/* Subtitle */}
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+            <p 
               className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed max-w-3xl font-sans"
               id="hero-main-subtitle"
             >
               {heroConfig.subtitle}
-            </motion.p>
+            </p>
 
             {/* Call To Action Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2 w-full"
-            >
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2 w-full">
               <button
                 onClick={() => onNavigate('/live-streams')}
-                className="w-full sm:w-auto justify-center bg-[#22c55e] hover:bg-[#4ade80] text-[#022c22] font-mono font-black text-xs sm:text-sm uppercase tracking-wider px-5 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 shadow-xl shadow-emerald-950/40 cursor-pointer"
+                className="w-full sm:w-auto justify-center bg-[#22c55e] hover:bg-[#4ade80] text-[#022c22] font-mono font-black text-xs sm:text-sm uppercase tracking-wider px-5 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 shadow-xl shadow-emerald-950/40 cursor-pointer active:scale-98"
                 id="hero-watch-live-btn"
               >
                 <Radio className="h-4 w-4 animate-pulse text-[#022c22]" />
@@ -185,7 +188,7 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
 
               <button
                 onClick={() => onNavigate('/what-is-the-sports-room')}
-                className="w-full sm:w-auto justify-center bg-[#022c22]/90 hover:bg-[#022c22] text-white border border-[#22c55e]/40 hover:border-[#22c55e] font-mono font-bold text-xs sm:text-sm uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 backdrop-blur-md cursor-pointer"
+                className="w-full sm:w-auto justify-center bg-[#022c22]/90 hover:bg-[#022c22] text-white border border-[#22c55e]/40 hover:border-[#22c55e] font-mono font-bold text-xs sm:text-sm uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 backdrop-blur-md cursor-pointer active:scale-98"
                 id="hero-what-is-tsr-btn"
               >
                 <Building2 className="h-4 w-4 text-[#22c55e]" />
@@ -195,7 +198,7 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
               {featuredArticle && (
                 <button
                   onClick={() => onNavigate(`/blog/${featuredArticle.slug}`)}
-                  className="w-full sm:w-auto justify-center bg-[#01140f]/90 hover:bg-[#01140f] text-slate-300 hover:text-white border border-emerald-900/80 hover:border-[#22c55e]/50 font-mono font-bold text-xs uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-1.5 backdrop-blur-md cursor-pointer"
+                  className="w-full sm:w-auto justify-center bg-[#01140f]/90 hover:bg-[#01140f] text-slate-300 hover:text-white border border-emerald-900/80 hover:border-[#22c55e]/50 font-mono font-bold text-xs uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-1.5 backdrop-blur-md cursor-pointer active:scale-98"
                   id="hero-read-featured-btn"
                 >
                   <Newspaper className="h-4 w-4 text-[#22c55e]" />
@@ -203,14 +206,13 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                   <ArrowRight className="h-3.5 w-3.5 text-[#22c55e]" />
                 </button>
               )}
-            </motion.div>
+            </div>
 
             {/* Service Cards / Feature Highlights Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-4 border-t border-emerald-900/40">
-              <motion.div 
-                whileHover={{ y: -2 }}
+              <div 
                 onClick={() => onNavigate('/what-is-the-sports-room')}
-                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 transition group"
+                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 hover:-translate-y-0.5 transition-all duration-200 group"
               >
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="p-1.5 rounded-lg bg-[#22c55e]/20 text-[#22c55e]">
@@ -223,12 +225,11 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                 <p className="text-[11px] text-slate-300 leading-snug">
                   Platform identity, Co-Founders Hanan Irfan &amp; Urwah Farooq &amp; AI search facts.
                 </p>
-              </motion.div>
+              </div>
 
-              <motion.div 
-                whileHover={{ y: -2 }}
+              <div 
                 onClick={() => onNavigate('/why-choose-us')}
-                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 transition group"
+                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 hover:-translate-y-0.5 transition-all duration-200 group"
               >
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="p-1.5 rounded-lg bg-[#22c55e]/20 text-[#22c55e]">
@@ -241,12 +242,11 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                 <p className="text-[11px] text-slate-300 leading-snug">
                   10 key reasons for independent journalism &amp; verified metrics.
                 </p>
-              </motion.div>
+              </div>
 
-              <motion.div 
-                whileHover={{ y: -2 }}
+              <div 
                 onClick={() => onNavigate('/live-streams')}
-                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 transition group"
+                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 hover:-translate-y-0.5 transition-all duration-200 group"
               >
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="p-1.5 rounded-lg bg-[#22c55e]/20 text-[#22c55e]">
@@ -259,12 +259,11 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                 <p className="text-[11px] text-slate-300 leading-snug">
                   Cricket, Football, &amp; F1 embedded feeds with live commentary.
                 </p>
-              </motion.div>
+              </div>
 
-              <motion.div 
-                whileHover={{ y: -2 }}
+              <div 
                 onClick={() => onNavigate('/topic/tactical-breakdowns')}
-                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 transition group"
+                className="bg-[#022c22]/60 border border-emerald-900/50 p-3.5 rounded-2xl backdrop-blur-md cursor-pointer hover:border-[#22c55e]/50 hover:-translate-y-0.5 transition-all duration-200 group"
               >
                 <div className="flex items-center space-x-2 mb-1">
                   <div className="p-1.5 rounded-lg bg-[#22c55e]/20 text-[#22c55e]">
@@ -277,16 +276,13 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                 <p className="text-[11px] text-slate-300 leading-snug">
                   Biomechanics, heatmaps, player metrics, and F1 telemetry.
                 </p>
-              </motion.div>
+              </div>
             </div>
           </div>
 
           {/* RIGHT SIDE: TRENDING EDITORIAL SPOTLIGHT CARD */}
           <div className="md:col-span-5 lg:col-span-4 flex flex-col justify-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+            <div 
               className="bg-[#022c22]/95 border border-[#22c55e]/40 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4"
               id="hero-editorial-spotlight-card"
             >
@@ -316,6 +312,10 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                         <img 
                           src={post.featured_image} 
                           alt={post.title} 
+                          width={56}
+                          height={56}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                           referrerPolicy="no-referrer"
                         />
@@ -396,7 +396,7 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
                 </div>
               </div>
 
-            </motion.div>
+            </div>
           </div>
 
         </div>

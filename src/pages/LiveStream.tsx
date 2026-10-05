@@ -722,6 +722,7 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerPolicy="no-referrer-when-downgrade"
                         allowFullScreen
+                        loading="lazy"
                       ></iframe>
                     </div>
 

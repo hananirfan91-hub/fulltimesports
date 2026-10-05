@@ -9,6 +9,7 @@ import { DB } from '../lib/db';
 import { getYouTubeId } from '../lib/videoUtils';
 import { SEO_KEYWORDS_REGISTRY } from '../lib/seoKeywords';
 import AdSensePlaceholder from '../components/AdSensePlaceholder';
+import YouTubeEmbed from '../components/YouTubeEmbed';
 import { injectInternalLinks } from '../lib/internalLinkEngine';
 import { getSmartRelatedArticles, getBidirectionalReferences } from '../lib/relatedArticlesEngine';
 import { detectEntitiesInText } from '../lib/entityRegistry';
@@ -382,7 +383,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
         const url = imgMatch[2];
         nodes.push(
           <div key={`img-${index}`} className="my-6 rounded-2xl overflow-hidden border border-slate-200 bg-white p-2 shadow-sm">
-            <img src={url} alt={alt} referrerPolicy="no-referrer" className="w-full max-h-[450px] object-cover rounded-xl" />
+            <img src={url} alt={alt} referrerPolicy="no-referrer" loading="lazy" decoding="async" className="w-full max-h-[450px] object-cover rounded-xl" />
             {alt && <p className="text-center text-xs text-slate-400 font-mono mt-2 uppercase tracking-wide">▲ {alt}</p>}
           </div>
         );
@@ -392,16 +393,10 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
       // Handle custom block inline video parsed at any position
       const ytMatch = trimmed.match(/^@\[youtube\]\((.*?)\)/) || trimmed.match(/^\[video\]\((.*?)\)/);
       if (ytMatch) {
-        const ytId = getYouTubeId(ytMatch[1]);
         nodes.push(
           <div key={`video-${index}`} className="bg-slate-900 p-3 rounded-2xl border border-slate-800 my-6 shadow-lg">
             <div className="aspect-video rounded-xl overflow-hidden">
-              <iframe 
-                src={`https://www.youtube.com/embed/${ytId}?mute=1&controls=1`}
-                title="Video Player"
-                className="w-full h-full object-cover"
-                allowFullScreen
-              />
+              <YouTubeEmbed urlOrId={ytMatch[1]} title="Video Player" />
             </div>
           </div>
         );
@@ -745,12 +740,7 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
                 TSR TV • Editorial Video Review Segment
               </h4>
               <div className="aspect-video bg-slate-900 rounded-xl overflow-hidden border border-emerald-950">
-                <iframe 
-                  src={`https://www.youtube.com/embed/${getYouTubeId(post.video_url)}?mute=1&controls=1&modestbranding=1`}
-                  title="Video review block"
-                  className="w-full h-full object-cover"
-                  allowFullScreen
-                />
+                <YouTubeEmbed urlOrId={post.video_url} title="Video review block" />
               </div>
             </div>
           )}

@@ -154,6 +154,11 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
   }, [isMatchLive, isMatchFinished]);
 
   // Real-time Fetch from /api/cricket/matches with fallback to direct SportScore endpoint
+  const matchesCountRef = useRef(0);
+  useEffect(() => {
+    matchesCountRef.current = matches.length;
+  }, [matches.length]);
+
   const fetchMatches = useCallback(async (isManualRefresh = false) => {
     if (isManualRefresh) {
       setIsRefreshing(true);
@@ -189,15 +194,6 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
       }
 
       if (data && Array.isArray(data.matches)) {
-        // Debugging logs for live match score structure verification
-        if (process.env.NODE_ENV !== 'production') {
-          console.log("SportScore cricket matches:", data.matches);
-          const liveMatches = data.matches.filter((m: CricketMatch) => isMatchLive(m));
-          liveMatches.forEach((m: CricketMatch) => {
-            console.log("Live cricket match:", m);
-          });
-        }
-
         setMatches(data.matches);
         setLastUpdated(data.updated || new Date().toISOString());
         setError(null);
@@ -206,14 +202,14 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
       }
     } catch (err: any) {
       console.error('[Cricket Match Center] Error fetching live cricket matches:', err);
-      if (matches.length === 0) {
+      if (matchesCountRef.current === 0) {
         setError('Cricket matches are temporarily unavailable.');
       }
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [matches.length, isMatchLive]);
+  }, []);
 
   // Initial load and 60-second automatic polling interval
   useEffect(() => {
@@ -228,19 +224,29 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
     };
   }, [fetchMatches]);
 
-  // Check scroll position to manage arrows & active index
+  // Check scroll position with requestAnimationFrame to eliminate forced reflows and excess renders
+  const isCheckingRef = React.useRef(false);
   const checkScrollPosition = useCallback(() => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
+    if (isCheckingRef.current) return;
+    isCheckingRef.current = true;
 
-    const { scrollLeft, scrollWidth, clientWidth } = el;
-    setCanScrollLeft(scrollLeft > 10);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    requestAnimationFrame(() => {
+      isCheckingRef.current = false;
+      const el = scrollContainerRef.current;
+      if (!el) return;
 
-    const cardWidth = 320;
-    const idx = Math.round(scrollLeft / cardWidth);
-    setCurrentIndex(Math.max(0, Math.min(idx, matches.length - 1)));
-  }, [matches.length]);
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      const newCanScrollLeft = scrollLeft > 10;
+      const newCanScrollRight = scrollLeft < scrollWidth - clientWidth - 10;
+      const cardWidth = 320;
+      const totalMatches = matchesCountRef.current || 1;
+      const idx = Math.max(0, Math.min(Math.round(scrollLeft / cardWidth), totalMatches - 1));
+
+      setCanScrollLeft(prev => prev !== newCanScrollLeft ? newCanScrollLeft : prev);
+      setCanScrollRight(prev => prev !== newCanScrollRight ? newCanScrollRight : prev);
+      setCurrentIndex(prev => prev !== idx ? idx : prev);
+    });
+  }, []);
 
   useEffect(() => {
     const el = scrollContainerRef.current;
@@ -593,6 +599,10 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                           <img 
                             src={match.competition_logo} 
                             alt={match.competition || "Tournament"}
+                            width={16}
+                            height={16}
+                            loading="lazy"
+                            decoding="async"
                             className="w-4 h-4 object-contain shrink-0 rounded-xs"
                             referrerPolicy="no-referrer"
                             onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
@@ -633,6 +643,10 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                             <img 
                               src={match.home_logo} 
                               alt={match.home} 
+                              width={24}
+                              height={24}
+                              loading="lazy"
+                              decoding="async"
                               className="w-6 h-6 object-contain rounded-full bg-slate-900/60 p-0.5 border border-emerald-900 shrink-0"
                               referrerPolicy="no-referrer"
                               onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
@@ -658,6 +672,10 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
                             <img 
                               src={match.away_logo} 
                               alt={match.away} 
+                              width={24}
+                              height={24}
+                              loading="lazy"
+                              decoding="async"
                               className="w-6 h-6 object-contain rounded-full bg-slate-900/60 p-0.5 border border-emerald-900 shrink-0"
                               referrerPolicy="no-referrer"
                               onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}

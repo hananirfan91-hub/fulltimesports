@@ -26,7 +26,8 @@ export default function Logo({
 
   // Determine active size: prop override takes precedence, fallback to admin config, default to 'large'
   const effectiveSize = size || adminConfig.logo_size || 'large';
-  const logoUrl = adminConfig.custom_logo_url || '/logo-preview.png';
+  const rawLogoUrl = adminConfig.custom_logo_url || '/logo-preview.webp';
+  const fallbackLogoUrl = rawLogoUrl.endsWith('.webp') ? rawLogoUrl.replace(/\.webp$/, '.png') : rawLogoUrl;
 
   const iconSizeClasses: Record<string, string> = {
     sm: 'h-8 w-8',
@@ -50,14 +51,19 @@ export default function Logo({
   if (variant === 'icon') {
     return (
       <div className={`inline-flex items-center justify-center rounded-xl bg-white p-1 shadow-md ${className}`} id="tsr-logo-icon">
-        <img
-          src={logoUrl}
-          alt="The Sports Room - TSR Official Sports Lounge Logo"
-          className={`${iconSizeClasses[effectiveSize] || iconSizeClasses.lg} object-contain rounded-lg`}
-          referrerPolicy="no-referrer"
-          loading="eager"
-          decoding="async"
-        />
+        <picture>
+          <source type="image/webp" srcSet={rawLogoUrl.endsWith('.webp') ? rawLogoUrl : rawLogoUrl.replace(/\.png$/, '.webp')} />
+          <img
+            src={fallbackLogoUrl}
+            alt="The Sports Room - TSR Official Sports Lounge Logo"
+            width={48}
+            height={48}
+            className={`${iconSizeClasses[effectiveSize] || iconSizeClasses.lg} object-contain rounded-lg`}
+            referrerPolicy="no-referrer"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
       </div>
     );
   }
@@ -76,20 +82,25 @@ export default function Logo({
         style={{ maxWidth: maxWidthPx + 16, maxHeight: maxHeightPx + 10 }}
         id="tsr-logo-horizontal"
       >
-        <img
-          src={logoUrl}
-          alt="The Sports Room - TSR Official Sports Lounge Logo"
-          className="w-auto h-auto object-contain rounded shrink-0 block"
-          style={{
-            maxHeight: `${maxHeightPx}px`,
-            maxWidth: `${maxWidthPx}px`,
-            height: `${maxHeightPx}px`,
-            width: 'auto',
-          }}
-          referrerPolicy="no-referrer"
-          loading="eager"
-          decoding="async"
-        />
+        <picture>
+          <source type="image/webp" srcSet={rawLogoUrl.endsWith('.webp') ? rawLogoUrl : rawLogoUrl.replace(/\.png$/, '.webp')} />
+          <img
+            src={fallbackLogoUrl}
+            alt="The Sports Room - TSR Official Sports Lounge Logo"
+            width={maxWidthPx}
+            height={maxHeightPx}
+            className="w-auto h-auto object-contain rounded shrink-0 block"
+            style={{
+              maxHeight: `${maxHeightPx}px`,
+              maxWidth: `${maxWidthPx}px`,
+              height: `${maxHeightPx}px`,
+              width: 'auto',
+            }}
+            referrerPolicy="no-referrer"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
       </div>
     );
   }
@@ -99,15 +110,20 @@ export default function Logo({
   return (
     <div className={`flex flex-col items-center justify-center text-center ${className}`} id="tsr-logo-full">
       <div className="rounded-2xl bg-white p-3 shadow-xl border border-slate-200/20 transition-transform duration-300 hover:scale-[1.02]">
-        <img
-          src={logoUrl}
-          alt="The Sports Room - TSR Official Sports Lounge Brand Logo"
-          className={`${fullSizeClasses[effectiveSize] || fullSizeClasses.lg} object-contain rounded-xl`}
-          style={{ maxHeight: `${fullMaxHeight}px`, width: 'auto' }}
-          referrerPolicy="no-referrer"
-          loading="eager"
-          decoding="async"
-        />
+        <picture>
+          <source type="image/webp" srcSet={rawLogoUrl.endsWith('.webp') ? rawLogoUrl : rawLogoUrl.replace(/\.png$/, '.webp')} />
+          <img
+            src={fallbackLogoUrl}
+            alt="The Sports Room - TSR Official Sports Lounge Brand Logo"
+            width={200}
+            height={fullMaxHeight}
+            className={`${fullSizeClasses[effectiveSize] || fullSizeClasses.lg} object-contain rounded-xl`}
+            style={{ maxHeight: `${fullMaxHeight}px`, width: 'auto' }}
+            referrerPolicy="no-referrer"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
       </div>
     </div>
   );
