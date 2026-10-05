@@ -122,8 +122,8 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
         <div className="absolute inset-0 bg-[radial-gradient(#22c55e15_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
       </div>
 
-      {/* Hero Body Content Grid */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 md:py-20" id="hero-main-container">
+      {/* Hero Body Content Grid (Full 100vw Width) */}
+      <section className="relative z-10 w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-10 sm:py-14 md:py-20" id="hero-main-container">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* LEFT SIDE: MAIN HERO EDITORIAL TITLE & BUTTONS */}
@@ -172,11 +172,11 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-wrap items-center gap-3 pt-2"
+              className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2 w-full"
             >
               <button
                 onClick={() => onNavigate('/live-streams')}
-                className="bg-[#22c55e] hover:bg-[#4ade80] text-[#022c22] font-mono font-black text-xs sm:text-sm uppercase tracking-wider px-5 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 shadow-xl shadow-emerald-950/40 cursor-pointer"
+                className="w-full sm:w-auto justify-center bg-[#22c55e] hover:bg-[#4ade80] text-[#022c22] font-mono font-black text-xs sm:text-sm uppercase tracking-wider px-5 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 shadow-xl shadow-emerald-950/40 cursor-pointer"
                 id="hero-watch-live-btn"
               >
                 <Radio className="h-4 w-4 animate-pulse text-[#022c22]" />
@@ -185,7 +185,7 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
 
               <button
                 onClick={() => onNavigate('/what-is-the-sports-room')}
-                className="bg-[#022c22]/90 hover:bg-[#022c22] text-white border border-[#22c55e]/40 hover:border-[#22c55e] font-mono font-bold text-xs sm:text-sm uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 backdrop-blur-md cursor-pointer"
+                className="w-full sm:w-auto justify-center bg-[#022c22]/90 hover:bg-[#022c22] text-white border border-[#22c55e]/40 hover:border-[#22c55e] font-mono font-bold text-xs sm:text-sm uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-2 backdrop-blur-md cursor-pointer"
                 id="hero-what-is-tsr-btn"
               >
                 <Building2 className="h-4 w-4 text-[#22c55e]" />
@@ -195,7 +195,7 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
               {featuredArticle && (
                 <button
                   onClick={() => onNavigate(`/blog/${featuredArticle.slug}`)}
-                  className="bg-[#01140f]/90 hover:bg-[#01140f] text-slate-300 hover:text-white border border-emerald-900/80 hover:border-[#22c55e]/50 font-mono font-bold text-xs uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-1.5 backdrop-blur-md cursor-pointer"
+                  className="w-full sm:w-auto justify-center bg-[#01140f]/90 hover:bg-[#01140f] text-slate-300 hover:text-white border border-emerald-900/80 hover:border-[#22c55e]/50 font-mono font-bold text-xs uppercase tracking-wider px-4 py-3 rounded-2xl transition duration-200 flex items-center space-x-1.5 backdrop-blur-md cursor-pointer"
                   id="hero-read-featured-btn"
                 >
                   <Newspaper className="h-4 w-4 text-[#22c55e]" />

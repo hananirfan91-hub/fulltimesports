@@ -85,8 +85,8 @@ export default function Footer({ onNavigate }: FooterProps) {
       </script>
 
       {/* Top Banner: Official Channels & Social Hub */}
-      <div className="border-b border-emerald-950/80 bg-[#000d0a] py-6">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <div className="border-b border-emerald-950/80 bg-[#000d0a] py-6 w-full max-w-[100vw]">
+        <div className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
             <div>
               <span className="text-[11px] font-mono font-bold tracking-widest text-[#22c55e] uppercase flex items-center gap-1.5">
@@ -134,12 +134,12 @@ export default function Footer({ onNavigate }: FooterProps) {
         </div>
       </div>
 
-      {/* Main Grid Links & Info */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
+      {/* Main Grid Links & Info (Full 100vw Width) */}
+      <div className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 py-10 sm:py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
         
         {/* Brand & Editorial Identity Column */}
         <div className="lg:col-span-4 space-y-4">
-          <Logo variant="horizontal" className="mb-2" />
+          <Logo variant="horizontal" size="sm" className="mb-2" />
           <p className="text-xs leading-relaxed text-slate-400">
             The Sports Room is a premier sports journalism platform providing real-time telemetry, in-depth match breakdowns, player insights, and global sports news co-founded by Hanan Irfan &amp; Urwah Farooq.
           </p>
@@ -189,7 +189,7 @@ export default function Footer({ onNavigate }: FooterProps) {
             <li>
               <button onClick={() => onNavigate('/')} className="text-slate-400 hover:text-[#22c55e] transition flex items-center space-x-1.5 group">
                 <ChevronRight className="w-3 h-3 text-emerald-800 group-hover:text-[#22c55e] transition shrink-0" />
-                <span>Home Page</span>
+                <span>Home</span>
               </button>
             </li>
             <li>
@@ -274,8 +274,8 @@ export default function Footer({ onNavigate }: FooterProps) {
       </div>
 
       {/* Legal & Copyright bottom bar */}
-      <div className="bg-[#000a08] py-5 text-xs border-t border-emerald-950">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center text-slate-400 gap-4">
+      <div className="bg-[#000a08] py-5 text-xs border-t border-emerald-950 w-full max-w-[100vw]">
+        <div className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 flex flex-col md:flex-row justify-between items-center text-slate-400 gap-4">
           <p className="font-mono text-xs text-slate-400 text-center md:text-left">
             © 2026 The Sports Room. All rights reserved. Co-founded by Hanan Irfan &amp; Urwah Farooq.
           </p>

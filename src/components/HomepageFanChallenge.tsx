@@ -29,7 +29,7 @@ export default function HomepageFanChallenge({ onOpenQuiz, onOpenLeaderboard }: 
   }, []);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-6 my-10" id="homepage-quiz-leaderboard-banner">
+    <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 my-10" id="homepage-quiz-leaderboard-banner">
       <div className="bg-gradient-to-r from-[#022c22] via-[#01140f] to-[#022c22] border-2 border-[#22c55e]/40 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
         {/* Glowing Background Accent */}
         <div className="absolute -top-24 -right-24 w-72 h-72 bg-[#22c55e]/10 rounded-full blur-3xl pointer-events-none"></div>

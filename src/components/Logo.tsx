@@ -62,14 +62,30 @@ export default function Logo({
     );
   }
 
-  // 2. Horizontal layout: renders prominent white background logo card seamlessly
+  // 2. Horizontal layout: renders sleek, compact white background logo card seamlessly
   if (variant === 'horizontal') {
+    const isSm = size === 'sm';
+    const isLg = size === 'lg';
+
+    const maxHeightPx = isSm ? 28 : isLg ? 42 : 34;
+    const maxWidthPx = isSm ? 120 : isLg ? 190 : 150;
+
     return (
-      <div className={`inline-flex items-center rounded-xl bg-white px-2.5 py-1 shadow-md transition-transform duration-300 hover:scale-[1.02] cursor-pointer select-none group ${className}`} id="tsr-logo-horizontal">
+      <div 
+        className={`inline-flex items-center justify-center rounded-lg bg-white px-2 py-0.5 shadow-sm border border-slate-200/50 transition-transform duration-200 hover:scale-[1.02] cursor-pointer select-none shrink-0 overflow-hidden ${className}`} 
+        style={{ maxWidth: maxWidthPx + 16, maxHeight: maxHeightPx + 10 }}
+        id="tsr-logo-horizontal"
+      >
         <img
           src={logoUrl}
           alt="The Sports Room - TSR Official Sports Lounge Logo"
-          className="h-9 sm:h-11 md:h-12 w-auto max-w-[220px] sm:max-w-[280px] object-contain rounded-lg"
+          className="w-auto h-auto object-contain rounded shrink-0 block"
+          style={{
+            maxHeight: `${maxHeightPx}px`,
+            maxWidth: `${maxWidthPx}px`,
+            height: `${maxHeightPx}px`,
+            width: 'auto',
+          }}
           referrerPolicy="no-referrer"
           loading="eager"
           decoding="async"
@@ -79,6 +95,7 @@ export default function Logo({
   }
 
   // 3. Full layout: Center-aligned display brand logo with white card
+  const fullMaxHeight = effectiveSize === 'sm' ? 48 : effectiveSize === 'md' ? 80 : effectiveSize === 'lg' ? 112 : 160;
   return (
     <div className={`flex flex-col items-center justify-center text-center ${className}`} id="tsr-logo-full">
       <div className="rounded-2xl bg-white p-3 shadow-xl border border-slate-200/20 transition-transform duration-300 hover:scale-[1.02]">
@@ -86,6 +103,7 @@ export default function Logo({
           src={logoUrl}
           alt="The Sports Room - TSR Official Sports Lounge Brand Logo"
           className={`${fullSizeClasses[effectiveSize] || fullSizeClasses.lg} object-contain rounded-xl`}
+          style={{ maxHeight: `${fullMaxHeight}px`, width: 'auto' }}
           referrerPolicy="no-referrer"
           loading="eager"
           decoding="async"

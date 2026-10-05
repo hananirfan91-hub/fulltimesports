@@ -1339,10 +1339,6 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
 
   result = result.replace("</head>", `${metaTagsHtml}\n</head>`);
 
-  if (preRenderedBody) {
-    result = result.replace('<div id="root">', `<div id="root">${preRenderedBody}`);
-  }
-
   return result;
 }
 

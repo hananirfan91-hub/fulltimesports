@@ -110,7 +110,7 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
 
       {/* 3. THE SPORTS ROOM SPOTLIGHT SECTION */}
       {spotlightPost && (
-        <section className="max-w-7xl mx-auto px-4 md:px-6" id="home-spotlight-section">
+        <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16" id="home-spotlight-section">
           <div className="bg-gradient-to-br from-[#022c22] via-[#011c15] to-[#01140f] border-2 border-[#22c55e]/40 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
             
             {/* Background Ambient Glow */}
@@ -166,10 +166,10 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
                   {spotlightPost.subheading || spotlightPost.meta_description || spotlightPost.geo_summary || spotlightPost.content.replace(/[#*`|_~]/g, '').slice(0, 220) + '...'}
                 </p>
 
-                <div className="pt-2 flex flex-wrap items-center gap-3">
+                <div className="pt-2 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
                   <button
                     onClick={() => onNavigate(`/blog/${spotlightPost.slug}`)}
-                    className="px-6 py-3 bg-[#22c55e] hover:bg-[#16a34a] text-[#022c22] font-mono font-black text-xs uppercase tracking-wider rounded-xl transition duration-200 shadow-lg cursor-pointer flex items-center space-x-2 border border-[#22c55e]"
+                    className="w-full sm:w-auto justify-center px-6 py-3 bg-[#22c55e] hover:bg-[#16a34a] text-[#022c22] font-mono font-black text-xs uppercase tracking-wider rounded-xl transition duration-200 shadow-lg cursor-pointer flex items-center space-x-2 border border-[#22c55e]"
                   >
                     <span>Read Full Story</span>
                     <ArrowRight className="h-4 w-4" />
@@ -177,7 +177,7 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
 
                   <button
                     onClick={() => onNavigate(`/sport/${spotlightPost.category}`)}
-                    className="px-4 py-3 bg-slate-900/80 hover:bg-slate-800 text-slate-300 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer border border-slate-700/80"
+                    className="w-full sm:w-auto justify-center px-4 py-3 bg-slate-900/80 hover:bg-slate-800 text-slate-300 font-mono font-bold text-xs uppercase tracking-wider rounded-xl transition cursor-pointer border border-slate-700/80"
                   >
                     More {spotlightPost.category} Coverage
                   </button>
@@ -190,29 +190,29 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
       )}
 
       {/* EDITORIAL POLICY BANNER CARD */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className="bg-[#f0fdf4] border border-[#22c55e]/40 rounded-2xl p-6 md:p-8 text-[#022c22] shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+      <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+        <div className="bg-[#f0fdf4] border border-[#22c55e]/40 rounded-2xl p-4 sm:p-6 md:p-8 text-[#022c22] shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
           <div className="space-y-2 max-w-3xl">
             <div className="flex items-center space-x-2">
               <Sparkles className="h-4 w-4 text-[#16a34a]" />
-              <h3 className="font-mono font-black text-sm uppercase tracking-wider text-[#022c22]">
+              <h3 className="font-mono font-black text-xs sm:text-sm uppercase tracking-wider text-[#022c22]">
                 EDITORIAL POLICY &amp; GENERAL DATA COUPLERS
               </h3>
             </div>
             <p className="text-xs text-slate-700 leading-relaxed font-sans">
               The Sports Room carries manual reporting indices across high-density markets in the ICC, UEFA, Formula 1, and NBA. Our coverage features structured schema markup representing detailed sport databases. We guarantee complete exemption from scraping loops and artificial slop.
             </p>
-            <div className="flex flex-wrap items-center gap-4 pt-1 font-mono text-[10px] font-bold text-[#16a34a] uppercase">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 pt-1 font-mono text-[9px] sm:text-[10px] font-bold text-[#16a34a] uppercase">
               <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" /> VERIFIED EDITORIAL PLATFORM</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span>NO SCRAPING FEEDS</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span>HUMAN EDITORIAL ANALYSIS</span>
             </div>
           </div>
-          <div className="shrink-0 space-y-2 text-right w-full md:w-auto">
+          <div className="shrink-0 space-y-2 text-left md:text-right w-full md:w-auto">
             <span className="block text-[9px] font-mono text-slate-500 uppercase tracking-widest">PORTAL VERIFICATION &amp; TICKETS</span>
-            <div className="flex flex-col sm:flex-row md:flex-col gap-2">
+            <div className="flex flex-col sm:flex-row md:flex-col gap-2 w-full">
               <button 
                 onClick={() => onNavigate('/what-is-the-sports-room')}
                 className="w-full px-4 py-2 bg-[#022c22] hover:bg-[#01140f] text-white font-mono font-bold text-xs uppercase rounded-lg tracking-wider transition shadow-md cursor-pointer border border-emerald-900 flex items-center justify-center gap-1.5"
@@ -239,26 +239,26 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
       </section>
 
       {/* 3. SPORTS CATEGORIES NAVIGATION GRID */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between mb-6">
+      <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-4 sm:mb-6">
           <div className="flex items-center space-x-2">
             <Compass className="h-5 w-5 text-[#22c55e]" />
-            <h2 className="text-xl font-bold text-white tracking-wide uppercase font-mono">Explore Sports Categories</h2>
+            <h2 className="text-lg sm:text-xl font-bold text-white tracking-wide uppercase font-mono">Explore Sports Categories</h2>
           </div>
-          <span className="text-xs text-slate-400 font-mono">Select a sport to filter coverage</span>
+          <span className="text-[11px] sm:text-xs text-slate-400 font-mono">Select a sport to filter coverage</span>
         </div>
 
-        <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
+        <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3 md:gap-4">
           {categoriesList.map((cat) => (
             <button
               key={cat.slug}
               onClick={() => onNavigate(`/sport/${cat.slug}`)}
-              className="flex flex-col items-center group cursor-pointer p-3 bg-[#022c22] hover:bg-emerald-950/80 border border-[#22c55e]/20 hover:border-[#22c55e] rounded-2xl transition duration-200 shadow-md"
+              className="flex flex-col items-center justify-center group cursor-pointer p-2 sm:p-3 bg-[#022c22] hover:bg-emerald-950/80 border border-[#22c55e]/20 hover:border-[#22c55e] rounded-xl sm:rounded-2xl transition duration-200 shadow-md text-center"
             >
-              <div className="text-2xl sm:text-3xl mb-1.5 group-hover:scale-110 transition duration-200">
+              <div className="text-xl sm:text-2xl md:text-3xl mb-1 group-hover:scale-110 transition duration-200">
                 {cat.icon}
               </div>
-              <span className="text-xs font-bold font-mono text-slate-200 group-hover:text-[#22c55e] transition">
+              <span className="text-[10px] sm:text-xs font-bold font-mono text-slate-200 group-hover:text-[#22c55e] transition truncate max-w-full">
                 {cat.name}
               </span>
             </button>
@@ -267,12 +267,77 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
       </section>
 
       {/* AdSense Top Banner Placement */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <div className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         <AdSensePlaceholder slot="home-top-leaderboard" format="horizontal" />
       </div>
 
-      {/* 4. TRENDING NEWS SECTION */}
-      <section id="trending-news" className="max-w-7xl mx-auto px-4 md:px-6 pt-2">
+      {/* 4. LATEST ARTICLES / EDITORIALS & COLUMNS SECTION */}
+      <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 pt-2">
+        <div className="flex items-center justify-between mb-6 border-b border-[#22c55e]/20 pb-3">
+          <div className="flex items-center space-x-2">
+            <TrendingUp className="h-5 w-5 text-[#22c55e]" />
+            <h2 className="text-xl font-bold text-white tracking-wide font-mono uppercase">Latest Editorials &amp; Columns</h2>
+          </div>
+          <button 
+            onClick={() => onNavigate('/sport/all')}
+            className="text-xs font-bold text-[#22c55e] hover:underline flex items-center space-x-1 font-mono uppercase"
+          >
+            <span>Explore All</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {latestArticles.map((post) => (
+            <div 
+              key={post.id}
+              onClick={() => onNavigate(`/blog/${post.slug}`)}
+              className="bg-[#022c22] border border-[#22c55e]/20 rounded-2xl overflow-hidden hover:border-[#22c55e] transition duration-300 group cursor-pointer shadow-xl flex flex-col justify-between"
+            >
+              <div>
+                <div className="relative h-44 overflow-hidden bg-[#01140f]">
+                  <img 
+                    src={post.featured_image} 
+                    alt={post.title} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute top-3 left-3 bg-[#22c55e] text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider font-mono">
+                    {post.category}
+                  </div>
+                  <div className="absolute bottom-3 right-3 bg-slate-950/80 text-white text-[10px] px-2 py-0.5 rounded font-mono">
+                    5 min read
+                  </div>
+                </div>
+
+                <div className="p-5 space-y-2">
+                  <h3 className="text-base font-bold text-white group-hover:text-[#22c55e] transition line-clamp-2 leading-snug">
+                    {post.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                    {post.meta_description || post.content.replace(/#+/g, '').slice(0, 120)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="px-5 pb-5 pt-1 text-xs font-bold text-[#22c55e] flex items-center space-x-1 font-mono group-hover:translate-x-1 transition duration-200">
+                <span>Read Column</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* DAILY SPORTS KNOWLEDGE & FAN ENGAGEMENT BANNER (QUIZ & LEADERBOARD) */}
+      <HomepageFanChallenge 
+        onOpenQuiz={onOpenQuiz || (() => onNavigate('/quiz'))} 
+        onOpenLeaderboard={onOpenLeaderboard || (() => onNavigate('/leaderboard'))} 
+      />
+
+      {/* 5. TRENDING NEWS & HEADLINES SECTION */}
+      <section id="trending-news" className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         <div className="flex items-center justify-between mb-6 border-b border-[#22c55e]/20 pb-3">
           <div className="flex items-center space-x-2">
             <Flame className="h-5 w-5 text-[#22c55e]" />
@@ -332,67 +397,9 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
         </div>
       </section>
 
-      {/* DAILY SPORTS KNOWLEDGE & FAN ENGAGEMENT BANNER */}
-      <HomepageFanChallenge 
-        onOpenQuiz={onOpenQuiz || (() => onNavigate('/quiz'))} 
-        onOpenLeaderboard={onOpenLeaderboard || (() => onNavigate('/leaderboard'))} 
-      />
-
-      {/* 5. LATEST ARTICLES / EDITORIALS & COLUMNS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between mb-6 border-b border-[#22c55e]/20 pb-3">
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="h-5 w-5 text-[#22c55e]" />
-            <h2 className="text-xl font-bold text-white tracking-wide font-mono uppercase">Latest Editorials &amp; Columns</h2>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {latestArticles.map((post) => (
-            <div 
-              key={post.id}
-              onClick={() => onNavigate(`/blog/${post.slug}`)}
-              className="bg-[#022c22] border border-[#22c55e]/20 rounded-2xl overflow-hidden hover:border-[#22c55e] transition duration-300 group cursor-pointer shadow-xl flex flex-col justify-between"
-            >
-              <div>
-                <div className="relative h-44 overflow-hidden bg-[#01140f]">
-                  <img 
-                    src={post.featured_image} 
-                    alt={post.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute top-3 left-3 bg-[#22c55e] text-slate-950 text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wider font-mono">
-                    {post.category}
-                  </div>
-                  <div className="absolute bottom-3 right-3 bg-slate-950/80 text-white text-[10px] px-2 py-0.5 rounded font-mono">
-                    5 min read
-                  </div>
-                </div>
-
-                <div className="p-5 space-y-2">
-                  <h3 className="text-base font-bold text-white group-hover:text-[#22c55e] transition line-clamp-2 leading-snug">
-                    {post.title}
-                  </h3>
-
-                  <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                    {post.meta_description || post.content.replace(/#+/g, '').slice(0, 120)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="px-5 pb-5 pt-1 text-xs font-bold text-[#22c55e] flex items-center space-x-1 font-mono group-hover:translate-x-1 transition duration-200">
-                <span>Read Column</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* 6. FEATURED STORY SECTION */}
       {featuredPost && (
-        <section className="max-w-7xl mx-auto px-4 md:px-6">
+        <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
           <div className="bg-[#022c22] text-white border border-[#22c55e]/30 rounded-3xl p-6 md:p-10 shadow-2xl overflow-hidden relative">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7 space-y-4">
@@ -435,7 +442,7 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
       )}
 
       {/* 7. LATEST VIDEOS / MATCH HIGHLIGHTS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6">
+      <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         <div className="flex items-center justify-between mb-6 border-b border-[#22c55e]/20 pb-3">
           <div className="flex items-center space-x-2">
             <Tv className="h-5 w-5 text-[#22c55e]" />
@@ -481,7 +488,7 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
       </section>
 
       {/* 8. TOP OVERVIEW, 40-60 WORD SUMMARY & KEY TAKEAWAYS (AEO/GEO/SEO Core Module) */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6" id="home-top-overview-section">
+      <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16" id="home-top-overview-section">
         <div className="bg-gradient-to-r from-[#022c22] via-[#011c15] to-[#022c22] border border-[#22c55e]/30 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
           
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-900/60 pb-4">
@@ -592,7 +599,7 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
       </section>
 
       {/* 9. AEO (ANSWER ENGINE OPTIMIZATION) DIRECT ANSWERS FAQ MODULE */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6" id="home-aeo-faq-section">
+      <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16" id="home-aeo-faq-section">
         <div className="bg-[#022c22] border border-[#22c55e]/30 rounded-3xl p-6 md:p-10 text-slate-200 space-y-6 shadow-2xl">
           
           <div className="flex items-center space-x-2 border-b border-emerald-900/70 pb-4">
@@ -660,7 +667,7 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
       </section>
 
       {/* 9. KEYWORD-OPTIMIZED BRAND HUB & FACTUAL VERIFICATION WITH CREDIBLE EXTERNAL SOURCES */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 pt-2" id="the-sports-room-hub">
+      <section className="w-full max-w-[100vw] px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 pt-2" id="the-sports-room-hub">
         <div className="bg-[#022c22]/90 border border-[#22c55e]/30 rounded-3xl p-6 md:p-10 text-slate-200 space-y-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
           <div className="space-y-3 border-b border-emerald-900/60 pb-6">
             <div className="inline-flex items-center space-x-2 bg-[#22c55e]/10 border border-[#22c55e]/40 px-3 py-1 rounded-full">

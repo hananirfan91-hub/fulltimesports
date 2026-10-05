@@ -96,29 +96,29 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
         id="top-header-ad-note"
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 text-xs">
-          <div className="flex items-center space-x-2.5 overflow-hidden">
+          <div className="flex items-center space-x-2 overflow-hidden min-w-0">
             <span className="bg-amber-400 text-slate-950 font-mono font-black text-[9px] uppercase px-1.5 py-0.5 rounded tracking-wider shrink-0 shadow-sm">
               Ad Note
             </span>
             <span className="flex h-2 w-2 rounded-full bg-[#22c55e] animate-pulse shrink-0" />
-            <p className="text-slate-200 text-xs truncate group-hover:text-white transition">
+            <p className="text-slate-200 text-[11px] sm:text-xs truncate group-hover:text-white transition">
               <span className="font-bold text-white group-hover:text-[#22c55e] transition">RC 24 Cricket Game is Available for Free</span>
-              <span className="hidden sm:inline text-slate-300"> — Official 870 MB APK with 650+ shots &amp; real 3D stadiums</span>
+              <span className="hidden md:inline text-slate-300"> — Official 870 MB APK with 650+ shots &amp; real 3D stadiums</span>
             </p>
           </div>
-          <div className="flex items-center space-x-1.5 shrink-0 text-[#22c55e] group-hover:text-emerald-300 font-mono font-bold text-[11px]">
-            <span className="hidden md:inline bg-[#22c55e]/15 border border-[#22c55e]/40 text-[#22c55e] px-2 py-0.5 rounded-full text-[10px] mr-1">
+          <div className="flex items-center space-x-1.5 shrink-0 text-[#22c55e] group-hover:text-emerald-300 font-mono font-bold text-[10px] sm:text-[11px]">
+            <span className="hidden lg:inline bg-[#22c55e]/15 border border-[#22c55e]/40 text-[#22c55e] px-2 py-0.5 rounded-full text-[10px] mr-1">
               870 MB APK
             </span>
-            <span className="underline sm:no-underline font-semibold">Download Free APK</span>
+            <span className="underline sm:no-underline font-semibold whitespace-nowrap">Download Free APK</span>
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </div>
         </div>
       </a>
 
       {/* Editorial Utility Top bar */}
-      <div className="bg-[#022c22] text-slate-200 text-xs py-2 px-4 shadow-inner hidden md:block border-b border-emerald-950">
-        <div className="max-w-7xl mx-auto flex justify-between items-center font-mono">
+      <div className="bg-[#022c22] text-slate-200 text-xs py-2 px-4 shadow-inner hidden md:block border-b border-emerald-950 w-full max-w-[100vw]">
+        <div className="w-full max-w-[100vw] px-2 sm:px-4 lg:px-8 flex justify-between items-center font-mono">
           <div className="flex items-center space-x-4">
             <span className="flex items-center text-[#22c55e] font-bold uppercase tracking-wider text-[10px]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#22c55e] mr-2"></span>
@@ -173,15 +173,15 @@ export default function Navbar({ currentPath, onNavigate, activeGeo, onChangeGeo
         </div>
       </div>
 
-      {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
+      {/* Main Navigation Bar (Full 100vw Width) */}
+      <div className="w-full max-w-[100vw] px-3 sm:px-6 lg:px-8 xl:px-12 py-2.5 sm:py-3 flex items-center justify-between gap-3 sm:gap-4">
         {/* Brand Logo */}
         <div 
           onClick={() => onNavigate('/')} 
           className="cursor-pointer flex items-center select-none active:scale-98 transition duration-150 shrink-0"
           id="logo-container"
         >
-          <Logo variant="horizontal" />
+          <Logo variant="horizontal" size="sm" />
         </div>
 
         {/* Central Desktop Nav */}

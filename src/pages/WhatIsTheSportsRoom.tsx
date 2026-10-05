@@ -619,7 +619,7 @@ export default function WhatIsTheSportsRoom({ onNavigate }: WhatIsTheSportsRoomP
                   onClick={() => onNavigate('/')}
                   className="bg-[#22c55e] text-slate-950 font-mono font-bold text-xs px-6 py-3 rounded-xl uppercase tracking-wider hover:bg-[#34d399] transition"
                 >
-                  Go to Home Page
+                  Return to Home
                 </button>
                 <button 
                   onClick={() => onNavigate('/why-choose-us')}

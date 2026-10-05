@@ -310,11 +310,11 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
 
   return (
     <section 
-      className="w-full bg-[#02231b] border-y border-[#22c55e]/25 text-white shadow-xl relative overflow-hidden" 
+      className="w-full w-screen max-w-[100vw] bg-[#02231b] border-y border-[#22c55e]/25 text-white shadow-xl relative overflow-hidden" 
       id="cricket-live-ticker"
     >
-      {/* Top Header with Section Title & Controls */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 pb-2.5">
+      {/* Top Header with Section Title & Controls (Full 100vw Width) */}
+      <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 pt-4 pb-2.5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-emerald-900/60 pb-3">
           
           {/* Section Title & Subtitle + SportScore Attribution */}
@@ -372,15 +372,15 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
           </div>
 
           {/* Right Action Controls: Competition Filter, SportScore Button, Refresh & View Mode */}
-          <div className="flex items-center justify-between sm:justify-end space-x-2">
+          <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto">
             
             {/* Tournament Selector */}
             {competitions.length > 0 && (
-              <div className="relative flex-1 sm:flex-none">
+              <div className="relative flex-1 sm:flex-none min-w-[130px] max-w-[200px] sm:max-w-none">
                 <select
                   value={selectedCompetition}
                   onChange={(e) => setSelectedCompetition(e.target.value)}
-                  className="w-full sm:w-auto bg-[#01140f] border border-emerald-900 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 font-mono focus:outline-none focus:border-[#22c55e] appearance-none pr-7 cursor-pointer"
+                  className="w-full sm:w-auto bg-[#01140f] border border-emerald-900 text-slate-200 text-[11px] sm:text-xs rounded-lg px-2 sm:px-2.5 py-1.5 font-mono focus:outline-none focus:border-[#22c55e] appearance-none pr-6 sm:pr-7 cursor-pointer truncate"
                 >
                   <option value="all">All Tournaments</option>
                   {competitions.map((comp) => (
@@ -391,79 +391,81 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
               </div>
             )}
 
-            {/* View Mode Toggle (Grid vs Ticker) */}
-            {showAllViewToggle && !isLoading && !error && (
-              <button
-                onClick={() => setViewMode(viewMode === 'ticker' ? 'grid' : 'ticker')}
-                className="bg-[#01140f] border border-emerald-900 hover:border-[#22c55e] text-slate-300 hover:text-white p-1.5 rounded-lg transition text-xs flex items-center space-x-1 cursor-pointer"
-                title={viewMode === 'ticker' ? "Switch to Grid View" : "Switch to Ticker View"}
-                aria-label="Toggle Grid / Ticker View"
+            <div className="flex items-center space-x-1.5 shrink-0">
+              {/* View Mode Toggle (Grid vs Ticker) */}
+              {showAllViewToggle && !isLoading && !error && (
+                <button
+                  onClick={() => setViewMode(viewMode === 'ticker' ? 'grid' : 'ticker')}
+                  className="bg-[#01140f] border border-emerald-900 hover:border-[#22c55e] text-slate-300 hover:text-white p-1.5 rounded-lg transition text-xs flex items-center space-x-1 cursor-pointer"
+                  title={viewMode === 'ticker' ? "Switch to Grid View" : "Switch to Ticker View"}
+                  aria-label="Toggle Grid / Ticker View"
+                >
+                  {viewMode === 'ticker' ? <LayoutGrid className="w-4 h-4 text-[#22c55e]" /> : <SlidersHorizontal className="w-4 h-4 text-[#22c55e]" />}
+                </button>
+              )}
+
+              {/* SportScore Exact Attribution Button */}
+              <a 
+                href="https://sportscore.com/" 
+                rel="dofollow" 
+                title="Powered by SportScore" 
+                aria-label="Powered by SportScore" 
+                target="_blank"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '28px',
+                  height: '28px',
+                  background: '#0a1e3d',
+                  color: '#fff',
+                  borderRadius: '50%',
+                  textDecoration: 'none',
+                  font: '700 .78rem system-ui,sans-serif'
+                }}
               >
-                {viewMode === 'ticker' ? <LayoutGrid className="w-4 h-4 text-[#22c55e]" /> : <SlidersHorizontal className="w-4 h-4 text-[#22c55e]" />}
+                SS
+              </a>
+
+              {/* Manual Refresh Button */}
+              <button
+                onClick={() => fetchMatches(true)}
+                disabled={isRefreshing}
+                className={`bg-[#01140f] border border-emerald-900 hover:border-[#22c55e] text-slate-300 hover:text-white p-1.5 rounded-lg transition cursor-pointer ${isRefreshing ? 'animate-spin text-[#22c55e]' : ''}`}
+                title="Refresh Live Scores (Auto-updates every 60s)"
+                aria-label="Refresh Scores"
+              >
+                <RefreshCw className="w-4 h-4" />
               </button>
-            )}
 
-            {/* SportScore Exact Attribution Button */}
-            <a 
-              href="https://sportscore.com/" 
-              rel="dofollow" 
-              title="Powered by SportScore" 
-              aria-label="Powered by SportScore" 
-              target="_blank"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '28px',
-                height: '28px',
-                background: '#0a1e3d',
-                color: '#fff',
-                borderRadius: '50%',
-                textDecoration: 'none',
-                font: '700 .78rem system-ui,sans-serif'
-              }}
-            >
-              SS
-            </a>
-
-            {/* Manual Refresh Button */}
-            <button
-              onClick={() => fetchMatches(true)}
-              disabled={isRefreshing}
-              className={`bg-[#01140f] border border-emerald-900 hover:border-[#22c55e] text-slate-300 hover:text-white p-1.5 rounded-lg transition cursor-pointer ${isRefreshing ? 'animate-spin text-[#22c55e]' : ''}`}
-              title="Refresh Live Scores (Auto-updates every 60s)"
-              aria-label="Refresh Scores"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-
-            {/* Desktop Ticker Navigation Arrows */}
-            {viewMode === 'ticker' && !isLoading && !error && (
-              <div className="hidden sm:flex items-center space-x-1 pl-1">
-                <button
-                  onClick={() => scroll('left')}
-                  disabled={!canScrollLeft}
-                  className={`bg-[#01140f] border border-emerald-900 p-1.5 rounded-lg transition ${canScrollLeft ? 'hover:border-[#22c55e] hover:bg-emerald-950 text-slate-200 cursor-pointer' : 'text-slate-600 opacity-40 cursor-not-allowed'}`}
-                  aria-label="Previous Matches"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => scroll('right')}
-                  disabled={!canScrollRight}
-                  className={`bg-[#01140f] border border-emerald-900 p-1.5 rounded-lg transition ${canScrollRight ? 'hover:border-[#22c55e] hover:bg-emerald-950 text-slate-200 cursor-pointer' : 'text-slate-600 opacity-40 cursor-not-allowed'}`}
-                  aria-label="Next Matches"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
+              {/* Desktop Ticker Navigation Arrows */}
+              {viewMode === 'ticker' && !isLoading && !error && (
+                <div className="hidden sm:flex items-center space-x-1 pl-1">
+                  <button
+                    onClick={() => scroll('left')}
+                    disabled={!canScrollLeft}
+                    className={`bg-[#01140f] border border-emerald-900 p-1.5 rounded-lg transition ${canScrollLeft ? 'hover:border-[#22c55e] hover:bg-emerald-950 text-slate-200 cursor-pointer' : 'text-slate-600 opacity-40 cursor-not-allowed'}`}
+                    aria-label="Previous Matches"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => scroll('right')}
+                    disabled={!canScrollRight}
+                    className={`bg-[#01140f] border border-emerald-900 p-1.5 rounded-lg transition ${canScrollRight ? 'hover:border-[#22c55e] hover:bg-emerald-950 text-slate-200 cursor-pointer' : 'text-slate-600 opacity-40 cursor-not-allowed'}`}
+                    aria-label="Next Matches"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-3.5 relative">
+      {/* Main Content Area (Full 100vw Width) */}
+      <div className="w-full px-3 sm:px-6 lg:px-8 xl:px-10 pb-3.5 relative">
         
         {/* 1. LOADING SKELETON STATE */}
         {isLoading && (
@@ -726,7 +728,7 @@ export default function CricketScoreTicker({ onNavigate, showAllViewToggle = tru
 
         {/* 6. MATCHES DISPLAY (FULL GRID VIEW) */}
         {!isLoading && !error && filteredMatches.length > 0 && viewMode === 'grid' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3.5 pt-1 w-full">
             {filteredMatches.map((match, idx) => {
               const isLive = isMatchLive(match);
               const isFinished = isMatchFinished(match);
