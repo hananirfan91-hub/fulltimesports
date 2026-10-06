@@ -328,8 +328,8 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
         </div>
       </div>
 
-      {/* TOP BROADCAST SECTION (PLAYER DIRECTLY AT TOP WITH 95VW MOBILE COVERAGE) */}
-      <div className="w-[95vw] sm:w-full max-w-7xl mx-auto pt-2 sm:pt-3 pb-3 px-1 sm:px-4 md:px-6">
+      {/* TOP BROADCAST SECTION (FULL CINEMATIC BROADCAST PLAYER) */}
+      <div className="w-full max-w-7xl mx-auto pt-2 sm:pt-3 pb-3 px-2 sm:px-4 md:px-6">
         <div className="space-y-4">
           
           {/* MAIN EMBEDDED PLAYER CONTAINER */}
@@ -540,16 +540,17 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                 </div>
               )}
 
-              {/* PLAYER + CHAT GRID */}
-              <div className={`grid grid-cols-1 ${showLiveChat ? 'lg:grid-cols-12' : 'lg:grid-cols-1'} gap-4`}>
+              {/* PLAYER + CHAT CONTAINER */}
+              <div className="space-y-4">
                 
-                {/* VIDEO PLAYER WINDOW (95VW ON MOBILE) */}
-                <div className={`${showLiveChat ? 'lg:col-span-8' : 'w-full'} space-y-3`}>
+                {/* VIDEO PLAYER WINDOW (FULL WIDTH RESPONSIVE 16:9) */}
+                <div className="w-full max-w-full space-y-3">
                   
-                  {/* PLAYER FRAME WRAPPER */}
+                  {/* PLAYER FRAME WRAPPER (100% WIDTH, 16:9 ASPECT RATIO, OVERFLOW HIDDEN) */}
                   <div 
                     ref={playerContainerRef}
-                    className="relative w-full aspect-video bg-slate-950 border border-slate-800/90 rounded-2xl overflow-hidden shadow-2xl group select-none"
+                    className="relative w-full max-w-full aspect-video bg-slate-950 border border-slate-800/90 rounded-2xl overflow-hidden shadow-2xl group select-none"
+                    style={{ width: '100%', maxWidth: '100%', aspectRatio: '16 / 9', overflow: 'hidden' }}
                   >
                     {/* Spinner Loader while loading */}
                     {loadingPlayer && (
@@ -561,152 +562,8 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                       </div>
                     )}
 
-                    {/* 🛡️ TOP SPORTS ROOM BROADCAST HEADER & CLICK SHIELD */}
-                    <div className="absolute top-0 left-0 right-0 h-11 sm:h-13 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent z-25 pointer-events-auto px-3 sm:px-4 pt-1.5 flex items-center justify-between border-t border-emerald-500/20">
-                      <div className="flex items-center space-x-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#22c55e] animate-ping shrink-0"></span>
-                        <span className="text-[11px] sm:text-xs font-mono font-black uppercase tracking-wider text-[#22c55e] drop-shadow">
-                          THE SPORTS ROOM
-                        </span>
-                        <span className="hidden md:inline text-slate-500">•</span>
-                        <span className="hidden md:inline text-[11px] font-mono text-slate-300 font-medium truncate max-w-sm">
-                          {activeStream.tournament} — {activeStream.match_name}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <span className="bg-emerald-950 text-[#22c55e] border border-emerald-800/80 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider">
-                          LIVE CRICKET
-                        </span>
-                        <span className="text-[10px] font-mono text-slate-400 hidden sm:inline">
-                          1080p 60FPS
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* 🏷️ THE SPORTS ROOM OFFICIAL WATERMARK LOGO OVERLAY (Positioned by Admin with Extra Big Sizes) */}
-                    <div
-                      className={`absolute z-30 pointer-events-none select-none transition-all duration-300 ${
-                        activeStream.logo_position === 'top-left'
-                          ? 'top-12 left-3 sm:top-14 sm:left-4'
-                          : activeStream.logo_position === 'bottom-left'
-                          ? 'bottom-12 left-3 sm:bottom-14 sm:left-4'
-                          : activeStream.logo_position === 'bottom-right'
-                          ? 'bottom-12 right-3 sm:bottom-14 sm:right-4'
-                          : 'top-12 right-3 sm:top-14 sm:right-4'
-                      }`}
-                    >
-                      <div className={`bg-slate-950/95 backdrop-blur-md flex items-center shadow-2xl transition-all duration-200 ${
-                        activeStream.logo_size === 'small'
-                          ? 'border border-emerald-500/40 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl space-x-2'
-                          : activeStream.logo_size === 'medium'
-                          ? 'border border-emerald-500/50 px-3.5 py-1.5 sm:px-4.5 sm:py-2.5 rounded-xl space-x-2.5 shadow-emerald-950/40'
-                          : activeStream.logo_size === 'large'
-                          ? 'border-2 border-emerald-500/70 px-4 py-2 sm:px-5 sm:py-3 rounded-2xl space-x-3 shadow-[0_10px_35px_rgba(0,0,0,0.9)] ring-2 ring-[#22c55e]/25'
-                          : activeStream.logo_size === 'giant'
-                          ? 'border-3 border-[#22c55e] px-5 py-3 sm:px-7 sm:py-4 rounded-3xl space-x-4 shadow-[0_15px_45px_rgba(0,0,0,0.95)] ring-4 ring-[#22c55e]/30 scale-105 sm:scale-115'
-                          : 'border-2 border-[#22c55e] px-4.5 py-2.5 sm:px-6 sm:py-3.5 rounded-2xl space-x-3.5 shadow-[0_12px_40px_rgba(0,0,0,0.9)] ring-2 ring-[#22c55e]/35'
-                      }`}>
-                        {/* Live Green Pulsing Beacon */}
-                        <div className="relative flex items-center justify-center shrink-0">
-                          <span className={`${
-                            activeStream.logo_size === 'small' 
-                              ? 'w-2 h-2' 
-                              : activeStream.logo_size === 'medium' 
-                              ? 'w-2.5 h-2.5' 
-                              : activeStream.logo_size === 'giant'
-                              ? 'w-4 h-4'
-                              : 'w-3.5 h-3.5'
-                          } rounded-full bg-[#22c55e] animate-ping absolute opacity-75`}></span>
-                          <span className={`${
-                            activeStream.logo_size === 'small' 
-                              ? 'w-1.5 h-1.5' 
-                              : activeStream.logo_size === 'medium' 
-                              ? 'w-2 h-2' 
-                              : activeStream.logo_size === 'giant'
-                              ? 'w-3.5 h-3.5'
-                              : 'w-3 h-3'
-                          } rounded-full bg-[#22c55e] relative`}></span>
-                        </div>
-
-                        {activeStream.logo_type === 'custom' && activeStream.custom_logo_url ? (
-                          <img
-                            src={activeStream.custom_logo_url}
-                            alt="The Sports Room"
-                            className={`${
-                              activeStream.logo_size === 'small'
-                                ? 'h-4 sm:h-5 max-w-[120px]'
-                                : activeStream.logo_size === 'medium'
-                                ? 'h-6 sm:h-8 max-w-[170px]'
-                                : activeStream.logo_size === 'large'
-                                ? 'h-8 sm:h-11 max-w-[220px]'
-                                : activeStream.logo_size === 'giant'
-                                ? 'h-11 sm:h-16 max-w-[300px]'
-                                : 'h-9 sm:h-13 max-w-[250px]'
-                            } object-contain drop-shadow`}
-                          />
-                        ) : activeStream.logo_type === 'emblem' ? (
-                          <div className="flex items-center space-x-2">
-                            <Shield className={`${
-                              activeStream.logo_size === 'small'
-                                ? 'h-3.5 w-3.5'
-                                : activeStream.logo_size === 'medium'
-                                ? 'h-5 w-5'
-                                : activeStream.logo_size === 'large'
-                                ? 'h-6 w-6 sm:h-7 sm:w-7'
-                                : activeStream.logo_size === 'giant'
-                                ? 'h-8 w-8 sm:h-10 sm:w-10'
-                                : 'h-7 w-7 sm:h-8 sm:w-8'
-                            } text-[#22c55e] fill-emerald-500/20`} />
-                            <span className={`font-display font-black uppercase tracking-wider text-white ${
-                              activeStream.logo_size === 'small'
-                                ? 'text-[11px]'
-                                : activeStream.logo_size === 'medium'
-                                ? 'text-xs sm:text-sm'
-                                : activeStream.logo_size === 'large'
-                                ? 'text-sm sm:text-base md:text-lg'
-                                : activeStream.logo_size === 'giant'
-                                ? 'text-base sm:text-xl md:text-2xl font-extrabold tracking-widest'
-                                : 'text-sm sm:text-lg md:text-xl font-extrabold'
-                            }`}>
-                              THE SPORTS ROOM
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center space-x-2 sm:space-x-3">
-                            <span className={`font-display font-black uppercase tracking-wider text-white ${
-                              activeStream.logo_size === 'small'
-                                ? 'text-[11px]'
-                                : activeStream.logo_size === 'medium'
-                                ? 'text-xs sm:text-sm'
-                                : activeStream.logo_size === 'large'
-                                ? 'text-sm sm:text-base md:text-lg'
-                                : activeStream.logo_size === 'giant'
-                                ? 'text-base sm:text-xl md:text-2xl font-extrabold tracking-widest'
-                                : 'text-sm sm:text-lg md:text-xl font-extrabold'
-                            }`}>
-                              THE SPORTS ROOM
-                            </span>
-                            <span className={`bg-[#22c55e] text-slate-950 font-mono font-black rounded shadow-md uppercase tracking-wider ${
-                              activeStream.logo_size === 'small'
-                                ? 'text-[9px] px-1.5 py-0.5'
-                                : activeStream.logo_size === 'medium'
-                                ? 'text-[11px] px-2 py-0.5'
-                                : activeStream.logo_size === 'large'
-                                ? 'text-xs sm:text-sm px-2.5 py-1'
-                                : activeStream.logo_size === 'giant'
-                                ? 'text-xs sm:text-base px-3 py-1.5'
-                                : 'text-xs sm:text-sm px-3 py-1'
-                            }`}>
-                              LIVE HD
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* 📺 EMBEDDED IFRAME WITH OPTIMIZED VIEWING */}
-                    <div className="absolute inset-0 overflow-hidden bg-black flex items-center justify-center">
+                    {/* 📺 EMBEDDED IFRAME - FULLY RESPONSIVE 100% X 100% VIEW */}
+                    <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
                       <iframe
                         key={`${activeStream.id}-${mediaMode}-${playerKey}`}
                         src={getPlayableStreamEmbedUrl(
@@ -718,7 +575,8 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                         )}
                         title={mediaMode === 'highlights' ? "Post-Match Highlights Broadcast" : "The Sports Room Live Match Broadcast"}
                         onLoad={() => setLoadingPlayer(false)}
-                        className="absolute inset-0 w-full h-full border-0 pointer-events-auto select-none"
+                        className="w-full h-full block border-0 pointer-events-auto select-none"
+                        style={{ width: '100%', height: '100%', display: 'block', border: 0 }}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerPolicy="no-referrer-when-downgrade"
                         allowFullScreen
@@ -726,56 +584,125 @@ export default function LiveStream({ onNavigate, streamId }: LiveStreamProps) {
                       ></iframe>
                     </div>
 
-                    {/* 🎮 BOTTOM CUSTOM SPORTS ROOM BROADCAST CONTROL BAR & SHIELD */}
-                    <div className="absolute bottom-0 left-0 right-0 h-10 sm:h-12 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent z-25 pointer-events-auto px-3 sm:px-4 pb-1.5 flex items-center justify-between border-b border-emerald-500/20">
-                      <div className="flex items-center space-x-2">
-                        {mediaMode === 'highlights' ? (
-                          <div className="flex items-center space-x-1.5 bg-amber-950/90 border border-amber-600/80 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-amber-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                            <span>HIGHLIGHTS</span>
-                          </div>
-                        ) : activeStream.status === 'active' ? (
-                          <div className="flex items-center space-x-1.5 bg-red-950/80 border border-red-800/80 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-red-400">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                            <span>LIVE</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center space-x-1.5 bg-slate-900 border border-slate-700 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-slate-300">
-                            <span>REPLAY</span>
-                          </div>
-                        )}
-                        <span className="text-[11px] font-mono font-bold text-slate-200 truncate max-w-[140px] sm:max-w-xs">
-                          {activeStream.team_one} vs {activeStream.team_two}
-                        </span>
-                      </div>
+                    {/* 🏷️ THE SPORTS ROOM WATERMARK LOGO OVERLAY (ADMIN CONFIGURABLE) */}
+                    {activeStream.show_logo !== false && (
+                      <div
+                        className={`absolute z-30 pointer-events-none select-none transition-opacity duration-300 ${
+                          activeStream.logo_position === 'top-left'
+                            ? 'top-3 left-3 sm:top-4 sm:left-4'
+                            : activeStream.logo_position === 'bottom-left'
+                            ? 'bottom-3 left-3 sm:bottom-4 sm:left-4'
+                            : activeStream.logo_position === 'bottom-right'
+                            ? 'bottom-3 right-3 sm:bottom-4 sm:right-4'
+                            : 'top-3 right-3 sm:top-4 sm:right-4'
+                        }`}
+                      >
+                        <div className={`bg-slate-950/85 backdrop-blur-sm border border-emerald-500/40 rounded-xl flex items-center shadow-lg transition-all ${
+                          activeStream.logo_size === 'small'
+                            ? 'px-2.5 py-1 space-x-1.5'
+                            : activeStream.logo_size === 'large'
+                            ? 'px-3.5 py-1.5 sm:px-4 sm:py-2 space-x-2'
+                            : activeStream.logo_size === 'giant'
+                            ? 'px-4 py-2 space-x-2.5'
+                            : 'px-3 py-1.5 space-x-2'
+                        }`}>
+                          {/* Pulsing indicator */}
+                          <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse shrink-0"></span>
 
-                      <div className="flex items-center space-x-2">
-                        {(mediaMode === 'highlights' ? (activeStream.highlight_url || activeStream.video_url) : activeStream.video_url) && (
-                          <a
-                            href={mediaMode === 'highlights' ? (activeStream.highlight_url || activeStream.video_url) : activeStream.video_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center space-x-1 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 bg-slate-900/90 border border-emerald-800/60 px-2 py-1 rounded-lg transition"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                            <span>{mediaMode === 'highlights' ? 'YouTube' : 'HD Popout'}</span>
-                          </a>
-                        )}
-                        <button
-                          onClick={handleReloadPlayer}
-                          className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-lg transition"
-                          title="Re-sync Broadcast"
-                        >
-                          <RotateCcw className="h-3.5 w-3.5 text-[#22c55e]" />
-                        </button>
-                        <button
-                          onClick={handleToggleFullscreen}
-                          className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-lg transition"
-                          title="Toggle Fullscreen"
-                        >
-                          {isFullscreen ? <Minimize2 className="h-3.5 w-3.5 text-[#22c55e]" /> : <Maximize2 className="h-3.5 w-3.5 text-[#22c55e]" />}
-                        </button>
+                          {activeStream.custom_logo_url && activeStream.custom_logo_url.trim() ? (
+                            <img
+                              src={activeStream.custom_logo_url}
+                              alt="Logo"
+                              className={`${
+                                activeStream.logo_size === 'small'
+                                  ? 'max-h-5 max-w-[80px]'
+                                  : activeStream.logo_size === 'large'
+                                  ? 'max-h-7 sm:max-h-8 max-w-[130px]'
+                                  : activeStream.logo_size === 'giant'
+                                  ? 'max-h-8 sm:max-h-9 max-w-[150px]'
+                                  : 'max-h-6 sm:max-h-7 max-w-[110px]'
+                              } w-auto h-auto object-contain drop-shadow`}
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="flex items-center space-x-1.5 whitespace-nowrap">
+                              <Shield className={`${
+                                activeStream.logo_size === 'small' ? 'h-3.5 w-3.5' : activeStream.logo_size === 'large' ? 'h-4.5 w-4.5' : 'h-4 w-4'
+                              } text-[#22c55e] fill-emerald-500/20 shrink-0`} />
+                              <span className={`font-display font-bold uppercase tracking-wider text-white ${
+                                activeStream.logo_size === 'small'
+                                  ? 'text-[10px]'
+                                  : activeStream.logo_size === 'large'
+                                  ? 'text-xs sm:text-sm'
+                                  : activeStream.logo_size === 'giant'
+                                  ? 'text-sm'
+                                  : 'text-[11px] sm:text-xs'
+                              }`}>
+                                THE SPORTS ROOM
+                              </span>
+                              <span className={`bg-[#22c55e] text-slate-950 font-mono font-black rounded uppercase shrink-0 ${
+                                activeStream.logo_size === 'small' ? 'text-[8px] px-1 py-0.2' : 'text-[9px] px-1.5 py-0.5'
+                              }`}>
+                                {mediaMode === 'highlights' ? 'HD' : 'LIVE'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
+                    )}
+                  </div>
+
+                  {/* 🎮 BOTTOM SPORTS ROOM BROADCAST STATUS & CONTROL BAR */}
+                  <div className="bg-slate-900/95 border border-slate-800/90 rounded-xl px-3 sm:px-4 py-2 flex items-center justify-between shadow-md">
+                    <div className="flex items-center space-x-2">
+                      {mediaMode === 'highlights' ? (
+                        <div className="flex items-center space-x-1.5 bg-amber-950/90 border border-amber-600/80 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-amber-300">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                          <span>HIGHLIGHTS</span>
+                        </div>
+                      ) : activeStream.status === 'active' ? (
+                        <div className="flex items-center space-x-1.5 bg-red-950/80 border border-red-800/80 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-red-400">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                          <span>LIVE</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-1.5 bg-slate-900 border border-slate-700 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-slate-300">
+                          <span>REPLAY</span>
+                        </div>
+                      )}
+                      <span className="text-[11px] sm:text-xs font-mono font-bold text-slate-200 truncate max-w-[140px] sm:max-w-md">
+                        {activeStream.team_one} vs {activeStream.team_two}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      {(mediaMode === 'highlights' ? (activeStream.highlight_url || activeStream.video_url) : activeStream.video_url) && (
+                        <a
+                          href={mediaMode === 'highlights' ? (activeStream.highlight_url || activeStream.video_url) : activeStream.video_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center space-x-1 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 bg-slate-950/80 border border-emerald-800/60 px-2 py-1 rounded-lg transition"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          <span>{mediaMode === 'highlights' ? 'YouTube' : 'HD Popout'}</span>
+                        </a>
+                      )}
+                      <button
+                        onClick={handleReloadPlayer}
+                        className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-lg transition cursor-pointer"
+                        title="Re-sync Broadcast"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5 text-[#22c55e]" />
+                      </button>
+                      <button
+                        onClick={handleToggleFullscreen}
+                        className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-lg transition cursor-pointer"
+                        title="Toggle Fullscreen"
+                      >
+                        {isFullscreen ? <Minimize2 className="h-3.5 w-3.5 text-[#22c55e]" /> : <Maximize2 className="h-3.5 w-3.5 text-[#22c55e]" />}
+                      </button>
                     </div>
                   </div>
 

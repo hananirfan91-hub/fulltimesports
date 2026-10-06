@@ -122,7 +122,7 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
               {/* Left Column: Featured Image */}
               <div 
                 onClick={() => onNavigate(`/blog/${spotlightPost.slug}`)}
-                className="lg:col-span-5 relative group/img cursor-pointer rounded-2xl overflow-hidden border border-[#22c55e]/30 shadow-xl aspect-[16/10]"
+                className="lg:col-span-5 relative group/img cursor-pointer rounded-2xl overflow-hidden border border-[#22c55e]/30 shadow-xl bg-slate-950/80 flex items-center justify-center aspect-[16/10]"
               >
                 <img 
                   referrerPolicy="no-referrer"
@@ -132,16 +132,16 @@ export default function Home({ onNavigate, activeGeo, onOpenQuiz, onOpenLeaderbo
                   height={375}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-full object-cover group-hover/img:scale-105 transition duration-500"
+                  className="w-full h-full object-contain group-hover/img:scale-102 transition duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none"></div>
                 
-                <div className="absolute top-3 left-3 bg-[#01140f]/90 backdrop-blur-md border border-[#22c55e]/50 text-[#22c55e] text-[10px] font-mono font-black uppercase px-3 py-1 rounded-full shadow-md flex items-center gap-1.5">
+                <div className="absolute top-3 left-3 bg-[#01140f]/90 backdrop-blur-md border border-[#22c55e]/50 text-[#22c55e] text-[10px] font-mono font-black uppercase px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 pointer-events-none">
                   <span className="w-2 h-2 rounded-full bg-[#22c55e] animate-pulse"></span>
                   <span>{spotlightPost.category}</span>
                 </div>
 
-                <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center text-[11px] font-mono text-slate-300">
+                <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center text-[11px] font-mono text-slate-300 pointer-events-none">
                   <span>By {spotlightPost.author}</span>
                   <span>{new Date(spotlightPost.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 </div>

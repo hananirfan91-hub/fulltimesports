@@ -93,7 +93,12 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
   const youtubeId = videoUrl ? getYouTubeId(videoUrl, '') : '';
   const isDirectMp4 = videoUrl ? /\.(mp4|webm|m3u8)(\?.*)?$/i.test(videoUrl) : false;
 
-  const trendingPosts = allPosts.filter(p => p.is_trending).slice(0, 3);
+  const rightSidePosts = (() => {
+    const trending = allPosts.filter(p => p.is_trending && p.id !== featuredArticle?.id);
+    const others = allPosts.filter(p => p.id !== featuredArticle?.id && !trending.some(t => t.id === p.id));
+    const combined = [...trending, ...others];
+    return combined.slice(0, 5);
+  })();
 
   return (
     <header className="relative w-full overflow-hidden bg-[#01140f] text-white border-b border-emerald-950 min-h-[480px] sm:min-h-[520px]" id="hero-header-section">
@@ -283,78 +288,68 @@ export default function Hero({ onNavigate, activeGeo }: HeroProps) {
           {/* RIGHT SIDE: TRENDING EDITORIAL SPOTLIGHT CARD */}
           <div className="md:col-span-5 lg:col-span-4 flex flex-col justify-center">
             <div 
-              className="bg-[#022c22]/95 border border-[#22c55e]/40 rounded-3xl p-5 sm:p-6 shadow-2xl backdrop-blur-xl text-white space-y-4"
+              className="bg-[#022c22]/95 border border-[#22c55e]/40 rounded-3xl p-4 sm:p-5 shadow-2xl backdrop-blur-xl text-white space-y-3"
               id="hero-editorial-spotlight-card"
             >
               {/* Spotlight Header */}
-              <div className="flex items-center justify-between border-b border-[#22c55e]/20 pb-3">
+              <div className="flex items-center justify-between border-b border-[#22c55e]/20 pb-2.5">
                 <div className="flex items-center space-x-2">
-                  <Flame className="h-5 w-5 text-[#22c55e] animate-bounce" />
+                  <Flame className="h-4.5 w-4.5 text-[#22c55e] animate-bounce" />
                   <h2 className="font-mono font-black text-xs uppercase tracking-widest text-[#22c55e]">
                     🔥 TRENDING SPOTLIGHT
                   </h2>
                 </div>
                 <span className="bg-emerald-950/80 text-emerald-400 font-mono text-[9px] font-bold px-2 py-0.5 rounded uppercase border border-emerald-800">
-                  EDITORIAL DESK
+                  TOP 5 EDITORIAL
                 </span>
               </div>
 
-              {/* Featured / Trending Article List */}
-              <div className="space-y-3">
-                {trendingPosts.length > 0 ? (
-                  trendingPosts.map((post, idx) => (
-                    <div 
-                      key={post.id}
-                      onClick={() => onNavigate(`/blog/${post.slug}`)}
-                      className="group cursor-pointer p-2.5 rounded-2xl bg-[#01140f]/60 hover:bg-[#01140f] border border-emerald-900/60 hover:border-[#22c55e]/50 transition flex items-center space-x-3"
-                    >
-                      <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-emerald-950">
-                        <img 
-                          src={post.featured_image} 
-                          alt={post.title} 
-                          width={56}
-                          height={56}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                          referrerPolicy="no-referrer"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[9px] font-mono font-bold uppercase text-[#22c55e] block mb-0.5">
-                          #{idx + 1} {post.category.toUpperCase()}
-                        </span>
-                        <h3 className="font-display font-bold text-xs text-white group-hover:text-[#22c55e] transition truncate">
-                          {post.title}
-                        </h3>
-                        <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
-                          By {post.author}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
+              {/* Minimum 5 Featured / Trending Article List */}
+              <div className="space-y-2">
+                {rightSidePosts.map((post, idx) => (
                   <div 
-                    onClick={() => featuredArticle ? onNavigate(`/blog/${featuredArticle.slug}`) : onNavigate('/sport/cricket')}
-                    className="group cursor-pointer p-3 rounded-2xl bg-[#01140f] border border-[#22c55e]/30 space-y-2"
+                    key={post.id}
+                    onClick={() => onNavigate(`/blog/${post.slug}`)}
+                    className="group cursor-pointer p-2 rounded-xl bg-[#01140f]/70 hover:bg-[#01140f] border border-emerald-900/60 hover:border-[#22c55e]/50 transition-all duration-200 flex items-center space-x-2.5 sm:space-x-3"
                   >
-                    <div className="w-full h-32 rounded-xl overflow-hidden border border-emerald-900">
+                    {/* Responsive 16:9 Image Container */}
+                    <div className="w-16 sm:w-20 aspect-video rounded-lg overflow-hidden shrink-0 border border-emerald-950 bg-slate-950 flex items-center justify-center">
                       <img 
-                        src={featuredArticle?.featured_image || imageUrl} 
-                        alt="Featured" 
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        src={post.featured_image || 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=300&auto=format&fit=crop&q=80'} 
+                        alt={post.image_alt || post.title} 
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300 block"
                         referrerPolicy="no-referrer"
                       />
                     </div>
-                    <h3 className="font-display font-extrabold text-sm text-white group-hover:text-[#22c55e] transition leading-snug">
-                      {featuredArticle?.title || "Explore Live Sports Analysis & Tactical Coverage"}
-                    </h3>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-1.5 mb-0.5">
+                        <span className="text-[9px] font-mono font-bold uppercase text-[#22c55e] truncate">
+                          #{idx + 1} {post.category.toUpperCase()}
+                        </span>
+                        {post.created_at && (
+                          <>
+                            <span className="text-slate-600 text-[8px]">•</span>
+                            <span className="text-[8px] sm:text-[9px] text-slate-400 font-mono truncate">
+                              {new Date(post.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      <h3 className="font-display font-bold text-xs text-white group-hover:text-[#22c55e] transition line-clamp-1 leading-snug">
+                        {post.title}
+                      </h3>
+                      <span className="text-[9px] text-slate-400 font-mono block mt-0.5 truncate">
+                        By {post.author}
+                      </span>
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
 
               {/* Spotlight CTA Button & Footer Links */}
-              <div className="pt-3 border-t border-[#22c55e]/20 space-y-2.5">
+              <div className="pt-2 border-t border-[#22c55e]/20 space-y-2">
                 <div className="flex items-center justify-between font-mono text-[10px] text-slate-400">
                   <span className="flex items-center space-x-1">
                     <ShieldCheck className="h-3.5 w-3.5 text-[#22c55e]" />

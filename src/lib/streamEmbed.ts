@@ -199,8 +199,8 @@ export function validateAndConvertStreamUrl(
       }
 
       const autoPlayParam = autoPlay ? 'autoplay=1' : 'autoplay=0';
-      // Clean standard YouTube embed URL without restrictive API origin/JS flags that trigger YouTube Kids/Restricted mode on mobile devices
-      const embedUrl = `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&playsinline=1&rel=0`;
+      // Clean standard YouTube embed URL with controls hidden, modest branding, and clean responsive playback
+      const embedUrl = `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&playsinline=1&rel=0&controls=0&modestbranding=1&iv_load_policy=3&showinfo=0&disablekb=1`;
       return {
         isValid: true,
         platform: 'youtube',
@@ -300,13 +300,13 @@ export function getPlayableStreamEmbedUrl(
     platform === 'youtube'
   ) {
     // Extract video ID safely
-    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/;
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/;
     const match = trimmed.match(regExp);
     const videoId = match && match[1] ? match[1] : trimmed.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 11);
 
     if (videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
       const autoPlayParam = autoPlay ? 'autoplay=1' : 'autoplay=0';
-      return `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&playsinline=1&rel=0`;
+      return `https://www.youtube.com/embed/${videoId}?${autoPlayParam}&playsinline=1&rel=0&controls=0&modestbranding=1&iv_load_policy=3&showinfo=0&disablekb=1`;
     }
   }
 

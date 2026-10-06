@@ -243,7 +243,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen w-full w-screen max-w-[100vw] overflow-x-hidden bg-[#01140f] text-slate-100 font-sans flex flex-col justify-between" id="applet-frame">
+    <div className="min-h-screen w-full w-screen max-w-[100vw] overflow-x-clip bg-[#01140f] text-slate-100 font-sans flex flex-col justify-between" id="applet-frame">
       {/* Automated dynamic meta and JSON-LD seo generator */}
       <SEOMetaTags currentPath={currentPath} />
 
@@ -256,7 +256,7 @@ export default function App() {
       />
 
       {/* Main viewport frame */}
-      <main className="flex-grow w-full max-w-[100vw] overflow-x-hidden">
+      <main className="flex-grow w-full max-w-[100vw] overflow-x-clip">
         <Suspense fallback={<PageSkeleton />}>
           {renderActiveView()}
         </Suspense>

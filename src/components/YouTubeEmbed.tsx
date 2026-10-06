@@ -24,11 +24,15 @@ export default function YouTubeEmbed({
 
   if (isPlaying) {
     return (
-      <div className={`relative aspect-video w-full overflow-hidden bg-slate-950 ${className}`}>
+      <div 
+        className={`relative w-full max-w-full aspect-video overflow-hidden bg-slate-950 rounded-2xl shadow-xl ${className}`}
+        style={{ width: '100%', maxWidth: '100%', aspectRatio: '16 / 9', overflow: 'hidden' }}
+      >
         <iframe
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=${autoPlayOnClick ? 1 : 0}&mute=0&controls=1&rel=0&playsinline=1`}
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=${autoPlayOnClick ? 1 : 0}&mute=0&controls=0&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&showinfo=0&disablekb=1`}
           title={title}
-          className="absolute inset-0 h-full w-full border-0"
+          className="w-full h-full block border-0"
+          style={{ width: '100%', height: '100%', display: 'block', border: 0 }}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
           loading="lazy"
@@ -40,7 +44,8 @@ export default function YouTubeEmbed({
   return (
     <div
       onClick={() => setIsPlaying(true)}
-      className={`group relative aspect-video w-full cursor-pointer overflow-hidden bg-slate-950 select-none ${className}`}
+      className={`group relative w-full max-w-full aspect-video cursor-pointer overflow-hidden bg-slate-950 rounded-2xl select-none ${className}`}
+      style={{ width: '100%', maxWidth: '100%', aspectRatio: '16 / 9', overflow: 'hidden' }}
       role="button"
       tabIndex={0}
       aria-label={`Play video: ${title}`}
