@@ -520,9 +520,9 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
           }
         }
       ];
-    } else if (currentPath.startsWith('/blog/')) {
+    } else if (currentPath.startsWith('/blog/') || currentPath.startsWith('/article/')) {
       // Detailed article page
-      const articleSlug = currentPath.replace('/blog/', '');
+      const articleSlug = currentPath.replace(/^\/(blog|article)\//, '').replace(/\/$/, '');
       const posts = DB.getPosts();
       const matchedPost = DB.getPostBySlug(articleSlug) || posts.find(p => p.slug === articleSlug || p.id === articleSlug);
       

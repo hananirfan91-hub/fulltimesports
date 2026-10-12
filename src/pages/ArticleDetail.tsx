@@ -79,6 +79,23 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
     let isMounted = true;
 
     const loadPostData = async () => {
+      // Immediately switch canonical link away from homepage to this article's route
+      const cleanSlug = slug.replace(/^\/(blog|article)\//, '').replace(/\/$/, '');
+      const immediateCanonical = `https://thesportsroom.online/blog/${cleanSlug}`;
+      const earlyLinks = document.querySelectorAll('link[rel="canonical"]');
+      let earlyEl: HTMLLinkElement;
+      if (earlyLinks.length > 0) {
+        earlyEl = earlyLinks[0] as HTMLLinkElement;
+        for (let i = 1; i < earlyLinks.length; i++) {
+          earlyLinks[i].remove();
+        }
+      } else {
+        earlyEl = document.createElement('link');
+        earlyEl.setAttribute('rel', 'canonical');
+        document.head.appendChild(earlyEl);
+      }
+      earlyEl.setAttribute('href', immediateCanonical);
+
       setIsLoading(true);
       const activePost = await DB.getPostBySlugAsync(slug);
 

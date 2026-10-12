@@ -1,8 +1,16 @@
 {
+  "functions": {
+    "api/ssr.ts": {
+      "includeFiles": "dist/**"
+    }
+  },
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/news-sitemap.xml", "destination": "/news-sitemap.xml" },
     { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/llms.txt", "destination": "/llms.txt" },
+    { "source": "/api/cricket/matches", "destination": "/api/cricket/matches" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/api/ssr" }
   ]
 }
