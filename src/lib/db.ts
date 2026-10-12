@@ -1911,6 +1911,22 @@ export class DB {
           totalPlayerUrls: playerUrls.length 
         } 
       }));
+
+      // Synchronize with server sitemap endpoints so physical sitemap.xml files are immediately updated
+      try {
+        if (typeof fetch === 'function') {
+          // Notify server of published post URLs
+          publicPosts.slice(0, 10).forEach(p => {
+            fetch('/api/sitemap/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ slug: p.slug, type: 'article' })
+            }).catch(() => {});
+          });
+        }
+      } catch (postSyncErr) {
+        // non-blocking
+      }
     } catch (e) {
       console.warn("Sitemap registry update warning:", e);
     }

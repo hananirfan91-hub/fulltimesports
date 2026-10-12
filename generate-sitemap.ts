@@ -162,9 +162,24 @@ async function generate() {
     <priority>${item.priority}</priority>
   </url>`).join("\n");
 
+  // Load existing URLs from public/sitemap.xml or public/news-sitemap.xml if available so existing URLs are preserved
+  let existingUrlsSnippet = "";
+  try {
+    const existingPath = path.join(process.cwd(), "public", "news-sitemap.xml");
+    if (fs.existsSync(existingPath)) {
+      const existingContent = fs.readFileSync(existingPath, "utf-8");
+      const matchedUrls = existingContent.match(/<url>[\s\S]*?<\/url>/g);
+      if (matchedUrls && matchedUrls.length > 0) {
+        existingUrlsSnippet = matchedUrls.join("\n");
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+
   const sitemapXML = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${xmlItems}
+${existingUrlsSnippet || xmlItems}
 </urlset>`;
 
   const robotsTxt = `User-agent: *

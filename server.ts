@@ -238,13 +238,54 @@ async function getSitemapXML(host: string): Promise<string> {
     });
   }
 
-  const allUrls = [...coreUrls, ...categoryUrls, ...topicUrls, ...playerUrls, ...postUrls];
-  
-  const xmlItems = allUrls.map(item => `  <url>
+  // Preserve all existing entries from public/sitemap.xml while automatically adding any new URLs
+  const sitemapEntries = new Map<string, { loc: string; lastmod?: string; changefreq?: string; priority?: string }>();
+
+  // 1. Seed with existing entries from public/sitemap.xml so existing sitemap content is NEVER lost
+  try {
+    const staticSitemapPath = path.join(process.cwd(), "public", "sitemap.xml");
+    if (fs.existsSync(staticSitemapPath)) {
+      const staticXml = fs.readFileSync(staticSitemapPath, "utf-8");
+      const urlBlocks = staticXml.match(/<url>[\s\S]*?<\/url>/gi) || [];
+      for (const block of urlBlocks) {
+        const locMatch = block.match(/<loc>(.*?)<\/loc>/i);
+        if (locMatch && locMatch[1]) {
+          const rawLoc = locMatch[1].trim();
+          const lastmodMatch = block.match(/<lastmod>(.*?)<\/lastmod>/i);
+          const changefreqMatch = block.match(/<changefreq>(.*?)<\/changefreq>/i);
+          const priorityMatch = block.match(/<priority>(.*?)<\/priority>/i);
+          
+          sitemapEntries.set(rawLoc, {
+            loc: rawLoc,
+            lastmod: lastmodMatch ? lastmodMatch[1].trim() : undefined,
+            changefreq: changefreqMatch ? changefreqMatch[1].trim() : undefined,
+            priority: priorityMatch ? priorityMatch[1].trim() : undefined
+          });
+        }
+      }
+    }
+  } catch (readErr) {
+    console.warn("[Sitemap Builder] Could not read static public/sitemap.xml:", readErr);
+  }
+
+  // 2. Add/merge coreUrls, categoryUrls, topicUrls, playerUrls, postUrls
+  allUrls.forEach(item => {
+    // Standardize URL to current host and primary thesportsroom.online domain
+    const standardLoc = item.loc;
+    const existing = sitemapEntries.get(standardLoc);
+    if (!existing) {
+      sitemapEntries.set(standardLoc, item);
+    } else {
+      // Keep existing data, update lastmod if newer
+      if (item.lastmod && (!existing.lastmod || item.lastmod > existing.lastmod)) {
+        existing.lastmod = item.lastmod;
+      }
+    }
+  });
+
+  const xmlItems = Array.from(sitemapEntries.values()).map(item => `  <url>
     <loc>${item.loc}</loc>
-    ${item.lastmod ? `<lastmod>${item.lastmod}</lastmod>\n    ` : ''}<changefreq>${item.changefreq}</changefreq>
-    <priority>${item.priority}</priority>
-  </url>`).join("\n");
+    ${item.lastmod ? `<lastmod>${item.lastmod}</lastmod>\n    ` : ''}${item.changefreq ? `<changefreq>${item.changefreq}</changefreq>\n    ` : ''}${item.priority ? `<priority>${item.priority}</priority>\n  ` : ''}</url>`).join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -252,12 +293,71 @@ ${xmlItems}
 </urlset>`;
 }
 
+// Helper to append a newly published URL directly to static sitemap files on disk
+function appendUrlToStaticSitemaps(newLoc: string, lastmod?: string, changefreq = "weekly", priority = "0.8") {
+  const filePaths = [
+    path.join(process.cwd(), "public", "sitemap.xml"),
+    path.join(process.cwd(), "sitemap.xml"),
+    path.join(process.cwd(), "public", "news-sitemap.xml"),
+    path.join(process.cwd(), "news-sitemap.xml")
+  ];
+
+  const dateStr = lastmod || new Date().toISOString().split("T")[0];
+  const urlSnippet = `  <url>\n    <loc>${newLoc}</loc>\n    <lastmod>${dateStr}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>\n</urlset>`;
+
+  filePaths.forEach(fp => {
+    try {
+      if (fs.existsSync(fp)) {
+        let content = fs.readFileSync(fp, "utf-8");
+        // Check if URL already exists
+        if (!content.includes(`<loc>${newLoc}</loc>`)) {
+          if (content.includes("</urlset>")) {
+            content = content.replace("</urlset>", urlSnippet);
+            fs.writeFileSync(fp, content, "utf-8");
+          }
+        }
+      }
+    } catch (e) {
+      console.warn(`[Sitemap Auto-Add] Failed to append to ${fp}:`, e);
+    }
+  });
+}
+
+// Endpoint to automatically add any new article or page URL into sitemap files
+app.post("/api/sitemap/add", (req, res) => {
+  try {
+    const { url, slug, type = "article", lastmod, changefreq, priority } = req.body || {};
+    let finalUrl = url;
+    if (!finalUrl && slug) {
+      finalUrl = type === "player" 
+        ? `https://thesportsroom.online/player/${slug}` 
+        : `https://thesportsroom.online/blog/${slug}`;
+    }
+
+    if (!finalUrl) {
+      return res.status(400).json({ error: "Missing url or slug" });
+    }
+
+    appendUrlToStaticSitemaps(
+      finalUrl, 
+      lastmod, 
+      changefreq || (type === "page" ? "monthly" : "weekly"), 
+      priority || (type === "page" ? "0.8" : "0.8")
+    );
+
+    res.json({ success: true, added: finalUrl });
+  } catch (err: any) {
+    console.error("Error in /api/sitemap/add:", err);
+    res.status(500).json({ error: err.message || "Failed to add to sitemap" });
+  }
+});
+
 // Dynamic XML Sitemap Endpoint
 app.get("/sitemap.xml", async (req, res) => {
   try {
     const host = req.get("host") || "thesportsroom.online";
     const xml = await getSitemapXML(host);
-    res.header("Content-Type", "application/xml");
+    res.header("Content-Type", "application/xml; charset=utf-8");
     res.send(xml);
   } catch (err) {
     console.error("Failed to generate XML sitemap:", err);
