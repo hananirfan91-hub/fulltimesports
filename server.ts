@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import compression from "compression";
 import { createServer as createViteServer } from "vite";
 import { createClient } from "@supabase/supabase-js";
@@ -269,6 +270,7 @@ async function getSitemapXML(host: string): Promise<string> {
   }
 
   // 2. Add/merge coreUrls, categoryUrls, topicUrls, playerUrls, postUrls
+  const allUrls = [...coreUrls, ...categoryUrls, ...topicUrls, ...playerUrls, ...postUrls];
   allUrls.forEach(item => {
     // Standardize URL to current host and primary thesportsroom.online domain
     const standardLoc = item.loc;
@@ -578,28 +580,41 @@ LLMs-txt: ${protocol}://${host}/llms.txt
 // Helper for SSR Pre-rendering article & metadata for web crawlers / LLMs
 async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string): Promise<string> {
   const protocol = host.includes("localhost") || host.includes("0.0.0.0") || host.includes("127.0.0.1") ? "http" : "https";
-  const baseUrl = `${protocol}://${host}`;
+  const baseUrl = host.includes("thesportsroom.online") ? "https://thesportsroom.online" : `${protocol}://${host}`;
+  const siteOrigin = "https://thesportsroom.online";
   const cleanPath = reqUrl.split("?")[0];
 
   let title = "The Sports Room | Live Cricket Scores, Real-Time Match Updates & Tournaments";
   let description = "Follow live cricket scores, real-time match updates, upcoming schedules, and complete coverage of international series and major tournaments on The Sports Room.";
   let keywords = "The Sports Room, live cricket scores, real-time match updates, upcoming cricket matches, cricket match schedules";
-  let canonicalUrl = `${baseUrl}${cleanPath === "/" ? "" : cleanPath}`;
-  let ogImage = `${baseUrl}/logo-preview.png`;
+  let canonicalUrl = cleanPath === "/" ? `${siteOrigin}/` : `${siteOrigin}${cleanPath}`;
+  let ogImage = `${siteOrigin}/logo-preview.png`;
   let pageType = "website";
   let jsonLdData: any = null;
   let preRenderedBody = "";
 
   if (cleanPath.startsWith("/blog/") || cleanPath.startsWith("/article/")) {
     const slug = cleanPath.replace("/blog/", "").replace("/article/", "");
+    const decodedSlug = decodeURIComponent(slug).trim();
+    // Default canonical for this article route is page-specific, never homepage
+    canonicalUrl = `${siteOrigin}/blog/${slug}`;
     try {
       const { data: post } = await supabase
         .from("fts_posts")
         .select("*")
-        .eq("slug", slug)
-        .single();
+        .or(`slug.eq.${slug},slug.eq.${decodedSlug}`)
+        .limit(1)
+        .maybeSingle();
 
       if (post) {
+        if (post.canonical_url && typeof post.canonical_url === "string" && post.canonical_url.trim().length > 0) {
+          const rawCanonical = post.canonical_url.trim();
+          canonicalUrl = rawCanonical.startsWith("http://") || rawCanonical.startsWith("https://")
+            ? rawCanonical
+            : `${siteOrigin}${rawCanonical.startsWith("/") ? "" : "/"}${rawCanonical}`;
+        } else {
+          canonicalUrl = `${siteOrigin}/blog/${post.slug || slug}`;
+        }
         title = post.meta_title || `${post.title} | The Sports Room`;
         description = post.meta_description || post.geo_summary || post.subheading || (post.content ? post.content.replace(/[#*`]/g, "").slice(0, 160) : title);
         ogImage = post.featured_image || ogImage;
@@ -706,11 +721,15 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
     } catch (e) {
       console.warn("[SSR Render] Could not fetch post for SSR:", e);
     }
+    // Strict safeguard: ensure an article route never gets the homepage canonical
+    if (canonicalUrl === `${siteOrigin}/` || canonicalUrl === siteOrigin || canonicalUrl === `${baseUrl}/` || canonicalUrl === baseUrl) {
+      canonicalUrl = `${siteOrigin}/blog/${slug}`;
+    }
   } else if (cleanPath === "/players") {
     title = "Sports Player Profiles, Stats & Career Records | The Sports Room";
     description = "Explore sports player profiles, career statistics, teams, achievements, records and latest news from cricket, football, basketball, tennis and F1.";
     keywords = "player profiles, sports player profiles, cricket player profiles, football player profiles, player statistics, sports player statistics, cricket player stats, football player stats, player career records, athlete profiles, sports player database, The Sports Room";
-    canonicalUrl = `${baseUrl}/players`;
+    canonicalUrl = `${siteOrigin}/players`;
     pageType = "website";
 
     try {
@@ -826,7 +845,7 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
     }
   } else if (cleanPath.startsWith("/player/") || cleanPath.startsWith("/players/")) {
     const playerSlug = cleanPath.replace(/^\/players?\//, '').replace(/\/$/, '');
-    canonicalUrl = `${baseUrl}/player/${playerSlug}`;
+    canonicalUrl = `${siteOrigin}/player/${playerSlug}`;
     pageType = "profile";
 
     try {
@@ -1089,7 +1108,7 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
     title = "RC24 APK Download – Latest Version, Features & Guide";
     description = "Download and learn about RC24 APK, including its latest version, features, installation steps, requirements, and important details.";
     keywords = "RC24 APK Download, RC 24 APK, Real Cricket 24 APK, RC24 download, Real Cricket 24 latest version, RC 24 Android download, Real Cricket APK download, RC24 mobile cricket";
-    canonicalUrl = `${baseUrl}/rc24-apk-download`;
+    canonicalUrl = `${siteOrigin}/rc24-apk-download`;
     ogImage = `${baseUrl}/rc24-hero-banner.webp`;
     pageType = "website";
 
@@ -1425,23 +1444,92 @@ async function renderSSRPage(reqUrl: string, htmlTemplate: string, host: string)
   let result = htmlTemplate;
   result = result.replace(/<title>.*?<\/title>/gi, `<title>${title}</title>`);
 
-  const metaTagsHtml = `
-    <meta name="description" content="${description.replace(/"/g, '&quot;')}" />
-    <meta name="keywords" content="${keywords.replace(/"/g, '&quot;')}" />
-    <link rel="canonical" href="${canonicalUrl}" />
-    <meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />
-    <meta property="og:description" content="${description.replace(/"/g, '&quot;')}" />
-    <meta property="og:url" content="${canonicalUrl}" />
-    <meta property="og:image" content="${ogImage}" />
-    <meta property="og:type" content="${pageType}" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
-    <meta name="twitter:description" content="${description.replace(/"/g, '&quot;')}" />
-    <meta name="twitter:image" content="${ogImage}" />
-    ${jsonLdData ? `<script type="application/ld+json">${JSON.stringify(jsonLdData)}</script>` : ""}
-  `;
+  // Ensure EXACTLY ONE canonical link tag in the entire document head
+  const canonicalTag = `<link rel="canonical" href="${canonicalUrl}" />`;
+  if (/<link\s+rel=["']canonical["'][^>]*>/i.test(result)) {
+    let replacedFirst = false;
+    result = result.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, () => {
+      if (!replacedFirst) {
+        replacedFirst = true;
+        return canonicalTag;
+      }
+      return "";
+    });
+  } else {
+    result = result.replace("</head>", `    ${canonicalTag}\n</head>`);
+  }
 
-  result = result.replace("</head>", `${metaTagsHtml}\n</head>`);
+  // Ensure EXACTLY ONE og:url tag
+  const ogUrlTag = `<meta property="og:url" content="${canonicalUrl}" />`;
+  if (/<meta\s+property=["']og:url["'][^>]*>/i.test(result)) {
+    let replacedFirst = false;
+    result = result.replace(/<meta\s+property=["']og:url["'][^>]*>/gi, () => {
+      if (!replacedFirst) {
+        replacedFirst = true;
+        return ogUrlTag;
+      }
+      return "";
+    });
+  } else {
+    result = result.replace("</head>", `    ${ogUrlTag}\n</head>`);
+  }
+
+  // Update description
+  if (/<meta\s+name=["']description["'][^>]*>/i.test(result)) {
+    result = result.replace(/<meta\s+name=["']description["'][^>]*>/i, `<meta name="description" content="${description.replace(/"/g, '&quot;')}" />`);
+  } else {
+    result = result.replace("</head>", `    <meta name="description" content="${description.replace(/"/g, '&quot;')}" />\n</head>`);
+  }
+
+  // Update keywords
+  if (/<meta\s+name=["']keywords["'][^>]*>/i.test(result)) {
+    result = result.replace(/<meta\s+name=["']keywords["'][^>]*>/i, `<meta name="keywords" content="${keywords.replace(/"/g, '&quot;')}" />`);
+  }
+
+  // Update og:title
+  if (/<meta\s+property=["']og:title["'][^>]*>/i.test(result)) {
+    result = result.replace(/<meta\s+property=["']og:title["'][^>]*>/i, `<meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />`);
+  }
+
+  // Update og:description
+  if (/<meta\s+property=["']og:description["'][^>]*>/i.test(result)) {
+    result = result.replace(/<meta\s+property=["']og:description["'][^>]*>/i, `<meta property="og:description" content="${description.replace(/"/g, '&quot;')}" />`);
+  }
+
+  // Update og:image
+  if (/<meta\s+property=["']og:image["'][^>]*>/i.test(result)) {
+    result = result.replace(/<meta\s+property=["']og:image["'][^>]*>/i, `<meta property="og:image" content="${ogImage}" />`);
+  }
+
+  // Update og:type
+  if (/<meta\s+property=["']og:type["'][^>]*>/i.test(result)) {
+    result = result.replace(/<meta\s+property=["']og:type["'][^>]*>/i, `<meta property="og:type" content="${pageType}" />`);
+  }
+
+  // Update twitter:title
+  if (/<meta\s+name=["']twitter:title["'][^>]*>/i.test(result)) {
+    result = result.replace(/<meta\s+name=["']twitter:title["'][^>]*>/i, `<meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />`);
+  }
+
+  // Update twitter:description
+  if (/<meta\s+name=["']twitter:description["'][^>]*>/i.test(result)) {
+    result = result.replace(/<meta\s+name=["']twitter:description["'][^>]*>/i, `<meta name="twitter:description" content="${description.replace(/"/g, '&quot;')}" />`);
+  }
+
+  // Update twitter:image
+  if (/<meta\s+name=["']twitter:image["'][^>]*>/i.test(result)) {
+    result = result.replace(/<meta\s+name=["']twitter:image["'][^>]*>/i, `<meta name="twitter:image" content="${ogImage}" />`);
+  }
+
+  // Append structured JSON-LD schema
+  if (jsonLdData) {
+    result = result.replace("</head>", `    <script type="application/ld+json">${JSON.stringify(jsonLdData)}</script>\n</head>`);
+  }
+
+  // Insert pre-rendered body if available for non-JS search engines/crawlers
+  if (preRenderedBody && result.includes('<div id="root"></div>')) {
+    result = result.replace('<div id="root"></div>', `<div id="root">${preRenderedBody}</div>`);
+  }
 
   return result;
 }
@@ -1555,9 +1643,29 @@ async function configureApp() {
     console.log("[FTS] Mounting Vite dynamic middleware for active dev reload...");
     const vite = await createViteServer({
       server: { middlewareMode: true },
-      appType: "spa"
+      appType: "custom"
     });
     app.use(vite.middlewares);
+
+    app.get("*", async (req, res, next) => {
+      const url = req.originalUrl;
+      // Let static assets / non-HTML requests pass through
+      if (url.includes(".") && !url.endsWith(".html")) {
+        return next();
+      }
+      try {
+        const host = req.get("host") || "thesportsroom.online";
+        const indexPath = path.join(process.cwd(), "index.html");
+        let template = fs.readFileSync(indexPath, "utf8");
+        template = await vite.transformIndexHtml(url, template);
+        const renderedHtml = await renderSSRPage(url, template, host);
+        res.setHeader("Content-Type", "text/html");
+        res.status(200).send(renderedHtml);
+      } catch (e) {
+        vite.ssrFixStacktrace(e as Error);
+        next(e);
+      }
+    });
   } else {
     console.log("[FTS] Configuring Express static directory assets serving with caching...");
     const distPath = path.join(process.cwd(), "dist");

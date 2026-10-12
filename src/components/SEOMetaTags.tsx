@@ -148,7 +148,7 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
 
     // Ensure relative path holds exact leading slash consistency and avoids trailing duplicates
     const cleanPath = currentPath.startsWith('/') ? currentPath : `/${currentPath}`;
-    const canonicalUrl = `${origin}${cleanPath === '/' ? '' : cleanPath}`;
+    let canonicalUrl = `${origin}${cleanPath === '/' ? '' : cleanPath}`;
     
     let title = "The Sports Room | Live Cricket Scores, Real-Time Match Updates & Tournaments";
     let description = "Follow live cricket scores, real-time match updates, upcoming schedules, and complete coverage of international series and major tournaments on The Sports Room.";
@@ -524,10 +524,18 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       // Detailed article page
       const articleSlug = currentPath.replace('/blog/', '');
       const posts = DB.getPosts();
-      const matchedPost = posts.find(p => p.slug === articleSlug);
+      const matchedPost = DB.getPostBySlug(articleSlug) || posts.find(p => p.slug === articleSlug || p.id === articleSlug);
       
       if (matchedPost) {
-        const customCanonical = matchedPost.canonical_url || canonicalUrl;
+        if (matchedPost.canonical_url && typeof matchedPost.canonical_url === 'string' && matchedPost.canonical_url.trim().length > 0) {
+          const raw = matchedPost.canonical_url.trim();
+          canonicalUrl = raw.startsWith('http://') || raw.startsWith('https://')
+            ? raw
+            : `${origin}${raw.startsWith('/') ? '' : '/'}${raw}`;
+        } else {
+          canonicalUrl = `${origin}/blog/${matchedPost.slug || articleSlug}`;
+        }
+        const customCanonical = canonicalUrl;
         title = matchedPost.meta_title ? matchedPost.meta_title : `${matchedPost.title} | ${matchedPost.category.toUpperCase()} News - The Sports Room`;
         description = matchedPost.meta_description || matchedPost.content.replace(/[#*`]/g, '').slice(0, 160) + "...";
         
@@ -620,6 +628,44 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
             }))
           });
         }
+      } else {
+        // Fallback for article while loading: strictly article-specific, never homepage
+        canonicalUrl = `${origin}/blog/${articleSlug}`;
+
+        // Asynchronously load post by slug to update canonical and SEO when fetched
+        DB.getPostBySlugAsync(articleSlug).then(post => {
+          if (post) {
+            const resolvedCanonical = (post.canonical_url && typeof post.canonical_url === 'string' && post.canonical_url.trim().length > 0)
+              ? (post.canonical_url.trim().startsWith('http') ? post.canonical_url.trim() : `${origin}${post.canonical_url.trim().startsWith('/') ? '' : '/'}${post.canonical_url.trim()}`)
+              : `${origin}/blog/${post.slug || articleSlug}`;
+
+            const links = document.querySelectorAll('link[rel="canonical"]');
+            let mainLink: HTMLLinkElement;
+            if (links.length > 0) {
+              mainLink = links[0] as HTMLLinkElement;
+              for (let i = 1; i < links.length; i++) links[i].remove();
+            } else {
+              mainLink = document.createElement('link');
+              mainLink.setAttribute('rel', 'canonical');
+              document.head.appendChild(mainLink);
+            }
+            mainLink.setAttribute('href', resolvedCanonical);
+
+            updateOrCreateMeta("og:url", resolvedCanonical, true);
+
+            if (post.meta_title || post.title) {
+              document.title = post.meta_title ? post.meta_title : `${post.title} | ${post.category.toUpperCase()} News - The Sports Room`;
+              updateOrCreateMeta("og:title", document.title, true);
+              updateOrCreateMeta("twitter:title", document.title);
+            }
+            if (post.meta_description || post.content) {
+              const desc = post.meta_description || post.content.replace(/[#*`]/g, '').slice(0, 160) + "...";
+              updateOrCreateMeta("description", desc);
+              updateOrCreateMeta("og:description", desc, true);
+              updateOrCreateMeta("twitter:description", desc);
+            }
+          }
+        });
       }
     } else if (currentPath === '/sports-atlas' || currentPath === '/glossary') {
       title = "Sports Science Glossary & Atlas - The Sports Room";
@@ -1086,9 +1132,15 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
     updateOrCreateMeta("keywords", keywords);
     updateOrCreateMeta("robots", "index, follow");
 
-    // Canonical link tag
-    let canonicalLink = document.querySelector('link[rel="canonical"]');
-    if (!canonicalLink) {
+    // Canonical link tag - strictly ensure only one tag exists in document.head
+    const existingCanonicalLinks = document.querySelectorAll('link[rel="canonical"]');
+    let canonicalLink: HTMLLinkElement;
+    if (existingCanonicalLinks.length > 0) {
+      canonicalLink = existingCanonicalLinks[0] as HTMLLinkElement;
+      for (let i = 1; i < existingCanonicalLinks.length; i++) {
+        existingCanonicalLinks[i].remove();
+      }
+    } else {
       canonicalLink = document.createElement('link');
       canonicalLink.setAttribute('rel', 'canonical');
       document.head.appendChild(canonicalLink);
@@ -1122,6 +1174,29 @@ export default function SEOMetaTags({ currentPath }: SEOMetaTagsProps) {
       document.head.appendChild(scriptTag);
     }
 
+    // Sync listener: When posts are published, edited, or synced, update canonical & SEO immediately
+    const handleDbSync = () => {
+      if (currentPath.startsWith('/blog/')) {
+        const slug = currentPath.replace('/blog/', '');
+        const post = DB.getPostBySlug(slug);
+        if (post) {
+          const syncCanonical = (post.canonical_url && typeof post.canonical_url === 'string' && post.canonical_url.trim().length > 0)
+            ? (post.canonical_url.trim().startsWith('http') ? post.canonical_url.trim() : `${origin}${post.canonical_url.trim().startsWith('/') ? '' : '/'}${post.canonical_url.trim()}`)
+            : `${origin}/blog/${post.slug || slug}`;
+          
+          const links = document.querySelectorAll('link[rel="canonical"]');
+          if (links.length > 0) {
+            (links[0] as HTMLLinkElement).setAttribute('href', syncCanonical);
+            for (let i = 1; i < links.length; i++) links[i].remove();
+          }
+          updateOrCreateMeta("og:url", syncCanonical, true);
+        }
+      }
+    };
+    window.addEventListener('fts_db_sync', handleDbSync);
+    return () => {
+      window.removeEventListener('fts_db_sync', handleDbSync);
+    };
   }, [currentPath]);
 
   return null; // pure side-effect metadata injection

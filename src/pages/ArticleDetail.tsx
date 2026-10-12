@@ -115,6 +115,33 @@ export default function ArticleDetail({ slug, onNavigate }: ArticleDetailProps) 
           metaDesc.setAttribute('content', activePost.meta_description || `Detail analysis on ${activePost.title}. Dissecting raw sports biometrics, physical speed, tactical mechanics, and strategies.`);
         }
 
+        // Enforce the saved article canonical URL or article-specific fallback (strictly never homepage)
+        const postCanonical = (activePost.canonical_url && typeof activePost.canonical_url === 'string' && activePost.canonical_url.trim().length > 0)
+          ? (activePost.canonical_url.trim().startsWith('http') ? activePost.canonical_url.trim() : `https://thesportsroom.online${activePost.canonical_url.trim().startsWith('/') ? '' : '/'}${activePost.canonical_url.trim()}`)
+          : `https://thesportsroom.online/blog/${activePost.slug || slug}`;
+
+        const existingCanonicalLinks = document.querySelectorAll('link[rel="canonical"]');
+        let canonicalEl: HTMLLinkElement;
+        if (existingCanonicalLinks.length > 0) {
+          canonicalEl = existingCanonicalLinks[0] as HTMLLinkElement;
+          for (let i = 1; i < existingCanonicalLinks.length; i++) {
+            existingCanonicalLinks[i].remove();
+          }
+        } else {
+          canonicalEl = document.createElement('link');
+          canonicalEl.setAttribute('rel', 'canonical');
+          document.head.appendChild(canonicalEl);
+        }
+        canonicalEl.setAttribute('href', postCanonical);
+
+        let ogUrlEl = document.querySelector('meta[property="og:url"]');
+        if (!ogUrlEl) {
+          ogUrlEl = document.createElement('meta');
+          ogUrlEl.setAttribute('property', 'og:url');
+          document.head.appendChild(ogUrlEl);
+        }
+        ogUrlEl.setAttribute('content', postCanonical);
+
         // Increment views
         DB.incrementViews(activePost.id);
 
