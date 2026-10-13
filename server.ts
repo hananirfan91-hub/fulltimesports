@@ -61,7 +61,8 @@ async function getSitemapXML(host: string): Promise<string> {
     { loc: `${baseUrl}/terms`, changefreq: "monthly", priority: "0.3", lastmod: todayIso },
     { loc: `${baseUrl}/disclaimer`, changefreq: "monthly", priority: "0.3", lastmod: todayIso },
     { loc: `${baseUrl}/google-policies`, changefreq: "daily", priority: "0.7", lastmod: todayIso },
-    { loc: `${baseUrl}/sports-atlas`, changefreq: "weekly", priority: "0.6", lastmod: todayIso }
+    { loc: `${baseUrl}/sports-atlas`, changefreq: "weekly", priority: "0.6", lastmod: todayIso },
+    { loc: `${baseUrl}/glossary`, changefreq: "weekly", priority: "0.7", lastmod: todayIso }
   ];
 
   // Dynamic category paths
@@ -654,6 +655,27 @@ app.get("/api/cricket/matches", async (req, res) => {
 
 // Configure Vite dynamic middleware for Hot Rebuilding development or static production serving
 async function configureApp() {
+  const distPath = path.join(process.cwd(), "dist");
+  const publicPath = path.join(process.cwd(), "public");
+
+  // Always serve pre-built hashed assets and static files with high performance caching
+  app.use("/assets", express.static(path.join(distPath, "assets"), {
+    maxAge: "1y",
+    immutable: true
+  }));
+  app.use(express.static(distPath, {
+    index: false,
+    maxAge: "7d",
+    setHeaders: (res, filePath) => {
+      if (filePath.includes("/assets/")) {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      } else if (/\.(jpg|jpeg|png|webp|avif|svg|ico)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=86400");
+      }
+    }
+  }));
+  app.use(express.static(publicPath, { index: false }));
+
   if (process.env.NODE_ENV !== "production") {
     console.log("[FTS] Mounting Vite dynamic middleware for active dev reload...");
     const vite = await createViteServer({

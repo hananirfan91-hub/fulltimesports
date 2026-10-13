@@ -1,63 +1,37 @@
+import type { IncomingMessage, ServerResponse } from "http";
 import fs from "fs";
 import path from "path";
 import { renderSSRPage } from "../src/server/ssrRenderer.ts";
 
-let cachedTemplate: string | null = null;
-
-function getHtmlTemplate(): string {
-  if (cachedTemplate) return cachedTemplate;
-  const possiblePaths = [
-    path.join(process.cwd(), "dist", "index.html"),
-    path.join(process.cwd(), "index.html"),
-    path.resolve(__dirname, "../dist/index.html"),
-    path.resolve(__dirname, "../index.html")
-  ];
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p)) {
-      try {
-        cachedTemplate = fs.readFileSync(p, "utf8");
-        return cachedTemplate;
-      } catch (e) {
-        console.warn(`[Vercel SSR] Failed reading template from ${p}:`, e);
-      }
-    }
-  }
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Sports Room</title>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
-</html>`;
-}
-
-export default async function handler(req: any, res: any) {
-  const url = req.url || "/";
-
-  // Let static asset requests pass or return 404 if extension detected
-  if (url.includes(".") && !url.endsWith(".html")) {
-    res.statusCode = 404;
-    res.end("Not found");
-    return;
-  }
-
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
   try {
-    const host = req.headers["x-forwarded-host"] || req.headers["host"] || "thesportsroom.online";
-    const template = getHtmlTemplate();
-    const renderedHtml = await renderSSRPage(url, template, String(host));
+    const url = req.url || "/";
+    const host = (req.headers["x-forwarded-host"] as string) || (req.headers.host as string) || "thesportsroom.online";
 
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.setHeader("Cache-Control", "public, max-age=60, s-maxage=120, stale-while-revalidate=300");
+    const distIndexPath = path.join(process.cwd(), "dist", "index.html");
+    const rootIndexPath = path.join(process.cwd(), "index.html");
+
+    let rawHtml = "";
+    if (fs.existsSync(distIndexPath)) {
+      rawHtml = fs.readFileSync(distIndexPath, "utf8");
+    } else if (fs.existsSync(rootIndexPath)) {
+      rawHtml = fs.readFileSync(rootIndexPath, "utf8");
+    } else {
+      res.statusCode = 404;
+      res.end("Application build index missing");
+      return;
+    }
+
+    const renderedHtml = await renderSSRPage(url, rawHtml, host);
+
     res.statusCode = 200;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=60, s-maxage=120");
     res.end(renderedHtml);
-  } catch (error: any) {
-    console.error("[Vercel SSR Handler Error]:", error);
+  } catch (error) {
+    console.error("[SSR Handler Error]", error);
+    res.statusCode = 500;
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.statusCode = 200;
-    res.end(getHtmlTemplate());
+    res.end("<h1>500 Internal Server Error</h1>");
   }
 }
