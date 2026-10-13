@@ -49,8 +49,8 @@ export default function LiveStream() {
 
   // Calculate overlay configuration from active stream database fields
   const overlayConfig: StreamLogoOverlayConfig = {
-    enabled: Boolean(activeStream?.logo_type !== "none" && activeStream?.custom_logo_url),
-    logoUrl: activeStream?.custom_logo_url?.trim() || "",
+    enabled: activeStream?.logo_type !== "none",
+    logoUrl: activeStream?.custom_logo_url?.trim() || "/logo.png",
     linkUrl: activeStream?.logo_link?.trim() || "https://thesportsroom.online",
     position: (activeStream?.logo_position as any) || "top-right",
     size: (activeStream?.logo_size as any) || "medium"
@@ -62,13 +62,15 @@ export default function LiveStream() {
         title={activeStream?.title ? `${activeStream.title} - Live Stream | The Sports Room` : "Live Sports Streaming | The Sports Room"}
         description={activeStream?.description || "Watch verified live sports streams, telemetry, and live match updates on The Sports Room."}
         canonicalUrl={canonicalUrl}
+        ogImage="/logo.png"
       />
 
       {/* Top Navbar with TSR Logo */}
       <header className="border-b border-slate-800 bg-[#022c22]/70 backdrop-blur sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-extrabold tracking-tight text-white">
+          <Link to="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="The Sports Room Logo" className="h-10 w-auto object-contain rounded-lg shadow-md" />
+            <span className="text-xl font-extrabold tracking-tight text-white hidden sm:inline">
               THE SPORTS <span className="text-[#22c55e]">ROOM</span>
             </span>
           </Link>
@@ -136,8 +138,13 @@ export default function LiveStream() {
                 href={overlayConfig.linkUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 hover:border-[#22c55e] transition-all group shrink-0"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 hover:border-[#22c55e] transition-all group shrink-0"
               >
+                <img
+                  src={overlayConfig.logoUrl || "/logo.png"}
+                  alt="Official Broadcaster"
+                  className="h-9 w-auto object-contain rounded"
+                />
                 <div>
                   <div className="text-xs font-bold text-white group-hover:text-[#22c55e] transition-colors">
                     Official Broadcaster
@@ -185,7 +192,10 @@ export default function LiveStream() {
       {/* Footer */}
       <footer className="border-t border-slate-800/80 bg-[#022c22]/30 py-8 text-center text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© {new Date().getFullYear()} The Sports Room. All rights reserved.</p>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="The Sports Room Logo" className="h-8 w-auto object-contain rounded-lg" />
+            <p>© {new Date().getFullYear()} The Sports Room. All rights reserved.</p>
+          </div>
           <div className="flex gap-4">
             <Link to="/about" className="hover:text-white">About</Link>
             <Link to="/contact" className="hover:text-white">Contact</Link>

@@ -69,8 +69,9 @@ export default function ArticleDetail() {
 
       <header className="mb-8">
         <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-lg font-bold text-white">THE SPORTS <span className="text-[#22c55e]">ROOM</span></span>
+          <Link to="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="The Sports Room Logo" className="h-9 w-auto object-contain rounded-lg" />
+            <span className="text-lg font-bold text-white hidden sm:inline">THE SPORTS <span className="text-[#22c55e]">ROOM</span></span>
           </Link>
           <Link to="/" className="text-xs font-semibold text-[#22c55e] hover:underline">
             ← Back to All Articles

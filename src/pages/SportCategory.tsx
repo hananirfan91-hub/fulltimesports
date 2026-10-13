@@ -69,8 +69,9 @@ export default function SportCategory() {
       {/* Navigation Header */}
       <header className="border-b border-slate-800 bg-[#022c22]/60 backdrop-blur sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-extrabold tracking-tight text-white">
+          <Link to="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="The Sports Room Logo" className="h-10 w-auto object-contain rounded-lg shadow-md" />
+            <span className="text-xl font-extrabold tracking-tight text-white hidden sm:inline">
               THE SPORTS <span className="text-[#22c55e]">ROOM</span>
             </span>
           </Link>
@@ -157,7 +158,10 @@ export default function SportCategory() {
       {/* Footer */}
       <footer className="border-t border-slate-800/80 bg-[#022c22]/30 py-8 text-center text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>© {new Date().getFullYear()} The Sports Room. All rights reserved.</p>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="The Sports Room Logo" className="h-8 w-auto object-contain rounded-lg" />
+            <p>© {new Date().getFullYear()} The Sports Room. All rights reserved.</p>
+          </div>
           <div className="flex gap-4">
             <Link to="/about" className="hover:text-white">About</Link>
             <Link to="/contact" className="hover:text-white">Contact</Link>

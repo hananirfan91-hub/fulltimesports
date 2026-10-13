@@ -15,8 +15,8 @@ interface StreamEmbedProps {
 }
 
 export default function StreamEmbed({ embedUrl, title = "Live Stream", overlayConfig }: StreamEmbedProps) {
-  const isOverlayActive = Boolean(overlayConfig?.enabled && overlayConfig?.logoUrl);
-  const logoImage = overlayConfig?.logoUrl || "";
+  const isOverlayActive = overlayConfig?.enabled !== false;
+  const logoImage = overlayConfig?.logoUrl || "/logo.png";
   const targetLink = overlayConfig?.linkUrl || "https://thesportsroom.online";
   const position = overlayConfig?.position || "top-right";
   const size = overlayConfig?.size || "medium";
