@@ -1,0 +1,20 @@
+{
+  "short_name": "The Sports Room",
+  "name": "The Sports Room - Live Cricket Scores & Global Sports Journalism",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#01140f",
+  "theme_color": "#01140f",
+  "display": "standalone"
+}
