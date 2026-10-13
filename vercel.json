@@ -2,12 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/assets/(.*)",
-      "destination": "/assets/$1"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/api/ssr.ts"
+      "destination": "/index.html"
     }
   ]
 }
